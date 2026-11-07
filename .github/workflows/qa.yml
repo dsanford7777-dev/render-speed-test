@@ -69,4 +69,6 @@ jobs:
           git add -A && git commit -qm "Framing check ${{ github.sha }}"
           git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" qa
       - if: steps.r.outputs.code != '0'
-        run: { echo "Framing check found problems: see qa.md on the qa branch"; exit 1; }
+        run: |
+          echo "Framing check found problems: see qa.md on the qa branch"
+          exit 1
