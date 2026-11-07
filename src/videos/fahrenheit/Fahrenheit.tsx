@@ -44,7 +44,8 @@ const useKit = () => {
   return kit;
 };
 
-const Inner: React.FC<{ id: number; kit: Kit }> = ({ id, kit }) => {
+const QA = !!(getInputProps() as { qa?: boolean }).qa;
+const Inner: React.FC<{ id: number; kit: Kit; alpha: number }> = ({ id, kit, alpha }) => {
   const f = useCurrentFrame();
   const { camera, scene } = useThree();
   const world = useMemo(() => new FWorld(kit), [kit]);
@@ -70,6 +71,8 @@ const Inner: React.FC<{ id: number; kit: Kit }> = ({ id, kit }) => {
   const cam = camera as THREE.PerspectiveCamera;
   target.copy(world.update(id, f, cam, scene));
   noInkFallback(world.root);
+  // framing check mode (scripts/qa.mjs): report what's wrong with this frame; cross-fades are judged on the shot underneath
+  if (QA && alpha > 0.99) console.log(`QA|${f}|${id}|${JSON.stringify(world.qa(id, f, cam))}`);
   cam.getWorldDirection(fwd);
   fx.lens.focus = Math.max(0.3, fpt.copy(target).sub(cam.position).dot(fwd));
   fx.lens.cInf = DOF[id] ?? 0;
@@ -82,7 +85,7 @@ const ShotView: React.FC<{ id: number; kit: Kit; alpha: number }> = ({ id, kit, 
   <AbsoluteFill style={{ opacity: alpha }}>
     <ThreeCanvas width={1080} height={1920} shadows gl={{ antialias: false, stencil: false, powerPreference: "high-performance", toneMappingExposure: 1.0 }}
       camera={{ fov: 40, near: 0.05, far: 1500 }}>
-      <Inner id={id} kit={kit} />
+      <Inner id={id} kit={kit} alpha={alpha} />
     </ThreeCanvas>
   </AbsoluteFill>
 );

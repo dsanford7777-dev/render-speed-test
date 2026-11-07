@@ -70,6 +70,8 @@ export class FWorld {
   private sunCache = new Map<number, THREE.Vector3>();
   private clouds: THREE.Mesh[] = []; private cloudMaps: Record<Light, THREE.Texture[]>;
   private shop: Shop; private ship: THREE.Group; private banner: THREE.Mesh;
+  private lastPeople: { name: string; p: V3 }[] = [];
+  private ray = new THREE.Raycaster();
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private sph = new THREE.Sphere(); private v = new THREE.Vector3();
 
   constructor(kit: Kit) {
@@ -221,10 +223,12 @@ export class FWorld {
       sh.hero.setValue(f < f32 ? 0 : f < f96 ? 32 * smooth((f - f32) / 15) : 32 + 64 * smooth((f - f96) / 15));
     } else { sh.hero.setLabels(["0", "32", "96"]); sh.hero.setValue(64); }
     // late board (shot 12): column races to 212; 96 rolls to 98.6
-    const f212 = wordAt(11, "212"), f986 = wordAt(11, "98.6");
+    const f212 = wordAt(11, "212"), f986 = wordAt(11, "98.6"), fNorm = wordAt(11, "normal"), f96b = wordAt(11, "96");
     if (id === 12) {
-      sh.late.setLabels(f >= f986 ? ["32", "98.6", "212"] : ["32", "96", "212"], f >= f986 && f < f986 + 30 ? "98.6" : f >= f212 && f < f212 + 30 ? "212" : "");
-      sh.late.setValue(f < f212 - 20 ? 70 : 70 + 142 * smooth((f - (f212 - 20)) / 22));
+      sh.late.setLabels(f >= f986 ? ["32", "98.6", "212"] : ["32", "96", "212"], f >= f986 ? "98.6" : f >= f96b ? "96" : f >= f212 && f < f212 + 30 ? "212" : "");
+      sh.late.setValue(f < fNorm - 6
+        ? (f < f212 - 20 ? 70 : 70 + 142 * smooth((f - (f212 - 20)) / 22))
+        : f < f986 - 4 ? 212 - 116 * smooth((f - (fNorm - 6)) / 20) : 96 + 2.6 * smooth((f - (f986 - 4)) / 14));
     } else { sh.late.setLabels(["32", "96", "212"]); sh.late.setValue(70); }
     // paper: the 32..96 line halved once more on each beat between "cutting" and "No"
     const fc0 = wordAt(8, "cutting"), fNo = wordAt(8, "No");
@@ -233,9 +237,11 @@ export class FWorld {
     // salt into the bucket (shot 4)
     const fSalt = wordAt(3, "salt") - 10;
     sh.salt.visible = id === 4 && f >= fSalt;
+    sh.scoop.visible = id === 4;
     sh.salt.children.forEach((g, i) => {
-      const u = ((f - fSalt) / 18 + (i * 0.618) % 1) % 1, k = Math.sin(i * 12.9898) * 43758.5453, r = k - Math.floor(k);
-      g.position.set(S(-1.4, 0, -0.2)[0] + (r - 0.5) * 0.12, D0 + 0.95 - u * 0.5, S(0, 0, -0.2)[2] + ((r * 7) % 1 - 0.5) * 0.12);
+      const u = ((f - fSalt) / 14 + (i * 0.618) % 1) % 1, k = Math.sin(i * 12.9898) * 43758.5453, r = k - Math.floor(k);
+      g.scale.setScalar(0.55);
+      g.position.set(S(-1.4, 0, 0)[0] + (r - 0.5) * 0.03, D0 + 0.9 - u * 0.42, S(0, 0, -0.3)[2] + u * 0.06 + ((r * 7) % 1 - 0.5) * 0.03);
     });
     // kettle steam handled with the fx below; ship sails, banner flutters
     this.ship.visible = id === 10;
@@ -253,11 +259,12 @@ export class FWorld {
     const L_ = (seg: number, w: string) => wordAt(seg, w);
     switch (id) {
       case 1: people.push({ w: H_, p: S(-0.4, 0, -0.05), pose: { expr: f > L_(0, "armpit") - 4 ? "nervous" : "smile", look: f > L_(0, "armpit") ? -1 : 0, blink: blink(5) } }); break;
-      case 2: [0, 1, 2].forEach((k) => people.push({ w: who(FOLK1724[k], 10 + k, `f24_${k}`), p: [(k - 1) * 2.4, D0, 58 + k * 5 - (k === 1 ? 1 : 0) * 0.8 * t], pose: { expr: "smile_closed", blink: blink(k) } })); break;
+      // townsfolk well down the street, past the sign, so the camera's glide to the sign never runs into them
+      case 2: [0, 1, 2].forEach((k) => people.push({ w: who(FOLK1724[k], 10 + k, `f24_${k}`), p: [(k - 1) * 2.4, D0, 82 + k * 5 - (k === 1 ? 1 : 0) * 0.8 * (t - SHOTS[1].a / FPS)], pose: { expr: "smile_closed", blink: blink(k) } })); break;
       case 3: people.push({ w: F_, p: S(-0.55, 0, 2.05), pose: { expr: f > L_(2, "So") ? "neutral" : "stern", blink: blink(3), look: f > L_(2, "So") ? 0 : -1 } }); break;
-      case 4: people.push({ w: F_, p: S(-2.05, 0, 0.35), pose: { expr: f > L_(3, "salt") ? "grin" : "smile", blink: blink(3), facing: 1 } }); break;
-      case 6: people.push({ w: H_, p: S(1.9, 0, -0.75), pose: { expr: f > L_(5, "healthy") ? "smile" : "neutral", blink: blink(5) } }); break;
-      case 7: people.push({ w: F_, p: S(0.05, 0, 1.95), pose: { expr: f > f96 ? "grin" : "smile", blink: blink(3), look: f > f32 ? 1 : 0 } }); break;
+      case 4: people.push({ w: F_, p: S(-2.45, 0, 0.35), pose: { expr: f > L_(3, "salt") ? "grin" : "smile", blink: blink(3), facing: 1 } }); break;
+      case 6: people.push({ w: H_, p: S(1.95, 0, -0.75), pose: { expr: f > L_(5, "healthy") ? "smile" : "neutral", blink: blink(5) } }); break;
+      case 7: people.push({ w: F_, p: S(-0.15, 0, 1.95), pose: { expr: f > f96 ? "grin" : "smile", blink: blink(3), look: f > f32 ? 1 : 0 } }); break;
       case 8: people.push({ w: F_, p: S(0, 0, -0.4), pose: { expr: "smile_closed", headTilt: 0.14 * smooth((f - s.a) / 10), blink: blink(3) } }); break;
       case 9: people.push({ w: F_, p: S(-0.15, 0, 1.95), pose: { expr: f > L_(8, "64") ? "grin" : "smile", blink: blink(3), look: 1 } }); break;
       case 11: SEVENTIES.forEach((o, k) => {
@@ -274,9 +281,11 @@ export class FWorld {
     sh.armRod.visible = !!helper && (id === 1 || (id === 6 && f > L_(5, "thermometer") - 6) || id === 13);
     if (helper && sh.armRod.visible) {
       const toCam = cam.position.clone().sub(V(...helper.p)).setY(0).normalize();
-      sh.armRod.position.set(...helper.p).addScaledVector(right, -0.2).add(V(0, 1.27, 0)).addScaledVector(toCam, 0.12);
-      sh.armRod.quaternion.copy(cam.quaternion); sh.armRod.rotateZ(2.35);
+      // tucked under the arm: bulb in the armpit just behind the card (the arm hides it), the rod pokes up past the shoulder
+      sh.armRod.position.set(...helper.p).addScaledVector(right, -0.17).add(V(0, 1.06, 0)).addScaledVector(toCam, -0.03);
+      sh.armRod.quaternion.copy(cam.quaternion); sh.armRod.rotateZ(0.5);
     }
+    this.lastPeople = people.map((q) => ({ name: q.w === F_ ? "Fahrenheit" : q.w === H_ ? "helper" : q.w.key, p: q.p }));
     let ai = 0;
     for (const q of people) {
       if (!this.frustum.intersectsSphere(this.sph.set(this.v.set(q.p[0], q.p[1] + 1.1, q.p[2]), 3.5))) continue;
@@ -302,7 +311,7 @@ export class FWorld {
     const cc = night ? "#5d6aa8" : "#8a8ab0";
     for (const q of people) fxl.push({ key: `blob|contact|${cc}`, cw: 128, ch: 128, draw: (p) => fxContact(p, cc), pos: [q.p[0], q.p[1] + 0.022, q.p[2]], w: 0.55, h: 0.42, flat: true });
     if (id === 12) for (let k = 0; k < 6; k++) {
-      const u = ((t * 0.55 + k / 6) % 1), sz = 0.12 + u * 0.4, kp = S(1.85 + 0.25, 1.62 + 0.27, 2.35);
+      const u = ((t * 0.55 + k / 6) % 1), sz = 0.12 + u * 0.4, sp = spout(sh.kettle, this.v), kp: V3 = [sp.x - 0.25, sp.y, sp.z];
       fxl.push({ key: `steam${k % 3}`, cw: 256, ch: 256, draw: (p) => steam(p, k % 3), pos: [kp[0] + 0.25 + u * 0.25, kp[1] + u * 0.7, kp[2] - 0.05], w: sz, h: sz, soft: true });
     }
     let fi = 0;
@@ -320,8 +329,63 @@ export class FWorld {
     for (const e of this.fxs) if (e.mesh.visible) e.bind();
     return focus;
   }
+  /** what must be clearly in shot, and when: [name, world point, radius, from frame, to frame] */
+  private subjects(id: number): [string, THREE.Vector3, number, number, number][] {
+    const s = SHOTS[id - 1], sh = this.shop, w = (seg: number, x: string) => wordAt(seg, x), all = (n: string, p: THREE.Vector3, r: number): [string, THREE.Vector3, number, number, number] => [n, p, r, s.a, s.b];
+    const pt = (o: THREE.Object3D, x = 0, y = 0, z = 0) => { o.updateWorldMatrix(true, false); return o.localToWorld(new THREE.Vector3(x, y, z)); };
+    switch (id) {
+      case 1: return [all("bucket", V(...S(-1.4, 0.35, -0.2)), 0.25)];
+      case 2: return [["shop sign", V(...SIGN), 0.4, w(1, "Daniel") + 15, s.b]];
+      case 4: return [all("bucket", V(...S(-1.4, 0.4, -0.2)), 0.25)];
+      case 5: return [["0 mark", sh.hero.labelPos(0), 0.04, w(4, "zero"), s.b]];
+      case 6: return [["barrel", V(...S(2.7, 0.8, -0.1)), 0.3, s.a, w(5, "Third")]];
+      case 7: return [["32 mark", sh.hero.labelPos(32), 0.04, w(6, "32"), w(6, "body")], ["96 mark", sh.hero.labelPos(96), 0.04, w(6, "96"), s.b]];
+      case 9: return [["paper", pt(sh.paper), 0.2, w(8, "From") + 15, w(8, "No")], ["96 mark", sh.hero.labelPos(96), 0.04, w(8, "His") + 15, s.b]];
+      case 10: return [all("ship", V(shipX((s.a + s.b) / 2), 5, SHIP_Z), 3)];
+      case 11: return [all("GO METRIC banner", V(...BANNER), 1.5)];
+      case 12: return [["kettle", pt(sh.kettle, 0, 0.15, 0), 0.25, s.a, w(11, "normal")], ["212 mark", sh.late.labelPos(212), 0.05, w(11, "212"), w(11, "normal")], ["98.6 mark", sh.late.labelPos(98.6), 0.05, w(11, "98.6"), s.b]];
+      default: return [];
+    }
+  }
+  /** framing checks for this frame (call right after update). Pure measurement, no drawing. */
+  qa(id: number, f: number, cam: THREE.PerspectiveCamera): string[] {
+    const out: string[] = [], right = V(0, 0, 0).setFromMatrixColumn(cam.matrixWorld, 0), p = new THREE.Vector3();
+    // fraction of a camera-facing box that is inside the frame (x, y in NDC); -1 when part of it is behind the lens
+    const box = (c: V3, x0: number, x1: number, y0: number, y1: number) => {
+      let a = 9, b = -9, cc = 9, d = -9;
+      for (const [dx, dy] of [[x0, y0], [x1, y0], [x0, y1], [x1, y1]]) {
+        p.set(c[0], c[1] + dy, c[2]).addScaledVector(right, dx);
+        if (p.clone().sub(cam.position).dot(cam.getWorldDirection(this.v)) < 0.15) return { frac: -1, h: 9 };
+        p.project(cam); a = Math.min(a, p.x); b = Math.max(b, p.x); cc = Math.min(cc, p.y); d = Math.max(d, p.y);
+      }
+      const ix = Math.max(0, Math.min(b, 1) - Math.max(a, -1)), iy = Math.max(0, Math.min(d, 1) - Math.max(cc, -1));
+      return { frac: (ix * iy) / Math.max(1e-6, (b - a) * (d - cc)), h: d - cc };
+    };
+    for (const q of this.lastPeople) {
+      const head = box(q.p, -0.27, 0.27, 1.16, 1.84), body = box(q.p, -0.3, 0.3, 0.05, 1.16);
+      if (head.frac < 0 && body.frac !== 0) out.push(`${q.name}: too close to the camera`);
+      else if (head.frac > 0.02 && head.frac < 0.97) out.push(`${q.name}: head cut off by the frame edge (${Math.round(head.frac * 100)}% in shot)`);
+      else if (head.frac <= 0.02 && body.frac > 0.12) out.push(`${q.name}: body in shot without the head`);
+      if (head.h > 1.45) out.push(`${q.name}: face fills the screen`);
+    }
+    for (const [name, at, r, a, b] of this.subjects(id)) {
+      if (f < a || f > b) continue;
+      p.copy(at).project(cam);
+      if (p.z > 1 || Math.abs(p.x) > 0.9 || Math.abs(p.y) > 0.9) { out.push(`${name}: not in shot`); continue; }
+      const dir = at.clone().sub(cam.position), dist = dir.length();
+      this.ray.set(cam.position, dir.normalize()); this.ray.far = dist; this.ray.layers.set(0);
+      const hit = this.ray.intersectObject(this.root, true).find((h) => {
+        const m = h.object as THREE.Mesh, mat = m.material as THREE.Material;
+        let o: THREE.Object3D | null = m; while (o) { if (!o.visible) return false; o = o.parent; }
+        return !(Array.isArray(mat) ? false : mat.transparent || (mat as THREE.Material & { alphaTest?: number }).alphaTest > 0) && h.object !== this.sky;
+      });
+      if (hit && hit.distance < dist - r) out.push(`${name}: hidden behind something ${(dist - hit.distance).toFixed(2)} m in front of it`);
+    }
+    return out;
+  }
 }
 
+const spout = (k: THREE.Object3D, out: THREE.Vector3) => { k.updateWorldMatrix(true, false); return k.localToWorld(out.set(0.33, 0.32, 0)); };
 const steam = (p: Pen, v: number) => {
   for (const [x, y, r] of [[[110, 140, 60], [150, 110, 54], [140, 160, 48]], [[120, 120, 64], [160, 150, 50], [100, 160, 44]], [[128, 128, 70], [90, 120, 40], [170, 130, 42]]][v]) p.ell(x, y, r, r * 0.85, "#eef1f8", 0);
 };

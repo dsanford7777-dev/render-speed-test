@@ -72,20 +72,21 @@ const keys = (): Record<number, Key[]> => {
   c[5] = [{ f: A(5), s: (f) => push(S(0.58, 1.12, 0.0), S(0.62, 1.06, 1.03), f, A(5), 0.0035, { fov: 38 }) }];
   // 6 barrel (32) -> the man (96) on "Third"
   c[6] = [
-    { f: A(6), s: (f) => push(S(1.6, 1.25, -3.0), S(2.6, 0.8, -0.1), f, A(6), 0.0025, { fov: 42 }) },
-    { f: on(5, "Third", 30), dur: 30, s: (f) => push(S(1.85, 1.5, -3.4), S(1.9, 1.38, -0.75), f, on(5, "Third", 30), 0.0025, { fov: 40 }) },
+    { f: A(6), s: (f) => push(S(2.25, 1.4, -4.4), S(2.3, 1.0, -0.4), f, A(6), 0.0015, { fov: 44 }) },
+    { f: on(5, "Third", 30), dur: 30, s: (f) => push(S(1.95, 1.5, -3.4), S(1.95, 1.38, -0.75), f, on(5, "Third", 30), 0.0025, { fov: 40 }) },
   ];
   // 7 the board between Fahrenheit's hands: 32 then 96 painted on
   c[7] = [
-    { f: A(7), s: (f) => push(S(0.25, 1.55, -1.6), S(0.4, 1.35, 1.4), f, A(7), 0.002, { fov: 42 }) },
+    { f: A(7), s: (f) => push(S(0.2, 1.55, -1.6), S(0.3, 1.35, 1.4), f, A(7), 0.002, { fov: 42 }) },
     { f: on(6, "Ice", 24), dur: 24, s: (f) => push(S(0.62, 1.42, 0.2), S(0.64, 1.38, 1.03), f, on(6, "Ice", 24), 0.002, { fov: 38 }) },
+    { f: on(6, "body", 24), dur: 24, s: (f) => push(S(0.62, 1.74, 0.2), S(0.64, 1.7, 1.03), f, on(6, "body", 24), 0.002, { fov: 38 }) },
   ];
   // 8 the shrug, straight to the lens
   c[8] = [{ f: A(8), s: (f) => push(S(0, 1.5, -3.1), S(0, 1.45, -0.4), f, A(8), 0.005, { fov: 40 }) }];
   // 9 "You see": candlelit bench -> overhead paper -> pull back -> the scale board
   c[9] = [
     { f: A(9), s: (f) => push(S(-0.4, 1.5, -0.7), S(0.0, 1.05, 1.2), f, A(9), 0.002, { fov: 42 }) },
-    { f: on(8, "From", 30), dur: 30, s: (f) => push(S(0.05, 2.95, 0.3), S(0.05, 0.925, 1.0), f, on(8, "From", 30), 0.0015, { fov: 44 }) },
+    { f: on(8, "From", 30), dur: 30, s: (f) => push(S(0.05, 2.75, 0.96), S(0.05, 0.925, 1.0), f, on(8, "From", 30), 0.0015, { fov: 44 }) },
     { f: on(8, "No", 30), dur: 30, s: (f) => push(S(-0.3, 2.4, -0.6), S(0.05, 0.93, 1.0), f, on(8, "No", 30), 0.0015, { fov: 46, roll: 0.03 }) },
     { f: on(8, "His", 30), dur: 30, s: (f) => push(S(0.56, 1.45, -0.35), S(0.64, 1.38, 1.03), f, on(8, "His", 30), 0.002, { fov: 40 }) },
   ];
@@ -98,8 +99,8 @@ const keys = (): Record<number, Key[]> => {
   ];
   // 12 kettle at the boil, the column races to 212; close in on the body mark as 96 rolls to 98.6
   c[12] = [
-    { f: A(12), s: (f) => push(S(1.3, 2.0, -0.9), S(2.15, 1.5, 2.3), f, A(12), 0.002, { fov: 46 }) },
-    { f: on(11, "normal", 28), dur: 28, s: (f) => push(S(1.6, 1.75, 1.45), S(1.58, 1.72, 2.95), f, on(11, "normal", 28), 0.002, { fov: 38 }) },
+    { f: A(12), s: (f) => push(S(2.2, 2.1, -2.2), S(2.2, 1.7, 2.3), f, A(12), 0.0015, { fov: 46 }) },
+    { f: on(11, "normal", 28), dur: 28, s: (f) => push(S(1.55, 1.62, 1.35), S(1.52, 1.55, 2.93), f, on(11, "normal", 28), 0.0015, { fov: 40 }) },
   ];
   // 13 deadpan; punch in on "The ruler did"
   c[13] = [

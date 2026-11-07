@@ -33,7 +33,7 @@ export const boardTex = (kind: "early" | "late", labels: string[], glow = "") =>
   for (const s of labels) {
     const v = parseFloat(s);
     g.lineWidth = 7; g.beginPath(); g.moveTo(120, yOf(v)); g.lineTo(236, yOf(v)); g.stroke();
-    paintText(g, s, 70, yOf(v), s.length > 3 ? 46 : 62, s === glow ? "#ffd84d" : "#ffffff");
+    paintText(g, s, 64, yOf(v), s.length > 3 ? 50 : 60, s === glow ? "#ffd84d" : "#ffffff");
   }
 });
 
@@ -41,7 +41,7 @@ export const boardTex = (kind: "early" | "late", labels: string[], glow = "") =>
 export class Thermo {
   group = new THREE.Group();
   private board: THREE.Mesh; private col: THREE.Mesh; private colH: number;
-  constructor(public kind: "early" | "late", h: number, labels: string[] = []) {
+  constructor(public kind: "early" | "late", public h: number, labels: string[] = []) {
     const w = h * 0.25, R = this.group;
     this.board = new THREE.Mesh(new THREE.BoxGeometry(w, h, h * 0.04), [
       lam("thermoWood", () => ({ map: beam() })), lam("thermoWood", () => ({ map: beam() })), lam("thermoWood", () => ({ map: beam() })),
@@ -50,7 +50,7 @@ export class Thermo {
     this.board.position.set(0, h / 2, 0);
     // the painted face is the -z side (the shop cameras look along +z). Seen from -z, texture-left is world +x, so the
     // tube (at 0.53 of the texture width, between the labels and the ticks) sits at x = +w/2 - 0.53 w
-    const tx = w * (0.5 - 0.53), r = h * 0.018, fz = -h * 0.03;
+    const tx = w * (0.5 - 0.53), r = h * 0.018, fz = -h * 0.02 - r;
     const glass = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h * 0.9, 12), new THREE.MeshBasicMaterial({ color: "#d8f1ff", transparent: true, opacity: 0.55 }));
     glass.position.set(tx, h * 0.5, fz); glass.layers.set(NOINK);
     const bulb = new THREE.Mesh(new THREE.SphereGeometry(r * 2.2, 16, 12), redMat());
@@ -62,6 +62,11 @@ export class Thermo {
     R.traverse((o) => { o.castShadow = true; o.receiveShadow = true; });
   }
   private faceMat(labels: string[], glow = "") { return lam(`boardFace_${this.kind}_${labels.join("_")}_${glow}`, () => ({ map: boardTex(this.kind, labels, glow) })); }
+  /** world point of the painted label for value v (for framing checks) */
+  labelPos(v: number) {
+    const w = this.h * 0.25, ty = 1024 - 40 - fracOf(this.kind, v) * 944;
+    return this.group.localToWorld(new THREE.Vector3(w * (0.5 - 64 / 256), this.h * (1 - ty / 1024), -this.h * 0.02));
+  }
   setLabels(labels: string[], glow = "") { (this.board.material as THREE.Material[])[5] = this.faceMat(labels, glow); }
   /** liquid top at value v on this board's scale */
   setValue(v: number) {
@@ -185,7 +190,7 @@ export const bannerTex = () => ctex("goMetric", 1024, 256, (g) => {
 // ---------------- workshop set (open-roofed room) ----------------
 export type Shop = {
   hero: Thermo; late: Thermo; bucketT: THREE.Group; bucketRod: THREE.Group; barrelRod: THREE.Group; armRod: THREE.Group;
-  salt: THREE.Group; candle: ReturnType<typeof candle>; paper: THREE.Mesh; kettle: THREE.Group; glow: THREE.Mesh; furnaceGlow: THREE.MeshBasicMaterial;
+  salt: THREE.Group; scoop: THREE.Group; candle: ReturnType<typeof candle>; paper: THREE.Mesh; kettle: THREE.Group; glow: THREE.Mesh; furnaceGlow: THREE.MeshBasicMaterial;
   night: THREE.Object3D[];
 };
 /** room centred on (cx, D0, cz): walls on -x, +x and +z, open towards -z and to the sky; beams across the top */
@@ -206,7 +211,7 @@ export const buildShop = (root: THREE.Object3D, cx: number, y0: number, cz: numb
   b.add(boxGeo(V(X0 + 0.6, y0 + 1.48, Z1 - 0.32), V(cx + 0.4, y0 + 1.54, Z1)), wood);
   b.add(boxGeo(V(X0 + 0.6, y0 + 2.18, Z1 - 0.32), V(cx + 0.4, y0 + 2.24, Z1)), wood);
   b.add(boxGeo(V(X1 - 2.0, y0, Z1 - 1.2), V(X1 - 0.2, y0 + 1.5, Z1)), brk);
-  b.add(boxGeo(V(X1 - 1.4, y0 + 1.5, Z1 - 0.8), V(X1 - 0.6, y0 + H + 1.4, Z1)), brk);
+  b.add(boxGeo(V(X1 - 1.4, y0 + 1.5, Z1 - 0.5), V(X1 - 0.6, y0 + H + 1.4, Z1)), brk);
   b.add(boxGeo(V(X1 - 2.1, y0 + 1.5, Z1 - 1.3), V(X1 - 0.1, y0 + 1.62, Z1 + 0.05)), lam("shopCope", () => ({ color: "#8f7f72" })));
   b.build(root);
   // furnace mouth: emissive (blooms by day, glows by night)
@@ -230,15 +235,22 @@ export const buildShop = (root: THREE.Object3D, cx: number, y0: number, cz: numb
   const grain = new THREE.BoxGeometry(0.018, 0.018, 0.018), sm = lam("salt", () => ({ color: "#ffffff" }));
   for (let i = 0; i < 40; i++) salt.add(new THREE.Mesh(grain, sm));
   root.add(salt);
+  // the scoop the salt pours from (tilted over the bucket)
+  const scoop = new THREE.Group();
+  const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.12, 14, 1, true), lam("scoopTin", () => ({ color: "#b9bcc6", side: THREE.DoubleSide })));
+  const salty = new THREE.Mesh(new THREE.CircleGeometry(0.065, 14).rotateX(-Math.PI / 2), lam("salt", () => ({ color: "#ffffff" }))); salty.position.y = 0.03;
+  const hdl = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.26), lam("shopBeam", () => ({ map: beam() }))); hdl.position.set(0, -0.02, -0.18);
+  scoop.add(cup, salty, hdl); scoop.rotation.x = 0.9; scoop.position.set(cx - 1.4, y0 + 0.88, cz - 0.38);
+  scoop.traverse((o) => { o.castShadow = true; }); root.add(scoop);
   // night props: candle, paper with the halving marks, warm light pool on the bench
   const cnd = candle(); cnd.g.position.set(cx - 0.55, y0 + 0.92, cz + 1.15); root.add(cnd.g);
   const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.5), lam("paper0", () => ({ map: paperTex(0) })));
   paper.rotation.set(-Math.PI / 2, 0, Math.PI); paper.position.set(cx + 0.05, y0 + 0.925, cz + 1.0); root.add(paper); // turned to read from the lens side (-z)
   const glow = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.6), new THREE.MeshBasicMaterial({ map: poolTex(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, color: new THREE.Color(1.0, 0.62, 0.28) }));
   glow.rotation.x = -Math.PI / 2; glow.position.set(cx - 0.3, y0 + 0.93, cz + 1.05); glow.layers.set(NOINK); root.add(glow);
-  const ket = kettle(); ket.position.set(X1 - 1.1, y0 + 1.62, Z1 - 0.65); root.add(ket);
+  const ket = kettle(); ket.scale.setScalar(1.35); ket.position.set(X1 - 1.15, y0 + 1.62, Z1 - 0.95); ket.rotation.y = Math.PI; root.add(ket);
   root.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh && !m.receiveShadow) { m.receiveShadow = true; } });
-  return { hero, late, bucketT, bucketRod, barrelRod, armRod, salt, candle: cnd, paper, kettle: ket, glow, furnaceGlow, night: [cnd.g, glow] };
+  return { hero, late, bucketT, bucketRod, barrelRod, armRod, salt, scoop, candle: cnd, paper, kettle: ket, glow, furnaceGlow, night: [cnd.g, glow] };
 };
 const poolTex = () => ctex("warmPool", 256, 256, (g) => {
   const gr = g.createRadialGradient(128, 128, 0, 128, 128, 128);
@@ -260,18 +272,34 @@ export const ship = () => {
   const deck = new THREE.Mesh(new THREE.BoxGeometry(12.2, 0.12, 3.0), lam("deckWood", () => ({ color: "#d9a86c" })));
   deck.position.set(0.2, 2.15, 0); g.add(deck);
   const cloth = lam("sail", () => ({ color: "#f7f1e1", side: THREE.DoubleSide }));
+  // square sails bent on yards across each mast, set nearly broadside so they read as one rig with the masts
   for (const [x, h] of [[-2, 9], [2.4, 10.5]] as const) {
     const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, h, 8), wood); mast.position.set(x, 2.2 + h / 2, 0); g.add(mast);
-    for (const [y, w, sh] of [[2.2 + h * 0.42, 4.6, 2.6], [2.2 + h * 0.78, 3.6, 2.0]] as const) {
+    for (const [y, w, sh] of [[2.2 + h * 0.45, 4.6, 2.9], [2.2 + h * 0.8, 3.6, 2.2]] as const) {
+      const rig = new THREE.Group(); rig.position.set(x, y, 0); rig.rotation.y = -0.25; g.add(rig);
+      const yard = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, w + 0.6, 6), wood); yard.rotation.z = Math.PI / 2; yard.position.y = sh / 2; rig.add(yard);
       const s = new THREE.Mesh(new THREE.PlaneGeometry(w, sh, 8, 4), cloth);
       const p = s.geometry.attributes.position as THREE.BufferAttribute;
-      for (let i = 0; i < p.count; i++) { const u = p.getX(i) / (w / 2); p.setZ(i, 0.55 * (1 - u * u)); }
-      s.geometry.computeVertexNormals();
-      s.rotation.y = Math.PI / 2 - 0.65; s.position.set(x + 0.35, y, 0); g.add(s);
+      for (let i = 0; i < p.count; i++) { const u = p.getX(i) / (w / 2), v = p.getY(i) / (sh / 2); p.setZ(i, -0.5 * (1 - u * u) * (0.6 + 0.4 * (1 - v))); }
+      s.geometry.computeVertexNormals(); s.position.z = -0.15; rig.add(s);
     }
   }
-  const pen = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.4), lam("pennant2", () => ({ color: "#c9373a", side: THREE.DoubleSide })));
-  pen.position.set(2.4 - 0.6, 2.2 + 10.5 + 0.3, 0); g.add(pen);
+  // bowsprit, and Britain's flag of 1724 (St George + St Andrew) on a stern staff
+  const bs = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.12, 4.5, 8), wood); bs.rotation.z = Math.PI / 2 + 0.35; bs.position.set(7.9, 3.0, 0); g.add(bs);
+  const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 3.0, 6), wood); staff.position.set(-5.7, 3.7, 0); g.add(staff);
+  const flag = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.4, 6, 2), lam("unionFlag1707", () => ({ map: unionTex(), side: THREE.DoubleSide })));
+  flag.position.set(-6.95, 4.5, 0); g.add(flag);
+  const pen = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.4), lam("pennant2", () => ({ color: "#c9373a", side: THREE.DoubleSide })));
+  pen.position.set(2.4 - 0.7, 2.2 + 10.5 + 0.3, 0); g.add(pen);
   g.traverse((o) => { o.castShadow = true; o.receiveShadow = true; });
   return g;
 };
+/** the 1707 Union flag (no St Patrick's saltire yet) */
+const unionTex = () => ctex("union1707", 512, 300, (g) => {
+  g.fillStyle = "#1f3f8f"; g.fillRect(0, 0, 512, 300);
+  g.lineCap = "butt"; g.strokeStyle = "#ffffff"; g.lineWidth = 58;
+  g.beginPath(); g.moveTo(0, 0); g.lineTo(512, 300); g.moveTo(512, 0); g.lineTo(0, 300); g.stroke();
+  g.fillStyle = "#ffffff"; g.fillRect(0, 108, 512, 84); g.fillRect(214, 0, 84, 300);
+  g.fillStyle = "#c9373a"; g.fillRect(0, 124, 512, 52); g.fillRect(230, 0, 52, 300);
+  g.lineWidth = 12; g.strokeStyle = INK; g.strokeRect(6, 6, 500, 288);
+});

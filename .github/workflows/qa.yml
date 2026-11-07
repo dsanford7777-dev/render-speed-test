@@ -1,0 +1,72 @@
+name: Framing check
+# Measures every 5th frame (characters cut off or too close, key props out of shot or hidden) and lays every
+# measured frame out as contact sheets for a by-eye pass. Results go to the `qa` branch (qa.md + sheet_*.jpg).
+# Runs on its own when qa.json is pushed, and as the first step of every full render, which stops if it fails.
+on:
+  push:
+    branches: [main]
+    paths: [qa.json]
+  workflow_call:
+    inputs:
+      config: { type: string, default: render.json }
+permissions:
+  contents: write
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      composition: ${{ steps.p.outputs.composition }}
+      matrix: ${{ steps.p.outputs.matrix }}
+      step: ${{ steps.p.outputs.step }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci
+      - id: p
+        run: |
+          CFG="${{ inputs.config }}"; [ -z "$CFG" ] && CFG=qa.json
+          COMP=$(jq -r .composition "$CFG"); STEP=$(jq -r '.step // 5' "$CFG")
+          npx remotion compositions src/index.ts --gl=swangle 2>&1 | tee comps.txt
+          TOTAL=$(sed 's/\x1b\[[0-9;]*m//g' comps.txt | awk -v c="$COMP" '$1==c {print $4}')
+          M=$(node -e "const T=$TOTAL,n=8,per=Math.ceil(T/n),a=[];for(let i=0;i<n;i++)a.push({i,a:i*per,b:Math.min(T-1,(i+1)*per-1)});console.log(JSON.stringify({include:a}))")
+          { echo "composition=$COMP"; echo "step=$STEP"; echo "matrix=$M"; } | tee -a $GITHUB_OUTPUT
+  measure:
+    needs: plan
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci
+      - run: |
+          set -o pipefail
+          node scripts/qa.mjs "${{ needs.plan.outputs.composition }}" ${{ matrix.a }} ${{ matrix.b }} ${{ needs.plan.outputs.step }} 0.3 out 2>&1 | grep -v -E "404|THREE.Clock" | tail -20
+      - uses: actions/upload-artifact@v4
+        with: { name: "qa-${{ matrix.i }}", path: out/, retention-days: 3 }
+  report:
+    needs: [plan, measure]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { pattern: qa-*, merge-multiple: true, path: qa }
+      - run: sudo apt-get -qq update >/dev/null && sudo apt-get -qq install -y imagemagick >/dev/null
+      - id: r
+        run: |
+          set +e
+          node scripts/qa-report.mjs qa ${{ needs.plan.outputs.step }}; echo "code=$?" >> $GITHUB_OUTPUT
+          cat qa/qa.md >> $GITHUB_STEP_SUMMARY
+      - name: Publish to the qa branch
+        if: always()
+        run: |
+          cd qa && rm -f f*_s*.jpg qa_*.json
+          echo "${{ github.sha }} ${{ needs.plan.outputs.composition }}" > commit.txt
+          git init -q -b qa && git config user.name github-actions && git config user.email actions@github.com
+          git add -A && git commit -qm "Framing check ${{ github.sha }}"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" qa
+      - if: steps.r.outputs.code != '0'
+        run: { echo "Framing check found problems: see qa.md on the qa branch"; exit 1; }

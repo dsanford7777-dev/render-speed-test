@@ -9,7 +9,12 @@ permissions:
 env:
   PAD: 2            # keep in step with PAD in src/Root.tsx
 jobs:
+  check:
+    # no full render until the framing check passes
+    uses: ./.github/workflows/qa.yml
+    with: { config: render.json }
   plan:
+    needs: check
     runs-on: ubuntu-latest
     outputs:
       composition: ${{ steps.p.outputs.composition }}
