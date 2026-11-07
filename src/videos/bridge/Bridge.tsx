@@ -6,11 +6,11 @@
 // source; the grade is display-referred, so it comes after tone mapping. Every pixel-sized parameter is specified at
 // 1080x1920 and scaled with the output size, so stills at --scale 0.5 and the 1440x2560 final match.
 // Place changes crossfade by stacking a second canvas for the fade frames; the hook ends on a 4-frame white flash.
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { AbsoluteFill, continueRender, delayRender, getInputProps, useCurrentFrame } from "remotion";
 import { ThreeCanvas } from "@remotion/three";
-import { useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { EffectComposer } from "@react-three/postprocessing";
 import { BlendFunction, BloomEffect, ToneMappingEffect, ToneMappingMode } from "postprocessing";
 import { World, loadKit } from "./world";
@@ -48,8 +48,24 @@ const useKit = () => {
 
 const Inner: React.FC<{ id: number; kit: Kit }> = ({ id, kit }) => {
   const f = useCurrentFrame();
-  const { camera, scene } = useThree();
+  const { camera, scene, advance } = useThree();
   const world = useMemo(() => new World(kit), [kit]);
+  // Warm-up (render-farm fix): the first frame a tab renders came out blank because <ThreeCanvas> advanced before
+  // the world and post chain were mounted. Hold the render until R3F has drawn this canvas twice.
+  const drawn = useRef(0);
+  const [warm] = useState(() => delayRender("bridge warm-up"));
+  useFrame(() => { drawn.current++; }, 10);
+  useEffect(() => {
+    let alive = true;
+    const tick = () => {
+      if (!alive) return;
+      if (drawn.current >= 2) { continueRender(warm); return; }
+      advance(performance.now());
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    return () => { alive = false; };
+  }, [advance, warm]);
   const target = useMemo(() => new THREE.Vector3(), []);
   const on = useMemo(toggles, []);
   const fx = useMemo(() => ({
