@@ -1,0 +1,37 @@
+name: Render speed test
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Machine info
+        run: |
+          echo "## Machine" >> $GITHUB_STEP_SUMMARY
+          echo "- CPUs: $(nproc)" >> $GITHUB_STEP_SUMMARY
+          echo "- RAM: $(free -g | awk '/Mem:/{print $2}') GB" >> $GITHUB_STEP_SUMMARY
+      - name: Render 60 frames (2 s) at final 2K size
+        run: |
+          START=$(date +%s)
+          npx remotion render src/index.ts BridgeShort out/test.mp4 --frames=600-659 --scale=1.3333 --codec=h264 --crf=16 --gl=swangle --timeout=600000 --log=verbose 2>&1 | tail -40
+          END=$(date +%s)
+          SECS=$((END-START))
+          echo "## Result" >> $GITHUB_STEP_SUMMARY
+          echo "- 60 frames took **${SECS} s** (includes ~1 min bundling)" >> $GITHUB_STEP_SUMMARY
+          echo "- Estimated full 67 s short (2,010 frames): **~$((SECS*2010/60/60)) min**" >> $GITHUB_STEP_SUMMARY
+      - name: Still frame for a look check
+        if: always()
+        run: npx remotion still src/index.ts BridgeShort out/still_600.png --frame=600 --scale=0.5 --gl=swangle --timeout=600000
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: render-test
+          path: out/
