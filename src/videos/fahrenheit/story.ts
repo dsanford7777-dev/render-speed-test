@@ -69,7 +69,7 @@ const keys = (): Record<number, Key[]> => {
     { f: wordAt(3, "Ice"), cut: true, s: (f) => push(S(-1.05, 0.95, -1.15), S(-1.38, 0.5, -0.2), f, wordAt(3, "Ice"), 0.003, { fov: 36, roll: -0.03 }) },
   ];
   // 5 board close-up: the 0
-  c[5] = [{ f: A(5), s: (f) => push(S(0.58, 1.12, 0.0), S(0.62, 1.06, 1.03), f, A(5), 0.0035, { fov: 38 }) }];
+  c[5] = [{ f: A(5), s: (f) => push(S(0.58, 1.02, 0.0), S(0.62, 0.95, 1.03), f, A(5), 0.0035, { fov: 38 }) }];
   // 6 barrel (32) -> the man (96) on "Third"
   c[6] = [
     { f: A(6), s: (f) => push(S(2.25, 1.4, -4.4), S(2.3, 1.0, -0.4), f, A(6), 0.0015, { fov: 44 }) },
