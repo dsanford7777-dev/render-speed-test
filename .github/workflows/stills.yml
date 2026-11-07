@@ -1,0 +1,43 @@
+name: Preview stills
+on:
+  push:
+    branches: [main]
+    paths: [stills.json]
+permissions:
+  contents: write
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.p.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: p
+        run: |
+          echo "matrix=$(jq -c '{include: [.frames | _nwise(4) | {frames: (map(tostring) | join(","))}]}' stills.json)" >> $GITHUB_OUTPUT
+  still:
+    needs: plan
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci
+      - run: node scripts/stills.mjs "$(jq -r .composition stills.json)" "$(jq -r .scale stills.json)" "${{ matrix.frames }}" out 2>&1 | grep -v -E "404|THREE.Clock" | tail -40
+      - uses: actions/upload-artifact@v4
+        with: { name: "stills-${{ strategy.job-index }}", path: out/*.jpg, retention-days: 2 }
+  publish:
+    needs: still
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { pattern: stills-*, merge-multiple: true, path: s }
+      - run: |
+          cd s && ls
+          git init -q -b stills && git config user.name github-actions && git config user.email actions@github.com
+          git add -A && git commit -qm "Preview stills ${{ github.sha }}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" stills
