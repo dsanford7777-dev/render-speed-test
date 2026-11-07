@@ -6,7 +6,7 @@
 // source; the grade is display-referred, so it comes after tone mapping. Every pixel-sized parameter is specified at
 // 1080x1920 and scaled with the output size, so stills at --scale 0.5 and the 1440x2560 final match.
 // Place changes crossfade by stacking a second canvas for the fade frames; the hook ends on a 4-frame white flash.
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 import { AbsoluteFill, continueRender, delayRender, getInputProps, useCurrentFrame } from "remotion";
 import { ThreeCanvas } from "@remotion/three";
@@ -48,24 +48,8 @@ const useKit = () => {
 
 const Inner: React.FC<{ id: number; kit: Kit }> = ({ id, kit }) => {
   const f = useCurrentFrame();
-  const { camera, scene, advance } = useThree();
+  const { camera, scene } = useThree();
   const world = useMemo(() => new World(kit), [kit]);
-  // Warm-up (render-farm fix): the first frame a tab renders came out blank because <ThreeCanvas> advanced before
-  // the world and post chain were mounted. Hold the render until R3F has drawn this canvas twice.
-  const drawn = useRef(0);
-  const [warm] = useState(() => delayRender("bridge warm-up"));
-  useFrame(() => { drawn.current++; }, 10);
-  useEffect(() => {
-    let alive = true;
-    const tick = () => {
-      if (!alive) return;
-      if (drawn.current >= 2) { continueRender(warm); return; }
-      advance(performance.now());
-      requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-    return () => { alive = false; };
-  }, [advance, warm]);
   const target = useMemo(() => new THREE.Vector3(), []);
   const on = useMemo(toggles, []);
   const fx = useMemo(() => ({
@@ -89,16 +73,22 @@ const Inner: React.FC<{ id: number; kit: Kit }> = ({ id, kit }) => {
     </EffectComposer>
   ), [fx, on]);
   const cam = camera as THREE.PerspectiveCamera;
-  target.copy(world.update(id, f, cam, scene));
-  noInkFallback(world.root);
-  // thin-lens focus: distance along the view axis to the shot's focus point (default: the camera's look target)
-  const d = dofAt(f);
-  cam.getWorldDirection(fwd);
-  if (d.focus) fpt.set(...d.focus(f)); else fpt.copy(target);
-  fx.lens.focus = Math.max(0.3, fpt.sub(cam.position).dot(fwd));
-  fx.lens.cInf = d.cInf;
-  gradeFor(fx.grade, SHOTS[id - 1].light);
-  fx.grain.seed = f; // deterministic per frame
+  const pose = () => {
+    target.copy(world.update(id, f, cam, scene));
+    noInkFallback(world.root);
+    // thin-lens focus: distance along the view axis to the shot's focus point (default: the camera's look target)
+    const d = dofAt(f);
+    cam.getWorldDirection(fwd);
+    if (d.focus) fpt.set(...d.focus(f)); else fpt.copy(target);
+    fx.lens.focus = Math.max(0.3, fpt.sub(cam.position).dot(fwd));
+    fx.lens.cInf = d.cInf;
+    gradeFor(fx.grade, SHOTS[id - 1].light);
+    fx.grain.seed = f; // deterministic per frame
+  };
+  pose();
+  // Render-farm fix: re-pose right before every draw. On the first frame a render tab draws, R3F applies the
+  // <Canvas camera> defaults after this component's render body ran, so the shot camera was lost (blank sky).
+  useFrame(pose);
   return (
     <>
       <primitive object={world.root} dispose={null} />
@@ -111,7 +101,7 @@ const Inner: React.FC<{ id: number; kit: Kit }> = ({ id, kit }) => {
 const dprOverride = () => (getInputProps() as { post?: { dpr?: number } }).post?.dpr;
 const ShotView: React.FC<{ id: number; kit: Kit; alpha: number }> = ({ id, kit, alpha }) => (
   <AbsoluteFill style={{ opacity: alpha }}>
-    <ThreeCanvas width={1080} height={1920} {...(dprOverride() ? { dpr: dprOverride() } : {})} shadows gl={{ antialias: false, stencil: false, powerPreference: "high-performance", toneMappingExposure: 1.0, preserveDrawingBuffer: true }}
+    <ThreeCanvas width={1080} height={1920} {...(dprOverride() ? { dpr: dprOverride() } : {})} shadows gl={{ antialias: false, stencil: false, powerPreference: "high-performance", toneMappingExposure: 1.0 }}
       camera={{ fov: 40, near: 0.2, far: 1500 }}>
       <Inner id={id} kit={kit} />
     </ThreeCanvas>
