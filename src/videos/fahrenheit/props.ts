@@ -178,7 +178,7 @@ export const shopSignTex = () => ctex("shopSign", 512, 384, (g) => {
 export const bannerTex = () => ctex("goMetric", 1024, 256, (g) => {
   g.fillStyle = "#f6efe0"; g.fillRect(0, 0, 1024, 256);
   g.fillStyle = "#c9373a"; g.fillRect(0, 0, 1024, 26); g.fillRect(0, 230, 1024, 26);
-  paintText(g, "GO METRIC!", 512, 118, 150, "#2f5fb5", "center", 0.1);
+  paintText(g, "GO METRIC", 512, 118, 150, "#2f5fb5", "center", 0.1);
   g.font = font(34, 700); g.fillStyle = INK; g.textAlign = "center"; g.fillText("METRIC CONVERSION ACT  •  1975", 512, 205);
 });
 
@@ -233,7 +233,7 @@ export const buildShop = (root: THREE.Object3D, cx: number, y0: number, cz: numb
   // night props: candle, paper with the halving marks, warm light pool on the bench
   const cnd = candle(); cnd.g.position.set(cx - 0.55, y0 + 0.92, cz + 1.15); root.add(cnd.g);
   const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.5), lam("paper0", () => ({ map: paperTex(0) })));
-  paper.rotation.x = -Math.PI / 2; paper.position.set(cx + 0.05, y0 + 0.925, cz + 1.0); root.add(paper);
+  paper.rotation.set(-Math.PI / 2, 0, Math.PI); paper.position.set(cx + 0.05, y0 + 0.925, cz + 1.0); root.add(paper); // turned to read from the lens side (-z)
   const glow = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.6), new THREE.MeshBasicMaterial({ map: poolTex(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, color: new THREE.Color(1.0, 0.62, 0.28) }));
   glow.rotation.x = -Math.PI / 2; glow.position.set(cx - 0.3, y0 + 0.93, cz + 1.05); glow.layers.set(NOINK); root.add(glow);
   const ket = kettle(); ket.position.set(X1 - 1.1, y0 + 1.62, Z1 - 0.65); root.add(ket);

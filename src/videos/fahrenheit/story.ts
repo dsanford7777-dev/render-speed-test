@@ -85,21 +85,21 @@ const keys = (): Record<number, Key[]> => {
   // 9 "You see": candlelit bench -> overhead paper -> pull back -> the scale board
   c[9] = [
     { f: A(9), s: (f) => push(S(-0.4, 1.5, -0.7), S(0.0, 1.05, 1.2), f, A(9), 0.002, { fov: 42 }) },
-    { f: on(8, "From", 30), dur: 30, s: (f) => push(S(0.05, 2.6, 0.3), S(0.05, 0.925, 1.0), f, on(8, "From", 30), 0.0015, { fov: 44 }) },
+    { f: on(8, "From", 30), dur: 30, s: (f) => push(S(0.05, 2.95, 0.3), S(0.05, 0.925, 1.0), f, on(8, "From", 30), 0.0015, { fov: 44 }) },
     { f: on(8, "No", 30), dur: 30, s: (f) => push(S(-0.3, 2.4, -0.6), S(0.05, 0.93, 1.0), f, on(8, "No", 30), 0.0015, { fov: 46, roll: 0.03 }) },
     { f: on(8, "His", 30), dur: 30, s: (f) => push(S(0.56, 1.45, -0.35), S(0.64, 1.38, 1.03), f, on(8, "His", 30), 0.002, { fov: 40 }) },
   ];
   // 10 the ship between two harbour towns (golden)
-  c[10] = [{ f: A(10), s: (f) => push([shipX(f) - 9, D0 + 3.2, -32.5], [shipX(f) + 2, 4.0, SHIP_Z], f, A(10), 0.0015, { fov: 46 }) }];
+  c[10] = [{ f: A(10), s: (f) => push([shipX(f) - 15, D0 + 5.5, -33.5], [shipX(f) + 1, 4.5, SHIP_Z], f, A(10), 0.0015, { fov: 46 }) }];
   // 11 1975: the GO METRIC! banner, everyone walks past; pull back on "Americans simply didn't"
   c[11] = [
-    { f: A(11), s: (f) => push([1.4, D0 + 1.7, -33.0], [0, D0 + 3.4, BANNER[2]], f, A(11), 0.002, { fov: 46 }) },
-    { f: on(10, "Americans", 28), dur: 28, s: (f) => push([2.4, D0 + 2.6, -31.2], [0, D0 + 3.0, BANNER[2]], f, on(10, "Americans", 28), 0.001, { fov: 50, roll: -0.03 }) },
+    { f: A(11), s: (f) => push([0.4, D0 + 1.8, -31.0], [0, D0 + 3.5, BANNER[2]], f, A(11), 0.002, { fov: 48 }) },
+    { f: on(10, "Americans", 28), dur: 28, s: (f) => push([1.6, D0 + 2.8, -30.8], [0, D0 + 3.0, BANNER[2]], f, on(10, "Americans", 28), 0.001, { fov: 54, roll: -0.03 }) },
   ];
   // 12 kettle at the boil, the column races to 212; close in on the body mark as 96 rolls to 98.6
   c[12] = [
-    { f: A(12), s: (f) => push(S(1.0, 1.95, -0.6), S(1.7, 1.5, 2.4), f, A(12), 0.002, { fov: 46 }) },
-    { f: on(11, "normal", 28), dur: 28, s: (f) => push(S(1.45, 1.75, 1.95), S(1.45, 1.75, 2.95), f, on(11, "normal", 28), 0.002, { fov: 34 }) },
+    { f: A(12), s: (f) => push(S(1.3, 2.0, -0.9), S(2.15, 1.5, 2.3), f, A(12), 0.002, { fov: 46 }) },
+    { f: on(11, "normal", 28), dur: 28, s: (f) => push(S(1.52, 1.75, 1.55), S(1.5, 1.72, 2.95), f, on(11, "normal", 28), 0.002, { fov: 36 }) },
   ];
   // 13 deadpan; punch in on "The ruler did"
   c[13] = [
