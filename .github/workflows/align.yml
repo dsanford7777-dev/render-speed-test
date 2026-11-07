@@ -31,16 +31,16 @@ jobs:
             DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 tight.wav)
             T=$(python3 -c "print(1.0 if $TARGET<=0 else min(1.3,max(1.0,$DUR/$TARGET)))")
             ffmpeg -loglevel error -y -i tight.wav -af "atempo=$T,loudnorm=I=-14:TP=-1.5:LRA=11" -ar 44100 -b:a 192k "$d/voice.mp3"
-            echo "$src: raw $(ffprobe -v error -show_entries format=duration -of csv=p=0 raw.mp3)s, pauses cut to ${DUR}s, tempo $T -> $(ffprobe -v error -show_entries format=duration -of csv=p=0 $d/voice.mp3)s" | tee -a $GITHUB_STEP_SUMMARY
+            echo "$src: raw $(ffprobe -v error -show_entries format=duration -of csv=p=0 raw.mp3)s, pauses cut to ${DUR}s, tempo $T -> $(ffprobe -v error -show_entries format=duration -of csv=p=0 $d/voice.mp3)s" | tee -a $GITHUB_STEP_SUMMARY align.log
             git rm -q "$src"
           done
       - name: Align
         run: |
-          set -e
+          set -eo pipefail
           if [ -n "${{ inputs.short }}" ]; then SHORTS="${{ inputs.short }}"; else
             SHORTS=$(git diff --name-only HEAD~1 HEAD -- 'public/*/voice.mp3' 'public/*/voice-source.json' | cut -d/ -f2 | sort -u); fi
           for s in $SHORTS; do
-            echo "== $s"; python scripts/align.py "public/$s/voice.mp3" "src/videos/$s/timeline.ts"
+            echo "== $s"; python scripts/align.py "public/$s/voice.mp3" "src/videos/$s/timeline.ts" 2>&1 | tee -a align.log
             COMP=$(grep -o "id=\"[A-Za-z]*\"" src/Root.tsx | cut -d'"' -f2 | grep -ix "$s" | head -1)
             printf '{ "composition": "%s", "chunks": 10, "note": "aligned to voice" }\n' "$COMP" > render.json
           done
@@ -50,3 +50,11 @@ jobs:
       - name: Start the render
         env: { GH_TOKEN: "${{ github.token }}" }
         run: gh workflow run render.yml --ref main --repo "${{ github.repository }}"
+      - name: Save the log to the logs branch
+        if: always()
+        run: |
+          cp align.log /tmp/align.log 2>/dev/null || echo "no log" > /tmp/align.log
+          git fetch -q origin logs || true
+          git checkout -q -B logs
+          git rm -rq --cached . >/dev/null; cp /tmp/align.log align.log
+          git add align.log && git commit -qm "align log ${{ github.run_id }}" && git push -qf origin logs
