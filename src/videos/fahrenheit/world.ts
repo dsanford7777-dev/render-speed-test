@@ -211,7 +211,7 @@ export class FWorld {
     // ---- props per shot ----
     const sh = this.shop, night = s.light === "night";
     for (const o of sh.night) o.visible = night;
-    sh.furnaceGlow.color.setRGB(night ? 4.5 : 3.2, night ? 1.9 : 1.4, night ? 0.5 : 0.4);
+    sh.furnaceGlow.color.setRGB(night ? 2.4 : 3.2, night ? 0.95 : 1.4, night ? 0.25 : 0.4);
     sh.candle.flame.scale.set(1, 1 + 0.12 * Math.sin(t * 23), 1);
     // hero board: 0 on "zero", 32 and 96 painted on as they are said
     const fZero = wordAt(4, "zero"), f32 = wordAt(6, "32"), f96 = wordAt(6, "96");
