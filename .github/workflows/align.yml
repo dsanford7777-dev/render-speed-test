@@ -20,6 +20,9 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - run: pip install -q faster-whisper==1.1.1 && sudo apt-get -qq update >/dev/null && sudo apt-get -qq install -y ffmpeg jq >/dev/null
+      - run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898283+github-actions[bot]@users.noreply.github.com"
       - name: Fetch and tighten the voice (voice-source.json -> voice.mp3)
         run: |
           set -e
@@ -44,8 +47,6 @@ jobs:
             COMP=$(grep -o "id=\"[A-Za-z]*\"" src/Root.tsx | cut -d'"' -f2 | grep -ix "$s" | head -1)
             printf '{ "composition": "%s", "chunks": 10, "note": "aligned to voice" }\n' "$COMP" > render.json
           done
-          git config user.name "github-actions[bot]"
-          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
           git add -A src public render.json && git commit -m "Align $SHORTS to the voice and render" && git push
       - name: Start the render
         env: { GH_TOKEN: "${{ github.token }}" }
