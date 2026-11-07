@@ -35,7 +35,7 @@ export const boardTex = (kind: "early" | "late", labels: string[], glow = "") =>
     g.lineWidth = 7; g.beginPath(); g.moveTo(120, yOf(v)); g.lineTo(236, yOf(v)); g.stroke();
     // the label just added is bigger with a red marker bar (a yellow fill turns grey under the night grade)
     if (s === glow) { g.fillStyle = "#e0332e"; g.fillRect(118, yOf(v) - 9, 120, 18); g.strokeStyle = INK; g.lineWidth = 4; g.strokeRect(118, yOf(v) - 9, 120, 18); }
-    paintText(g, s, 72, yOf(v), (s.length > 3 ? 42 : 56) * (s === glow ? 1.15 : 1), "#ffffff");
+    paintText(g, s, s.length > 3 ? 64 : 72, yOf(v), (s.length > 3 ? 35 : 56) * (s === glow ? 1.15 : 1), "#ffffff");
   }
 });
 
