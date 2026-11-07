@@ -35,7 +35,7 @@ export const boardTex = (kind: "early" | "late", labels: string[], glow = "") =>
     g.lineWidth = 7; g.beginPath(); g.moveTo(120, yOf(v)); g.lineTo(236, yOf(v)); g.stroke();
     // the label just added is bigger with a red marker bar (a yellow fill turns grey under the night grade)
     if (s === glow) { g.fillStyle = "#e0332e"; g.fillRect(118, yOf(v) - 9, 120, 18); g.strokeStyle = INK; g.lineWidth = 4; g.strokeRect(118, yOf(v) - 9, 120, 18); }
-    paintText(g, s, 64, yOf(v), (s.length > 3 ? 50 : 60) * (s === glow ? 1.25 : 1), "#ffffff");
+    paintText(g, s, 72, yOf(v), (s.length > 3 ? 42 : 56) * (s === glow ? 1.15 : 1), "#ffffff");
   }
 });
 
@@ -67,7 +67,7 @@ export class Thermo {
   /** world point of the painted label for value v (for framing checks) */
   labelPos(v: number) {
     const w = this.h * 0.25, ty = 1024 - 40 - fracOf(this.kind, v) * 944;
-    return this.group.localToWorld(new THREE.Vector3(w * (0.5 - 64 / 256), this.h * (1 - ty / 1024), -this.h * 0.02));
+    return this.group.localToWorld(new THREE.Vector3(w * (0.5 - 72 / 256), this.h * (1 - ty / 1024), -this.h * 0.02));
   }
   setLabels(labels: string[], glow = "") { (this.board.material as THREE.Material[])[5] = this.faceMat(labels, glow); }
   /** liquid top at value v on this board's scale */
