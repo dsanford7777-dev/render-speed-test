@@ -1,0 +1,9 @@
+total 68
+drwxr-xr-x 2 runner runner  4096 Nov  7 17:15 .
+drwxr-xr-x 7 runner runner  4096 Nov  7 17:14 ..
+-rw-r--r-- 1 runner runner 11393 Nov  7 17:14 still_0.png
+-rw-r--r-- 1 runner runner  5230 Nov  7 17:14 still_0.txt
+-rw-r--r-- 1 runner runner 11393 Nov  7 17:15 still_1200.png
+-rw-r--r-- 1 runner runner  4526 Nov  7 17:15 still_1200.txt
+-rw-r--r-- 1 runner runner 11393 Nov  7 17:15 still_300.png
+-rw-r--r-- 1 runner runner  4524 Nov  7 17:15 still_300.txt
