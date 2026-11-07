@@ -41,8 +41,9 @@ jobs:
           mkdir -p /tmp/res && cp out/*.txt out/*.png /tmp/res/ 2>/dev/null || true
           ls -la out > /tmp/res/files.txt 2>&1 || true
           nproc > /tmp/res/cpus.txt
-          git config user.name "github-actions" && git config user.email "actions@github.com"
-          git checkout --orphan results && git rm -rqf . && cp /tmp/res/* . && git add -A && git commit -qm "Render test results" && git push -f origin results
+          cd /tmp/res && git init -q -b results && git config user.name "github-actions" && git config user.email "actions@github.com"
+          git add -A && git commit -qm "Render test results"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" results
       - uses: actions/upload-artifact@v4
         if: always()
         with:
