@@ -342,7 +342,7 @@ export class FWorld {
       case 5: return [["0 mark", sh.hero.labelPos(0), 0.04, w(4, "zero"), s.b]];
       case 6: return [["barrel", V(...S(2.7, 0.8, -0.1)), 0.1, s.a, w(5, "Third"), sh.barrel]];
       case 7: return [["32 mark", sh.hero.labelPos(32), 0.04, w(6, "32"), w(6, "body")], ["96 mark", sh.hero.labelPos(96), 0.04, w(6, "96"), s.b]];
-      case 9: return [["paper", pt(sh.paper), 0.05, w(8, "From") + 15, w(8, "No"), sh.paper], ["96 mark", sh.hero.labelPos(96), 0.04, w(8, "His") + 4, s.b]];
+      case 9: return [["paper", pt(sh.paper), 0.05, w(8, "From") + 2, w(8, "No") - 2, sh.paper], ["paper line, one end", pt(sh.paper, 0.32, 0, 0), 0.02, w(8, "From") + 2, w(8, "No") - 2, sh.paper], ["paper line, other end", pt(sh.paper, -0.32, 0, 0), 0.02, w(8, "From") + 2, w(8, "No") - 2, sh.paper], ["96 mark", sh.hero.labelPos(96), 0.04, w(8, "His") + 4, s.b]];
       case 10: return [all("ship", V(shipX((s.a + s.b) / 2), 5, SHIP_Z), 0.5, this.ship)];
       case 11: return [all("GO METRIC banner", V(...BANNER), 0.2, this.banner)];
       case 12: return [["kettle", pt(sh.kettle, 0, 0.15, 0), 0.05, s.a, w(11, "normal") - 16, sh.kettle], ["212 mark", sh.late.labelPos(212), 0.05, w(11, "212"), w(11, "normal")], ["98.6 mark", sh.late.labelPos(98.6), 0.05, w(11, "98.6"), s.b]];
@@ -375,6 +375,8 @@ export class FWorld {
       if (f < a || f > b) continue;
       p.copy(at).project(cam);
       if (p.z > 1 || Math.abs(p.x) > 0.9 || Math.abs(p.y) > 0.9) { out.push(`${name}: not in shot`); continue; }
+      // painted numbers and lines must not sit under the subtitles (caption band around 61% down the frame)
+      if (/mark|line/.test(name) && Math.abs(p.y + 0.22) < 0.1 && Math.abs(p.x) < 0.55) out.push(`${name}: under the subtitles`);
       const dir = at.clone().sub(cam.position), dist = dir.length();
       this.ray.set(cam.position, dir.normalize()); this.ray.far = dist; this.ray.layers.set(0);
       const hit = this.ray.intersectObject(this.root, true).find((h) => {

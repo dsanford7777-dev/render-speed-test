@@ -289,8 +289,9 @@ export const ship = () => {
   const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 3.0, 6), wood); staff.position.set(-5.7, 3.7, 0); g.add(staff);
   const flag = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.4, 6, 2), lam("unionFlag1707", () => ({ map: unionTex(), side: THREE.DoubleSide })));
   flag.position.set(-6.95, 4.5, 0); g.add(flag);
-  const pen = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.4), lam("pennant2", () => ({ color: "#c9373a", side: THREE.DoubleSide })));
-  pen.position.set(2.4 - 0.7, 2.2 + 10.5 + 0.3, 0); g.add(pen);
+  // the same flag big at the main masthead, where the harbour shot always sees it
+  const top = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.5, 6, 2), lam("unionFlag1707", () => ({ map: unionTex(), side: THREE.DoubleSide })));
+  top.position.set(2.4 - 1.35, 2.2 + 10.5 - 0.1, 0); g.add(top);
   g.traverse((o) => { o.castShadow = true; o.receiveShadow = true; });
   return g;
 };
