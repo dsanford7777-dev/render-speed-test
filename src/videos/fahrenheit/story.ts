@@ -88,7 +88,7 @@ const keys = (): Record<number, Key[]> => {
     { f: A(9), s: (f) => push(S(-0.4, 1.6, -1.0), S(0.0, 1.15, 1.2), f, A(9), 0.0015, { fov: 42 }) },
     { f: wordAt(8, "From"), cut: true, s: (f) => push(S(0.05, 2.75, 0.96), S(0.05, 0.925, 1.0), f, wordAt(8, "From"), 0.0015, { fov: 44 }) },
     { f: on(8, "No", 30), dur: 30, s: (f) => push(S(-0.35, 2.1, -1.2), S(0.0, 1.04, 1.4), f, on(8, "No", 30), 0.0012, { fov: 46, roll: 0.03 }) },
-    { f: on(8, "His", 30), dur: 30, s: (f) => push(S(0.56, 1.56, -0.4), S(0.64, 1.5, 1.03), f, on(8, "His", 30), 0.0015, { fov: 40 }) },
+    { f: wordAt(8, "His"), cut: true, s: (f) => push(S(0.56, 1.56, -0.4), S(0.64, 1.5, 1.03), f, wordAt(8, "His"), 0.0015, { fov: 40 }) },
   ];
   // 10 the ship between two harbour towns (golden)
   c[10] = [{ f: A(10), s: (f) => push([shipX(f) - 15, D0 + 5.5, -33.5], [shipX(f) + 1, 4.5, SHIP_Z], f, A(10), 0.0015, { fov: 46 }) }];

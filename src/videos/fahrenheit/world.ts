@@ -342,7 +342,7 @@ export class FWorld {
       case 5: return [["0 mark", sh.hero.labelPos(0), 0.04, w(4, "zero"), s.b]];
       case 6: return [["barrel", V(...S(2.7, 0.8, -0.1)), 0.1, s.a, w(5, "Third"), sh.barrel]];
       case 7: return [["32 mark", sh.hero.labelPos(32), 0.04, w(6, "32"), w(6, "body")], ["96 mark", sh.hero.labelPos(96), 0.04, w(6, "96"), s.b]];
-      case 9: return [["paper", pt(sh.paper), 0.05, w(8, "From") + 15, w(8, "No"), sh.paper], ["96 mark", sh.hero.labelPos(96), 0.04, w(8, "His") + 32, s.b]];
+      case 9: return [["paper", pt(sh.paper), 0.05, w(8, "From") + 15, w(8, "No"), sh.paper], ["96 mark", sh.hero.labelPos(96), 0.04, w(8, "His") + 4, s.b]];
       case 10: return [all("ship", V(shipX((s.a + s.b) / 2), 5, SHIP_Z), 0.5, this.ship)];
       case 11: return [all("GO METRIC banner", V(...BANNER), 0.2, this.banner)];
       case 12: return [["kettle", pt(sh.kettle, 0, 0.15, 0), 0.05, s.a, w(11, "normal") - 16, sh.kettle], ["212 mark", sh.late.labelPos(212), 0.05, w(11, "212"), w(11, "normal")], ["98.6 mark", sh.late.labelPos(98.6), 0.05, w(11, "98.6"), s.b]];
