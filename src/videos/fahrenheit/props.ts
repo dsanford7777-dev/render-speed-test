@@ -267,7 +267,7 @@ export const ship = () => {
       const p = s.geometry.attributes.position as THREE.BufferAttribute;
       for (let i = 0; i < p.count; i++) { const u = p.getX(i) / (w / 2); p.setZ(i, 0.55 * (1 - u * u)); }
       s.geometry.computeVertexNormals();
-      s.rotation.y = Math.PI / 2; s.position.set(x + 0.35, y, 0); g.add(s);
+      s.rotation.y = Math.PI / 2 - 0.65; s.position.set(x + 0.35, y, 0); g.add(s);
     }
   }
   const pen = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.4), lam("pennant2", () => ({ color: "#c9373a", side: THREE.DoubleSide })));

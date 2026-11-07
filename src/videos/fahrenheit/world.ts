@@ -149,7 +149,7 @@ export class FWorld {
     this.banner.position.set(...BANNER); this.banner.castShadow = true; this.banner.receiveShadow = true; R.add(this.banner);
     for (const sx of [-1, 1]) {
       const p = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.08, 4.2, 8), lam("poleWood", () => ({ color: "#7a5236" })));
-      p.position.set(BANNER[0] + sx * 2.8, D0 + 2.1, BANNER[2]); p.castShadow = true; R.add(p);
+      p.position.set(BANNER[0] + sx * 2.85, D0 + 2.6, BANNER[2]); p.scale.y = 5.2 / 4.2; p.castShadow = true; R.add(p);
     }
   }
 
@@ -261,9 +261,9 @@ export class FWorld {
       case 8: people.push({ w: F_, p: S(0, 0, -0.4), pose: { expr: "smile_closed", headTilt: 0.14 * smooth((f - s.a) / 10), blink: blink(3) } }); break;
       case 9: people.push({ w: F_, p: S(-0.15, 0, 1.95), pose: { expr: f > L_(8, "64") ? "grin" : "smile", blink: blink(3), look: 1 } }); break;
       case 11: SEVENTIES.forEach((o, k) => {
-        const dir = k % 2 ? -1 : 1, lane = dir > 0 ? -33.4 : -34.5, sp = 1.25 + 0.1 * (k % 3), x0 = -9 + ((k * 5.3) % 18);
-        const x = -9 + ((((x0 + 9) + dir * sp * (t - SHOTS[10].a / FPS)) % 18) + 18) % 18;
-        const dist = (x + 9) * dir;
+        const dir = k % 2 ? -1 : 1, lane = dir > 0 ? -40.5 : -42.3, sp = 1.25 + 0.1 * (k % 3), x0 = -5.5 + ((k * 3.7) % 11);
+        const x = -5.5 + ((((x0 + 5.5) + dir * sp * (t - SHOTS[10].a / FPS)) % 11) + 11) % 11;
+        const dist = (x + 5.5) * dir;
         people.push({ w: who(o, 20 + k, `s70_${k}`), p: [x, D0, lane], pose: { expr: k === 2 ? "smile" : "neutral", blink: blink(20 + k), side: { phase: ((dist / 1.6) % 1 + 1) % 1, mirror: dir < 0, stride: 0.8 } } });
       }); break;
       case 12: people.push({ w: F_, p: S(0.55, 0, 1.75), pose: { expr: f > f986 ? "shock" : "neutral", blink: blink(3), look: 1 } }); break;

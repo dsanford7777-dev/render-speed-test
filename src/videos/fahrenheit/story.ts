@@ -41,16 +41,17 @@ const on = (seg: number, w: string, dur = 24) => wordAt(seg, w) - Math.round(dur
 
 // street sign + ship + square anchors (world.ts uses the same numbers)
 export const SIGN: V3 = [-4.9, D0 + 3.65, 75];
-export const SHIP_Z = 2;
+export const SHIP_Z = -16;
 export const shipX = (f: number) => -26 + 4.2 * ((f - A(10)) / FPS);
-export const BANNER: V3 = [0, D0 + 3.0, -35.8];
+/** GO METRIC! banner strung across the near bank's main street (fronts at |x| = 6), seen from the quay end */
+export const BANNER: V3 = [0, D0 + 4.6, -45];
 
 const keys = (): Record<number, Key[]> => {
   const c: Record<number, Key[]> = {};
   // 1 hook: 3/4 wide of the bucket and the man -> glide in to the thermometer under his arm on "armpit"
   c[1] = [
-    { f: 0, s: (f) => push(S(-1.0, 1.3, -3.4), S(-0.8, 1.0, 0), f, 0, 0.002, { fov: 42 }) },
-    { f: on(0, "and", 30), dur: 30, s: (f) => push(S(-0.15, 1.45, -1.55), S(-0.32, 1.3, -0.05), f, on(0, "and", 30), 0.003, { fov: 36, roll: 0.04 }) },
+    { f: 0, s: (f) => push(S(-1.0, 1.4, -4.4), S(-0.85, 1.0, 0), f, 0, 0.002, { fov: 42 }) },
+    { f: on(0, "and", 30), dur: 30, s: (f) => push(S(-0.25, 1.5, -2.3), S(-0.38, 1.4, -0.05), f, on(0, "and", 30), 0.003, { fov: 38, roll: 0.04 }) },
   ];
   // 2 street of 1724: low along the street, glide up to the glassblower's sign
   c[2] = [
@@ -60,50 +61,50 @@ const keys = (): Record<number, Key[]> => {
   // 3 the shelf of thermometers that disagree, slide along it to Fahrenheit frowning
   c[3] = [
     { f: A(3), s: (f) => ({ pos: [SHOP[0] - 2.6 + 1.2 * glide((f - A(3)) / 80), D0 + 1.95, 0.4], look: [SHOP[0] - 2.4 + 1.2 * glide((f - A(3)) / 80), D0 + 1.85, 2.8], fov: 40 }) },
-    { f: on(2, "So", 28), dur: 28, s: (f) => push(S(-0.2, 1.6, -0.2), S(-0.5, 1.5, 2.1), f, on(2, "So", 28), 0.0025, { fov: 38 }) },
+    { f: on(2, "So", 28), dur: 28, s: (f) => push(S(-0.3, 1.6, -0.9), S(-0.5, 1.45, 2.05), f, on(2, "So", 28), 0.0025, { fov: 40 }) },
   ];
   // 4 Fahrenheit at the bucket, salt going in; push to the rod in the ice on "ammonium"
   c[4] = [
-    { f: A(4), s: (f) => push(S(-0.6, 1.25, -2.4), S(-1.5, 0.75, 0.0), f, A(4), 0.0025, { fov: 42 }) },
+    { f: A(4), s: (f) => push(S(-0.6, 1.45, -3.3), S(-1.7, 0.9, 0.1), f, A(4), 0.0025, { fov: 44 }) },
     { f: on(3, "Ice", 26), dur: 26, s: (f) => push(S(-1.05, 0.95, -1.15), S(-1.38, 0.5, -0.2), f, on(3, "Ice", 26), 0.003, { fov: 36, roll: -0.03 }) },
   ];
   // 5 board close-up: the 0
-  c[5] = [{ f: A(5), s: (f) => push(S(0.6, 1.08, 0.25), S(0.62, 1.04, 1.03), f, A(5), 0.0035, { fov: 36 }) }];
+  c[5] = [{ f: A(5), s: (f) => push(S(0.58, 1.12, 0.0), S(0.62, 1.06, 1.03), f, A(5), 0.0035, { fov: 38 }) }];
   // 6 barrel (32) -> the man (96) on "Third"
   c[6] = [
-    { f: A(6), s: (f) => push(S(1.7, 1.15, -2.3), S(2.7, 0.75, -0.1), f, A(6), 0.0025, { fov: 40 }) },
-    { f: on(5, "Third", 30), dur: 30, s: (f) => push(S(1.85, 1.45, -2.6), S(1.9, 1.25, -0.75), f, on(5, "Third", 30), 0.0025, { fov: 38 }) },
+    { f: A(6), s: (f) => push(S(1.6, 1.25, -3.0), S(2.6, 0.8, -0.1), f, A(6), 0.0025, { fov: 42 }) },
+    { f: on(5, "Third", 30), dur: 30, s: (f) => push(S(1.85, 1.5, -3.4), S(1.9, 1.38, -0.75), f, on(5, "Third", 30), 0.0025, { fov: 40 }) },
   ];
   // 7 the board between Fahrenheit's hands: 32 then 96 painted on
   c[7] = [
-    { f: A(7), s: (f) => push(S(0.3, 1.5, -0.6), S(0.45, 1.3, 1.4), f, A(7), 0.002, { fov: 42 }) },
+    { f: A(7), s: (f) => push(S(0.25, 1.55, -1.6), S(0.4, 1.35, 1.4), f, A(7), 0.002, { fov: 42 }) },
     { f: on(6, "Ice", 24), dur: 24, s: (f) => push(S(0.62, 1.42, 0.2), S(0.64, 1.38, 1.03), f, on(6, "Ice", 24), 0.002, { fov: 38 }) },
   ];
   // 8 the shrug, straight to the lens
-  c[8] = [{ f: A(8), s: (f) => push(S(0, 1.55, -2.5), S(0, 1.45, -0.4), f, A(8), 0.005, { fov: 38 }) }];
+  c[8] = [{ f: A(8), s: (f) => push(S(0, 1.5, -3.1), S(0, 1.45, -0.4), f, A(8), 0.005, { fov: 40 }) }];
   // 9 "You see": candlelit bench -> overhead paper -> pull back -> the scale board
   c[9] = [
     { f: A(9), s: (f) => push(S(-0.4, 1.5, -0.7), S(0.0, 1.05, 1.2), f, A(9), 0.002, { fov: 42 }) },
-    { f: on(8, "From", 30), dur: 30, s: (f) => push(S(0.05, 1.78, 0.62), S(0.05, 0.925, 1.0), f, on(8, "From", 30), 0.0015, { fov: 40 }) },
-    { f: on(8, "No", 30), dur: 30, s: (f) => push(S(-0.2, 1.9, 0.0), S(0.05, 0.93, 1.0), f, on(8, "No", 30), 0.0015, { fov: 44, roll: 0.03 }) },
-    { f: on(8, "His", 30), dur: 30, s: (f) => push(S(0.6, 1.35, 0.3), S(0.64, 1.35, 1.03), f, on(8, "His", 30), 0.002, { fov: 38 }) },
+    { f: on(8, "From", 30), dur: 30, s: (f) => push(S(0.05, 2.6, 0.3), S(0.05, 0.925, 1.0), f, on(8, "From", 30), 0.0015, { fov: 44 }) },
+    { f: on(8, "No", 30), dur: 30, s: (f) => push(S(-0.3, 2.4, -0.6), S(0.05, 0.93, 1.0), f, on(8, "No", 30), 0.0015, { fov: 46, roll: 0.03 }) },
+    { f: on(8, "His", 30), dur: 30, s: (f) => push(S(0.56, 1.45, -0.35), S(0.64, 1.38, 1.03), f, on(8, "His", 30), 0.002, { fov: 40 }) },
   ];
   // 10 the ship between two harbour towns (golden)
-  c[10] = [{ f: A(10), s: (f) => push([shipX(f) - 16, D0 + 4.5, -33], [shipX(f) + 2, 4.5, SHIP_Z], f, A(10), 0.0015, { fov: 44 }) }];
+  c[10] = [{ f: A(10), s: (f) => push([shipX(f) - 9, D0 + 3.2, -32.5], [shipX(f) + 2, 4.0, SHIP_Z], f, A(10), 0.0015, { fov: 46 }) }];
   // 11 1975: the GO METRIC! banner, everyone walks past; pull back on "Americans simply didn't"
   c[11] = [
-    { f: A(11), s: (f) => push([2.2, D0 + 1.7, -30.9], [0, D0 + 2.6, -36], f, A(11), 0.002, { fov: 44 }) },
-    { f: on(10, "Americans", 28), dur: 28, s: (f) => push([3.2, D0 + 2.2, -30.6], [0, D0 + 2.3, -36], f, on(10, "Americans", 28), 0.001, { fov: 50, roll: -0.03 }) },
+    { f: A(11), s: (f) => push([1.4, D0 + 1.7, -33.0], [0, D0 + 3.4, BANNER[2]], f, A(11), 0.002, { fov: 46 }) },
+    { f: on(10, "Americans", 28), dur: 28, s: (f) => push([2.4, D0 + 2.6, -31.2], [0, D0 + 3.0, BANNER[2]], f, on(10, "Americans", 28), 0.001, { fov: 50, roll: -0.03 }) },
   ];
   // 12 kettle at the boil, the column races to 212; close in on the body mark as 96 rolls to 98.6
   c[12] = [
-    { f: A(12), s: (f) => push(S(1.3, 1.95, 0.4), S(1.85, 1.65, 2.6), f, A(12), 0.002, { fov: 44 }) },
+    { f: A(12), s: (f) => push(S(1.0, 1.95, -0.6), S(1.7, 1.5, 2.4), f, A(12), 0.002, { fov: 46 }) },
     { f: on(11, "normal", 28), dur: 28, s: (f) => push(S(1.45, 1.75, 1.95), S(1.45, 1.75, 2.95), f, on(11, "normal", 28), 0.002, { fov: 34 }) },
   ];
   // 13 deadpan; punch in on "The ruler did"
   c[13] = [
-    { f: A(13), s: (f) => push(S(0.2, 1.55, -2.3), S(0.2, 1.5, -0.4), f, A(13), 0.0025, { fov: 38 }) },
-    { f: on(12, "The", 18), dur: 18, s: (f) => push(S(0.2, 1.6, -1.45), S(0.2, 1.62, -0.4), f, on(12, "The", 18), 0.003, { fov: 34 }) },
+    { f: A(13), s: (f) => push(S(0.2, 1.5, -3.1), S(0.2, 1.45, -0.4), f, A(13), 0.0025, { fov: 40 }) },
+    { f: on(12, "The", 18), dur: 18, s: (f) => push(S(0.2, 1.58, -2.0), S(0.2, 1.52, -0.4), f, on(12, "The", 18), 0.003, { fov: 36 }) },
   ];
   return c;
 };
