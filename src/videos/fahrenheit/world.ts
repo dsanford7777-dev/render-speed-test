@@ -30,6 +30,8 @@ export const NIGHT_LOOK: WorldLook = {
   bounce: [0, 0, 0],
   sat: 1.0,
 };
+/** shots whose big face close-up is the point (the deadpan ending) */
+const CLOSEUP_OK = new Set([13]);
 const LP: Record<Light, LightPreset> = { day: LIGHTS.day, golden: LIGHTS.golden, night: NIGHT };
 const LK: Record<Light, WorldLook> = { day: LOOK.day, golden: LOOK.golden, night: NIGHT_LOOK };
 
@@ -330,20 +332,20 @@ export class FWorld {
     return focus;
   }
   /** what must be clearly in shot, and when: [name, world point, radius, from frame, to frame] */
-  private subjects(id: number): [string, THREE.Vector3, number, number, number][] {
-    const s = SHOTS[id - 1], sh = this.shop, w = (seg: number, x: string) => wordAt(seg, x), all = (n: string, p: THREE.Vector3, r: number): [string, THREE.Vector3, number, number, number] => [n, p, r, s.a, s.b];
+  private subjects(id: number): [string, THREE.Vector3, number, number, number, THREE.Object3D?][] {
+    const s = SHOTS[id - 1], sh = this.shop, w = (seg: number, x: string) => wordAt(seg, x), all = (n: string, p: THREE.Vector3, r: number, o?: THREE.Object3D): [string, THREE.Vector3, number, number, number, THREE.Object3D?] => [n, p, r, s.a, s.b, o];
     const pt = (o: THREE.Object3D, x = 0, y = 0, z = 0) => { o.updateWorldMatrix(true, false); return o.localToWorld(new THREE.Vector3(x, y, z)); };
     switch (id) {
-      case 1: return [all("bucket", V(...S(-1.4, 0.35, -0.2)), 0.25)];
+      case 1: return [["bucket", V(...S(-1.4, 0.4, -0.2)), 0.1, s.a, w(0, "and"), sh.bucketT]];
       case 2: return [["shop sign", V(...SIGN), 0.4, w(1, "Daniel") + 15, s.b]];
-      case 4: return [all("bucket", V(...S(-1.4, 0.4, -0.2)), 0.25)];
+      case 4: return [all("bucket", V(...S(-1.4, 0.4, -0.2)), 0.1, sh.bucketT)];
       case 5: return [["0 mark", sh.hero.labelPos(0), 0.04, w(4, "zero"), s.b]];
-      case 6: return [["barrel", V(...S(2.7, 0.8, -0.1)), 0.3, s.a, w(5, "Third")]];
+      case 6: return [["barrel", V(...S(2.7, 0.8, -0.1)), 0.1, s.a, w(5, "Third"), sh.barrel]];
       case 7: return [["32 mark", sh.hero.labelPos(32), 0.04, w(6, "32"), w(6, "body")], ["96 mark", sh.hero.labelPos(96), 0.04, w(6, "96"), s.b]];
-      case 9: return [["paper", pt(sh.paper), 0.2, w(8, "From") + 15, w(8, "No")], ["96 mark", sh.hero.labelPos(96), 0.04, w(8, "His") + 15, s.b]];
-      case 10: return [all("ship", V(shipX((s.a + s.b) / 2), 5, SHIP_Z), 3)];
-      case 11: return [all("GO METRIC banner", V(...BANNER), 1.5)];
-      case 12: return [["kettle", pt(sh.kettle, 0, 0.15, 0), 0.25, s.a, w(11, "normal")], ["212 mark", sh.late.labelPos(212), 0.05, w(11, "212"), w(11, "normal")], ["98.6 mark", sh.late.labelPos(98.6), 0.05, w(11, "98.6"), s.b]];
+      case 9: return [["paper", pt(sh.paper), 0.05, w(8, "From") + 15, w(8, "No"), sh.paper], ["96 mark", sh.hero.labelPos(96), 0.04, w(8, "His") + 32, s.b]];
+      case 10: return [all("ship", V(shipX((s.a + s.b) / 2), 5, SHIP_Z), 0.5, this.ship)];
+      case 11: return [all("GO METRIC banner", V(...BANNER), 0.2, this.banner)];
+      case 12: return [["kettle", pt(sh.kettle, 0, 0.15, 0), 0.05, s.a, w(11, "normal") - 16, sh.kettle], ["212 mark", sh.late.labelPos(212), 0.05, w(11, "212"), w(11, "normal")], ["98.6 mark", sh.late.labelPos(98.6), 0.05, w(11, "98.6"), s.b]];
       default: return [];
     }
   }
@@ -366,9 +368,9 @@ export class FWorld {
       if (head.frac < 0 && body.frac !== 0) out.push(`${q.name}: too close to the camera`);
       else if (head.frac > 0.02 && head.frac < 0.97) out.push(`${q.name}: head cut off by the frame edge (${Math.round(head.frac * 100)}% in shot)`);
       else if (head.frac <= 0.02 && body.frac > 0.12) out.push(`${q.name}: body in shot without the head`);
-      if (head.h > 1.45) out.push(`${q.name}: face fills the screen`);
+      if (head.frac > 0.02 && head.h > 1.6 && !CLOSEUP_OK.has(id)) out.push(`${q.name}: face fills the screen`);
     }
-    for (const [name, at, r, a, b] of this.subjects(id)) {
+    for (const [name, at, r, a, b, own] of this.subjects(id)) {
       if (f < a || f > b) continue;
       p.copy(at).project(cam);
       if (p.z > 1 || Math.abs(p.x) > 0.9 || Math.abs(p.y) > 0.9) { out.push(`${name}: not in shot`); continue; }
@@ -376,7 +378,7 @@ export class FWorld {
       this.ray.set(cam.position, dir.normalize()); this.ray.far = dist; this.ray.layers.set(0);
       const hit = this.ray.intersectObject(this.root, true).find((h) => {
         const m = h.object as THREE.Mesh, mat = m.material as THREE.Material;
-        let o: THREE.Object3D | null = m; while (o) { if (!o.visible) return false; o = o.parent; }
+        let o: THREE.Object3D | null = m; while (o) { if (!o.visible || o === own) return false; o = o.parent; }
         return !(Array.isArray(mat) ? false : mat.transparent || (mat as THREE.Material & { alphaTest?: number }).alphaTest > 0) && h.object !== this.sky;
       });
       if (hit && hit.distance < dist - r) out.push(`${name}: hidden behind something ${(dist - hit.distance).toFixed(2)} m in front of it`);

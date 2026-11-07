@@ -12,12 +12,12 @@ const frames = Object.keys(all).map(Number).sort((a, b) => a - b);
 const runs = [];
 const open = new Map();
 for (const f of frames) {
-  const now = new Set(all[f].problems);
+  const now = new Set(all[f].problems.map((x) => x.replace(/ \(.*\)$/, "")));
   for (const [k, r] of open) if (!now.has(k)) { runs.push(r); open.delete(k); }
   for (const k of now) { const r = open.get(k); if (r && f - r.b <= N) r.b = f; else { if (r) runs.push(r); open.set(k, { k, a: f, b: f, shot: all[f].shot }); } }
 }
 runs.push(...open.values());
-const ts = (f) => `${Math.floor(f / FPS / 60)}:${String(Math.floor(f / FPS) % 60).padStart(2, "0")}.${String(Math.round(((f / FPS) % 1) * 10) % 10)}`;
+const ts = (f) => `${Math.floor(f / FPS / 60)}:${String(Math.floor(f / FPS) % 60).padStart(2, "0")}.${String(Math.floor(((f / FPS) % 1) * 10))}`;
 const bad = runs.filter((r) => r.b - r.a >= N).sort((x, y) => x.a - y.a);
 const lines = [`## Framing check`, `- Frames measured: ${frames.length} (every ${N}th)`, `- Problems: ${bad.length}`, ""];
 for (const r of bad) lines.push(`- **${ts(r.a)}–${ts(r.b)}** (shot ${r.shot}, frames ${r.a}-${r.b}): ${r.k}`);

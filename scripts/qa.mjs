@@ -29,12 +29,12 @@ await renderFrames({
 });
 const files = fs.readdirSync(tmp).sort();
 // renderFrames names files by padded frame number
-for (const fl of files) {
-  const pf = Number(/(\d+)\.jpe?g$/.exec(fl)[1]), f = pf - PAD;
-  if (pf === p0 && A + PAD - N >= 0 || f < A || f > B) { fs.rmSync(path.join(tmp, fl)); continue; }
+files.forEach((fl, i) => {
+  const f = p0 + i * N - PAD;
+  if (f < A || f > B) { fs.rmSync(path.join(tmp, fl)); return; }
   const shot = issues[f]?.shot ?? 0;
   fs.renameSync(path.join(tmp, fl), path.join(out, `f${String(f).padStart(4, "0")}_s${String(shot).padStart(2, "0")}.jpg`));
-}
+});
 fs.rmSync(tmp, { recursive: true, force: true });
 fs.writeFileSync(path.join(out, `qa_${A}.json`), JSON.stringify(issues));
 console.log(`checked ${Object.keys(issues).length} frames in ${((Date.now() - t0) / 1000).toFixed(0)} s`);

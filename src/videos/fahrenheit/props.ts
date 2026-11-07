@@ -189,7 +189,7 @@ export const bannerTex = () => ctex("goMetric", 1024, 256, (g) => {
 
 // ---------------- workshop set (open-roofed room) ----------------
 export type Shop = {
-  hero: Thermo; late: Thermo; bucketT: THREE.Group; bucketRod: THREE.Group; barrelRod: THREE.Group; armRod: THREE.Group;
+  hero: Thermo; late: Thermo; bucketT: THREE.Group; barrel: THREE.Group; bucketRod: THREE.Group; barrelRod: THREE.Group; armRod: THREE.Group;
   salt: THREE.Group; scoop: THREE.Group; candle: ReturnType<typeof candle>; paper: THREE.Mesh; kettle: THREE.Group; glow: THREE.Mesh; furnaceGlow: THREE.MeshBasicMaterial;
   night: THREE.Object3D[];
 };
@@ -250,7 +250,7 @@ export const buildShop = (root: THREE.Object3D, cx: number, y0: number, cz: numb
   glow.rotation.x = -Math.PI / 2; glow.position.set(cx - 0.3, y0 + 0.93, cz + 1.05); glow.layers.set(NOINK); root.add(glow);
   const ket = kettle(); ket.scale.setScalar(1.35); ket.position.set(X1 - 1.15, y0 + 1.62, Z1 - 0.95); ket.rotation.y = Math.PI; root.add(ket);
   root.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh && !m.receiveShadow) { m.receiveShadow = true; } });
-  return { hero, late, bucketT, bucketRod, barrelRod, armRod, salt, scoop, candle: cnd, paper, kettle: ket, glow, furnaceGlow, night: [cnd.g, glow] };
+  return { hero, late, bucketT, barrel: br, bucketRod, barrelRod, armRod, salt, scoop, candle: cnd, paper, kettle: ket, glow, furnaceGlow, night: [cnd.g, glow] };
 };
 const poolTex = () => ctex("warmPool", 256, 256, (g) => {
   const gr = g.createRadialGradient(128, 128, 0, 128, 128, 128);
