@@ -72,7 +72,7 @@ export class FWorld {
   private sunCache = new Map<number, THREE.Vector3>();
   private clouds: THREE.Mesh[] = []; private cloudMaps: Record<Light, THREE.Texture[]>;
   private shop: Shop; private ship: THREE.Group; private banner: THREE.Mesh;
-  private lastPeople: { name: string; p: V3 }[] = [];
+  private lastPeople: { name: string; p: V3; walking: boolean }[] = [];
   private ray = new THREE.Raycaster();
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private sph = new THREE.Sphere(); private v = new THREE.Vector3();
 
@@ -268,7 +268,7 @@ export class FWorld {
       case 6: people.push({ w: H_, p: S(1.95, 0, -0.75), pose: { expr: f > L_(5, "healthy") ? "smile" : "neutral", blink: blink(5) } }); break;
       case 7: people.push({ w: F_, p: S(-0.15, 0, 1.95), pose: { expr: f > f96 ? "grin" : "smile", blink: blink(3), look: f > f32 ? 1 : 0 } }); break;
       case 8: people.push({ w: F_, p: S(0, 0, -0.4), pose: { expr: "smile_closed", headTilt: 0.14 * smooth((f - s.a) / 10), blink: blink(3) } }); break;
-      case 9: people.push({ w: F_, p: S(-0.15, 0, 1.95), pose: { expr: f > L_(8, "64") ? "grin" : "smile", blink: blink(3), look: 1 } }); break;
+      case 9: people.push({ w: F_, p: S(-0.15, 0, 2.4), pose: { expr: f > L_(8, "64") ? "grin" : "smile", blink: blink(3), look: 1 } }); break;
       case 11: SEVENTIES.forEach((o, k) => {
         const dir = k % 2 ? -1 : 1, lane = dir > 0 ? -40.5 : -42.3, sp = 1.25 + 0.1 * (k % 3), x0 = -5.5 + ((k * 3.7) % 11);
         const x = -5.5 + ((((x0 + 5.5) + dir * sp * (t - SHOTS[10].a / FPS)) % 11) + 11) % 11;
@@ -287,7 +287,7 @@ export class FWorld {
       sh.armRod.position.set(...helper.p).addScaledVector(right, -0.17).add(V(0, 1.06, 0)).addScaledVector(toCam, -0.03);
       sh.armRod.quaternion.copy(cam.quaternion); sh.armRod.rotateZ(0.5);
     }
-    this.lastPeople = people.map((q) => ({ name: q.w === F_ ? "Fahrenheit" : q.w === H_ ? "helper" : q.w.key, p: q.p }));
+    this.lastPeople = people.map((q) => ({ name: q.w === F_ ? "Fahrenheit" : q.w === H_ ? "helper" : q.w.key, p: q.p, walking: !!q.pose.side }));
     let ai = 0;
     for (const q of people) {
       if (!this.frustum.intersectsSphere(this.sph.set(this.v.set(q.p[0], q.p[1] + 1.1, q.p[2]), 3.5))) continue;
@@ -336,7 +336,7 @@ export class FWorld {
     const s = SHOTS[id - 1], sh = this.shop, w = (seg: number, x: string) => wordAt(seg, x), all = (n: string, p: THREE.Vector3, r: number, o?: THREE.Object3D): [string, THREE.Vector3, number, number, number, THREE.Object3D?] => [n, p, r, s.a, s.b, o];
     const pt = (o: THREE.Object3D, x = 0, y = 0, z = 0) => { o.updateWorldMatrix(true, false); return o.localToWorld(new THREE.Vector3(x, y, z)); };
     switch (id) {
-      case 1: return [["bucket", V(...S(-1.4, 0.4, -0.2)), 0.1, s.a, w(0, "and"), sh.bucketT]];
+      case 1: return [["bucket", V(...S(-1.4, 0.4, -0.2)), 0.1, s.a, w(0, "and") - 16, sh.bucketT]];
       case 2: return [["shop sign", V(...SIGN), 0.4, w(1, "Daniel") + 15, s.b]];
       case 4: return [all("bucket", V(...S(-1.4, 0.4, -0.2)), 0.1, sh.bucketT)];
       case 5: return [["0 mark", sh.hero.labelPos(0), 0.04, w(4, "zero"), s.b]];
@@ -357,16 +357,17 @@ export class FWorld {
       let a = 9, b = -9, cc = 9, d = -9;
       for (const [dx, dy] of [[x0, y0], [x1, y0], [x0, y1], [x1, y1]]) {
         p.set(c[0], c[1] + dy, c[2]).addScaledVector(right, dx);
-        if (p.clone().sub(cam.position).dot(cam.getWorldDirection(this.v)) < 0.15) return { frac: -1, h: 9 };
+        if (p.clone().sub(cam.position).dot(cam.getWorldDirection(this.v)) < 0.15) return { frac: -1, h: 9, vcut: true, inX: true };
         p.project(cam); a = Math.min(a, p.x); b = Math.max(b, p.x); cc = Math.min(cc, p.y); d = Math.max(d, p.y);
       }
       const ix = Math.max(0, Math.min(b, 1) - Math.max(a, -1)), iy = Math.max(0, Math.min(d, 1) - Math.max(cc, -1));
-      return { frac: (ix * iy) / Math.max(1e-6, (b - a) * (d - cc)), h: d - cc };
+      return { frac: (ix * iy) / Math.max(1e-6, (b - a) * (d - cc)), h: d - cc, vcut: cc < -1 || d > 1, inX: b > -1 && a < 1 };
     };
     for (const q of this.lastPeople) {
       const head = box(q.p, -0.27, 0.27, 1.16, 1.84), body = box(q.p, -0.3, 0.3, 0.05, 1.16);
       if (head.frac < 0 && body.frac !== 0) out.push(`${q.name}: too close to the camera`);
-      else if (head.frac > 0.02 && head.frac < 0.97) out.push(`${q.name}: head cut off by the frame edge (${Math.round(head.frac * 100)}% in shot)`);
+      // people walking through a street may enter and leave at the sides; nobody may be cut at the top or bottom
+      else if (head.frac > 0.02 && head.frac < 0.97 && (!q.walking || (head.vcut && head.inX))) out.push(`${q.name}: head cut off by the frame edge (${Math.round(head.frac * 100)}% in shot)`);
       else if (head.frac <= 0.02 && body.frac > 0.12) out.push(`${q.name}: body in shot without the head`);
       if (head.frac > 0.02 && head.h > 1.6 && !CLOSEUP_OK.has(id)) out.push(`${q.name}: face fills the screen`);
     }

@@ -88,7 +88,7 @@ const keys = (): Record<number, Key[]> => {
     { f: A(9), s: (f) => push(S(-0.4, 1.6, -1.0), S(0.0, 1.15, 1.2), f, A(9), 0.0015, { fov: 42 }) },
     { f: wordAt(8, "From"), cut: true, s: (f) => push(S(0.05, 2.75, 0.96), S(0.05, 0.925, 1.0), f, wordAt(8, "From"), 0.0015, { fov: 44 }) },
     { f: on(8, "No", 30), dur: 30, s: (f) => push(S(-0.3, 2.4, -0.6), S(0.05, 0.93, 1.0), f, on(8, "No", 30), 0.0015, { fov: 46, roll: 0.03 }) },
-    { f: on(8, "His", 30), dur: 30, s: (f) => push(S(0.56, 1.45, -0.35), S(0.64, 1.38, 1.03), f, on(8, "His", 30), 0.002, { fov: 40 }) },
+    { f: on(8, "His", 30), dur: 30, s: (f) => push(S(0.56, 1.56, -0.4), S(0.64, 1.5, 1.03), f, on(8, "His", 30), 0.0015, { fov: 40 }) },
   ];
   // 10 the ship between two harbour towns (golden)
   c[10] = [{ f: A(10), s: (f) => push([shipX(f) - 15, D0 + 5.5, -33.5], [shipX(f) + 1, 4.5, SHIP_Z], f, A(10), 0.0015, { fov: 46 }) }];
@@ -105,7 +105,7 @@ const keys = (): Record<number, Key[]> => {
   // 13 deadpan; punch in on "The ruler did"
   c[13] = [
     { f: A(13), s: (f) => push(S(0.2, 1.5, -3.1), S(0.2, 1.45, -0.4), f, A(13), 0.0025, { fov: 40 }) },
-    { f: on(12, "The", 18), dur: 18, s: (f) => push(S(0.2, 1.58, -2.0), S(0.2, 1.52, -0.4), f, on(12, "The", 18), 0.003, { fov: 36 }) },
+    { f: on(12, "The", 18), dur: 18, s: (f) => push(S(0.2, 1.62, -2.0), S(0.2, 1.58, -0.4), f, on(12, "The", 18), 0.002, { fov: 36 }) },
   ];
   return c;
 };
