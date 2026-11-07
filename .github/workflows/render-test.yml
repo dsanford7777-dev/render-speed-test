@@ -20,25 +20,26 @@ jobs:
           echo "## Machine" >> $GITHUB_STEP_SUMMARY
           echo "- CPUs: $(nproc)" >> $GITHUB_STEP_SUMMARY
           echo "- RAM: $(free -g | awk '/Mem:/{print $2}') GB" >> $GITHUB_STEP_SUMMARY
-      - name: Render 60 frames (2 s) at final 2K size
+      - name: Diagnostics (cube + scene stills under each GL mode)
+        if: always()
+        run: |
+          mkdir -p out
+          for gl in swangle angle swiftshader egl; do
+            npx remotion still src/index.ts Cube out/cube_$gl.png --frame=10 --scale=0.25 --gl=$gl --timeout=300000 > out/cube_$gl.txt 2>&1 || echo FAIL >> out/cube_$gl.txt
+            npx remotion still src/index.ts BridgeShort out/scene_$gl.png --frame=300 --scale=0.5 --gl=$gl --timeout=300000 --log=verbose > out/scene_$gl.txt 2>&1 || echo FAIL >> out/scene_$gl.txt
+          done
+      - name: Render 60 frames (2 s) at 1080x1920
+        if: always()
         run: |
           set -o pipefail
-          mkdir -p out
           START=$(date +%s)
-          npx remotion render src/index.ts BridgeShort out/test.mp4 --frames=600-659 --scale=1.3333 --codec=h264 --crf=16 --gl=swangle --timeout=600000 2>&1 | tee out/render-log.txt | tail -60
+          npx remotion render src/index.ts BridgeShort out/test.mp4 --frames=300-359 --codec=h264 --crf=16 --gl=swangle --timeout=600000 2>&1 | tee out/render-log.txt | tail -20
           END=$(date +%s)
           echo "$((END-START))" > out/render-seconds.txt
-          SECS=$((END-START))
-          echo "## Result" >> $GITHUB_STEP_SUMMARY
-          echo "- 60 frames took **${SECS} s** (includes ~1 min bundling)" >> $GITHUB_STEP_SUMMARY
-          echo "- Estimated full 67 s short (2,010 frames): **~$((SECS*2010/60/60)) min**" >> $GITHUB_STEP_SUMMARY
-      - name: Still frame for a look check
-        if: always()
-        run: npx remotion still src/index.ts BridgeShort out/still_600.png --frame=600 --scale=0.5 --gl=swangle --timeout=600000 2>&1 | tee out/still-log.txt
       - name: Save results to the results branch
         if: always()
         run: |
-          mkdir -p /tmp/res && cp out/*.txt out/*.png /tmp/res/ 2>/dev/null || true
+          mkdir -p /tmp/res && cp out/*.txt out/*.png out/*.mp4 /tmp/res/ 2>/dev/null || true
           ls -la out > /tmp/res/files.txt 2>&1 || true
           nproc > /tmp/res/cpus.txt
           cd /tmp/res && git init -q -b results && git config user.name "github-actions" && git config user.email "actions@github.com"
