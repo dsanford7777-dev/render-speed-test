@@ -99,7 +99,7 @@ const keys = (): Record<number, Key[]> => {
   // 12 kettle at the boil, the column races to 212; close in on the body mark as 96 rolls to 98.6
   c[12] = [
     { f: A(12), s: (f) => push(S(1.3, 2.0, -0.9), S(2.15, 1.5, 2.3), f, A(12), 0.002, { fov: 46 }) },
-    { f: on(11, "normal", 28), dur: 28, s: (f) => push(S(1.52, 1.75, 1.55), S(1.5, 1.72, 2.95), f, on(11, "normal", 28), 0.002, { fov: 36 }) },
+    { f: on(11, "normal", 28), dur: 28, s: (f) => push(S(1.6, 1.75, 1.45), S(1.58, 1.72, 2.95), f, on(11, "normal", 28), 0.002, { fov: 38 }) },
   ];
   // 13 deadpan; punch in on "The ruler did"
   c[13] = [

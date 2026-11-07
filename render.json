@@ -1,5 +1,5 @@
 {
-  "composition": "BridgeShort",
+  "composition": "Fahrenheit",
   "chunks": 10,
   "note": "Edit and push this file to start a render. Add \"range\": [first, last] to render part of a video. Output: a GitHub release."
 }
