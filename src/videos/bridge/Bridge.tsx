@@ -39,10 +39,15 @@ const makeBloom = () => {
 
 const fwd = new THREE.Vector3(), fpt = new THREE.Vector3();
 
+// Render-farm fix: keep the "bridge kit" hold until a canvas has actually drawn. Releasing it as soon as the kit
+// loaded left a gap (no pending holds, <ThreeCanvas> not mounted yet) where Remotion took the first frame of each
+// render tab before any 3D existed (blank sky colour on software GL).
+let markDrawn: () => void = () => {};
+const firstDraw = new Promise<void>((r) => { markDrawn = r; });
 const useKit = () => {
   const [kit, setKit] = useState<Kit | null>(null);
   const [handle] = useState(() => delayRender("bridge kit"));
-  useEffect(() => { loadKit().then((k) => { setKit(k); continueRender(handle); }); }, [handle]);
+  useEffect(() => { loadKit().then((k) => { setKit(k); firstDraw.then(() => continueRender(handle)); }); }, [handle]);
   return kit;
 };
 
@@ -88,7 +93,7 @@ const Inner: React.FC<{ id: number; kit: Kit }> = ({ id, kit }) => {
   pose();
   // Render-farm fix: re-pose right before every draw. On the first frame a render tab draws, R3F applies the
   // <Canvas camera> defaults after this component's render body ran, so the shot camera was lost (blank sky).
-  useFrame(pose);
+  useFrame(() => { pose(); markDrawn(); });
   return (
     <>
       <primitive object={world.root} dispose={null} />
