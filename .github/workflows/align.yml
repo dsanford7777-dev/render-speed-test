@@ -1,0 +1,38 @@
+name: Align to voice
+# Push public/<short>/voice.mp3 and this re-times src/videos/<short>/timeline.ts to the real narration
+# (shot cuts, camera moves and subtitles all follow), commits it, then starts the full render with the voice.
+on:
+  workflow_dispatch:
+    inputs:
+      short: { description: "folder name, e.g. fahrenheit", required: true }
+  push:
+    branches: [main]
+    paths: ["public/*/voice.mp3"]
+permissions:
+  contents: write
+  actions: write
+jobs:
+  align:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 2 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -q faster-whisper==1.1.1
+      - name: Align
+        run: |
+          set -e
+          if [ -n "${{ inputs.short }}" ]; then SHORTS="${{ inputs.short }}"; else
+            SHORTS=$(git diff --name-only HEAD~1 HEAD -- 'public/*/voice.mp3' | cut -d/ -f2 | sort -u); fi
+          for s in $SHORTS; do
+            echo "== $s"; python scripts/align.py "public/$s/voice.mp3" "src/videos/$s/timeline.ts"
+            COMP=$(grep -o "id=\"[A-Za-z]*\"" src/Root.tsx | cut -d'"' -f2 | grep -ix "$s" | head -1)
+            printf '{ "composition": "%s", "chunks": 10, "note": "aligned to voice" }\n' "$COMP" > render.json
+          done
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add -A src render.json && git commit -m "Align $SHORTS to the voice and render" && git push
+      - name: Start the render
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: gh workflow run render.yml --ref main --repo "${{ github.repository }}"

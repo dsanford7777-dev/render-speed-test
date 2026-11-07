@@ -1,6 +1,6 @@
 // "The Salt Bucket Behind America's Thermometer": script, timing and shots.
 // Everything is timed from SEGMENTS (seconds). Until the real narration exists these are estimates at ~3.7 spoken
-// words/s; scripts/align.mjs rewrites SEG_TIMES from the ElevenLabs word timestamps, and the shots, cameras and
+// words/s; scripts/align.py rewrites SEG_TIMES from the ElevenLabs word timestamps, and the shots, cameras and
 // captions follow automatically (camera keys are fractions of their shot).
 export const FPS = 30;
 
@@ -25,7 +25,7 @@ export const SEGMENTS: Segment[] = [
 const WPS = 3.7, PAUSE = 0.32;
 const spoken = (s: string) => s.split(/\s+/).filter(Boolean).length;
 const pauses = (s: string) => (s.match(/\.\.\.|[.?!:]\s|[.?!]$/g) ?? []).length;
-/** [start, end] seconds per segment; replaced by scripts/align.mjs once the voice exists */
+/** [start, end] seconds per segment; replaced by scripts/align.py once the voice exists */
 // __SEG_TIMES__
 export const SEG_TIMES: [number, number][] = (() => {
   let t = 0.15;
@@ -34,7 +34,7 @@ export const SEG_TIMES: [number, number][] = (() => {
 // __END_SEG_TIMES__
 export const TOTAL = Math.ceil((SEG_TIMES[SEG_TIMES.length - 1][1] + 0.9) * FPS);
 
-/** caption words with times (seconds). Estimated: each segment's span shared by word length; align.mjs swaps in real ones */
+/** caption words with times (seconds). Estimated: each segment's span shared by word length; align.py swaps in real ones */
 export type Word = { w: string; s: number; e: number; seg: number };
 // __WORDS__
 export const WORDS: Word[] | null = null;

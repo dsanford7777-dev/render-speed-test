@@ -61,6 +61,8 @@ jobs:
     needs: [plan, render]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with: { path: repo, sparse-checkout: public }
       - uses: actions/download-artifact@v4
         with: { pattern: chunk-*, merge-multiple: true, path: parts }
       - name: Join chunks (drop warm-up frames) and check for blank frames
@@ -75,6 +77,15 @@ jobs:
           ffmpeg -loglevel error -y $IN -filter_complex "${FC}${CAT}concat=n=$N:v=1:a=0[out]" -map "[out]" \
             -c:v libx264 -crf 16 -preset medium -pix_fmt yuv420p -movflags +faststart ../video.mp4
           cd ..
+          # narration: public/<composition, lower case>/voice.mp3, laid under the whole video
+          VOICE="repo/public/$(echo '${{ needs.plan.outputs.composition }}' | tr A-Z a-z)/voice.mp3"
+          if [ -f "$VOICE" ]; then
+            ffmpeg -loglevel error -y -i video.mp4 -i "$VOICE" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k \
+              -af apad -shortest -movflags +faststart voiced.mp4 && mv voiced.mp4 video.mp4
+            echo "- Voice: $VOICE" >> voice.txt
+          else
+            echo "- Voice: none (silent)" >> voice.txt
+          fi
           FRAMES=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 video.mp4)
           # blank frame = almost no brightness range (the empty sky colour)
           ffmpeg -loglevel error -i video.mp4 -vf "scale=108:192,signalstats,metadata=print:file=stats.txt" -f null -
@@ -83,6 +94,7 @@ jobs:
             echo "## Render"
             echo "- Frames: $FRAMES (expected ${{ needs.plan.outputs.total }})"
             echo "- Blank frames found: $BLANK"
+            cat voice.txt
             echo "- Chunk times:"; cat parts/time_*.txt | sed 's/^/  - /'
           } | tee report.md >> $GITHUB_STEP_SUMMARY
       - name: Publish as a GitHub release
