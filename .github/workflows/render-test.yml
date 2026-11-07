@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+permissions:
+  contents: write
 jobs:
   render:
     runs-on: ubuntu-latest
@@ -20,16 +22,27 @@ jobs:
           echo "- RAM: $(free -g | awk '/Mem:/{print $2}') GB" >> $GITHUB_STEP_SUMMARY
       - name: Render 60 frames (2 s) at final 2K size
         run: |
+          set -o pipefail
+          mkdir -p out
           START=$(date +%s)
-          npx remotion render src/index.ts BridgeShort out/test.mp4 --frames=600-659 --scale=1.3333 --codec=h264 --crf=16 --gl=swangle --timeout=600000 --log=verbose 2>&1 | tail -40
+          npx remotion render src/index.ts BridgeShort out/test.mp4 --frames=600-659 --scale=1.3333 --codec=h264 --crf=16 --gl=swangle --timeout=600000 2>&1 | tee out/render-log.txt | tail -60
           END=$(date +%s)
+          echo "$((END-START))" > out/render-seconds.txt
           SECS=$((END-START))
           echo "## Result" >> $GITHUB_STEP_SUMMARY
           echo "- 60 frames took **${SECS} s** (includes ~1 min bundling)" >> $GITHUB_STEP_SUMMARY
           echo "- Estimated full 67 s short (2,010 frames): **~$((SECS*2010/60/60)) min**" >> $GITHUB_STEP_SUMMARY
       - name: Still frame for a look check
         if: always()
-        run: npx remotion still src/index.ts BridgeShort out/still_600.png --frame=600 --scale=0.5 --gl=swangle --timeout=600000
+        run: npx remotion still src/index.ts BridgeShort out/still_600.png --frame=600 --scale=0.5 --gl=swangle --timeout=600000 2>&1 | tee out/still-log.txt
+      - name: Save results to the results branch
+        if: always()
+        run: |
+          mkdir -p /tmp/res && cp out/*.txt out/*.png /tmp/res/ 2>/dev/null || true
+          ls -la out > /tmp/res/files.txt 2>&1 || true
+          nproc > /tmp/res/cpus.txt
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git checkout --orphan results && git rm -rqf . && cp /tmp/res/* . && git add -A && git commit -qm "Render test results" && git push -f origin results
       - uses: actions/upload-artifact@v4
         if: always()
         with:
