@@ -1,0 +1,58 @@
+name: Re-join an earlier render
+on:
+  push:
+    branches: [main]
+    paths: [restitch.json]
+permissions:
+  contents: write
+  actions: read
+env:
+  PAD: 2
+jobs:
+  stitch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read restitch.json
+        run: |
+          echo "RUN_ID=$(jq -r .run_id restitch.json)" >> $GITHUB_ENV
+          echo "COMP=$(jq -r .composition restitch.json)" >> $GITHUB_ENV
+      - uses: actions/download-artifact@v4
+        with: { pattern: chunk-*, merge-multiple: true, path: parts, run-id: '${{ env.RUN_ID }}', github-token: '${{ github.token }}' }
+      - name: Join chunks (drop warm-up frames) and check for blank frames
+        run: |
+          sudo apt-get -qq update >/dev/null && sudo apt-get -qq install -y ffmpeg >/dev/null
+          cd parts && ls -la
+          IN=""; FC=""; N=0
+          for f in $(ls chunk_*.mp4 | sort); do
+            IN="$IN -i $f"; FC="$FC[$N:v]trim=start_frame=$PAD,setpts=PTS-STARTPTS[v$N];"; N=$((N+1))
+          done
+          CAT=$(for k in $(seq 0 $((N-1))); do printf "[v$k]"; done)
+          ffmpeg -loglevel error -y $IN -filter_complex "${FC}${CAT}concat=n=$N:v=1:a=0[out]" -map "[out]" \
+            -c:v libx264 -crf 16 -preset medium -pix_fmt yuv420p -movflags +faststart ../video.mp4
+          cd ..
+          FRAMES=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 video.mp4)
+          # blank frame = almost no brightness range (the empty sky colour)
+          ffmpeg -loglevel error -i video.mp4 -vf "scale=108:192,signalstats,metadata=print:file=stats.txt" -f null -
+          BLANK=$(awk -F= '/YLOW=/{l=$2} /YHIGH=/{if($2-l<12) b++} END{print b+0}' stats.txt)
+          {
+            echo "## Render"
+            echo "- Frames: $FRAMES (expected ?)"
+            echo "- Blank frames found: $BLANK"
+            echo "- Chunk times:"; cat parts/time_*.txt | sed 's/^/  - /'
+          } | tee report.md >> $GITHUB_STEP_SUMMARY
+      - name: Publish as a GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ env.COMP }}-$(date -u +%Y%m%d-%H%M)"
+          cp video.mp4 "${{ env.COMP }}.mp4"
+          gh release create "$TAG" "${{ env.COMP }}.mp4" report.md \
+            --repo "${{ github.repository }}" --title "$TAG" --notes-file report.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: video
+          path: |
+            video.mp4
+            report.md

@@ -85,13 +85,16 @@ jobs:
             echo "- Blank frames found: $BLANK"
             echo "- Chunk times:"; cat parts/time_*.txt | sed 's/^/  - /'
           } | tee report.md >> $GITHUB_STEP_SUMMARY
-      - name: Publish to the renders branch
+      - name: Publish as a GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          mkdir -p /tmp/pub && cp video.mp4 /tmp/pub/${{ needs.plan.outputs.composition }}.mp4 && cp report.md /tmp/pub/report.md
-          cd /tmp/pub && git init -q -b renders && git config user.name github-actions && git config user.email actions@github.com
-          git add -A && git commit -qm "Render ${{ needs.plan.outputs.composition }} (${{ github.sha }})"
-          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" renders
+          TAG="${{ needs.plan.outputs.composition }}-$(date -u +%Y%m%d-%H%M)"
+          cp video.mp4 "${{ needs.plan.outputs.composition }}.mp4"
+          gh release create "$TAG" "${{ needs.plan.outputs.composition }}.mp4" report.md \
+            --repo "${{ github.repository }}" --title "$TAG" --notes-file report.md
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: video
           path: |
