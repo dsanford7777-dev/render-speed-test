@@ -9,7 +9,9 @@ export const PAD = 2;
 const padded = (C: React.FC) => {
   const P: React.FC = () => {
     const f = useCurrentFrame();
-    return <Freeze frame={Math.max(0, f - PAD)}><C /></Freeze>;
+    // Warm-up frames (p < PAD) show frames well past the start, so the first real frame (0) is a *change* for every
+    // tab; repeating frame 0 made R3F skip the redraw and frame 0 came out blank.
+    return <Freeze frame={f < PAD ? PAD + 8 + f : f - PAD}><C /></Freeze>;
   };
   return P;
 };

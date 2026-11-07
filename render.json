@@ -1,6 +1,6 @@
 {
   "composition": "BridgeShort",
-  "chunks": 10,
-  "run": 1,
-  "note": "Edit and push this file to start a render. Output lands on the 'renders' branch."
+  "chunks": 1,
+  "range": [0, 29],
+  "note": "Edit and push this file to start a render. Remove \"range\" for the full video. Output: a GitHub release."
 }
