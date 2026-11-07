@@ -10,7 +10,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 import { AbsoluteFill, continueRender, delayRender, getInputProps, useCurrentFrame } from "remotion";
 import { ThreeCanvas } from "@remotion/three";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
 import { EffectComposer } from "@react-three/postprocessing";
 import { BlendFunction, BloomEffect, ToneMappingEffect, ToneMappingMode } from "postprocessing";
 import { World, loadKit } from "./world";
@@ -39,15 +39,10 @@ const makeBloom = () => {
 
 const fwd = new THREE.Vector3(), fpt = new THREE.Vector3();
 
-// Render-farm fix: keep the "bridge kit" hold until a canvas has actually drawn. Releasing it as soon as the kit
-// loaded left a gap (no pending holds, <ThreeCanvas> not mounted yet) where Remotion took the first frame of each
-// render tab before any 3D existed (blank sky colour on software GL).
-let markDrawn: () => void = () => {};
-const firstDraw = new Promise<void>((r) => { markDrawn = r; });
 const useKit = () => {
   const [kit, setKit] = useState<Kit | null>(null);
   const [handle] = useState(() => delayRender("bridge kit"));
-  useEffect(() => { loadKit().then((k) => { setKit(k); firstDraw.then(() => continueRender(handle)); }); }, [handle]);
+  useEffect(() => { loadKit().then((k) => { setKit(k); continueRender(handle); }); }, [handle]);
   return kit;
 };
 
@@ -78,22 +73,16 @@ const Inner: React.FC<{ id: number; kit: Kit }> = ({ id, kit }) => {
     </EffectComposer>
   ), [fx, on]);
   const cam = camera as THREE.PerspectiveCamera;
-  const pose = () => {
-    target.copy(world.update(id, f, cam, scene));
-    noInkFallback(world.root);
-    // thin-lens focus: distance along the view axis to the shot's focus point (default: the camera's look target)
-    const d = dofAt(f);
-    cam.getWorldDirection(fwd);
-    if (d.focus) fpt.set(...d.focus(f)); else fpt.copy(target);
-    fx.lens.focus = Math.max(0.3, fpt.sub(cam.position).dot(fwd));
-    fx.lens.cInf = d.cInf;
-    gradeFor(fx.grade, SHOTS[id - 1].light);
-    fx.grain.seed = f; // deterministic per frame
-  };
-  pose();
-  // Render-farm fix: re-pose right before every draw. On the first frame a render tab draws, R3F applies the
-  // <Canvas camera> defaults after this component's render body ran, so the shot camera was lost (blank sky).
-  useFrame(() => { pose(); markDrawn(); });
+  target.copy(world.update(id, f, cam, scene));
+  noInkFallback(world.root);
+  // thin-lens focus: distance along the view axis to the shot's focus point (default: the camera's look target)
+  const d = dofAt(f);
+  cam.getWorldDirection(fwd);
+  if (d.focus) fpt.set(...d.focus(f)); else fpt.copy(target);
+  fx.lens.focus = Math.max(0.3, fpt.sub(cam.position).dot(fwd));
+  fx.lens.cInf = d.cInf;
+  gradeFor(fx.grade, SHOTS[id - 1].light);
+  fx.grain.seed = f; // deterministic per frame
   return (
     <>
       <primitive object={world.root} dispose={null} />
