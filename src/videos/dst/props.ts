@@ -117,7 +117,7 @@ export const paperTex = (state: 0 | 1) => ctex(`vetoPaper_${state}`, 768, 1024, 
   g.font = font(42, 700); g.fillStyle = INK; g.textAlign = "center"; g.fillText("OF DAYLIGHT SAVING", 384, 250);
   for (let i = 0; i < 9; i++) { g.fillStyle = "rgba(36,23,38,0.35)"; g.fillRect(110, 330 + i * 56, 548 - (i % 3) * 60, 14); }
   if (state) {
-    g.save(); g.translate(384, 640); g.rotate(-0.3);
+    g.save(); g.translate(384, 560); g.rotate(-0.3);
     g.strokeStyle = "#e0332e"; g.lineWidth = 22; g.beginPath(); g.roundRect(-300, -110, 600, 220, 26); g.stroke();
     paintText(g, "VETOED", 0, 6, 150, "#e0332e", "center", 0.04);
     g.restore();
@@ -325,10 +325,10 @@ export const buildChamber = (root: THREE.Object3D, cx: number, y0: number, cz: n
   board.rotation.y = Math.PI; board.position.set(cx, y0 + 3.1, Z1 - 0.04); root.add(board);
   const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.56), lam("vetoPaper_0", () => ({ map: paperTex(0) })));
   paper.rotation.set(-Math.PI / 2 + 0.35, 0, Math.PI); paper.position.set(cx, y0 + 1.52, Z1 - 1.6); paper.rotation.order = "YXZ";
-  paper.rotation.set(-Math.PI / 2 + 0.35, Math.PI, 0); root.add(paper);
+  paper.rotation.set(-Math.PI / 2 + 0.35, Math.PI, 0); paper.position.y = y0 + 1.62; root.add(paper);
   const candies = desks.map((d) => { const c = candyPumpkin(0.1); c.position.copy(d); c.position.y = y0 + 0.5; root.add(c); return c; });
   root.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh) { m.receiveShadow = true; } });
-  return { board, paper, desks, candies, podiumTop: V(cx, y0 + 1.52, Z1 - 1.6) };
+  return { board, paper, desks, candies, podiumTop: V(cx, y0 + 1.62, Z1 - 1.6) };
 };
 const curtainTex = () => ctex("curtain", 256, 512, (g) => {
   g.fillStyle = "#a8303a"; g.fillRect(0, 0, 256, 512);
@@ -351,7 +351,7 @@ export const buildFarm = (root: THREE.Object3D, cx: number, y0: number, cz: numb
   const dm = new THREE.MeshBasicMaterial({ color: new THREE.Color(3.2, 3.4, 3.8) });
   hay.forEach((h, k) => { for (let i = 0; i < 14; i++) {
     const a = -Math.PI / 2 - 1.1 + (i / 13) * 2.2, xx = ((i * 0.37) % 1 - 0.5) * 0.7, r = k === 2 ? 0.55 : 0.6;
-    const d = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 4), dm); d.layers.set(NOINK);
+    const d = new THREE.Mesh(new THREE.SphereGeometry(0.045, 6, 4), dm); d.layers.set(NOINK);
     d.position.set(xx, r + Math.sin(-a) * r * 1.0 + 0.01, Math.cos(a) * r * 0.0 - Math.abs(Math.cos(a)) * r); // front-upper face (toward -z)
     d.position.set(xx, r + r * Math.cos(a + Math.PI / 2) * 0.9, -r * Math.abs(Math.sin(a + Math.PI / 2)) * 0.9 - 0.02);
     h.add(d); dew.push(d);

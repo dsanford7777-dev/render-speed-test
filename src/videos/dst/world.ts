@@ -180,10 +180,12 @@ export class DWorld {
     this.grill = grill(); this.grill.position.set(...GRILL); R.add(this.grill);
     this.money = new Board(2.3, 0.86, "money200", moneyTex, 1.9); this.money.group.position.set(...MONEY); this.money.group.rotation.y = Math.PI; R.add(this.money.group);
     for (const sx of [-1, 1]) for (let z = -47.5; z > -80; z -= 5.5) {
-      const p = pumpkin(0.26, true); p.position.set(sx * 5.3, D0, z + (sx > 0 ? 2.2 : 0)); p.rotation.y = sx < 0 ? -Math.PI / 2 : Math.PI / 2;
+      const p = pumpkin(0.34, true); p.position.set(sx * 5.3, D0 + 0.3, z + (sx > 0 ? 2.2 : 0));
+      const step = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.3, 0.9), lam("stepStone", () => ({ color: "#b8aa97" }))); step.position.set(sx * 5.4, D0 + 0.15, z + (sx > 0 ? 2.2 : 0)); step.castShadow = true; step.receiveShadow = true; R.add(step); this.lanterns.push(step as unknown as THREE.Group); p.rotation.y = sx < 0 ? -Math.PI / 2 : Math.PI / 2;
       R.add(p); this.lanterns.push(p);
     }
-    this.handCandy = candyPumpkin(0.13); R.add(this.handCandy);
+    this.handCandy = candyPumpkin(0.15);
+    this.handCandy.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh) m.material = new THREE.MeshBasicMaterial({ color: m.material === undefined ? "#f39a2a" : ((m.material as THREE.MeshLambertMaterial).color.getHexString() === "3f8f3a" ? "#3f8f3a" : "#ff9a2a") }); }); R.add(this.handCandy);
     for (let i = 0; i < 3; i++) { const pf = pitchfork(); R.add(pf); this.forks.push(pf); }
   }
 
@@ -301,11 +303,11 @@ export class DWorld {
         break;
       case 5: walkers(FOLK1918, 40, "f18", "x", [-40.5, -42.3], [-5.5, 5.5], SHOTS[4].a / FPS); break;
       case 6: break;
-      case 8: [0, 1, 2].forEach((k) => people.push({ w: FM[k], p: C(-1.1 + k * 1.1, 0, 2.6 + (k === 1 ? 0.35 : 0)), pose: { expr: k === 1 ? "laugh" : "stern", blink: blink(30 + k), fork: true } })); break;
+      case 8: [0, 1, 2].forEach((k) => people.push({ w: FM[k], p: C(-0.95 + k * 0.95, 0, 2.6 + (k === 1 ? 0.35 : 0)), pose: { expr: k === 1 ? "laugh" : "stern", blink: blink(30 + k), fork: true } })); break;
       case 10: SENATORS.forEach((o, k) => { const sx = k % 2 ? 1 : -1, j = Math.floor(k / 2), row = j === 2 ? -1.45 : 0.65, x = sx * (1.3 + (j % 2) * 1.5);
         people.push({ w: who(o, 50 + k, `sen_${k}`), p: C(x, 0, row), pose: { expr: f > fOver ? (k % 3 ? "laugh" : "grin") : "neutral", blink: blink(50 + k) } }); }); break;
-      case 11: people.push({ w: H_, p: ST(1.15, 0, -40.7), pose: { expr: "nervous", headTilt: 0.16 * smooth((f - SHOTS[10].a) / 12), look: 1, blink: blink(5) } }); break;
-      case 14: walkers(KIDS, 60, "kid", "z", [-2.6, -1.0], [-68, -52], SHOTS[13].a / FPS); break;
+      case 11: people.push({ w: H_, p: ST(1.3, 0, -40.7), pose: { expr: "nervous", headTilt: 0.16 * smooth((f - SHOTS[10].a) / 12), look: 1, blink: blink(5) } }); break;
+      case 14: walkers(KIDS.slice(0, 3), 60, "kid", "z", [-2.6, -1.0], [-68, -52], SHOTS[13].a / FPS); break;
       case 16: walkers(KIDS, 60, "kid", "x", [-40.5, -42.3], [-5.5, 5.5], SHOTS[15].a / FPS); break;
       case 17: people.push({ w: H_, p: ST(0.1, 0, -41.0), pose: { expr: f > L_(16, "thank") ? "smile_closed" : "dazed", blink: blink(5), candy: true } }); break;
     }
@@ -320,7 +322,7 @@ export class DWorld {
     for (let i = fk; i < this.forks.length; i++) this.forks[i].visible = false;
     const holder = people.find((q) => q.pose.candy);
     this.handCandy.visible = !!holder;
-    if (holder) { const toCam = cam.position.clone().sub(V(...holder.p)).setY(0).normalize(); this.handCandy.position.set(...holder.p).addScaledVector(toCam, 0.32).addScaledVector(right, -0.12).add(V(0, 1.1, 0)); }
+    if (holder) { const toCam = cam.position.clone().sub(V(...holder.p)).setY(0).normalize(); this.handCandy.position.set(...holder.p).addScaledVector(toCam, 0.3).addScaledVector(right, 0.36).add(V(0, 0.82, 0)); }
     let ai = 0;
     for (const q of people) {
       if (!this.frustum.intersectsSphere(this.sph.set(this.v.set(q.p[0], q.p[1] + 1.1, q.p[2]), 3.5))) continue;
@@ -381,8 +383,8 @@ export class DWorld {
       case 11: return [all("street clock", this.stClock.facePos(), 0.1, this.stClock.group)];
       case 12: return [["SALE sign", this.sale.pos(), 0.1, s.a + 4, w(11, "golf") - 10, this.sale.group], ["golf flag", V(GREEN[0] + 0.3, GREEN[1] + 1.4, GREEN[2] + 0.2), 0.1, w(11, "golf") + 10, w(11, "barbecue") - 10, this.green], ["grill", V(GRILL[0], GRILL[1] + 0.8, GRILL[2]), 0.1, w(11, "barbecue") + 10, s.b, this.grill]];
       case 13: return [["golf green", V(...GREEN), 0.3, s.a, w(12, "$200") - 4, this.green], ["$200,000,000 board", this.money.pos(), 0.2, w(12, "$200") + 8, s.b, this.money.group]];
-      case 14: return [all("jack-o'-lantern", V(-5.3, D0 + 0.25, -58.5), 0.1)];
-      case 15: { const m = Math.round((s.a + s.b) / 2); return [["candy pumpkin", hl.candies[8].position.clone().add(V(0, 0.06, 0)), 0.05, s.a, m, hl.candies[8]], ["candy pumpkin", hl.candies[7].position.clone().add(V(0, 0.06, 0)), 0.05, m, s.b, hl.candies[7]]]; }
+      case 14: return [all("jack-o'-lantern", V(-5.3, D0 + 0.62, -58.5), 0.1)];
+      case 15: return [all("candy pumpkin", hl.candies[8].position.clone().add(V(0, 0.08, 0)), 0.05, hl.candies[8]), all("candy pumpkin", hl.candies[7].position.clone().add(V(0, 0.08, 0)), 0.05, hl.candies[7])];
       case 16: return [all("banner", V(...BANNER), 0.2, this.banner)];
       case 17: return [all("candy pumpkin", this.handCandy.position.clone().add(V(0, 0.08, 0)), 0.05, this.handCandy)];
       default: return [];

@@ -56,7 +56,7 @@ export const MONEY: V3 = ST(0.1, 2.35, STALL_Z - 2.2);
 const keys = (): Record<number, Key[]> => {
   const c: Record<number, Key[]> = {};
   // 1 hook: the farmer glaring, the clock beside him; slow push
-  c[1] = [{ f: 0, s: (f) => push(F(0.3, 1.6, -3.3), F(0.38, 1.5, 2.0), f, 0, 0.0035, { fov: 46 }) }];
+  c[1] = [{ f: 0, s: (f) => push(F(0.22, 1.6, -3.4), F(0.3, 1.5, 2.0), f, 0, 0.0018, { fov: 46 }) }];
   // 2 wider with the other farmers -> glide to the clock as it gets stamped on "banned"
   c[2] = [
     { f: A(2), s: (f) => push(F(-0.1, 2.0, -5.2), F(0.1, 1.45, 2.6), f, A(2), 0.002, { fov: 44 }) },
@@ -76,16 +76,16 @@ const keys = (): Record<number, Key[]> => {
   // 7 dew on the hay -> glide to the MILK TRAIN sign on "milk"
   c[7] = [
     { f: A(7), s: (f) => push(F(-2.6, 1.45, 0.4), F(-3.4, 0.7, 4.4), f, A(7), 0.002, { fov: 44 }) },
-    { f: on(6, "milk", 26), dur: 26, s: (f) => push(F(-1.4, 1.55, 1.8), F(-1.55, 1.25, 6.2), f, on(6, "milk", 26), 0.002, { fov: 42 }) },
+    { f: wordAt(6, "milk") - 4, cut: true, s: (f) => push(F(-1.4, 1.55, 1.8), F(-1.55, 1.25, 6.2), f, wordAt(6, "milk") - 4, 0.002, { fov: 42 }) },
   ];
   // 8 farmers in the hall, CONGRESS board behind them
-  c[8] = [{ f: A(8), s: (f) => push(C(0, 2.3, -3.8), C(0, 2.1, 4.0), f, A(8), 0.003, { fov: 46 }) }];
+  c[8] = [{ f: A(8), s: (f) => push(C(0, 2.5, -6.0), C(0, 2.2, 4.0), f, A(8), 0.0018, { fov: 48 }) }];
   // 9 the repeal paper on the lectern, stamped VETOED
-  c[9] = [{ f: A(9), s: (f) => push(C(0.0, 2.3, 3.25), C(0, 1.52, 4.4), f, A(9), 0.002, { fov: 44 }) }];
+  c[9] = [{ f: A(9), s: (f) => push(C(0.0, 2.35, 3.45), C(0, 1.62, 4.4), f, A(9), 0.0015, { fov: 40 }) }];
   // 10 the senators cheer; the board flips to REPEALED! on "overrode"
   c[10] = [{ f: A(10), s: (f) => push(C(0, 2.7, -6.8), C(0, 2.3, 4.0), f, A(10), 0.0025, { fov: 46 }) }];
   // 11 the helper shrugs at the street clock
-  c[11] = [{ f: A(11), s: (f) => push(ST(1.7, 1.6, -36.0), ST(1.7, 1.55, -41.0), f, A(11), 0.003, { fov: 40 }) }];
+  c[11] = [{ f: A(11), s: (f) => push(ST(1.75, 1.75, -35.6), ST(1.75, 1.7, -41.0), f, A(11), 0.0018, { fov: 42 }) }];
   // 12 one stall per word: shops, golf, barbecue
   c[12] = [
     { f: A(12), s: (f) => push(ST(-3.6, 1.5, -48.4), ST(-3.6, 1.2, STALL_Z), f, A(12), 0.003, { fov: 40 }) },
@@ -97,7 +97,7 @@ const keys = (): Record<number, Key[]> => {
   // 14 Halloween street seen across: jack-o'-lanterns on the doorsteps, kids walking past
   c[14] = [{ f: A(14), s: (f) => push(ST(4.2, 1.35, -56.5), ST(-6.0, 0.85, -60.0), f, A(14), 0.002, { fov: 46 }) }];
   // 15 slide along the back row of seats: a candy pumpkin on every one
-  c[15] = [{ f: A(15), s: (f) => { const u = (f - A(15)) / FPS; return { pos: C(-5.0 + 0.5 * u, 2.4, -2.8), look: C(-4.1 + 0.5 * u, 0.5, -1.3), fov: 42 }; } }];
+  c[15] = [{ f: A(15), s: (f) => push(C(-6.4, 1.8, -2.5), C(-2.6, 0.45, -1.4), f, A(15), 0.002, { fov: 44 }) }];
   // 16 2005: daylight trick-or-treat under the banner
   c[16] = [{ f: A(16), s: (f) => push([-0.4, D0 + 1.7, -31.5], [0, D0 + 3.2, BANNER[2]], f, A(16), 0.002, { fov: 48 }) }];
   // 17 night: the sleepy helper holds up a candy pumpkin; punch in on "thank"
