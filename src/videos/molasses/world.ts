@@ -330,7 +330,7 @@ export class MWorld {
         const run = (t - SHOTS[0].a / FPS) * (0.75 + 0.08 * k), bob = 0.05 * Math.abs(Math.sin(t * 9 + k));
         people.push({ w: who(o, 40 + k, `run_${k}`), p: [MX + [4.15, 6.5, 4.9, 5.75][k], D0 + bob, -119.5 - (k % 2) * 1.6 - run], pose: { expr: "shock", blink: 0 } });
       }); break;
-      case 2: walkers(FOLK, 40, "walk", [-66.5, -68.5], [MX - 2, MX + 11], SHOTS[1].a / FPS); break;
+      case 2: if (f < wordAt(1, "tank") - 3) walkers(FOLK, 40, "walk", [-66.5, -68.5], [MX - 2, MX + 11], SHOTS[1].a / FPS); break;
       case 4: { const q = f >= wordAt(3, "engineer") - 2; people.push({ w: J_, p: JELL4, pose: { expr: q ? "dazed" : "nervous", headTilt: q ? -0.32 : -0.1, look: -1, blink: blink(7) } }); break; }
       case 5: people.push({ w: J_, p: JELL5, pose: { expr: "grin", blink: blink(7) } }); break;
       case 15: KIDS_AT.forEach((p, k) => people.push({ w: who(KIDS[k], 60 + k, `kid_${k}`), p, pose: { expr: k === 1 ? "lick" : "grin", blink: blink(60 + k), cup: true } })); break;
@@ -400,7 +400,7 @@ export class MWorld {
     const face = (y: number, dz = 0) => V(TANK[0] + TANK_R, D0 + y, TANK[2] + dz);
     switch (id) {
       case 1: { const z = waveFront(1, s.a) ?? -90; return [all("wave crest", V(WAVE.x, D0 + WAVE.H * 0.9, z + 0.5), 0.5, this.wave.group)]; }
-      case 2: return [all("tank", V(TANK[0] + TANK_R * 0.7, D0 + TANK_H * 0.75, TANK[2] - TANK_R * 0.7), 0.5, tk)];
+      case 2: { const fc = w(1, "tank") - 3; return [["tank", V(TANK[0] + TANK_R * 0.7, D0 + TANK_H * 0.75, TANK[2] - TANK_R * 0.7), 0.5, s.a, fc - 1, tk], ["tank wall", V(TANK[0] + TANK_R, D0 + 7, TANK[2] - 0.6), 0.5, fc + 6, s.b, tk]]; }
       case 3: return [["gallons board", this.gallons.pos(), 0.1, w(2, "2") + 8, s.b, this.gallons.group]];
       case 4: return [all("upside-down plan", this.plan.pos(), 0.1, this.plan.group)];
       case 5: return [all("TREASURER sign", this.plaque.pos(), 0.1, this.plaque.group)];
