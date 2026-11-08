@@ -71,48 +71,59 @@ const push = (pos: V3, look: V3, f: number, f0: number, rate = 0.0025, rest: Par
 export const A = (id: number) => SHOTS[id - 1].a;
 const on = (seg: number, w: string, dur = 24) => wordAt(seg, w) - Math.round(dur / 2);
 
+const L3 = (a: V3, b: V3, k: number): V3 => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k];
+/** progress through a shot (0..1), eased: the camera's sweep spans the whole shot */
+const U = (id: number, f: number, ease = glide) => ease((f - SHOTS[id - 1].a) / Math.max(1, SHOTS[id - 1].b - SHOTS[id - 1].a));
+/** a point on a circle around c: angle a (radians, 0 = due south of c, + = toward +x), radius r, height h above c */
+const orb = (c: V3, r: number, h: number, a: number): V3 => [c[0] + r * Math.sin(a), c[1] + h, c[2] - r * Math.cos(a)];
+const shake = (f: number, amp: number): V3 => [amp * Math.sin(f * 1.7), amp * 0.6 * Math.sin(f * 2.3 + 1), 0];
+const add = (a: V3, b: V3): V3 => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+
+// Camera grammar here: every shot moves. Cranes rise to reveal size, orbits swing around a subject, the camera backs
+// away from the wave as it comes, swoops push in on the payoff word. Big reframes are still hard cuts.
 const keys = (): Record<number, Key[]> => {
   const c: Record<number, Key[]> = {};
-  // 1 hook: low in the street, the wave towering toward the lens, people running at us
-  c[1] = [{ f: 0, s: (f) => push(M(5, 1.3, -138), M(5, 5.2, -112), f, 0, 0.0016, { fov: 54 }) }];
-  // 2 the tank by the harbor, people tiny at its foot
-  c[2] = [{ f: A(2), s: (f) => push(M(9.4, 2.2, -96), M(-14, 7.5, -50), f, A(2), 0.0018, { fov: 54 }) }];
-  // 3 the gallons board at the tank's foot
-  c[3] = [{ f: A(3), s: (f) => push(M(3.2, 2.0, -50.4), M(-2.4, 2.15, -47.1), f, A(3), 0.002, { fov: 44 }) }];
-  // 4 the treasurer and his upside-down plan
-  c[4] = [{ f: A(4), s: (f) => push(M(5.2, 1.6, -59.4), M(-1.5, 1.45, -56.4), f, A(4), 0.002, { fov: 42 }) }];
-  // 5 TREASURER over his desk of coins
-  c[5] = [{ f: A(5), s: (f) => push(M(3.6, 1.7, -59.6), M(-1.6, 1.75, -58.9), f, A(5), 0.002, { fov: 42 }) }];
-  // 6 the hose; the X pops on "never"
-  c[6] = [{ f: A(6), s: (f) => push(M(2.6, 1.3, -64.0), M(-2.5, 0.6, -62.5), f, A(6), 0.002, { fov: 44 }) }];
-  // 7 the calendar, then cut to the tank's base as it bursts
+  // 1 hook: low, the camera rises and swings toward the oncoming wave while people run at us
+  c[1] = [{ f: 0, s: (f) => { const u = U(1, f, smooth); return { pos: L3(M(2.5, 0.8, -142), M(7.0, 3.4, -133), u), look: M(5, 5.0 + 0.6 * u, -112), fov: 56 - 4 * u, roll: 0.06 - 0.09 * u }; } }];
+  // 2 crane up from the street to rooftop height: the tank is five stories tall
+  c[2] = [{ f: A(2), s: (f) => { const u = U(2, f); return { pos: L3(M(7.5, 1.4, -100), M(5.0, 12.5, -90), u), look: L3(M(-14, 6, -50), M(-15, 12, -50), u), fov: 54 }; } }];
+  // 3 truck along the tank's foot onto the gallons board
+  c[3] = [{ f: A(3), s: (f) => { const u = U(3, f); return { pos: L3(M(5.0, 1.2, -55.0), M(2.8, 2.2, -49.8), u), look: L3(M(-3, 2.6, -50), M(-2.4, 2.15, -47.1), u), fov: 46 }; } }];
+  // 4 orbit around the treasurer and his upside-down plan
+  c[4] = [{ f: A(4), s: (f) => { const u = U(4, f, smooth); return { pos: orb(M(-1.5, 0, -56.4), 6.4 - 0.8 * u, 1.6, 1.42 - 0.42 * u), look: M(-1.45, 1.55, -56.4), fov: 44 }; } }];
+  // 5 swoop in on TREASURER
+  c[5] = [{ f: A(5), s: (f) => { const u = U(5, f); return { pos: L3(M(6.0, 3.2, -62.0), M(3.0, 1.75, -59.6), u), look: L3(M(-1.6, 1.4, -58.9), M(-1.6, 1.85, -58.9), u), fov: 44, roll: 0.05 * (1 - u) }; } }];
+  // 6 crane down onto the hose; the X pops on "never"
+  c[6] = [{ f: A(6), s: (f) => { const u = U(6, f); return { pos: L3(M(1.0, 4.2, -63.2), M(2.4, 1.1, -64.2), u), look: L3(M(-2.5, 0.2, -62.5), M(-2.4, 0.6, -62.5), u), fov: 46 }; } }];
+  // 7 the calendar (slow arc), then cut to the tank's base as it bursts: pull back fast, with a shake
   c[7] = [
-    { f: A(7), s: (f) => push(M(4.2, 1.9, -48.1), M(0.2, 1.75, -46.5), f, A(7), 0.002, { fov: 42 }) },
-    { f: wordAt(6, "burst") - 4, cut: true, s: (f) => push(M(11, 2.0, -57), M(-4, 3.4, -52.2), f, wordAt(6, "burst") - 4, 0.0012, { fov: 54 }) },
+    { f: A(7), s: (f) => { const u = U(7, f, smooth); return { pos: orb(M(0.2, 0, -46.5), 4.4, 1.9, 1.3 - 0.35 * u), look: M(0.2, 1.75, -46.5), fov: 42 }; } },
+    { f: wordAt(6, "burst") - 4, cut: true, s: (f) => { const k = smooth((f - wordAt(6, "burst") + 4) / 24), sh = Math.max(0, 1 - (f - wordAt(6, "burst")) / 30);
+      return { pos: add(L3(M(5.5, 1.8, -55.0), M(10.0, 2.5, -57.0), k), shake(f, 0.12 * sh)), look: M(-4, 3.2, -52.2), fov: 50 + 6 * k }; } },
   ];
-  // 8 the wave against the 25 FT pole
-  c[8] = [{ f: A(8), s: (f) => push(M(4.5, 2.0, -127), M(6.5, 4.8, -98), f, A(8), 0.0015, { fov: 52 }) }];
-  // 9 low and fast: the wave rushes at the lens past the 35 MPH sign
-  c[9] = [{ f: A(9), s: (f) => ({ pos: M(4, 0.9, -141), look: M(4.0, 2.8, -118), fov: 56, roll: 0.03 * Math.sin(f * 0.9) }) }];
-  // 10 the firehouse slides off its base -> glide up to the twisted span of the El on "twisted"
+  // 8 the camera backs away as the wave comes on, tilting up to the 25 FT mark
+  c[8] = [{ f: A(8), s: (f) => { const u = U(8, f, smooth); return { pos: L3(M(4.0, 1.4, -120), M(5.0, 2.4, -129), u), look: L3(M(6, 3.6, -98), M(7.5, 6.2, -102), u), fov: 52 }; } }];
+  // 9 low and fast: the wave rushes at the lens past the 35 MPH sign, the camera stumbling backward
+  c[9] = [{ f: A(9), s: (f) => { const u = U(9, f, (x) => x); return { pos: add(L3(M(3.5, 0.9, -137), M(4.5, 1.2, -143), u), shake(f, 0.05)), look: M(4.0, 2.8, -118), fov: 56, roll: 0.035 * Math.sin(f * 0.9) }; } }];
+  // 10 arc across the firehouse front as it's knocked off its base -> crane up to the twisted span on "twisted"
   c[10] = [
-    { f: A(10), s: (f) => push(M(7.5, 2.0, -112.5), M(-2.5, 4.4, -104.2), f, A(10), 0.0012, { fov: 56 }) },
+    { f: A(10), s: (f) => { const u = U(10, f, smooth); return { pos: L3(M(7.5, 1.6, -112.5), M(7.2, 2.6, -109.5), u), look: M(-2.5, 4.2, -104.2), fov: 56 }; } },
     { f: on(9, "twisted", 26), dur: 26, s: (f) => push(M(2.6, 2.6, -131), M(7, 5.6, -120), f, on(9, "twisted", 26), 0.0015, { fov: 50 }) },
   ];
-  // 11 the street under a glossy sheet of molasses
-  c[11] = [{ f: A(11), s: (f) => push(M(2.0, 3.0, -150), M(3.5, 0.3, -112), f, A(11), 0.0015, { fov: 50 }) }];
-  // 12 the cart and the hat, stuck fast
-  c[12] = [{ f: A(12), s: (f) => push(M(1.4, 1.8, -99.0), M(2.2, 0.55, -91.0), f, A(12), 0.002, { fov: 48 }) }];
-  // 13 back before: the tank whole, golden light
-  c[13] = [{ f: A(13), s: (f) => push(M(11, 2.0, -80), M(-14, 7.0, -50), f, A(13), 0.002, { fov: 52 }) }];
-  // 14 close on the leaking seams
-  c[14] = [{ f: A(14), s: (f) => push(M(0.8, 2.4, -50.6), M(-4, 2.7, -52.4), f, A(14), 0.002, { fov: 42 }) }];
-  // 15 kids with tin cups under the drips
-  c[15] = [{ f: A(15), s: (f) => push(M(2.4, 1.4, -58.4), M(-3.1, 1.05, -52.7), f, A(15), 0.002, { fov: 52 }) }];
-  // 16 the treasurer shrugs at the streaks
-  c[16] = [{ f: A(16), s: (f) => push(M(3.6, 1.6, -58.6), M(-1.9, 1.5, -55.6), f, A(16), 0.002, { fov: 44 }) }];
-  // 17 the painter covers the tank in brown
-  c[17] = [{ f: A(17), s: (f) => push(M(7.5, 2.6, -63), M(-4.0, 6.8, -53.2), f, A(17), 0.0015, { fov: 54 }) }];
+  // 11 descend from above over the glossy, thickening street
+  c[11] = [{ f: A(11), s: (f) => { const u = U(11, f); return { pos: L3(M(2.2, 8.5, -152), M(3.0, 1.3, -140), u), look: L3(M(3.5, 0.0, -118), M(3.5, 0.4, -110), u), fov: 50 }; } }];
+  // 12 orbit around the stuck cart and the hat
+  c[12] = [{ f: A(12), s: (f) => { const u = U(12, f, smooth); return { pos: orb(M(2.2, 0, -91), 7.0, 1.9 - 0.4 * u, -0.45 + 0.5 * u), look: M(2.2, 0.5, -91), fov: 48 }; } }];
+  // 13 back before: low and wide, sweeping up and around the whole tank
+  c[13] = [{ f: A(13), s: (f) => { const u = U(13, f); return { pos: L3(M(10, 1.2, -84), M(5, 7.5, -76), u), look: L3(M(-14, 8, -50), M(-15, 6.5, -50), u), fov: 54 }; } }];
+  // 14 slide down the wall with the drips
+  c[14] = [{ f: A(14), s: (f) => { const u = U(14, f, smooth); return { pos: L3(M(1.0, 3.8, -51.4), M(0.7, 1.8, -50.8), u), look: L3(M(-4, 4.0, -52.4), M(-4, 2.1, -52.4), u), fov: 42 }; } }];
+  // 15 dolly along the kids and their cups
+  c[15] = [{ f: A(15), s: (f) => { const u = U(15, f, smooth); return { pos: L3(M(2.6, 1.3, -59.0), M(2.0, 1.5, -56.6), u), look: L3(M(-3.1, 1.0, -53.2), M(-3.1, 1.1, -52.0), u), fov: 52 }; } }];
+  // 16 slow swing around the treasurer as he shrugs at the streaks
+  c[16] = [{ f: A(16), s: (f) => { const u = U(16, f, smooth); return { pos: orb(M(-1.9, 0, -55.8), 5.6, 1.6, 0.95 + 0.3 * u), look: M(-1.9, 1.5, -55.8), fov: 44, roll: -0.03 * u }; } }];
+  // 17 rise with the painter as the brown climbs the tank
+  c[17] = [{ f: A(17), s: (f) => { const u = U(17, f); return { pos: L3(M(8.0, 1.6, -64), M(7.0, 4.6, -61), u), look: L3(M(-4, 5.0, -53.2), M(-4, 8.2, -53.2), u), fov: 54 }; } }];
   return c;
 };
 let CAMS: Record<number, Key[]> | null = null;

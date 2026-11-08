@@ -6,6 +6,7 @@ on:
     paths: [render.json]
 permissions:
   contents: write
+  actions: read
 env:
   PAD: 2            # keep in step with PAD in src/Root.tsx
 jobs:
@@ -20,6 +21,7 @@ jobs:
       composition: ${{ steps.p.outputs.composition }}
       total: ${{ steps.p.outputs.total }}
       matrix: ${{ steps.p.outputs.matrix }}
+      reuse: ${{ steps.p.outputs.reuse }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -60,7 +62,7 @@ jobs:
         with:
           name: chunk-${{ matrix.i }}
           path: part/
-          retention-days: 2
+          retention-days: 7
 
   stitch:
     needs: [plan, render]
@@ -68,6 +70,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { path: repo, sparse-checkout: public }
+      # partial re-render: start from the earlier run's chunks, then this run's redone chunks overwrite theirs
+      - if: needs.plan.outputs.reuse != ''
+        uses: actions/download-artifact@v4
+        with: { pattern: chunk-*, merge-multiple: true, path: parts, run-id: "${{ needs.plan.outputs.reuse }}", github-token: "${{ github.token }}" }
       - uses: actions/download-artifact@v4
         with: { pattern: chunk-*, merge-multiple: true, path: parts }
       - name: Join chunks (drop warm-up frames) and check for blank frames

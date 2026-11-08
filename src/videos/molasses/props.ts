@@ -3,6 +3,7 @@
 import * as THREE from "three";
 import { lam } from "../bridge/build";
 import { ctex, rep, beam } from "../bridge/paint";
+import { twoTone } from "../bridge/shade";
 import { INK, paintText } from "../dst/props";
 
 const shadowAll = <T extends THREE.Object3D>(g: T): T => { g.traverse((o) => { o.castShadow = true; o.receiveShadow = true; }); return g; };
@@ -95,35 +96,70 @@ const molTex = () => ctex("molasses", 512, 512, (g, r) => {
   for (let i = 0; i < 14; i++) { g.fillStyle = "rgba(255,214,150,0.55)"; const x = r() * 512, y = r() * 512; g.beginPath(); g.ellipse(x, y, 18 + r() * 40, 3 + r() * 4, 0, 0, Math.PI * 2); g.fill(); }
 });
 export const molMat = () => lam("molasses", () => ({ map: rep(molTex(), 2, 2) }));
-/** the wave: a profile (front at z = 0, body trailing back toward +z) extruded across `width` metres (centred on x) */
-export const waveMesh = (width: number, H: number, len: number) => {
-  const s = new THREE.Shape(), P: [number, number][] = [
-    [-0.6, 0], [0.4, H * 0.2], [0.3, H * 0.45], [-0.8, H * 0.66], [-2.4, H * 0.76], [-2.6, H * 0.86], [-1.6, H * 0.97], [0.0, H * 1.02], [1.6, H * 0.98],
-    [3.4, H * 0.84], [7, H * 0.52], [len * 0.55, H * 0.2], [len, 0.5], [len, 0],
-  ];
-  s.moveTo(P[0][0], P[0][1]); for (const [x, y] of P.slice(1)) s.lineTo(x, y); s.closePath();
-  const g = new THREE.ExtrudeGeometry(s, { depth: width, bevelEnabled: false, curveSegments: 4, steps: 8 });
-  g.rotateY(-Math.PI / 2); g.translate(width / 2, 0, 0);
-  // break the straight extrusion: the crest runs slightly ahead in the middle, edges lag
-  const p = g.attributes.position as THREE.BufferAttribute;
-  for (let i = 0; i < p.count; i++) {
-    const u = p.getX(i) / (width / 2), y = p.getY(i);
-    p.setZ(i, p.getZ(i) + 1.6 * u * u + 0.4 * Math.sin(u * 5));
-    p.setY(i, y * (1 - 0.18 * u * u + 0.06 * Math.sin(u * 7 + 1)));
-  }
-  g.computeVertexNormals();
-  const m = new THREE.Mesh(g, molMat()); m.castShadow = true; m.receiveShadow = false; // its own curl would shade the whole face
-  // a glossy amber lip along the curling crest so the wave reads as a wave, not a wall
-  const lip = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, width * 0.98, 12, 24).rotateZ(Math.PI / 2), lam("molassesLip", () => ({ color: "#c27a2c" })));
-  const lp = lip.geometry.attributes.position as THREE.BufferAttribute;
-  for (let i = 0; i < lp.count; i++) { const u = lp.getX(i) / (width / 2); lp.setY(i, lp.getY(i) + H * 0.84 * (1 - 0.18 * u * u + 0.06 * Math.sin(u * 7 + 1))); lp.setZ(i, lp.getZ(i) - 2.3 + 1.6 * u * u + 0.4 * Math.sin(u * 5)); }
-  lip.geometry.computeVertexNormals(); m.add(lip);
-  return m;
+/** glossy, flowing molasses: Phong highlights through the house two-tone shader, its own texture so it can scroll */
+export const liquidMat = (key: string) => {
+  const t = molTex().clone(); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(2, 2); t.needsUpdate = true;
+  const m = twoTone(new THREE.MeshPhongMaterial({ map: t, color: "#ffffff", specular: "#ffd9a0", shininess: 70 }), 0.55);
+  m.name = key; return { m, t };
 };
+/** a rolling wave of molasses: a profile (front at z = 0, body trailing back toward +z) extruded across `width` metres,
+ *  re-shaped every frame (swells running through it, the crest curling and wobbling, spray flying off the lip) */
+export class LiquidWave {
+  group = new THREE.Group(); mesh: THREE.Mesh; lip: THREE.Mesh; private base: Float32Array; private lipBase: Float32Array;
+  private tex: THREE.Texture; private spray: THREE.Mesh[] = [];
+  constructor(public width: number, public H: number, len: number, key: string, nSpray = 36) {
+    const s = new THREE.Shape(), P: [number, number][] = [
+      [-0.6, 0], [0.4, H * 0.2], [0.3, H * 0.45], [-0.8, H * 0.66], [-2.4, H * 0.76], [-2.6, H * 0.86], [-1.6, H * 0.97], [0.0, H * 1.02], [1.6, H * 0.98],
+      [3.4, H * 0.84], [7, H * 0.52], [len * 0.55, H * 0.2], [len, 0.5], [len, 0],
+    ];
+    s.moveTo(P[0][0], P[0][1]); for (const [x, y] of P.slice(1)) s.lineTo(x, y); s.closePath();
+    const g = new THREE.ExtrudeGeometry(s, { depth: width, bevelEnabled: false, curveSegments: 4, steps: 40 });
+    g.rotateY(-Math.PI / 2); g.translate(width / 2, 0, 0);
+    const p = g.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < p.count; i++) {
+      const u = p.getX(i) / (width / 2), y = p.getY(i);
+      p.setZ(i, p.getZ(i) + 1.6 * u * u + 0.4 * Math.sin(u * 5));
+      p.setY(i, y * (1 - 0.18 * u * u + 0.06 * Math.sin(u * 7 + 1)));
+    }
+    this.base = Float32Array.from(p.array as Float32Array);
+    const { m, t } = liquidMat(key); this.tex = t;
+    this.mesh = new THREE.Mesh(g, m); this.mesh.castShadow = true; this.mesh.receiveShadow = false; // its own curl would shade the whole face
+    // the glossy amber roll along the curling crest
+    this.lip = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, width * 0.98, 12, 40).rotateZ(Math.PI / 2),
+      twoTone(new THREE.MeshPhongMaterial({ color: "#c98236", specular: "#fff0c8", shininess: 90 }), 0.6));
+    const lp = this.lip.geometry.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < lp.count; i++) { const u = lp.getX(i) / (width / 2); lp.setY(i, lp.getY(i) + H * 0.84 * (1 - 0.18 * u * u + 0.06 * Math.sin(u * 7 + 1))); lp.setZ(i, lp.getZ(i) - 2.3 + 1.6 * u * u + 0.4 * Math.sin(u * 5)); }
+    this.lipBase = Float32Array.from(lp.array as Float32Array);
+    this.group.add(this.mesh, this.lip);
+    const dm = twoTone(new THREE.MeshPhongMaterial({ color: "#8a4416", specular: "#ffe2b0", shininess: 90 }), 0.6);
+    for (let i = 0; i < nSpray; i++) { const d = new THREE.Mesh(new THREE.SphereGeometry(0.09 + 0.06 * ((i * 0.37) % 1), 8, 6), dm); this.group.add(d); this.spray.push(d); }
+  }
+  /** pose the liquid at time t (seconds) */
+  update(t: number) {
+    const W = this.width, H = this.H, p = this.mesh.geometry.attributes.position as THREE.BufferAttribute, b = this.base;
+    const sway = (x: number, y: number) => (y / H) * (0.28 * Math.sin(x * 0.9 + t * 3.1) + 0.16 * Math.sin(x * 2.3 - t * 4.7)) - (y > 0.7 * H ? 0.35 * Math.sin(t * 2.2 + x * 0.5) : 0);
+    for (let i = 0; i < p.count; i++) {
+      const x = b[i * 3], y = b[i * 3 + 1], z = b[i * 3 + 2];
+      const swell = y > 0.15 && z > 1 ? 0.3 * Math.sin(z * 0.45 - t * 3.6 + x * 0.3) * Math.min(1, z / 6) : 0;
+      p.setXYZ(i, x, y + swell, z + sway(x, y));
+    }
+    p.needsUpdate = true; this.mesh.geometry.computeVertexNormals();
+    const lp = this.lip.geometry.attributes.position as THREE.BufferAttribute, lb = this.lipBase;
+    for (let i = 0; i < lp.count; i++) { const x = lb[i * 3], y = lb[i * 3 + 1]; lp.setXYZ(i, x, y, lb[i * 3 + 2] + sway(x, H * 0.84)); }
+    lp.needsUpdate = true;
+    this.tex.offset.set(t * 0.04, -t * 0.32);
+    // spray: droplets thrown forward off the lip, arcing down
+    this.spray.forEach((d, i) => {
+      const ph = ((t * 0.9 + i * 0.618) % 1), x = ((i * 0.381) % 1 - 0.5) * W * 0.9, tau = ph * 1.1;
+      d.position.set(x, H * 0.86 + (2.6 + (i % 4) * 0.5) * tau - 4.9 * tau * tau, -2.4 - (2.2 + (i % 3) * 0.8) * tau + sway(x, H * 0.84));
+      d.visible = d.position.y > 0.2;
+    });
+  }
+}
 /** the cold, thickened molasses lying over the street: a sheet with lumps */
 export const molSheet = (w: number, d: number) => {
   const g = new THREE.Group();
-  const sheet = new THREE.Mesh(new THREE.PlaneGeometry(w, d, 40, 120).rotateX(-Math.PI / 2), molMat());
+  const sheet = new THREE.Mesh(new THREE.PlaneGeometry(w, d, 40, 120).rotateX(-Math.PI / 2), liquidMat("molSheet").m);
   const p = sheet.geometry.attributes.position as THREE.BufferAttribute;
   for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i); p.setY(i, 0.18 * Math.sin(x * 1.3 + z * 0.4) * Math.sin(z * 0.7) + 0.08 * Math.sin(x * 4.1 - z * 2.3)); }
   sheet.geometry.computeVertexNormals(); sheet.receiveShadow = true; g.add(sheet);
@@ -299,4 +335,10 @@ export const markPole = () => {
   const pole = new THREE.Mesh(new THREE.BoxGeometry(0.18, 7.8, 0.18), lam("markPole", () => ({ color: "#f4f1ea" }))); pole.position.y = 3.9; g.add(pole);
   for (let k = 1; k <= 25; k++) { const t = new THREE.Mesh(new THREE.BoxGeometry(k % 5 ? 0.3 : 0.6, 0.05, 0.2), lam("xRed", () => ({ color: "#e0332e" }))); t.position.set(0, k * 0.3048, 0); g.add(t); }
   return shadowAll(g);
+};
+
+/** a big "?" that pops over someone's head (camera-facing plane) */
+export const questionMark = () => {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(0.55, 0.7), new THREE.MeshBasicMaterial({ map: ctex("qmark", 256, 320, (g) => paintText(g, "?", 128, 170, 280, "#ffd84d", "center", 0.12)), transparent: true, depthWrite: false }));
+  return m;
 };

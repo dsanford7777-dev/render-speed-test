@@ -17,7 +17,7 @@ import {
   POLE, MPH, CART, HAT, KIDS_AT, JELL16,
 } from "./story";
 import {
-  buildTank, Tank, TANK_H, TANK_R, waveMesh, molSheet, elRail, ElRail, firehouse, cart, hat, hose, redX, easel, desk, cup, plank, brush,
+  buildTank, Tank, TANK_H, TANK_R, LiquidWave, molMat, questionMark, molSheet, elRail, ElRail, firehouse, cart, hat, hose, redX, easel, desk, cup, plank, brush,
   gallonsTex, planTex, treasurerTex, calendarTex, feetTex, mphTex, markPole,
 } from "./props";
 
@@ -61,7 +61,7 @@ export class MWorld {
   private sunDisc: THREE.Sprite;
   private sunCache = new Map<number, THREE.Vector3>();
   private clouds: THREE.Mesh[] = []; private cloudMaps: Record<Light, THREE.Texture[]>;
-  private tank: Tank; private wave: THREE.Mesh; private gush: THREE.Mesh; private sheet: THREE.Group;
+  private tank: Tank; private wave: LiquidWave; private gush: LiquidWave; private puddle: THREE.Mesh; private qm: THREE.Mesh; private sheet: THREE.Group;
   private el: ElRail; private fire: THREE.Group; private fireBase: THREE.Mesh;
   private gallons: Board; private plan: Board; private plaque: Board; private cal: Board; private feet: Board; private mph: Board;
   private easel: THREE.Group; private desk: THREE.Group; private hose: THREE.Group; private x: THREE.Group;
@@ -153,8 +153,10 @@ export class MWorld {
     this.fire.position.set(...FIRE); this.fire.rotation.y = Math.PI; R.add(this.fire);
     (fh.base as THREE.Object3D).position.set(FIRE[0], FIRE[1], FIRE[2]); R.add(fh.base);
     // ---- the molasses ----
-    this.wave = waveMesh(WAVE.w, WAVE.H, 44); R.add(this.wave);
-    this.gush = waveMesh(7, 2.6, 7); this.gush.rotation.y = -Math.PI / 2; R.add(this.gush);
+    this.wave = new LiquidWave(WAVE.w, WAVE.H, 44, "wave"); R.add(this.wave.group);
+    this.gush = new LiquidWave(4.4, 7.4, 6, "gush", 16); this.gush.group.rotation.y = -Math.PI / 2; R.add(this.gush.group);
+    this.puddle = new THREE.Mesh(new THREE.CircleGeometry(1, 48).rotateX(-Math.PI / 2), molMat()); this.puddle.receiveShadow = true; R.add(this.puddle);
+    this.qm = questionMark(); R.add(this.qm);
     this.sheet = molSheet(15, 120); this.sheet.position.set(WAVE.x, D0 + 0.35, -100); R.add(this.sheet);
     // ---- signs and props ----
     const atX = <T extends THREE.Object3D>(o: T, p: V3, face: "x" | "-z" = "x") => { o.position.set(...p); o.rotation.y = face === "x" ? -Math.PI / 2 : 0; R.add(o); return o; };
@@ -245,14 +247,21 @@ export class MWorld {
     tk.hole.visible = crackK > 0.01; tk.hole.scale.set(0.3 + 4.2 * crackK, 0.6 + 7.4 * crackK, 1); tk.hole.position.y = (0.6 + 7.4 * crackK) / 2;
     // the wave
     const wf = waveFront(id, f);
-    this.wave.visible = wf !== null;
+    this.wave.group.visible = wf !== null;
     if (wf !== null) {
       const surge = id === 9 ? 1 : 0.92 + 0.08 * smooth((f - s.a) / 30);
-      this.wave.position.set(WAVE.x, D0, wf); this.wave.scale.set(1, surge * (1 + 0.025 * Math.sin(t * 6)), 1);
+      this.wave.group.position.set(WAVE.x, D0, wf); this.wave.group.scale.set(1, surge, 1); this.wave.update(t);
     }
-    const gk = id === 7 ? clamp01((f - fBurst) / 22) : 0;
-    this.gush.visible = gk > 0.01;
-    this.gush.position.set(TANK[0] + TANK_R - 1.5 + 4.5 * smooth(gk), D0, TANK[2]); this.gush.scale.set(0.4 + 0.6 * gk, 0.3 + 0.7 * smooth(gk), 0.5 + 0.5 * gk);
+    // molasses bursting out of the crack itself: as tall and wide as the split, pushing out into a spreading pool
+    const gk = id === 7 ? smooth((f - (fBurst - 4)) / 26) : 0;
+    this.gush.group.visible = id === 7 && crackK > 0.12;
+    if (this.gush.group.visible) {
+      this.gush.group.position.set(TANK[0] + TANK_R + 0.05 + 3.8 * gk, D0, TANK[2]);
+      this.gush.group.scale.set((0.3 + 4.2 * crackK) * 0.8 / 4.4, Math.max(0.05, crackK * 1.08), 1);
+      this.gush.update(t);
+    }
+    this.puddle.visible = id === 7 && gk > 0.02;
+    this.puddle.position.set(TANK[0] + TANK_R + 0.8 + 2.2 * gk, D0 + 0.05, TANK[2]); this.puddle.scale.set(1.0 + 2.6 * gk, 1, 1.6 + 3.2 * gk);
     this.sheet.visible = id >= 10 && id <= 12;
     // firehouse knocked off its base on "knocked"; the El span twists on "twisted"
     const fKnock = wordAt(9, "knocked"), fTwist = wordAt(9, "twisted");
@@ -277,6 +286,9 @@ export class MWorld {
     this.mph.group.visible = id === 9;
     this.cart.visible = this.hat.visible = id >= 10 && id <= 12;
     this.plank.visible = this.brush.visible = id === 17;
+    const fEng = wordAt(3, "engineer"), qk = id === 4 ? smooth((f - (fEng - 2)) / 6) : 0;
+    this.qm.visible = qk > 0.01;
+    if (this.qm.visible) { this.qm.position.set(JELL4[0], JELL4[1] + 2.25 + 0.05 * Math.sin(t * 6), JELL4[2]); this.qm.quaternion.copy(cam.quaternion); this.qm.scale.setScalar(qk * (1 + 0.25 * Math.sin(clamp01((f - fEng) / 8) * Math.PI))); }
     // drips: running down the seams (14), falling into cups (15)
     this.drips.forEach((d, i) => {
       d.visible = false;
@@ -319,7 +331,7 @@ export class MWorld {
         people.push({ w: who(o, 40 + k, `run_${k}`), p: [MX + [3.4, 6.9, 4.6, 5.8][k], D0 + bob, -119.5 - (k % 2) * 1.6 - run], pose: { expr: "shock", blink: 0 } });
       }); break;
       case 2: walkers(FOLK, 40, "walk", [-66.5, -68.5], [MX - 2, MX + 11], SHOTS[1].a / FPS); break;
-      case 4: people.push({ w: J_, p: JELL4, pose: { expr: "nervous", headTilt: -0.12, look: -1, blink: blink(7) } }); break;
+      case 4: { const q = f >= wordAt(3, "engineer") - 2; people.push({ w: J_, p: JELL4, pose: { expr: q ? "dazed" : "nervous", headTilt: q ? -0.32 : -0.1, look: -1, blink: blink(7) } }); break; }
       case 5: people.push({ w: J_, p: JELL5, pose: { expr: "grin", blink: blink(7) } }); break;
       case 15: KIDS_AT.forEach((p, k) => people.push({ w: who(KIDS[k], 60 + k, `kid_${k}`), p, pose: { expr: k === 1 ? "lick" : "grin", blink: blink(60 + k), cup: true } })); break;
       case 16: people.push({ w: J_, p: JELL16, pose: { expr: "nervous", headTilt: 0.18 * smooth((f - s.a) / 14), look: -1, blink: blink(7) } }); break;
@@ -387,7 +399,7 @@ export class MWorld {
     const all = (n: string, p: THREE.Vector3, r: number, o?: THREE.Object3D): [string, THREE.Vector3, number, number, number, THREE.Object3D?] => [n, p, r, s.a, s.b, o];
     const face = (y: number, dz = 0) => V(TANK[0] + TANK_R, D0 + y, TANK[2] + dz);
     switch (id) {
-      case 1: { const z = waveFront(1, s.a) ?? -90; return [all("wave crest", V(WAVE.x, D0 + WAVE.H * 0.9, z + 0.5), 0.5, this.wave)]; }
+      case 1: { const z = waveFront(1, s.a) ?? -90; return [all("wave crest", V(WAVE.x, D0 + WAVE.H * 0.9, z + 0.5), 0.5, this.wave.group)]; }
       case 2: return [all("tank", V(TANK[0] + TANK_R * 0.7, D0 + TANK_H * 0.75, TANK[2] - TANK_R * 0.7), 0.5, tk)];
       case 3: return [["gallons board", this.gallons.pos(), 0.1, w(2, "2") + 8, s.b, this.gallons.group]];
       case 4: return [all("upside-down plan", this.plan.pos(), 0.1, this.plan.group)];
