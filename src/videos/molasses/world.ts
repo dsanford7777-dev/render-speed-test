@@ -326,9 +326,9 @@ export class MWorld {
       people.push({ w: who(o, seed0 + k, `${keyp}_${k}`), p: [u, D0, lane], pose: { expr: "smile_closed", blink: blink(seed0 + k), side: { phase: ((dist / 1.6) % 1 + 1) % 1, mirror: dir < 0, stride: 0.8 } } });
     });
     switch (id) {
-      case 1: FOLK.slice(0, 4).forEach((o, k) => {
+      case 1: if (f < wordAt(0, "killed") - 3) FOLK.slice(0, 4).forEach((o, k) => {
         const run = (t - SHOTS[0].a / FPS) * (0.75 + 0.08 * k), bob = 0.05 * Math.abs(Math.sin(t * 9 + k));
-        people.push({ w: who(o, 40 + k, `run_${k}`), p: [MX + [3.4, 6.9, 4.6, 5.8][k], D0 + bob, -119.5 - (k % 2) * 1.6 - run], pose: { expr: "shock", blink: 0 } });
+        people.push({ w: who(o, 40 + k, `run_${k}`), p: [MX + [4.15, 6.5, 4.9, 5.75][k], D0 + bob, -119.5 - (k % 2) * 1.6 - run], pose: { expr: "shock", blink: 0 } });
       }); break;
       case 2: walkers(FOLK, 40, "walk", [-66.5, -68.5], [MX - 2, MX + 11], SHOTS[1].a / FPS); break;
       case 4: { const q = f >= wordAt(3, "engineer") - 2; people.push({ w: J_, p: JELL4, pose: { expr: q ? "dazed" : "nervous", headTilt: q ? -0.32 : -0.1, look: -1, blink: blink(7) } }); break; }

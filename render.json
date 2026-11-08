@@ -1,1 +1,1 @@
-{ "composition": "Molasses", "chunks": 10, "note": "rev 3b: framing fixes" }
+{ "composition": "Molasses", "chunks": 10, "redo": [0, 1], "reuse_run": "42463035972", "note": "rev 4: faster, clearer first 10 s (retention fix)" }

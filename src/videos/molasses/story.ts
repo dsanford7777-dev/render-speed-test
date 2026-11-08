@@ -84,9 +84,17 @@ const add = (a: V3, b: V3): V3 => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 const keys = (): Record<number, Key[]> => {
   const c: Record<number, Key[]> = {};
   // 1 hook: low, the camera rises and swings toward the oncoming wave while people run at us
-  c[1] = [{ f: 0, s: (f) => { const u = U(1, f, smooth); return { pos: L3(M(2.5, 0.8, -142), M(7.0, 3.4, -133), u), look: M(5, 5.0 + 0.6 * u, -112), fov: 56 - 4 * u, roll: 0.06 - 0.09 * u }; } }];
-  // 2 crane up from the street to rooftop height: the tank is five stories tall
-  c[2] = [{ f: A(2), s: (f) => { const u = U(2, f); return { pos: L3(M(7.5, 1.4, -100), M(5.0, 12.5, -90), u), look: L3(M(-14, 6, -50), M(-15, 12, -50), u), fov: 54 }; } }];
+  // 1 hook: frame 1 already shows the wave bearing down the street on people running at us; on "killed" cut low
+  //   under the curling crest, the camera backing away just ahead of it
+  c[1] = [
+    { f: 0, s: (f) => { const u = smooth(f / 70); return { pos: M(5.4, 1.15, -126.5 - 1.5 * u), look: M(5.2, 4.2, -104), fov: 60, roll: 0.04 - 0.03 * u }; } },
+    { f: wordAt(0, "killed") - 3, cut: true, s: (f) => { const z = (waveFront(1, f) ?? -105) - 12.5; return { pos: M(5.0, 0.7, z), look: M(5.0, 7.0, z + 12.5), fov: 62, roll: 0.03 * Math.sin(f * 0.15) }; } },
+  ];
+  // 2 "You see, by the harbor": high over the waterfront onto the tank; cut on "tank" to its foot, looking up five stories
+  c[2] = [
+    { f: A(2), s: (f) => { const u = U(2, f); return { pos: L3(M(6.0, 12.5, -94), M(5.0, 11.0, -88), u), look: M(-15, 9, -50), fov: 54 }; } },
+    { f: wordAt(1, "tank") - 3, cut: true, s: (f) => { const k = smooth((f - wordAt(1, "tank") + 3) / 40); return { pos: M(4.2, 0.6, -60.5), look: M(-6, 4 + 9 * k, -52.5), fov: 62 }; } },
+  ];
   // 3 truck along the tank's foot onto the gallons board
   c[3] = [{ f: A(3), s: (f) => { const u = U(3, f); return { pos: L3(M(5.0, 1.2, -55.0), M(2.8, 2.2, -49.8), u), look: L3(M(-2.6, 2.3, -47.8), M(-2.4, 2.15, -47.1), u), fov: 48 }; } }];
   // 4 orbit around the treasurer and his upside-down plan
