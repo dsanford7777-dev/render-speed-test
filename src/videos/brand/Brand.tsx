@@ -10,14 +10,14 @@ import { D0 } from "../fahrenheit/story";
 import { SHOTS } from "../fahrenheit/timeline";
 
 const { fontFamily } = loadFont("normal", { weights: ["900", "800"], subsets: ["latin"] });
-const HARBOR = 10, F = SHOTS[HARBOR - 1].a + 121; // golden light; the ship just left of centre-right on the river
+const HARBOR = 10, F = SHOTS[HARBOR - 1].a; // golden light; the ship still out of frame up river
 const QUAY_Z = -33.5;
 
 const BANNER: Brand = {
   cam: { pos: [0, D0 + 0.92, QUAY_Z - 9], look: [0, D0 + 0.92, QUAY_Z + 20], fov: 40, roll: 0 },
   people: [
-    { who: "fahr", p: [3.0, D0, QUAY_Z], expr: "smile", look: -1 },
-    { who: "help", p: [-3.0, D0, QUAY_Z], expr: "grin", look: 1 },
+    { who: "fahr", p: [3.35, D0, QUAY_Z], expr: "smile", look: -1 },
+    { who: "help", p: [-3.35, D0, QUAY_Z], expr: "grin", look: 1 },
   ],
 };
 const AVATAR: Brand = {
