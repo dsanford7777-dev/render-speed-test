@@ -118,9 +118,9 @@ export class MWorld {
     // street houses: east side all along (fronts on x = MX + 11, a gap for the firehouse), west side south of the yard
     const pick = [7, 9, 7, 9, 9, 7], hh = [8.4, 9.8, 7, 9.8, 8.4, 9.8, 7];
     let z = -38, k = 0;
-    while (z > STREET.z1) { const w = pick[k % 6]; if (z - w < FIRE[2] + 4.6 && z > FIRE[2] - 4.6) { z = FIRE[2] - 4.8; continue; } house(b, MX + 15, z - w / 2, -Math.PI / 2, w, 8, hh[k % 7], (k * 3) % 8); z -= w + 0.3; k++; }
+    while (z > STREET.z1) { const w = pick[k % 6]; house(b, MX + 15, z - w / 2, -Math.PI / 2, w, 8, hh[k % 7], (k * 3) % 8); z -= w + 0.3; k++; }
     z = -70; k = 2;
-    while (z > STREET.z1) { const w = pick[k % 6]; house(b, MX - 5, z - w / 2, Math.PI / 2, w, 8, hh[k % 7], (k * 5) % 8); z -= w + 0.3; k++; }
+    while (z > STREET.z1) { const w = pick[k % 6]; if (z - w < FIRE[2] + 4.6 && z > FIRE[2] - 4.6) { z = FIRE[2] - 4.8; continue; } house(b, MX - 5, z - w / 2, Math.PI / 2, w, 8, hh[k % 7], (k * 5) % 8); z -= w + 0.3; k++; }
     // quay furniture
     for (let x = MX - 56; x <= MX + 76; x += 12) if (Math.abs(x - MX - 5) > 6) b.add(boxGeo(V(x - 0.25, D0, -31.4), V(x + 0.25, D0 + 0.5, -30.9)), lam("bollard", () => ({ color: "#3b3f52" })));
     b.build(R);
@@ -150,7 +150,7 @@ export class MWorld {
     // ---- the El, the firehouse ----
     this.el = elRail(EL.z0, EL.z1, EL.h, EL.bentZ); this.el.group.position.set(EL.x, D0, 0); R.add(this.el.group);
     const fh = firehouse(); this.fire = fh.g; this.fireBase = fh.base as unknown as THREE.Mesh;
-    this.fire.position.set(...FIRE); this.fire.rotation.y = 0; R.add(this.fire);
+    this.fire.position.set(...FIRE); this.fire.rotation.y = Math.PI; R.add(this.fire);
     (fh.base as THREE.Object3D).position.set(FIRE[0], FIRE[1], FIRE[2]); R.add(fh.base);
     // ---- the molasses ----
     this.wave = waveMesh(WAVE.w, WAVE.H, 44); R.add(this.wave);
@@ -199,7 +199,8 @@ export class MWorld {
   private fx(i: number) { while (this.fxs.length <= i) this.fxs.push(new Fx(this.root)); return this.fxs[i]; }
 
   update(id: number, f: number, cam: THREE.PerspectiveCamera, scene: THREE.Scene) {
-    const t = f / FPS, s = SHOTS[id - 1], L = LP[s.light], K = LK[s.light];
+    const t = f / FPS, s = SHOTS[id - 1], K = LK[s.light];
+    const L: LightPreset = id === 10 ? { ...LP.day, az: -115 } : LP[s.light];
     // ---- camera ----
     const c = camAt(id, f);
     cam.position.set(...c.pos); cam.up.set(0, 1, 0); cam.lookAt(...c.look); cam.rotateZ(c.roll);
@@ -256,14 +257,14 @@ export class MWorld {
     // firehouse knocked off its base on "knocked"; the El span twists on "twisted"
     const fKnock = wordAt(9, "knocked"), fTwist = wordAt(9, "twisted");
     const kk = id === 10 ? smooth((f - fKnock) / 14) : (id === 11 || id === 12 ? 1 : 0);
-    this.fire.position.set(FIRE[0] + 1.6 * kk, FIRE[1] + 0.15 * kk, FIRE[2] - 0.8 * kk); this.fire.rotation.set(0.04 * kk, -0.16 * kk, -0.07 * kk);
+    this.fire.position.set(FIRE[0] - 1.6 * kk, FIRE[1] + 0.15 * kk, FIRE[2] - 0.8 * kk); this.fire.rotation.set(0.04 * kk, Math.PI - 0.16 * kk, 0.07 * kk);
     const tw = id === 10 ? smooth((f - fTwist) / 16) : (id === 11 || id === 12 ? 1 : 0);
-    this.el.bent.rotation.set(-0.16 * tw, 0, 0.42 * tw);
+    this.el.bent.rotation.set(-0.22 * tw, 0, 0.62 * tw);
     this.el.group.visible = id >= 10 && id <= 12;
     // flashback props
     const before = !flood && id !== 7;
     this.gallons.group.visible = id === 3;
-    const fGal = wordAt(2, "two");
+    const fGal = wordAt(2, "2");
     const gs = id === 3 ? smooth((f - (fGal - 4)) / 8) : 0;
     this.gallons.group.scale.setScalar(Math.max(0.001, gs * (1 + 0.1 * Math.sin(clamp01((f - fGal) / 10) * Math.PI))));
     this.easel.visible = this.plan.group.visible = id === 4;
@@ -314,8 +315,8 @@ export class MWorld {
     });
     switch (id) {
       case 1: FOLK.slice(0, 4).forEach((o, k) => {
-        const run = (t - SHOTS[0].a / FPS) * (1.0 + 0.1 * k), bob = 0.05 * Math.abs(Math.sin(t * 9 + k));
-        people.push({ w: who(o, 40 + k, `run_${k}`), p: [MX + [3.4, 6.9, 4.6, 5.8][k], D0 + bob, -117.0 - (k % 2) * 1.6 - run], pose: { expr: "shock", blink: 0 } });
+        const run = (t - SHOTS[0].a / FPS) * (0.75 + 0.08 * k), bob = 0.05 * Math.abs(Math.sin(t * 9 + k));
+        people.push({ w: who(o, 40 + k, `run_${k}`), p: [MX + [3.4, 6.9, 4.6, 5.8][k], D0 + bob, -119.5 - (k % 2) * 1.6 - run], pose: { expr: "shock", blink: 0 } });
       }); break;
       case 2: walkers(FOLK, 40, "walk", [-66.5, -68.5], [MX - 2, MX + 11], SHOTS[1].a / FPS); break;
       case 4: people.push({ w: J_, p: JELL4, pose: { expr: "nervous", headTilt: -0.12, look: -1, blink: blink(7) } }); break;
@@ -388,21 +389,21 @@ export class MWorld {
     switch (id) {
       case 1: { const z = waveFront(1, s.a) ?? -90; return [all("wave crest", V(WAVE.x, D0 + WAVE.H * 0.9, z + 0.5), 0.5, this.wave)]; }
       case 2: return [all("tank", V(TANK[0] + TANK_R * 0.7, D0 + TANK_H * 0.75, TANK[2] - TANK_R * 0.7), 0.5, tk)];
-      case 3: return [["gallons board", this.gallons.pos(), 0.1, w(2, "two") + 8, s.b, this.gallons.group]];
+      case 3: return [["gallons board", this.gallons.pos(), 0.1, w(2, "2") + 8, s.b, this.gallons.group]];
       case 4: return [all("upside-down plan", this.plan.pos(), 0.1, this.plan.group)];
       case 5: return [all("TREASURER sign", this.plaque.pos(), 0.1, this.plaque.group)];
-      case 6: return [["hose", V(HOSE[0], HOSE[1] + 0.3, HOSE[2]), 0.1, s.a, s.b, this.hose], ["red X", V(HOSE[0] + 0.7, HOSE[1] + 0.55, HOSE[2] - 0.2), 0.1, w(5, "never") + 8, s.b, this.x]];
+      case 6: return [["hose", V(HOSE[0], HOSE[1] + 0.3, HOSE[2]), 0.1, s.a, w(5, "never") - 2, this.hose], ["red X", V(HOSE[0] + 0.7, HOSE[1] + 0.55, HOSE[2] - 0.2), 0.1, w(5, "never") + 8, s.b, this.x]];
       case 7: return [["calendar", this.cal.pos(), 0.1, s.a, w(6, "burst") - 6, this.cal.group], ["crack", face(3), 0.3, w(6, "burst") + 8, s.b, tk]];
       case 8: return [all("25 FT board", this.feet.pos(), 0.1, this.feet.group)];
       case 9: return [all("35 MPH sign", this.mph.pos(), 0.1, this.mph.group)];
-      case 10: return [["firehouse", V(FIRE[0] - 4, D0 + 5.4, FIRE[2]), 0.5, s.a + 4, w(9, "twisted") - 16, this.fire], ["twisted span", V(EL.x, D0 + EL.h, EL.bentZ), 0.5, w(9, "twisted") + 16, s.b, this.el.group]];
+      case 10: return [["firehouse", this.fire.localToWorld(V(-4.05, 6.5, 0)), 0.5, s.a + 4, w(9, "twisted") - 16, this.fire], ["twisted span", V(EL.x, D0 + EL.h, EL.bentZ), 0.5, w(9, "twisted") + 16, s.b, this.el.group]];
       case 11: return [all("molasses sheet", V(WAVE.x, D0 + 0.4, -104), 0.5, this.sheet)];
       case 12: return [all("cart", V(CART[0], CART[1] + 1.2, CART[2]), 0.2, this.cart), all("hat", V(HAT[0], HAT[1] + 0.1, HAT[2]), 0.05, this.hat)];
       case 13: return [all("tank", V(TANK[0] + TANK_R * 0.8, D0 + TANK_H * 0.7, TANK[2] - TANK_R * 0.6), 0.5, tk)];
       case 14: return [all("leaking seam", face(2.9, -0.4), 0.2, tk)];
       case 15: return this.cups.slice(0, 3).map((c, k): [string, THREE.Vector3, number, number, number, THREE.Object3D?] => all(`cup ${k + 1}`, c.position.clone().add(V(0, 0.08, 0)), 0.03, c));
-      case 16: return [all("leak streaks", face(1.8, -4.2), 0.3, tk)];
-      case 17: return [all("tank being painted", V(TANK[0] + TANK_R * 0.86, D0 + TANK_H * 0.5, TANK[2] - TANK_R * 0.5), 0.5, tk)];
+      case 16: return [all("leak streaks", face(2.9, -2.8), 0.3, tk)];
+      case 17: return [all("tank being painted", face(5.0, -1.6), 0.5, tk)];
       default: return [];
     }
   }

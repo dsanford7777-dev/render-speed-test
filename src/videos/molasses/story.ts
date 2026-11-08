@@ -13,7 +13,7 @@ export const M = (x: number, y: number, z: number): V3 => [MX + x, D0 + y, z];
 export const TANK: V3 = M(-16, 0, -52);           // tank base centre; street face at x = MX - 4
 export const STREET = { x0: MX + 1, x1: MX + 9, z0: -36.5, z1: -160 };
 export const EL = { x: MX + 7, h: 5.2, z0: -40, z1: -152, bentZ: -120 };
-export const FIRE: V3 = M(15, 0, -104);           // firehouse base centre, front on x = MX + 11
+export const FIRE: V3 = M(-5, 0, -104);           // firehouse base centre (west side), front on x = MX - 1
 export const WAVE = { x: MX + 5, w: 24, H: 7.6 };
 
 // props
@@ -40,7 +40,7 @@ export const glide = (u: number) => { const x = clamp01(u); return x * x * x * (
 export const waveFront = (id: number, f: number): number | null => {
   const s = SHOTS[id - 1], u = (f - s.a) / Math.max(1, s.b - s.a);
   switch (id) {
-    case 1: return -110 - 9 * u;
+    case 1: return -101 - 13 * u;
     case 8: return -90 - 12 * u;
     case 9: return -104 - 22 * u;
     default: return null;
@@ -76,7 +76,7 @@ const keys = (): Record<number, Key[]> => {
   // 1 hook: low in the street, the wave towering toward the lens, people running at us
   c[1] = [{ f: 0, s: (f) => push(M(5, 1.3, -138), M(5, 5.2, -112), f, 0, 0.0016, { fov: 54 }) }];
   // 2 the tank by the harbor, people tiny at its foot
-  c[2] = [{ f: A(2), s: (f) => push(M(12, 2.2, -96), M(-14, 7.5, -50), f, A(2), 0.0018, { fov: 54 }) }];
+  c[2] = [{ f: A(2), s: (f) => push(M(9.4, 2.2, -96), M(-14, 7.5, -50), f, A(2), 0.0018, { fov: 54 }) }];
   // 3 the gallons board at the tank's foot
   c[3] = [{ f: A(3), s: (f) => push(M(3.2, 2.0, -50.4), M(-2.4, 2.15, -47.1), f, A(3), 0.002, { fov: 44 }) }];
   // 4 the treasurer and his upside-down plan
@@ -96,8 +96,8 @@ const keys = (): Record<number, Key[]> => {
   c[9] = [{ f: A(9), s: (f) => ({ pos: M(4, 0.9, -141), look: M(4.0, 2.8, -118), fov: 56, roll: 0.03 * Math.sin(f * 0.9) }) }];
   // 10 the firehouse slides off its base -> glide up to the twisted span of the El on "twisted"
   c[10] = [
-    { f: A(10), s: (f) => push(M(0.5, 2.2, -119), M(12, 3.6, -105), f, A(10), 0.0015, { fov: 52 }) },
-    { f: on(9, "twisted", 26), dur: 26, s: (f) => push(M(3.0, 2.4, -138), M(7, 5.4, -120), f, on(9, "twisted", 26), 0.0015, { fov: 48 }) },
+    { f: A(10), s: (f) => push(M(7.5, 2.0, -112.5), M(-2.5, 4.4, -104.2), f, A(10), 0.0012, { fov: 56 }) },
+    { f: on(9, "twisted", 26), dur: 26, s: (f) => push(M(2.6, 2.6, -131), M(7, 5.6, -120), f, on(9, "twisted", 26), 0.0015, { fov: 50 }) },
   ];
   // 11 the street under a glossy sheet of molasses
   c[11] = [{ f: A(11), s: (f) => push(M(2.0, 3.0, -150), M(3.5, 0.3, -112), f, A(11), 0.0015, { fov: 50 }) }];
@@ -108,7 +108,7 @@ const keys = (): Record<number, Key[]> => {
   // 14 close on the leaking seams
   c[14] = [{ f: A(14), s: (f) => push(M(0.8, 2.4, -50.6), M(-4, 2.7, -52.4), f, A(14), 0.002, { fov: 42 }) }];
   // 15 kids with tin cups under the drips
-  c[15] = [{ f: A(15), s: (f) => push(M(1.4, 1.35, -57.2), M(-3.2, 1.05, -52.2), f, A(15), 0.002, { fov: 50 }) }];
+  c[15] = [{ f: A(15), s: (f) => push(M(2.4, 1.4, -58.4), M(-3.1, 1.05, -52.7), f, A(15), 0.002, { fov: 52 }) }];
   // 16 the treasurer shrugs at the streaks
   c[16] = [{ f: A(16), s: (f) => push(M(3.6, 1.6, -58.6), M(-1.9, 1.5, -55.6), f, A(16), 0.002, { fov: 44 }) }];
   // 17 the painter covers the tank in brown
