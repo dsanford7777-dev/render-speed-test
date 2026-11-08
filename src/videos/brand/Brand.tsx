@@ -14,10 +14,10 @@ const HARBOR = 10, F = SHOTS[HARBOR - 1].a; // golden light; the ship still out 
 const QUAY_Z = -33.5;
 
 const BANNER: Brand = {
-  cam: { pos: [0, D0 + 0.92, QUAY_Z - 9], look: [0, D0 + 0.92, QUAY_Z + 20], fov: 40, roll: 0 },
+  cam: { pos: [0, D0 + 0.92, -43], look: [0, D0 + 0.92, -10], fov: 40, roll: 0 },
   people: [
-    { who: "fahr", p: [3.35, D0, QUAY_Z], expr: "smile", look: -1 },
-    { who: "help", p: [-3.35, D0, QUAY_Z], expr: "grin", look: 1 },
+    { who: "fahr", p: [3.6, D0, -31], expr: "smile", look: -1 },
+    { who: "help", p: [-3.6, D0, -31], expr: "grin", look: 1 },
   ],
 };
 const AVATAR: Brand = {
@@ -34,8 +34,8 @@ export const BannerArt: React.FC = () => {
     <AbsoluteFill>
       <ShotView id={HARBOR} kit={kit} alpha={1} brand={BANNER} frame={F} width={2560} height={1440} />
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", fontFamily }}>
-        <div style={{ marginTop: -40, fontSize: 124, fontWeight: 900, color: "#ffd84d", letterSpacing: 2, ...ink(16) }}>PARADOX TOWN</div>
-        <div style={{ marginTop: 6, fontSize: 40, fontWeight: 800, color: "#ffffff", ...ink(8) }}>Weird history, explained in 60 seconds</div>
+        <div style={{ marginTop: -30, fontSize: 100, fontWeight: 900, color: "#ffd84d", letterSpacing: 2, ...ink(16) }}>PARADOX TOWN</div>
+        <div style={{ marginTop: 6, fontSize: 34, fontWeight: 800, color: "#ffffff", ...ink(8) }}>Weird history, explained in 60 seconds</div>
       </AbsoluteFill>
     </AbsoluteFill>
   );
