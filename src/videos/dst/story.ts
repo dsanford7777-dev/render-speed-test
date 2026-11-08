@@ -103,7 +103,7 @@ const keys = (): Record<number, Key[]> => {
   // 17 night: the sleepy helper holds up a candy pumpkin; punch in on "thank"
   c[17] = [
     { f: A(17), s: (f) => push(ST(0.15, 1.45, -37.4), ST(0.1, 1.3, -41.0), f, A(17), 0.002, { fov: 40 }) },
-    { f: on(16, "thank", 18), dur: 18, s: (f) => push(ST(0.15, 1.42, -38.6), ST(0.12, 1.3, -41.0), f, on(16, "thank", 18), 0.002, { fov: 38 }) },
+    { f: on(16, "thank", 18), dur: 18, s: (f) => push(ST(0.2, 1.38, -38.4), ST(0.18, 1.22, -41.0), f, on(16, "thank", 18), 0.0015, { fov: 40 }) },
   ];
   return c;
 };

@@ -304,7 +304,7 @@ export class DWorld {
       case 5: walkers(FOLK1918, 40, "f18", "x", [-40.5, -42.3], [-5.5, 5.5], SHOTS[4].a / FPS); break;
       case 6: break;
       case 8: [0, 1, 2].forEach((k) => people.push({ w: FM[k], p: C(-0.95 + k * 0.95, 0, 2.6 + (k === 1 ? 0.35 : 0)), pose: { expr: k === 1 ? "laugh" : "stern", blink: blink(30 + k), fork: true } })); break;
-      case 10: SENATORS.forEach((o, k) => { const sx = k % 2 ? 1 : -1, j = Math.floor(k / 2), row = j === 2 ? -1.45 : 0.65, x = sx * (1.3 + (j % 2) * 1.5);
+      case 10: SENATORS.forEach((o, k) => { const sx = k % 2 ? 1 : -1, j = Math.floor(k / 2), row = 0.65, x = sx * (j === 2 ? 2.05 : 1.3 + (j % 2) * 1.5);
         people.push({ w: who(o, 50 + k, `sen_${k}`), p: C(x, 0, row), pose: { expr: f > fOver ? (k % 3 ? "laugh" : "grin") : "neutral", blink: blink(50 + k) } }); }); break;
       case 11: people.push({ w: H_, p: ST(1.3, 0, -40.7), pose: { expr: "nervous", headTilt: 0.16 * smooth((f - SHOTS[10].a) / 12), look: 1, blink: blink(5) } }); break;
       case 14: walkers(KIDS.slice(0, 3), 60, "kid", "z", [-2.6, -1.0], [-68, -52], SHOTS[13].a / FPS); break;
@@ -322,7 +322,7 @@ export class DWorld {
     for (let i = fk; i < this.forks.length; i++) this.forks[i].visible = false;
     const holder = people.find((q) => q.pose.candy);
     this.handCandy.visible = !!holder;
-    if (holder) { const toCam = cam.position.clone().sub(V(...holder.p)).setY(0).normalize(); this.handCandy.position.set(...holder.p).addScaledVector(toCam, 0.3).addScaledVector(right, 0.36).add(V(0, 0.82, 0)); }
+    if (holder) { const toCam = cam.position.clone().sub(V(...holder.p)).setY(0).normalize(); this.handCandy.position.set(...holder.p).addScaledVector(toCam, 0.3).addScaledVector(right, 0.24).add(V(0, 0.86, 0)); }
     let ai = 0;
     for (const q of people) {
       if (!this.frustum.intersectsSphere(this.sph.set(this.v.set(q.p[0], q.p[1] + 1.1, q.p[2]), 3.5))) continue;
@@ -383,8 +383,8 @@ export class DWorld {
       case 11: return [all("street clock", this.stClock.facePos(), 0.1, this.stClock.group)];
       case 12: return [["SALE sign", this.sale.pos(), 0.1, s.a + 4, w(11, "golf") - 10, this.sale.group], ["golf flag", V(GREEN[0] + 0.3, GREEN[1] + 1.4, GREEN[2] + 0.2), 0.1, w(11, "golf") + 10, w(11, "barbecue") - 10, this.green], ["grill", V(GRILL[0], GRILL[1] + 0.8, GRILL[2]), 0.1, w(11, "barbecue") + 10, s.b, this.grill]];
       case 13: return [["golf green", V(...GREEN), 0.3, s.a, w(12, "$200") - 4, this.green], ["$200,000,000 board", this.money.pos(), 0.2, w(12, "$200") + 8, s.b, this.money.group]];
-      case 14: return [all("jack-o'-lantern", V(-5.3, D0 + 0.62, -58.5), 0.1)];
-      case 15: return [all("candy pumpkin", hl.candies[8].position.clone().add(V(0, 0.08, 0)), 0.05, hl.candies[8]), all("candy pumpkin", hl.candies[7].position.clone().add(V(0, 0.08, 0)), 0.05, hl.candies[7])];
+      case 14: { const lan = this.lanterns.find((p) => Math.abs(p.position.x + 5.3) < 0.01 && Math.abs(p.position.z + 58.5) < 0.01); return [all("jack-o'-lantern", V(-5.3, D0 + 0.62, -58.5), 0.1, lan)]; }
+      case 15: return [["candy pumpkin", hl.candies[8].position.clone().add(V(0, 0.08, 0)), 0.05, s.a, Math.round((s.a + s.b) / 2), hl.candies[8]], all("candy pumpkin", hl.candies[7].position.clone().add(V(0, 0.08, 0)), 0.05, hl.candies[7])];
       case 16: return [all("banner", V(...BANNER), 0.2, this.banner)];
       case 17: return [all("candy pumpkin", this.handCandy.position.clone().add(V(0, 0.08, 0)), 0.05, this.handCandy)];
       default: return [];
