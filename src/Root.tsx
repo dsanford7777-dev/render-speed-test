@@ -1,3 +1,4 @@
+import { BannerArt, AvatarArt } from "./videos/brand/Brand";
 import React from "react";
 import { Composition, Freeze, useCurrentFrame } from "remotion";
 import { BridgeShort, BRIDGE_FRAMES } from "./videos/bridge/Bridge";
@@ -22,6 +23,8 @@ const FahrenheitPadded = padded(FahrenheitShort);
 export const Root: React.FC = () => (<>
   <Composition id="BridgeShort" component={BridgeShort} durationInFrames={BRIDGE_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="BridgeShortPadded" component={BridgeShortPadded} durationInFrames={BRIDGE_FRAMES + PAD} fps={30} width={1080} height={1920} />
+  <Composition id="Banner" component={BannerArt} durationInFrames={3} fps={30} width={2560} height={1440} />
+  <Composition id="Avatar" component={AvatarArt} durationInFrames={3} fps={30} width={800} height={800} />
   <Composition id="Fahrenheit" component={FahrenheitShort} durationInFrames={FAHRENHEIT_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="FahrenheitPadded" component={FahrenheitPadded} durationInFrames={FAHRENHEIT_FRAMES + PAD} fps={30} width={1080} height={1920} />
 </>);

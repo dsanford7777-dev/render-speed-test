@@ -13,7 +13,7 @@ import { InkPass, noInkFallback } from "../bridge/ink";
 import { LensBlur } from "../bridge/lensblur";
 import { GradeEffect, GRADES, GradeParams } from "../bridge/grade";
 import { Kit } from "../bridge/build";
-import { FWorld } from "./world";
+import { FWorld, Brand } from "./world";
 import { TOTAL, SHOTS, layersAt, Light } from "./timeline";
 import { DOF } from "./story";
 import { Captions } from "./Captions";
@@ -37,7 +37,7 @@ const makeBloom = () => {
 };
 const fwd = new THREE.Vector3(), fpt = new THREE.Vector3();
 
-const useKit = () => {
+export const useKit = () => {
   const [kit, setKit] = useState<Kit | null>(null);
   const [handle] = useState(() => delayRender("fahrenheit kit"));
   useEffect(() => { loadKit().then((k) => { setKit(k); continueRender(handle); }); }, [handle]);
@@ -45,8 +45,8 @@ const useKit = () => {
 };
 
 const QA = !!(getInputProps() as { qa?: boolean }).qa;
-const Inner: React.FC<{ id: number; kit: Kit; alpha: number }> = ({ id, kit, alpha }) => {
-  const f = useCurrentFrame();
+const Inner: React.FC<{ id: number; kit: Kit; alpha: number; brand?: Brand; frame?: number }> = ({ id, kit, alpha, brand, frame }) => {
+  const cur = useCurrentFrame(), f = frame ?? cur;
   const { camera, scene } = useThree();
   const world = useMemo(() => new FWorld(kit), [kit]);
   const target = useMemo(() => new THREE.Vector3(), []);
@@ -69,6 +69,7 @@ const Inner: React.FC<{ id: number; kit: Kit; alpha: number }> = ({ id, kit, alp
     </EffectComposer>
   ), [fx]);
   const cam = camera as THREE.PerspectiveCamera;
+  world.brand = brand ?? null;
   target.copy(world.update(id, f, cam, scene));
   noInkFallback(world.root);
   // framing check mode (scripts/qa.mjs): report what's wrong with this frame; cross-fades are judged on the shot underneath
@@ -81,11 +82,11 @@ const Inner: React.FC<{ id: number; kit: Kit; alpha: number }> = ({ id, kit, alp
   return (<><primitive object={world.root} dispose={null} />{post}</>);
 };
 
-const ShotView: React.FC<{ id: number; kit: Kit; alpha: number }> = ({ id, kit, alpha }) => (
+export const ShotView: React.FC<{ id: number; kit: Kit; alpha: number; brand?: Brand; frame?: number; width?: number; height?: number }> = ({ id, kit, alpha, brand, frame, width = 1080, height = 1920 }) => (
   <AbsoluteFill style={{ opacity: alpha }}>
-    <ThreeCanvas width={1080} height={1920} shadows gl={{ antialias: false, stencil: false, powerPreference: "high-performance", toneMappingExposure: 1.0 }}
+    <ThreeCanvas width={width} height={height} shadows gl={{ antialias: false, stencil: false, powerPreference: "high-performance", toneMappingExposure: 1.0 }}
       camera={{ fov: 40, near: 0.05, far: 1500 }}>
-      <Inner id={id} kit={kit} alpha={alpha} />
+      <Inner id={id} kit={kit} alpha={alpha} brand={brand} frame={frame} />
     </ThreeCanvas>
   </AbsoluteFill>
 );

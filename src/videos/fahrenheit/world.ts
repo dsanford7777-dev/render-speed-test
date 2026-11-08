@@ -10,7 +10,7 @@ import { TONE, CHAR, LFB, untone } from "../bridge/shade";
 import { NOINK } from "../bridge/ink";
 import { Pool, Actor, Fx } from "../bridge/cast";
 import { FPS, SHOTS, Light, wordAt, SEG_TIMES } from "./timeline";
-import { D0, SHOP, S, V3, camAt, SIGN, SHIP_Z, shipX, BANNER, smooth, clamp01 } from "./story";
+import { D0, SHOP, S, V3, camAt, Cam, SIGN, SHIP_Z, shipX, BANNER, smooth, clamp01 } from "./story";
 import { buildShop, Shop, ship, shopSignTex, bannerTex, paperTex } from "./props";
 
 // ---------------- night look (the explanation after "You see") ----------------
@@ -59,9 +59,13 @@ const F_ = who(FAHRENHEIT, 3, "fahr"), H_ = who(HELPER, 5, "help");
 const tier = (d: number): [number, number, number] => d < 3.2 ? [1800, 3000, 3.0] : d < 6.5 ? [1080, 1800, 1.8] : d < 16 ? [480, 800, 0.8] : [240, 400, 0.4];
 type Pose = { expr: Expr; look?: number; headTilt?: number; facing?: -1 | 0 | 1; blink?: number; side?: { phase: number; mirror: boolean; stride?: number } };
 
+/** channel art (avatar, banner): a fixed camera and a hand-placed cast in a shot's light and set */
+export type Brand = { cam: Cam; people: { who: "fahr" | "help"; p: V3; expr: Expr; look?: number }[] };
+
 // ---------------- world ----------------
 export class FWorld {
   root = new THREE.Group();
+  brand: Brand | null = null;
   private pool = new Pool();
   private actors: Actor[] = []; private fxs: Fx[] = [];
   private hemi: THREE.HemisphereLight; private sun: THREE.DirectionalLight;
@@ -176,7 +180,7 @@ export class FWorld {
   update(id: number, f: number, cam: THREE.PerspectiveCamera, scene: THREE.Scene) {
     const t = f / FPS, s = SHOTS[id - 1], L = LP[s.light], K = LK[s.light];
     // ---- camera ----
-    const c = camAt(id, f);
+    const c = this.brand?.cam ?? camAt(id, f);
     cam.position.set(...c.pos); cam.up.set(0, 1, 0); cam.lookAt(...c.look); cam.rotateZ(c.roll);
     cam.fov = c.fov; cam.near = 0.05; cam.far = 1500; cam.updateProjectionMatrix(); cam.updateMatrixWorld();
     const focus = V(...c.look), dist = cam.position.distanceTo(focus);
@@ -278,6 +282,7 @@ export class FWorld {
       case 12: people.push({ w: F_, p: S(0.55, 0, 1.75), pose: { expr: f > f986 ? "shock" : "neutral", blink: blink(3), look: 1 } }); break;
       case 13: people.push({ w: H_, p: S(0.2, 0, -0.4), pose: { expr: "neutral", blink: blink(5) } }); break;
     }
+    if (this.brand) people.splice(0, people.length, ...this.brand.people.map((b) => ({ w: b.who === "fahr" ? F_ : H_, p: b.p, pose: { expr: b.expr, look: b.look ?? 0, blink: 0 } as Pose })));
     // the man's thermometer under his arm (shots 1, 6, 13)
     const helper = people.find((q) => q.w === H_);
     sh.armRod.visible = !!helper && (id === 1 || (id === 6 && f > L_(5, "thermometer") - 6) || id === 13);
