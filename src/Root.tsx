@@ -5,6 +5,7 @@ import { BridgeShort, BRIDGE_FRAMES } from "./videos/bridge/Bridge";
 import { FahrenheitShort, FAHRENHEIT_FRAMES } from "./videos/fahrenheit/Fahrenheit";
 import { DSTShort, DST_FRAMES } from "./videos/dst/DST";
 import { MolassesShort, MOLASSES_FRAMES } from "./videos/molasses/Molasses";
+import { MolassesLong, MOLASSESLONG_FRAMES } from "./videos/molasseslong/MolassesLong";
 
 // Render-farm padding: on software GL (GitHub runners) the first frame each render tab draws comes out blank.
 // "<Id>Padded" plays the real video delayed by PAD frames (frames 0..PAD-1 repeat frame 0), so every chunk can
@@ -23,6 +24,7 @@ const BridgeShortPadded = padded(BridgeShort);
 const FahrenheitPadded = padded(FahrenheitShort);
 const DSTPadded = padded(DSTShort);
 const MolassesPadded = padded(MolassesShort);
+const MolassesLongPadded = padded(MolassesLong);
 
 export const Root: React.FC = () => (<>
   <Composition id="BridgeShort" component={BridgeShort} durationInFrames={BRIDGE_FRAMES} fps={30} width={1080} height={1920} />
@@ -35,4 +37,6 @@ export const Root: React.FC = () => (<>
   <Composition id="DSTPadded" component={DSTPadded} durationInFrames={DST_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="Molasses" component={MolassesShort} durationInFrames={MOLASSES_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="MolassesPadded" component={MolassesPadded} durationInFrames={MOLASSES_FRAMES + PAD} fps={30} width={1080} height={1920} />
+  <Composition id="MolassesLong" component={MolassesLong} durationInFrames={MOLASSESLONG_FRAMES} fps={30} width={1920} height={1080} />
+  <Composition id="MolassesLongPadded" component={MolassesLongPadded} durationInFrames={MOLASSESLONG_FRAMES + PAD} fps={30} width={1920} height={1080} />
 </>);
