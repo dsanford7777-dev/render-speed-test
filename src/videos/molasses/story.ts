@@ -88,7 +88,7 @@ const keys = (): Record<number, Key[]> => {
   // 2 crane up from the street to rooftop height: the tank is five stories tall
   c[2] = [{ f: A(2), s: (f) => { const u = U(2, f); return { pos: L3(M(7.5, 1.4, -100), M(5.0, 12.5, -90), u), look: L3(M(-14, 6, -50), M(-15, 12, -50), u), fov: 54 }; } }];
   // 3 truck along the tank's foot onto the gallons board
-  c[3] = [{ f: A(3), s: (f) => { const u = U(3, f); return { pos: L3(M(5.0, 1.2, -55.0), M(2.8, 2.2, -49.8), u), look: L3(M(-3, 2.6, -50), M(-2.4, 2.15, -47.1), u), fov: 46 }; } }];
+  c[3] = [{ f: A(3), s: (f) => { const u = U(3, f); return { pos: L3(M(5.0, 1.2, -55.0), M(2.8, 2.2, -49.8), u), look: L3(M(-2.6, 2.3, -47.8), M(-2.4, 2.15, -47.1), u), fov: 48 }; } }];
   // 4 orbit around the treasurer and his upside-down plan
   c[4] = [{ f: A(4), s: (f) => { const u = U(4, f, smooth); return { pos: orb(M(-1.5, 0, -56.4), 6.4 - 0.8 * u, 1.6, 1.42 - 0.42 * u), look: M(-1.45, 1.55, -56.4), fov: 44 }; } }];
   // 5 swoop in on TREASURER
@@ -102,7 +102,7 @@ const keys = (): Record<number, Key[]> => {
       return { pos: add(L3(M(5.5, 1.8, -55.0), M(10.0, 2.5, -57.0), k), shake(f, 0.12 * sh)), look: M(-4, 3.2, -52.2), fov: 50 + 6 * k }; } },
   ];
   // 8 the camera backs away as the wave comes on, tilting up to the 25 FT mark
-  c[8] = [{ f: A(8), s: (f) => { const u = U(8, f, smooth); return { pos: L3(M(4.0, 1.4, -120), M(5.0, 2.4, -129), u), look: L3(M(6, 3.6, -98), M(7.5, 6.2, -102), u), fov: 52 }; } }];
+  c[8] = [{ f: A(8), s: (f) => { const u = U(8, f, smooth); return { pos: L3(M(4.0, 1.4, -120), M(5.0, 2.4, -129), u), look: L3(M(7.2, 5.4, -100), M(7.5, 6.2, -102), u), fov: 54 }; } }];
   // 9 low and fast: the wave rushes at the lens past the 35 MPH sign, the camera stumbling backward
   c[9] = [{ f: A(9), s: (f) => { const u = U(9, f, (x) => x); return { pos: add(L3(M(3.5, 0.9, -137), M(4.5, 1.2, -143), u), shake(f, 0.05)), look: M(4.0, 2.8, -118), fov: 56, roll: 0.035 * Math.sin(f * 0.9) }; } }];
   // 10 arc across the firehouse front as it's knocked off its base -> crane up to the twisted span on "twisted"
@@ -119,7 +119,7 @@ const keys = (): Record<number, Key[]> => {
   // 14 slide down the wall with the drips
   c[14] = [{ f: A(14), s: (f) => { const u = U(14, f, smooth); return { pos: L3(M(1.0, 3.8, -51.4), M(0.7, 1.8, -50.8), u), look: L3(M(-4, 4.0, -52.4), M(-4, 2.1, -52.4), u), fov: 42 }; } }];
   // 15 dolly along the kids and their cups
-  c[15] = [{ f: A(15), s: (f) => { const u = U(15, f, smooth); return { pos: L3(M(2.6, 1.3, -59.0), M(2.0, 1.5, -56.6), u), look: L3(M(-3.1, 1.0, -53.2), M(-3.1, 1.1, -52.0), u), fov: 52 }; } }];
+  c[15] = [{ f: A(15), s: (f) => { const u = U(15, f, smooth); return { pos: L3(M(2.6, 1.3, -59.0), M(2.3, 1.45, -57.6), u), look: L3(M(-3.1, 1.0, -53.0), M(-3.1, 1.1, -52.3), u), fov: 52 }; } }];
   // 16 slow swing around the treasurer as he shrugs at the streaks
   c[16] = [{ f: A(16), s: (f) => { const u = U(16, f, smooth); return { pos: orb(M(-1.9, 0, -55.8), 5.6, 1.6, 0.95 + 0.3 * u), look: M(-1.9, 1.5, -55.8), fov: 44, roll: -0.03 * u }; } }];
   // 17 rise with the painter as the brown climbs the tank

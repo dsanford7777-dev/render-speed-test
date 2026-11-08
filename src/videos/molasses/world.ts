@@ -405,7 +405,7 @@ export class MWorld {
       case 4: return [all("upside-down plan", this.plan.pos(), 0.1, this.plan.group)];
       case 5: return [all("TREASURER sign", this.plaque.pos(), 0.1, this.plaque.group)];
       case 6: return [["hose", V(HOSE[0], HOSE[1] + 0.3, HOSE[2]), 0.1, s.a, w(5, "never") - 2, this.hose], ["red X", V(HOSE[0] + 0.7, HOSE[1] + 0.55, HOSE[2] - 0.2), 0.1, w(5, "never") + 8, s.b, this.x]];
-      case 7: return [["calendar", this.cal.pos(), 0.1, s.a, w(6, "burst") - 6, this.cal.group], ["crack", face(3), 0.3, w(6, "burst") + 8, s.b, tk]];
+      case 7: return [["calendar", this.cal.pos(), 0.1, s.a, w(6, "burst") - 6, this.cal.group], ["molasses pouring out", face(2.5, 0).add(V(1.5, 0, 0)), 0.5, w(6, "burst") + 8, s.b, this.gush.group]];
       case 8: return [all("25 FT board", this.feet.pos(), 0.1, this.feet.group)];
       case 9: return [all("35 MPH sign", this.mph.pos(), 0.1, this.mph.group)];
       case 10: return [["firehouse", this.fire.localToWorld(V(-4.05, 6.5, 0)), 0.5, s.a + 4, w(9, "twisted") - 16, this.fire], ["twisted span", V(EL.x, D0 + EL.h, EL.bentZ), 0.5, w(9, "twisted") + 16, s.b, this.el.group]];
