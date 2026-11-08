@@ -6,15 +6,19 @@ import { renderFrames, selectComposition } from "@remotion/renderer";
 import fs from "node:fs";
 import path from "node:path";
 const [comp, scale, list, out] = process.argv.slice(2);
-const PAD = 2;
+const PAD = 2; const BX = process.env.BROWSER_EXE;
 fs.mkdirSync(out, { recursive: true });
-const serveUrl = await bundle({ entryPoint: path.resolve("src/index.ts") });
-const composition = await selectComposition({ serveUrl, id: `${comp}Padded`, chromiumOptions: { gl: "swangle" } });
+const serveUrl = await bundle({
+  entryPoint: path.resolve("src/index.ts"),
+  // local sandbox previews: no Google Fonts access, so swap the font loader for a stub
+  webpackOverride: (c) => BX ? { ...c, resolve: { ...c.resolve, alias: { ...(c.resolve?.alias ?? {}), "@remotion/google-fonts/Montserrat": path.resolve("scripts/font-stub.js") } } } : c,
+});
+const composition = await selectComposition({ serveUrl, id: `${comp}Padded`, chromiumOptions: { gl: "swangle" }, ...(BX ? { browserExecutable: BX } : {}) });
 for (const f of list.split(",").map(Number)) {
   const t0 = Date.now(), dir = path.join(out, `tmp_${f}`);
   await renderFrames({
     composition, serveUrl, outputDir: dir, imageFormat: "jpeg", jpegQuality: 88, scale: Number(scale), concurrency: 1,
-    frameRange: [f, f + PAD], chromiumOptions: { gl: "swangle" }, timeoutInMilliseconds: 300000,
+    frameRange: [f, f + PAD], chromiumOptions: { gl: "swangle" }, ...(BX ? { browserExecutable: BX } : {}), timeoutInMilliseconds: 300000,
     onBrowserLog: (l) => { if (l.type === "error") console.log("[browser]", l.text.slice(0, 300)); },
     onStart: () => {}, onFrameUpdate: () => {},
   });
