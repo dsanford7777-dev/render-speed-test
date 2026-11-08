@@ -31,7 +31,7 @@ const spoken = (s: string) => s.split(/\s+/).filter(Boolean).length;
 const pauses = (s: string) => (s.match(/\.\.\.|[.?!:]\s|[.?!]$/g) ?? []).length;
 /** [start, end] seconds per segment; replaced by scripts/align.py once the voice exists */
 // __SEG_TIMES__
-export const SEG_TIMES: [number, number][] = [[0.0, 2.73], [3.03, 5.75], [6.05, 9.08], [9.38, 11.81], [12.11, 13.93], [14.23, 15.74], [16.04, 20.89], [21.19, 23.31], [23.61, 25.13], [25.43, 26.64], [26.94, 29.67], [29.97, 31.18], [31.48, 35.72], [36.02, 37.54], [37.84, 40.87], [41.17, 43.59], [43.89, 47.83]];
+export const SEG_TIMES: [number, number][] = [[0.0, 2.62], [3.42, 5.44], [5.94, 9.14], [9.6, 11.5], [11.86, 13.62], [14.02, 15.66], [15.96, 19.38], [19.72, 21.5], [22.08, 23.44], [23.94, 24.94], [24.94, 27.54], [28.22, 29.56], [30.0, 34.24], [34.64, 36.02], [36.56, 39.9], [40.22, 42.28], [42.62, 45.72]];
 // __END_SEG_TIMES__
 export const TOTAL = Math.ceil((SEG_TIMES[SEG_TIMES.length - 1][1] + 0.9) * FPS);
 
@@ -55,23 +55,27 @@ export const words = (): Word[] => {
 
 // ---------------- shots ----------------
 export type Light = "day" | "golden" | "night";
-export type SetId = "shop" | "street" | "harbor" | "square";
+export type SetId = "farm" | "shop" | "street" | "chamber";
 /** a shot spans whole segments [s0, s1] (inclusive) */
 export type ShotDef = { id: number; s0: number; s1: number; light: Light; set: SetId; a: number; b: number };
 const raw: Omit<ShotDef, "a" | "b">[] = [
-  { id: 1, s0: 0, s1: 0, light: "day", set: "shop" },      // hook: bucket + the man with the thermometer under his arm
-  { id: 2, s0: 1, s1: 1, light: "day", set: "street" },    // 1724 street, glide to the glassblower's sign
-  { id: 3, s0: 2, s1: 2, light: "day", set: "shop" },      // shelf of disagreeing thermometers
-  { id: 4, s0: 3, s1: 3, light: "day", set: "shop" },      // salt into the bucket, frost on the glass
-  { id: 5, s0: 4, s1: 4, light: "day", set: "shop" },      // the "0"
-  { id: 6, s0: 5, s1: 5, light: "day", set: "shop" },      // barrel (32) -> assistant (96)
-  { id: 7, s0: 6, s1: 6, light: "day", set: "shop" },      // the scale board: 32 and 96 marked
-  { id: 8, s0: 7, s1: 7, light: "day", set: "shop" },      // Fahrenheit shrugs at the lens
-  { id: 9, s0: 8, s1: 8, light: "night", set: "shop" },    // "You see": candlelit bench, a line halved six times
-  { id: 10, s0: 9, s1: 9, light: "golden", set: "harbor" }, // the ship between two harbours
-  { id: 11, s0: 10, s1: 10, light: "golden", set: "square" }, // 1975: GO METRIC! banner, everyone walks past
-  { id: 12, s0: 11, s1: 11, light: "night", set: "shop" },  // kettle at 212, 96 rolls to 98.6
-  { id: 13, s0: 12, s1: 12, light: "night", set: "shop" },  // deadpan assistant
+  { id: 1, s0: 0, s1: 0, light: "day", set: "farm" },        // hook: angry farmer + pitchfork glaring at the farm clock
+  { id: 2, s0: 1, s1: 1, light: "day", set: "farm" },        // wider: the clock gets a BANNED stamp on "banned"
+  { id: 3, s0: 2, s1: 2, light: "night", set: "shop" },      // "You see": 1916, wartime workshop, coal by the stove
+  { id: 4, s0: 3, s1: 3, light: "night", set: "shop" },      // the wall clock jumps an hour, coal pile
+  { id: 5, s0: 4, s1: 4, light: "golden", set: "street" },   // 1918: SAVE DAYLIGHT banner, people walk under it
+  { id: 6, s0: 5, s1: 5, light: "day", set: "farm" },        // the cow stares at the clock
+  { id: 7, s0: 6, s1: 6, light: "day", set: "farm" },        // dew on the hay -> MILK TRAIN 7:00 becomes 6:00
+  { id: 8, s0: 7, s1: 7, light: "day", set: "chamber" },     // farmers with pitchforks storm Congress
+  { id: 9, s0: 8, s1: 8, light: "day", set: "chamber" },     // the repeal paper gets VETOED
+  { id: 10, s0: 9, s1: 9, light: "day", set: "chamber" },    // board flips to REPEALED! 1919, senators cheer
+  { id: 11, s0: 10, s1: 10, light: "golden", set: "street" }, // helper shrugs at the street clock
+  { id: 12, s0: 11, s1: 11, light: "golden", set: "street" }, // shops, golf, barbecue stalls, one per word
+  { id: 13, s0: 12, s1: 12, light: "golden", set: "street" }, // golf green + $200,000,000 sign
+  { id: 14, s0: 13, s1: 13, light: "golden", set: "street" }, // Halloween street: jack-o'-lanterns, kids
+  { id: 15, s0: 14, s1: 14, light: "day", set: "chamber" },  // a candy pumpkin on every seat
+  { id: 16, s0: 15, s1: 15, light: "golden", set: "street" }, // 2005: kids trick-or-treat in daylight
+  { id: 17, s0: 16, s1: 16, light: "night", set: "street" }, // sleepy helper holds up a candy pumpkin
 ];
 export const SHOTS: ShotDef[] = raw.map((s, i) => ({
   ...s,
@@ -80,7 +84,7 @@ export const SHOTS: ShotDef[] = raw.map((s, i) => ({
 }));
 export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? SHOTS[SHOTS.length - 1];
 /** crossfades (frames) where place or time of day changes */
-export const XFADE: Record<number, number> = { 2: 6, 3: 6, 10: 8, 11: 8, 12: 8 };
+export const XFADE: Record<number, number> = { 3: 8, 5: 8, 6: 6, 8: 6, 11: 6, 15: 6, 16: 6, 17: 8 };
 export const layersAt = (f: number): { id: number; alpha: number }[] => {
   for (const s of SHOTS) {
     const x = XFADE[s.id];

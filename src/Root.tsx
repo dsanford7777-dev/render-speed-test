@@ -3,6 +3,7 @@ import React from "react";
 import { Composition, Freeze, useCurrentFrame } from "remotion";
 import { BridgeShort, BRIDGE_FRAMES } from "./videos/bridge/Bridge";
 import { FahrenheitShort, FAHRENHEIT_FRAMES } from "./videos/fahrenheit/Fahrenheit";
+import { DSTShort, DST_FRAMES } from "./videos/dst/DST";
 
 // Render-farm padding: on software GL (GitHub runners) the first frame each render tab draws comes out blank.
 // "<Id>Padded" plays the real video delayed by PAD frames (frames 0..PAD-1 repeat frame 0), so every chunk can
@@ -19,6 +20,7 @@ const padded = (C: React.FC) => {
 };
 const BridgeShortPadded = padded(BridgeShort);
 const FahrenheitPadded = padded(FahrenheitShort);
+const DSTPadded = padded(DSTShort);
 
 export const Root: React.FC = () => (<>
   <Composition id="BridgeShort" component={BridgeShort} durationInFrames={BRIDGE_FRAMES} fps={30} width={1080} height={1920} />
@@ -27,4 +29,6 @@ export const Root: React.FC = () => (<>
   <Composition id="Avatar" component={AvatarArt} durationInFrames={3} fps={30} width={800} height={800} />
   <Composition id="Fahrenheit" component={FahrenheitShort} durationInFrames={FAHRENHEIT_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="FahrenheitPadded" component={FahrenheitPadded} durationInFrames={FAHRENHEIT_FRAMES + PAD} fps={30} width={1080} height={1920} />
+  <Composition id="DST" component={DSTShort} durationInFrames={DST_FRAMES} fps={30} width={1080} height={1920} />
+  <Composition id="DSTPadded" component={DSTPadded} durationInFrames={DST_FRAMES + PAD} fps={30} width={1080} height={1920} />
 </>);
