@@ -38,14 +38,34 @@ const ChapterTag: React.FC<{ f: number }> = ({ f }) => {
   );
 };
 
-const EndCard: React.FC<{ t: number }> = ({ t }) => (
-  <Paper tone="#2a160c">
-    <div style={{ position: "absolute", top: 150, width: 1920, textAlign: "center", transform: `scale(${pop(t, 6)})` }}>
-      <T size={92} col={C.yellow} style={{ textShadow: `0 8px 0 #000` }}>Paradox Town Explained</T>
-      <T size={40} w={800} col="#f6efdc" style={{ marginTop: 16 }}>Weird history, explained</T>
-    </div>
-  </Paper>
-);
+// End card: call to action on the left; the right half stays clear for YouTube's end-screen elements
+// (place them right of x ≈ 1000). The arrow points at them.
+const EndCard: React.FC<{ t: number }> = ({ t }) => {
+  const a = ease(k(t, 0, 14)), bob = Math.sin(t / 7) * 14;
+  const row = (at: number) => ({ opacity: ease(k(t, at, 10)), transform: `translateX(${(1 - ease(k(t, at, 10))) * -60}px)` });
+  return (
+    <Paper tone="#2a160c">
+      <AbsoluteFill style={{ background: "linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 48%, rgba(0,0,0,0.35) 56%, rgba(0,0,0,0.45) 100%)" }} />
+      <div style={{ position: "absolute", left: 120, top: 190, opacity: a }}>
+        <div style={row(0)}><T size={40} w={800} col={C.gold}>Paradox Town Explained</T></div>
+        <div style={{ ...row(6), marginTop: 26 }}><T size={112} col="#fff" style={{ textShadow: `0 8px 0 #000` }}>Watch this</T></div>
+        <div style={{ ...row(10), display: "flex", alignItems: "center", gap: 34 }}>
+          <T size={112} col={C.yellow} style={{ textShadow: `0 8px 0 #000` }}>next</T>
+          <svg width={230} height={110} viewBox="0 0 230 110" style={{ transform: `translateX(${bob}px)` }}>
+            <path d="M10 55 H170" stroke={C.yellow} strokeWidth={26} strokeLinecap="round" />
+            <path d="M140 14 L208 55 L140 96" fill="none" stroke={C.yellow} strokeWidth={26} strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+        <div style={{ ...row(18), marginTop: 60, display: "flex", alignItems: "center", gap: 24 }}>
+          <div style={{ background: C.red, border: `6px solid ${C.ink}`, borderRadius: 12, padding: "12px 30px", boxShadow: `0 8px 0 #000`, transform: `scale(${1 + 0.04 * Math.sin(t / 5)})` }}>
+            <T size={50} col="#fff">Subscribe</T>
+          </div>
+          <T size={40} w={800} col="#f6efdc" up={false}>for more weird history</T>
+        </div>
+      </div>
+    </Paper>
+  );
+};
 
 export const MolassesLong: React.FC = () => {
   const f = useCurrentFrame();
