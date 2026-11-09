@@ -9,9 +9,13 @@ import path from "node:path";
 const [comp, first, last, step, scale, out] = process.argv.slice(2);
 const PAD = 2, A = Number(first), B = Number(last), N = Number(step);
 fs.mkdirSync(out, { recursive: true });
-const serveUrl = await bundle({ entryPoint: path.resolve("src/index.ts") });
+const BX = process.env.BROWSER_EXE;
+// local sandbox runs: no Google Fonts access, so swap the font loader for a stub (as stills.mjs does)
+const serveUrl = await bundle({ entryPoint: path.resolve("src/index.ts"),
+  webpackOverride: (c) => BX ? { ...c, resolve: { ...c.resolve, alias: { ...(c.resolve?.alias ?? {}), "@remotion/google-fonts/Montserrat": path.resolve("scripts/font-stub.js") } } } : c });
 const inputProps = { qa: true };
-const composition = await selectComposition({ serveUrl, id: `${comp}Padded`, inputProps, chromiumOptions: { gl: "swangle" } });
+const browserExecutable = process.env.BROWSER_EXE || null;
+const composition = await selectComposition({ serveUrl, id: `${comp}Padded`, inputProps, browserExecutable, chromiumOptions: { gl: "swangle" } });
 // padded frame p shows real frame p - PAD. The first frame a fresh tab draws is blank under software GL, so start one
 // step early and throw that one away.
 const p0 = Math.max(0, A + PAD - N), p1 = Math.min(B + PAD, composition.durationInFrames - 1);
@@ -19,7 +23,7 @@ const issues = {}, tmp = path.join(out, "tmp");
 const t0 = Date.now();
 await renderFrames({
   composition, serveUrl, inputProps, outputDir: tmp, imageFormat: "jpeg", jpegQuality: 80, scale: Number(scale), concurrency: 1,
-  frameRange: [p0, p1], everyNthFrame: N, chromiumOptions: { gl: "swangle" }, timeoutInMilliseconds: 300000,
+  frameRange: [p0, p1], everyNthFrame: N, browserExecutable, chromiumOptions: { gl: "swangle" }, timeoutInMilliseconds: 300000,
   onBrowserLog: (l) => {
     const m = /^QA\|(\d+)\|(\d+)\|(.*)$/.exec(l.text);
     if (m) { issues[m[1]] = { shot: Number(m[2]), problems: JSON.parse(m[3]) }; return; }

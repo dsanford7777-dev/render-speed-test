@@ -143,7 +143,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "winter", flood: true, wave: wz, mph: true, dof: 4,
       cam: cam(add(M(5.0, 0.8, z), shake(f, 0.04)), M(5.0, 6.6, z + 12.5), 52, 0.03 * Math.sin(f * 0.15)),
-      subjects: [["wave crest", [WAVE.x, D0 + WAVE.H * 0.85, wz + 0.5], 0.5]],
+      subjects: [["wave crest", [WAVE.x, D0 + WAVE.H * 0.85, wz + 0.5], 2.5]],
     };
   },
   // arc across the firehouse front as the wave shoves it off its base
@@ -219,8 +219,8 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "golden", paint: 1, dof: 0,
       cam: cam(L3(M(16, 16, -100), M(10, 13, -88), u), L3(M(-14, 7, -48), M(-15, 8, -50), u), 44),
-      people: walkersZ(FOLK, [MX + 3, MX + 6], [-110, -60], (f - s.a) / FPS),
-      subjects: [["tank", TANK_TOP, 0.5]],
+      people: walkersZ(FOLK, [MX + 3, MX + 6], [-74, -50], (f - s.a) / FPS),
+      subjects: [["tank", TANK_TOP, 1.5]],
     };
   },
 
@@ -231,7 +231,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "golden", el: false, dof: 0,
       cam: cam(L3(M(9, 1.4, -74), M(7, 3.0, -70), u), L3(M(-14, 9, -50), M(-15, 10, -50), u), 48),
-      subjects: [["tank", TANK_TOP, 0.5]],
+      subjects: [["tank", TANK_TOP, 1.5]],
     };
   },
   // the empty quay before the tank: just the yard and the harbor
@@ -240,7 +240,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "golden", tank: false, dof: 0,
       cam: cam(L3(M(3, 11, -64), M(2, 10, -60), u), L3(M(-17, 0.5, -50), M(-18, 1, -48), u), 46),
-      people: walkersZ(FOLK.slice(0, 3), [MX + 3, MX + 6], [-90, -60], (f - s.a) / FPS),
+      people: walkersZ(FOLK.slice(0, 3), [MX + 3, MX + 6], [-56, -40], (f - s.a) / FPS),
       subjects: [["empty yard", M(-16, 0, -50), 1]],
     };
   },
@@ -250,7 +250,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "golden", pipe: true, shipAt: [MX - 18, 0.6, -21], dof: 0,
       cam: cam(L3(M(14, 7, -8), M(9, 6, -14), u), L3(M(-20, 4, -34), M(-19, 5, -38), u), 46),
-      subjects: [["pipe", M(-18, 0.3, -35), 0.3]],
+      subjects: [["pipe", M(-18, 0.3, -35), 0.6]],
     };
   },
   // crane up the tank's full height
@@ -299,7 +299,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "golden", pipe: true, shipAt: [MX - 18, 0.6, -21], el: false, dof: 0,
       cam: cam(L3(M(-10, 1.6, -33), M(-8, 15, -36), u), L3(M(-18, 2, -38), M(-18, 15, -42), u), 48, 0.04 * u),
-      subjects: [["pipe", M(-18, 1 + u * 12, -39.5), 0.3]],
+      subjects: [["pipe", M(-18, 1 + u * 12, -39.5), 0.6]],
     };
   },
   // macro along a seam of rivets, sliding past them
@@ -328,7 +328,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "golden", el: false, dof: 0,
       cam: cam(L3(M(4, 13, -68), M(5, 5.5, -63), u), L3(M(-14, 5, -50), M(-14, 7.5, -51), u), 50),
-      people: walkersZ(FOLK.slice(0, 3), [MX + 2.5, MX + 6], [-80, -55], (f - s.a) / FPS),
+      people: walkersZ(FOLK.slice(0, 3), [MX + 2.5, MX + 6], [-57, -42], (f - s.a) / FPS),
       subjects: [["tank streaks", wallPt(6, -3), 0.5]],
     };
   },
@@ -347,7 +347,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "golden", el: false, drips: "seam", dof: 4, sunAz: 70,
       cam: cam(L3(M(2.4, 6.0, -55.5), M(2.0, 3.0, -55.0), u), L3(wallPt(8, -3.5), wallPt(2.6, -3.3), u), 44),
-      subjects: [["streak", wallPt(4, -3.5), 0.3]],
+      subjects: [["streak", wallPt(8 - 5 * u, -3.5), 0.3]],
     };
   },
   // neighbors stop in the street and stare up at the streaks
@@ -383,7 +383,7 @@ export const SPECS: Record<string, Spec> = {
     const u = U(s, f, lin);
     return {
       light: "golden", el: false, drips: "seam", dof: 10, sunAz: 160,
-      cam: cam(M(0.3, 0.85, -55.8 + 6.5 * u), M(-3.8, 0.95, -53.2 + 3.0 * u), 42),
+      cam: cam(M(0.6, 0.95, -55.8 + 2.5 * u), M(-3.8, 1.0, -53.2 + 1.8 * u), 46),
       people: KIDS_AT.map((p, k) => ({ who: `kid${k}`, p, expr: (k === 1 ? "lick" : k === 0 ? "grin" : "laugh") as Expr })),
       subjects: [["kids", [KIDS_AT[1][0], KIDS_AT[1][1] + 0.8, KIDS_AT[1][2]], 0.1]],
     };
@@ -412,7 +412,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "golden", el: false, desk: true, flakes: smooth((f - s.a - 4) / 22), dof: 12,
       cam: cam(L3(M(1.6, 2.6, -57.2), M(0.9, 2.0, -57.8), u), L3(add(DESK, [-0.1, 0.8, 0]), add(DESK, [-0.4, 1.1, -0.3]), u), 42),
-      people: [{ who: "jell", p: JELL5, expr: "grin" }, { who: "folk2", p: M(-0.6, 0, -60.7), expr: "nervous", look: -1 }],
+      people: [{ who: "jell", p: JELL5, expr: "grin" }],
       subjects: [["desk", add(DESK, [0, 0.86, 0]), 0.1]],
     };
   },
@@ -453,7 +453,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "winter", paint: 1, pipe: true, shipAt: [MX - 18, 0.6, -21], dof: 0,
       cam: cam(L3(M(6, 3, -14), M(2, 5, -20), u), L3(M(-18, 3, -30), M(-18, 9, -40), u), 46),
-      subjects: [["pipe", M(-18, 4, -39.5), 0.3]],
+      subjects: [["pipe", M(-18, 4, -39.5), 0.6]],
     };
   },
   // "already too weak": low on the base, a slow push toward the bottom seam
@@ -535,7 +535,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "winter", paint: 1, flood: true, wave: wz, surge: 1, sheet: true, debris: true, dof: 2,
       cam: cam(add(M(-0.2, 1.4, -114), shake(f, 0.03 + 0.06 * u)), L3(M(-3, 4, -100), M(-2, 5, -104), u), 50, 0.04),
-      subjects: [["wave crest", [WAVE.x, D0 + WAVE.H * 0.8, wz + 0.5], 0.5]],
+      subjects: [["flooded houses", M(-1.5, 3, -102), 2.5]],
     };
   },
   // the company's own desk swallowed: molasses over the street, the TREASURER sign sticking out
@@ -652,7 +652,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "winter", paint: 1, flood: true, sheet: true, pipe: true, shipAt: [MX - 18, 0.6, -21], dof: 0,
       cam: cam(L3(M(10, 6, -6), M(6, 5, -12), u), L3(M(-16, 3, -30), M(-6, 2, -48), u), 46),
-      subjects: [["fireboat", M(-18, 3, -21), 1]],
+      subjects: [["fireboat", L3(M(-16, 3, -30), M(-6, 2, -48), u), 3]],
     };
   },
   // crews walking the brown, scattering sand
@@ -693,7 +693,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "day", tank: false, court: true, dof: 10,
       cam: cam(L3(add(COURT, [-2.4, 1.6, -5.2]), add(COURT, [-1.4, 1.6, -3.6]), u), add(COURT, [0.9, 1.5, -2.0]), 40, 0.04),
-      people: COURT_CAST(true),
+      people: [COURT_CAST(true)[1]],
       subjects: [["lawyer", add(COURT, [0.9, 1.3, -2.0]), 0.5]],
     };
   },
@@ -703,7 +703,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "day", tank: false, court: true, dof: 8,
       cam: cam(L3(add(COURT, [2.0, 1.4, -3.5]), add(COURT, [1.0, 1.7, -1.2]), u), add(COURT, [0.6, 2.2, 4.4]), 44),
-      people: COURT_CAST(false).filter((q) => q.who !== "folk0"),
+      people: COURT_CAST(false).slice(0, 1),
       subjects: [["bench", add(COURT, [0, 2.0, 4.4]), 0.5]],
     };
   },
@@ -726,7 +726,7 @@ export const SPECS: Record<string, Spec> = {
       light: "day", tank: false, el: false, ship: false, dof: 4,
       cam: cam(M(5.0, 1.6, -70 - 4 * u), M(12, 2.6, -73 - 4 * u), 44),
       people: [{ who: "folk1", p: M(9.2, 0, -70.5 - 4.2 * u), expr: "smile_closed", side: { phase: (t * 0.8) % 1, mirror: false, stride: 0.8 } }],
-      subjects: [["building", M(12, 3, -73 - 4 * u), 1]],
+      subjects: [["building", M(11.2, 3, -73 - 4 * u), 1]],
     };
   },
   // tilt up the face of the building
@@ -735,7 +735,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "day", tank: false, el: false, ship: false, dof: 0,
       cam: cam(M(8.0, 1.0, -76), L3(M(12, 2.5, -78), M(12, 9, -78.5), u), 52, 0.06 * u),
-      subjects: [["building", M(12, 5, -78), 1]],
+      subjects: [["building", L3(M(11.2, 2.5, -78), M(11.2, 8, -78.5), u), 1]],
     };
   },
   // the North End street today: no El, no tank
@@ -792,7 +792,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "day", tank: false, el: false, ship: false, park: true, dof: 0,
       cam: cam(orb(add(TANK, [2, 0, 2]), 18, 10 - 3 * u, 0.7 + 0.35 * u), add(TANK, [4, 0.5, 0]), 46),
-      people: [{ who: "kid0", p: add(TANK, [13, 0, 8.3]), expr: "laugh" }, { who: "kid1", p: add(TANK, [2, 0, -2.6]), expr: "grin", side: { phase: (t * 0.9) % 1, mirror: false } }, { who: "folk3", p: add(TANK, [13.2, 0, -3]), expr: "smile" }],
+      people: [{ who: "kid0", p: add(TANK, [7, 0, 5]), expr: "laugh" }, { who: "kid1", p: add(TANK, [2, 0, -2.6]), expr: "grin", side: { phase: (t * 0.9) % 1, mirror: false } }, { who: "folk3", p: add(TANK, [13.2, 0, -3]), expr: "smile" }],
       subjects: [["park", add(TANK, [3, 0, 2]), 1]],
     };
   },
