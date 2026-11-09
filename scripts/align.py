@@ -133,12 +133,11 @@ def main(audio, ts_path):
             words.append({"w": w, "s": round(a, 3), "e": round(max(b, a + 0.08), 3), "seg": i})
         pos += n
 
-    src = re.sub(r"// __SEG_TIMES__\n.*?// __END_SEG_TIMES__",
-                 "// __SEG_TIMES__\nexport const SEG_TIMES: [number, number][] = " + json.dumps(seg_times) + ";\n// __END_SEG_TIMES__",
-                 src, flags=re.S)
-    src = re.sub(r"// __WORDS__\n.*?// __END_WORDS__",
-                 "// __WORDS__\nexport const WORDS: Word[] | null = " + json.dumps(words) + ";\n// __END_WORDS__",
-                 src, flags=re.S)
+    # replacement via a function: the JSON may contain backslashes (\u escapes) that re.sub would read as escapes
+    seg_block = "// __SEG_TIMES__\nexport const SEG_TIMES: [number, number][] = " + json.dumps(seg_times) + ";\n// __END_SEG_TIMES__"
+    word_block = "// __WORDS__\nexport const WORDS: Word[] | null = " + json.dumps(words, ensure_ascii=False) + ";\n// __END_WORDS__"
+    src = re.sub(r"// __SEG_TIMES__\n.*?// __END_SEG_TIMES__", lambda m: seg_block, src, flags=re.S)
+    src = re.sub(r"// __WORDS__\n.*?// __END_WORDS__", lambda m: word_block, src, flags=re.S)
     open(ts_path, "w", encoding="utf-8").write(src)
     print("segments:", seg_times)
     if matched < 0.8:
