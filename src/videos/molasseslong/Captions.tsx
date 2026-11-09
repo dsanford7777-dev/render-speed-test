@@ -1,9 +1,29 @@
-// Burned-in captions, re-laid out for 16:9: same style as the Shorts (1-3 words, white with a heavy outline, the
-// spoken word in yellow, a small pop), smaller and sitting in the lower third.
+// Burned-in captions for 16:9: 1-3 words at a time, bold white with a heavy outline and a small pop, in the lower
+// third. Normal case, punctuation kept. Yellow marks only the punch word of each line (two on long lines): numbers
+// first, then words from PUNCH, then the longest word; HL overrides per segment.
 import React, { useMemo } from "react";
 import { AbsoluteFill, useCurrentFrame } from "remotion";
 import { FONT } from "./kit";
-import { FPS, words, Word } from "./timeline";
+import { FPS, words, Word, SEGMENTS } from "./timeline";
+
+/** words that carry the stakes, in rough priority order */
+const PUNCH = ["brown", "burst", "killed", "died", "anarchists", "bomb", "leaked", "leaking", "wave", "molasses", "paint", "painted", "sued", "candy",
+  "treasurer", "engineer", "water", "heavier", "half", "brittle", "cracks", "fail", "quit", "groaned", "cold", "glue", "stuck", "sticky",
+  "harbor", "summer", "radar", "responsible", "weak", "never", "skipped", "explosives", "alcohol", "war", "enormous", "tank"];
+/** per-segment overrides: segment index -> the words to highlight (as shown) */
+const HL: Record<number, string[]> = {
+  0: ["leaking", "brown"], 5: ["apart"], 6: ["fix"], 9: ["strangest"], 23: ["jell"], 25: ["engineering", "fast"], 27: ["water"],
+  32: ["weight"], 39: ["reason"],
+};
+const bare = (w: string) => w.toLowerCase().replace(/[^\w$.%:]/g, "").replace(/[.:]$/, "");
+const pickHL = (seg: number): Set<string> => {
+  if (HL[seg]) return new Set(HL[seg].map(bare));
+  const ws = SEGMENTS[seg].show.split(/\s+/).map(bare).filter(Boolean), n = ws.length > 14 ? 2 : 1, out: string[] = [];
+  for (const w of ws) if (/\d/.test(w) && out.length < n && !out.includes(w)) out.push(w);
+  for (const p of PUNCH) if (out.length < n && ws.includes(p) && !out.includes(p)) out.push(p);
+  if (!out.length) out.push([...ws].sort((a, b) => b.length - a.length)[0]);
+  return new Set(out);
+};
 
 type Group = { ws: Word[]; s: number; e: number };
 const groupWords = (all: Word[]): Group[] => {
@@ -24,6 +44,7 @@ const groupWords = (all: Word[]): Group[] => {
 export const Captions: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS;
   const groups = useMemo(() => groupWords(words()), []);
+  const hl = useMemo(() => SEGMENTS.map((_, i) => pickHL(i)), []);
   const g = groups.find((x) => t >= x.s && t < x.e);
   if (!g) return null;
   const k = Math.min(1, (t - g.s) * FPS / 4), pop = 1 + 0.1 * (1 - k) * (1 - k);
@@ -31,13 +52,13 @@ export const Captions: React.FC = () => {
     <AbsoluteFill style={{ justifyContent: "flex-start", alignItems: "center", top: 858 }}>
       <div style={{ transform: `scale(${pop})`, display: "flex", flexWrap: "nowrap", justifyContent: "center", gap: "0 22px", textAlign: "center" }}>
         {g.ws.map((w, i) => {
-          const live = t >= w.s && t < w.e + 0.05;
+          const punch = hl[w.seg].has(bare(w.w));
           return (
             <span key={i} style={{
-              fontFamily: FONT, fontWeight: 900, fontSize: 76, lineHeight: 1.08, letterSpacing: 1, textTransform: "uppercase",
-              color: live ? "#ffd84d" : "#ffffff", WebkitTextStroke: "10px #120c16", paintOrder: "stroke fill",
+              fontFamily: FONT, fontWeight: 900, fontSize: 74, lineHeight: 1.08, letterSpacing: 0.5,
+              color: punch ? "#ffd84d" : "#ffffff", WebkitTextStroke: "10px #120c16", paintOrder: "stroke fill",
               textShadow: "0 7px 0 rgba(18,12,22,0.55)",
-            }}>{w.w.replace(/\.\.\.$/, "").replace(/[,.:]$/, "")}</span>
+            }}>{w.w}</span>
           );
         })}
       </div>

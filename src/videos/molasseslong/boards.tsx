@@ -30,7 +30,7 @@ const Node: React.FC<{ x: number; y: number; s: number; icon: string; label: str
 // ---------------- cold open ----------------
 const count21: React.FC<G> = ({ t, d, c }) => (
   <Dark><Cam t={t} d={d} from={1.08} to={1.0}>
-    <Big n="21" label="people killed" t={t} at={c(1, "21") - 4} x={960} y={430} size={330} col={C.yellow} lcol="#f6efdc" />
+    <Big n="21" label="people killed" t={t} at={c(2, "21") - 4} x={960} y={430} size={330} col={C.yellow} lcol="#f6efdc" />
   </Cam></Dark>
 );
 const headline: React.FC<G> = ({ t, d }) => (
@@ -57,6 +57,24 @@ const title: React.FC<G> = ({ t, d }) => {
   );
 };
 
+
+// cold open (rewritten): the company's non-fixes, and the lawsuit
+const nofix: React.FC<G> = ({ t, d, c }) => (
+  <Paper><Cam t={t} d={d} ox={30}>
+    <Banner text="The company's fix" t={t} col={C.mol2} />
+    <At x={360} y={300} center={false}><div>
+      <Row text="Drain it" t={t} at={0} mark="x" markAt={c(6, "drain") + 4} size={90} strike />
+      <Row text="Fix it" t={t} at={c(6, "fix") - 8} mark="x" markAt={c(6, "fix") + 4} size={90} strike />
+    </div></At>
+  </Cam></Paper>
+);
+const sued: React.FC<G> = ({ t, d, c }) => (
+  <Paper><Cam t={t} d={d} from={1.08} to={1.0}>
+    <Svg>{Array.from({ length: 24 }, (_, i) => { const x = 380 + (i % 8) * 165, y = 300 + Math.floor(i / 8) * 150, o = k(t, i * 0.7, 4); return <g key={i} opacity={o}><circle cx={x} cy={y} r={30} fill={[C.blue, C.red, C.green, C.mol2][i % 4]} /><rect x={x - 34} y={y + 34} width={68} height={70} rx={14} fill={[C.blue, C.red, C.green, C.mol2][i % 4]} /></g>; })}</Svg>
+    <Stamp text="Sued" t={t} at={c(8, "sued") - 2} x={960} y={470} size={170} />
+  </Cam></Paper>
+);
+
 // ---------------- 1. why Boston had a molasses tank ----------------
 const whatfor: React.FC<G> = ({ t, d }) => (
   <Paper><Cam t={t} d={d}>
@@ -68,15 +86,15 @@ const whatfor: React.FC<G> = ({ t, d }) => (
 const warmap: React.FC<G> = ({ t, d, c }) => (
   <Paper tone="#e6d3a8"><Cam t={t} d={d} dx={-40}>
     <Big n="1915" t={t} at={0} x={960} y={300} size={200} col={C.ink} />
-    {[0, 1, 2, 3, 4, 5, 6].map((i) => <At key={i} x={420 + i * 180} y={600} s={pop(t, c(9, "war") - 6 + i * 2)}><Icon kind="shell" s={170} /></At>)}
-    <Banner text="Europe at war" t={t} at={c(9, "Europe") - 2} y={470} />
+    {[0, 1, 2, 3, 4, 5, 6].map((i) => <At key={i} x={420 + i * 180} y={600} s={pop(t, c(11, "war") - 6 + i * 2)}><Icon kind="shell" s={170} /></At>)}
+    <Banner text="Europe at war" t={t} at={c(11, "Europe") - 2} y={470} />
   </Cam></Paper>
 );
 const chain: React.FC<G> = ({ t, d, c, v }) => {
-  const a0 = v ? -30 : c(10, "explosives"), a1 = v ? -30 : c(10, "alcohol"), a2 = v ? c(11, "molasses") - 4 : 1e9;
+  const a0 = v ? -30 : c(12, "explosives"), a1 = v ? -30 : c(12, "alcohol"), a2 = v ? c(13, "molasses") - 4 : 1e9;
   return (
     <Paper><Cam t={t} d={d} from={v ? 1.06 : 1.0} to={v ? 1.12 : 1.06} ox={v ? 30 : 60}>
-      <Banner text={v ? "Cheapest way: ferment molasses" : "What armies needed"} t={t} at={v ? c(11, "cheapest") : 0} col={v ? C.mol2 : C.red} />
+      <Banner text={v ? "Cheapest way: ferment molasses" : "What armies needed"} t={t} at={v ? c(13, "cheapest") : 0} col={v ? C.mol2 : C.red} />
       <Node x={1500} y={480} s={pop(t, a0)} icon="shell" label="Explosives" />
       <Node x={960} y={480} s={pop(t, a1)} icon="flask" label={"Industrial\nalcohol"} />
       <Node x={420} y={480} s={pop(t, a2)} icon="barrel" label="Molasses" col="#f3dcc0" />
@@ -84,7 +102,7 @@ const chain: React.FC<G> = ({ t, d, c, v }) => {
         {arrow(1110, 440, 1330, 440, k(t, a1 + 4, 10))}
         {arrow(570, 440, 790, 440, k(t, a2 + 4, 10), C.mol2)}
       </Svg>
-      {v ? <At x={680} y={360} o={k(t, c(11, "ferment"), 8)}><T size={40} col={C.mol2}>ferment</T></At> : null}
+      {v ? <At x={680} y={360} o={k(t, c(13, "ferment"), 8)}><T size={40} col={C.mol2}>ferment</T></At> : null}
     </Cam></Paper>
   );
 };
@@ -100,8 +118,8 @@ const caribbean: React.FC<G> = ({ t, d, c }) => {
         <circle cx={1500} cy={220} r={20} fill={C.red} stroke={C.ink} strokeWidth={6} />
       </Svg>
       <At x={1500} y={150}><T size={56}>Boston</T></At>
-      <At x={420} y={790} o={k(t, c(11, "Caribbean") - 6)}><T size={50}>Caribbean</T></At>
-      <At x={420} y={720} o={k(t, c(11, "sugar") - 4)}><T size={34} w={800} col={C.mol2}>sugar plantations</T></At>
+      <At x={420} y={790} o={k(t, c(13, "Caribbean") - 6)}><T size={50}>Caribbean</T></At>
+      <At x={420} y={720} o={k(t, c(13, "sugar") - 4)}><T size={34} w={800} col={C.mol2}>sugar plantations</T></At>
       <At x={sx} y={sy - 40} r={-8}><Icon kind="ship" s={150} /></At>
     </Cam></AbsoluteFill>
   );
@@ -109,11 +127,11 @@ const caribbean: React.FC<G> = ({ t, d, c }) => {
 const company: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d}>
     <At x={500} y={420} s={pop(t, 0)}><div style={{ background: "#fffaf0", border: `8px solid ${C.ink}`, borderRadius: 18, padding: "36px 46px", boxShadow: `0 12px 0 ${C.ink}`, textAlign: "center" }}><Icon kind="factory" s={150} /><T size={58}>Purity</T><T size={58}>Distilling</T></div></At>
-    <Svg>{arrow(780, 420, 1060, 420, k(t, c(12, "later") - 4, 12), C.red, 14)}</Svg>
-    <At x={920} y={350} o={k(t, c(12, "bought"), 8)}><T size={40} col={C.red}>bought by</T></At>
-    <At x={1430} y={420} s={pop(t, c(12, "United"))}><div style={{ background: C.blue, border: `8px solid ${C.ink}`, borderRadius: 18, padding: "40px 46px", boxShadow: `0 12px 0 ${C.ink}`, textAlign: "center" }}>
+    <Svg>{arrow(780, 420, 1060, 420, k(t, c(14, "later") - 4, 12), C.red, 14)}</Svg>
+    <At x={920} y={350} o={k(t, c(14, "bought"), 8)}><T size={40} col={C.red}>bought by</T></At>
+    <At x={1430} y={420} s={pop(t, c(14, "United"))}><div style={{ background: C.blue, border: `8px solid ${C.ink}`, borderRadius: 18, padding: "40px 46px", boxShadow: `0 12px 0 ${C.ink}`, textAlign: "center" }}>
       <T size={46} col="#fff">United States</T><T size={46} col="#fff">Industrial</T><T size={46} col="#fff">Alcohol Co.</T></div></At>
-    <At x={960} y={700} o={k(t, c(12, "store"), 10)}><T size={60}>Needed: a place to store it</T></At>
+    <At x={960} y={700} o={k(t, c(14, "store"), 10)}><T size={60}>Needed: a place to store it</T></At>
   </Cam></Paper>
 );
 const pipeline: React.FC<G> = ({ t, d, c }) => {
@@ -122,16 +140,16 @@ const pipeline: React.FC<G> = ({ t, d, c }) => {
     <Paper><Cam t={t} d={d} dx={-30}>
       <Svg>
         <path d="M560 520 L840 520" stroke={C.mol2} strokeWidth={30} strokeDasharray="30 30" strokeDashoffset={-flow} opacity={k(t, 0, 10)} />
-        <path d="M1110 520 L1390 520" stroke={C.mol2} strokeWidth={30} strokeDasharray="30 30" strokeDashoffset={-flow} opacity={k(t, c(13, "distillery") - 4, 10)} />
+        <path d="M1110 520 L1390 520" stroke={C.mol2} strokeWidth={30} strokeDasharray="30 30" strokeDashoffset={-flow} opacity={k(t, c(15, "distillery") - 4, 10)} />
       </Svg>
       <Node x={400} y={500} s={pop(t, 0)} icon="ship" label="Ship" />
       <Node x={975} y={500} s={pop(t, 4)} icon="tank" label="Giant tank" />
-      <Node x={1550} y={500} s={pop(t, c(13, "distillery") - 6)} icon="factory" label="Distillery" />
+      <Node x={1550} y={500} s={pop(t, c(15, "distillery") - 6)} icon="factory" label="Distillery" />
     </Cam></Paper>
   );
 };
 const northend: React.FC<G> = ({ t, d, c }) => {
-  const p = pop(t, c(14, "Commercial") - 4), hl = k(t, c(14, "North") - 4, 10);
+  const p = pop(t, c(16, "Commercial") - 4), hl = k(t, c(16, "North") - 4, 10);
   return (
     <AbsoluteFill><Cam t={t} d={d} from={1.0} to={1.25} ox={63} oy={46}>
       <BostonMap>
@@ -139,14 +157,14 @@ const northend: React.FC<G> = ({ t, d, c }) => {
         <g transform={`translate(${MAP_TANK.x} ${MAP_TANK.y - 60 * p}) scale(${p})`}><path d="M0 60 Q-40 10 -40 -20 A40 40 0 1 1 40 -20 Q40 10 0 60 Z" fill={C.red} stroke={C.ink} strokeWidth={6} /><circle cx={0} cy={-22} r={14} fill="#fff" /></g>
       </BostonMap>
     </Cam>
-      <At x={1300} y={170} o={k(t, c(14, "Commercial"), 8)}><div style={{ background: "#fffaf0", border: `6px solid ${C.ink}`, borderRadius: 10, padding: "10px 28px" }}><T size={52}>Commercial St. · North End</T></div></At>
+      <At x={1300} y={170} o={k(t, c(16, "Commercial"), 8)}><div style={{ background: "#fffaf0", border: `6px solid ${C.ink}`, borderRadius: 10, padding: "10px 28px" }}><T size={52}>Commercial St. · North End</T></div></At>
     </AbsoluteFill>
   );
 };
 const neighborhood: React.FC<G> = ({ t, d, c }) => {
   const items: [string, string, number][] = [
-    ["family", "Families", c(15, "Italian")], ["worker", "Workers", c(15, "workers")], ["horse", "Horses", c(15, "horses")],
-    ["warehouse", "Warehouses", c(15, "warehouses")], ["firehouse", "A firehouse", c(15, "firehouse")], ["swing", "A playground", c(15, "playground")],
+    ["family", "Families", c(17, "Italian")], ["worker", "Workers", c(17, "workers")], ["horse", "Horses", c(17, "horses")],
+    ["warehouse", "Warehouses", c(17, "warehouses")], ["firehouse", "A firehouse", c(17, "firehouse")], ["swing", "A playground", c(17, "playground")],
   ];
   return (
     <Paper><Cam t={t} d={d}>
@@ -157,27 +175,27 @@ const neighborhood: React.FC<G> = ({ t, d, c }) => {
   );
 };
 const scale: React.FC<G> = ({ t, d, c }) => {
-  const g = easeOut(k(t, 0, 24)), a90 = k(t, c(18, "90") - 4, 12), H = 480 * g, base = 690;
+  const g = easeOut(k(t, 0, 24)), a90 = k(t, c(20, "90") - 4, 12), H = 480 * g, base = 690;
   return (
     <Paper><Cam t={t} d={d} from={1.0} to={1.05}>
       <Svg>
-        {[0, 1, 2, 3, 4].map((i) => <g key={i} opacity={k(t, c(17, "five") - 8 + i * 2, 6)}><rect x={360} y={base - (i + 1) * 96} width={200} height={96} fill="#c98d6a" stroke={C.ink} strokeWidth={6} />
+        {[0, 1, 2, 3, 4].map((i) => <g key={i} opacity={k(t, c(19, "five") - 8 + i * 2, 6)}><rect x={360} y={base - (i + 1) * 96} width={200} height={96} fill="#c98d6a" stroke={C.ink} strokeWidth={6} />
           <rect x={390} y={base - (i + 1) * 96 + 22} width={50} height={52} fill="#cfe8f0" stroke={C.ink} strokeWidth={5} /><rect x={480} y={base - (i + 1) * 96 + 22} width={50} height={52} fill="#cfe8f0" stroke={C.ink} strokeWidth={5} /></g>)}
         <rect x={760} y={base - H} width={700} height={H} fill="#9a929e" stroke={C.ink} strokeWidth={8} />
         <ellipse cx={1110} cy={base - H} rx={350} ry={46} fill="#b8b0bc" stroke={C.ink} strokeWidth={8} />
         {[1, 2, 3].map((i) => <path key={i} d={`M760 ${base - H * i / 4} L1460 ${base - H * i / 4}`} stroke={C.ink} strokeWidth={4} opacity={0.4} />)}
         <path d={`M200 ${base} L1720 ${base}`} stroke={C.ink} strokeWidth={8} />
-        <g opacity={k(t, c(17, "50") - 4, 8)}><path d={`M1530 ${base} L1530 ${base - 480}`} stroke={C.red} strokeWidth={10} /><path d={`M1505 ${base} L1555 ${base} M1505 ${base - 480} L1555 ${base - 480}`} stroke={C.red} strokeWidth={10} /></g>
+        <g opacity={k(t, c(19, "50") - 4, 8)}><path d={`M1530 ${base} L1530 ${base - 480}`} stroke={C.red} strokeWidth={10} /><path d={`M1505 ${base} L1555 ${base} M1505 ${base - 480} L1555 ${base - 480}`} stroke={C.red} strokeWidth={10} /></g>
         {a90 > 0 ? <g><path d={`M760 ${base + 50} L${760 + 700 * a90} ${base + 50}`} stroke={C.blue} strokeWidth={10} /><path d={`M760 ${base + 30} L760 ${base + 70}`} stroke={C.blue} strokeWidth={10} /></g> : null}
       </Svg>
-      <At x={1640} y={base - 260} s={pop(t, c(17, "50") - 2)}><T size={90} col={C.red}>50 ft</T></At>
-      <At x={460} y={base - 530} s={pop(t, c(17, "five"))}><T size={52}>5 stories</T></At>
-      <At x={1110} y={base + 100} s={pop(t, c(18, "90"))}><T size={64} col={C.blue}>90 ft across</T></At>
+      <At x={1640} y={base - 260} s={pop(t, c(19, "50") - 2)}><T size={90} col={C.red}>50 ft</T></At>
+      <At x={460} y={base - 530} s={pop(t, c(19, "five"))}><T size={52}>5 stories</T></At>
+      <At x={1110} y={base + 100} s={pop(t, c(20, "90"))}><T size={64} col={C.blue}>90 ft across</T></At>
     </Cam></Paper>
   );
 };
 const gallons: React.FC<G> = ({ t, d, c }) => {
-  const a = c(19, "2.3") - 6, n = count(t, a, a + 30, 0, 2300000), lvl = easeOut(k(t, 0, d - 10));
+  const a = c(21, "2.3") - 6, n = count(t, a, a + 30, 0, 2300000), lvl = easeOut(k(t, 0, d - 10));
   return (
     <Paper><Cam t={t} d={d}>
       <Svg>
@@ -195,15 +213,15 @@ const gallons: React.FC<G> = ({ t, d, c }) => {
 // ---------------- 2. built by a treasurer ----------------
 const jellcard: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d}>
-    <NameCard name="Arthur Jell" role="Company treasurer" t={t} at={0} roleAt={c(22, "treasurer") - 4} icon={<Icon kind="doc" s={170} />} />
+    <NameCard name="Arthur Jell" role="Company treasurer" t={t} at={0} roleAt={c(24, "treasurer") - 4} icon={<Icon kind="doc" s={170} />} />
   </Cam></Paper>
 );
 const notrain: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} ox={30}>
     <Banner text="Arthur Jell's training" t={t} col={C.blue} />
     <At x={300} y={300} center={false}><div>
-      <Row text="Engineering" t={t} at={c(23, "engineering") - 6} mark="x" markAt={c(23, "engineering") + 6} size={80} />
-      <Row text="Architecture" t={t} at={c(23, "architecture") - 6} mark="x" markAt={c(23, "architecture") + 6} size={80} />
+      <Row text="Engineering" t={t} at={c(25, "engineering") - 6} mark="x" markAt={c(25, "engineering") + 6} size={80} />
+      <Row text="Architecture" t={t} at={c(25, "architecture") - 6} mark="x" markAt={c(25, "architecture") + 6} size={80} />
     </div></At>
   </Cam></Paper>
 );
@@ -218,13 +236,13 @@ const deadline: React.FC<G> = ({ t, d, c }) => {
         <path d="M600 420 L600 320" stroke={C.red} strokeWidth={16} strokeLinecap="round" transform={`rotate(${t * 1.5} 600 420)`} />
       </Svg>
       <At x={sx} y={400}><Icon kind="ship" s={300} /></At>
-      <At x={1350} y={640} o={k(t, c(23, "shipment") - 4, 8)}><T size={56}>Big shipment coming</T></At>
-      <At x={600} y={720} s={pop(t, c(23, "fast") - 4)}><T size={80} col={C.red}>Finish fast!</T></At>
+      <At x={1350} y={640} o={k(t, c(25, "shipment") - 4, 8)}><T size={56}>Big shipment coming</T></At>
+      <At x={600} y={720} s={pop(t, c(25, "fast") - 4)}><T size={80} col={C.red}>Finish fast!</T></At>
     </Cam></Paper>
   );
 };
 const corners: React.FC<G> = ({ t, d, c }) => {
-  const a = c(24, "cut") - 6, cut = (i: number) => k(t, a + i * 3, 6);
+  const a = c(26, "cut") - 6, cut = (i: number) => k(t, a + i * 3, 6);
   return (
     <AbsoluteFill style={{ background: "#2f5fb5" }}><Cam t={t} d={d} from={1.0} to={1.08}>
       <Svg>
@@ -243,15 +261,15 @@ const watertest: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} ox={30}>
     <Banner text="The standard test" t={t} col={C.blue} />
     <At x={260} y={290} center={false}><div>
-      <Row text="1. Fill it with water" t={t} at={c(25, "fill") - 6} size={74} />
-      <Row text="2. Look for leaks" t={t} at={c(25, "look") - 6} size={74} />
+      <Row text="1. Fill it with water" t={t} at={c(27, "fill") - 6} size={74} />
+      <Row text="2. Look for leaks" t={t} at={c(27, "look") - 6} size={74} />
     </div></At>
-    <At x={1520} y={430} s={pop(t, c(25, "water") - 4)}><svg width={260} height={300} viewBox="0 0 100 115"><path d="M50 6 Q86 56 86 76 A36 36 0 0 1 14 76 Q14 56 50 6 Z" fill={C.sea2} stroke={C.ink} strokeWidth={6} /></svg></At>
-    <Stamp text="Skipped" t={t} at={c(26, "skipped") - 2} x={1200} y={600} size={140} />
+    <At x={1520} y={430} s={pop(t, c(27, "water") - 4)}><svg width={260} height={300} viewBox="0 0 100 115"><path d="M50 6 Q86 56 86 76 A36 36 0 0 1 14 76 Q14 56 50 6 Z" fill={C.sea2} stroke={C.ink} strokeWidth={6} /></svg></At>
+    <Stamp text="Skipped" t={t} at={c(28, "skipped") - 2} x={1200} y={600} size={140} />
   </Cam></Paper>
 );
 const heavier: React.FC<G> = ({ t, d, c }) => {
-  const tilt = 9 * ease(k(t, c(29, "heavier") - 10, 18));
+  const tilt = 9 * ease(k(t, c(31, "heavier") - 10, 18));
   return (
     <Paper><Cam t={t} d={d}>
       <At x={960} y={130} s={pop(t, 0)}><T size={76}>Molasses <span style={{ color: C.red }}>≠</span> water</T></At>
@@ -266,29 +284,29 @@ const heavier: React.FC<G> = ({ t, d, c }) => {
       </Svg>
       <At x={560 - tilt * 6} y={430 - tilt * 6}><T size={44}>Water</T></At>
       <At x={1360 + tilt * 6} y={430 + tilt * 6}><T size={44}>Molasses</T></At>
-      <At x={1600} y={760} s={pop(t, c(29, "50") - 4)}><T size={120} col={C.red} style={{ textShadow: `0 6px 0 ${C.ink}` }}>+50%</T></At>
+      <At x={1600} y={760} s={pop(t, c(31, "50") - 4)}><T size={120} col={C.red} style={{ textShadow: `0 6px 0 ${C.ink}` }}>+50%</T></At>
     </Cam></Paper>
   );
 };
 const pressure: React.FC<G> = ({ t, d, c }) => {
-  const g = ease(k(t, c(30, "more") - 8, 20));
+  const g = ease(k(t, c(32, "more") - 8, 20));
   return (
     <Paper><Cam t={t} d={d} from={1.08} to={1.0}>
       <Svg>
         <rect x={660} y={170} width={600} height={580} fill={C.mol} stroke={C.ink} strokeWidth={14} />
         {[0, 1, 2, 3].map((i) => { const y = 260 + i * 140, L = 70 + (i + 1) * 30 * (0.4 + g); return <g key={i}>{arrow(700, y, 700 - L, y, k(t, 4 + i * 3, 8), C.red, 14)}{arrow(1220, y, 1220 + L, y, k(t, 4 + i * 3, 8), C.red, 14)}</g>; })}
       </Svg>
-      <At x={960} y={92} o={k(t, c(30, "more") - 4, 8)}><T size={64}>Far more weight on every inch</T></At>
+      <At x={960} y={92} o={k(t, c(32, "more") - 4, 8)}><T size={64}>Far more weight on every inch</T></At>
     </Cam></Paper>
   );
 };
 const mayville: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d}>
-    <NameCard name="Ronald Mayville" role="Structural engineer" t={t} at={0} icon={<Icon kind="doc" s={170} />} extra="Went back through the records, ~a century later" extraAt={c(31, "records") - 6} />
+    <NameCard name="Ronald Mayville" role="Structural engineer" t={t} at={0} icon={<Icon kind="doc" s={170} />} extra="Went back through the records, ~a century later" extraAt={c(33, "records") - 6} />
   </Cam></Paper>
 );
 const wallcut: React.FC<G> = ({ t, d, c }) => {
-  const h = ease(k(t, c(32, "half") - 8, 14));
+  const h = ease(k(t, c(34, "half") - 8, 14));
   return (
     <Paper><Cam t={t} d={d}>
       <Banner text="The steel walls" t={t} col={C.blue} />
@@ -299,26 +317,26 @@ const wallcut: React.FC<G> = ({ t, d, c }) => {
       </Svg>
       <At x={580} y={760}><T size={48}>Should have been</T></At>
       <At x={1340} y={760} o={k(t, 6)}><T size={48}>What they built</T></At>
-      <At x={1610} y={480} s={pop(t, c(32, "half") - 2)}><T size={130} col={C.red} style={{ textShadow: `0 6px 0 ${C.ink}` }}>½</T></At>
+      <At x={1610} y={480} s={pop(t, c(34, "half") - 2)}><T size={130} col={C.red} style={{ textShadow: `0 6px 0 ${C.ink}` }}>½</T></At>
     </Cam></Paper>
   );
 };
 const manganese: React.FC<G> = ({ t, d, c }) => {
-  const cr = k(t, c(33, "brittle") - 4, 12);
+  const cr = k(t, c(35, "brittle") - 4, 12);
   return (
     <Paper><Cam t={t} d={d}>
       <Svg>
         <rect x={360} y={260} width={700} height={420} fill="#9a929e" stroke={C.ink} strokeWidth={10} />
         <path d={`M700 260 L${700 - 60 * cr} ${260 + 120 * cr} L${700 + 40 * cr} ${260 + 220 * cr} L${700 - 30 * cr} ${260 + 330 * cr} L${700 + 20 * cr} ${260 + 420 * cr}`} fill="none" stroke={C.ink} strokeWidth={10} />
       </Svg>
-      <At x={1450} y={330} s={pop(t, c(33, "manganese") - 6)}><div style={{ border: `8px solid ${C.ink}`, borderRadius: 16, background: "#fffaf0", padding: "18px 30px", textAlign: "center" }}><T size={96} col={C.blue} up={false}>Mn</T><T size={40}>Low manganese</T></div></At>
-      <At x={1450} y={620} s={pop(t, c(33, "cold") - 6)}><T size={120} col={C.blue}>❄</T></At>
+      <At x={1450} y={330} s={pop(t, c(35, "manganese") - 6)}><div style={{ border: `8px solid ${C.ink}`, borderRadius: 16, background: "#fffaf0", padding: "18px 30px", textAlign: "center" }}><T size={96} col={C.blue} up={false}>Mn</T><T size={40}>Low manganese</T></div></At>
+      <At x={1450} y={620} s={pop(t, c(35, "cold") - 6)}><T size={120} col={C.blue}>❄</T></At>
       <At x={710} y={760} o={cr}><T size={64} col={C.red}>Brittle in the cold</T></At>
     </Cam></Paper>
   );
 };
 const rivets: React.FC<G> = ({ t, d, c }) => {
-  const hl = k(t, c(34, "holes") - 6, 8), cr = ease(k(t, c(35, "cracks") - 6, 16));
+  const hl = k(t, c(36, "holes") - 6, 8), cr = ease(k(t, c(37, "cracks") - 6, 16));
   return (
     <Paper><Cam t={t} d={d} from={1.0} to={1.15}>
       <Svg>
@@ -331,7 +349,7 @@ const rivets: React.FC<G> = ({ t, d, c }) => {
         </g>; })}
       </Svg>
       <At x={960} y={120} o={k(t, 0, 8)}><T size={60}>Rivets too weak around their holes</T></At>
-      <At x={960} y={755} s={pop(t, c(35, "cracks") - 2)}><T size={76} col={C.red}>First cracks</T></At>
+      <At x={960} y={755} s={pop(t, c(37, "cracks") - 2)}><T size={76} col={C.red}>First cracks</T></At>
     </Cam></Paper>
   );
 };
@@ -343,19 +361,19 @@ const groan: React.FC<G> = ({ t, d, c }) => (
     <Svg>{[0, 1, 2].map((i) => { const r = ((t * 6 + i * 70) % 210) + 260; return <g key={i} opacity={1 - (r - 260) / 210}>
       <path d={`M${960 - r} ${450 - r * 0.5} Q${960 - r - 40} 450 ${960 - r} ${450 + r * 0.5}`} fill="none" stroke={C.ink} strokeWidth={10} strokeLinecap="round" />
       <path d={`M${960 + r} ${450 - r * 0.5} Q${960 + r + 40} 450 ${960 + r} ${450 + r * 0.5}`} fill="none" stroke={C.ink} strokeWidth={10} strokeLinecap="round" /></g>; })}</Svg>
-    <At x={420} y={220} s={pop(t, c(45, "groaned") - 4)} r={-10}><T size={110} col={C.red}>Groan…</T></At>
-    <At x={1500} y={700} s={pop(t, c(45, "rumbled") - 4)} r={8}><T size={110} col={C.mol2}>Rumble…</T></At>
+    <At x={420} y={220} s={pop(t, c(47, "groaned") - 4)} r={-10}><T size={110} col={C.red}>Groan…</T></At>
+    <At x={1500} y={700} s={pop(t, c(47, "rumbled") - 4)} r={8}><T size={110} col={C.mol2}>Rumble…</T></At>
   </Cam></Paper>
 );
 const reports: React.FC<G> = ({ t, d, c }) => {
-  const a = c(46, "reported") - 4, n = Math.max(0, Math.min(7, Math.floor((t - a) / 9) + 1));
+  const a = c(48, "reported") - 4, n = Math.max(0, Math.min(7, Math.floor((t - a) / 9) + 1));
   return (
     <Paper><Cam t={t} d={d}>
       <NameCard name="Isaac Gonzales" role="Worker at the tank" t={t} at={0} x={680} y={300} col={C.green} />
       {Array.from({ length: n }, (_, i) => <At key={i} x={1460 + (i % 2) * 18} y={640 - i * 34} r={(i % 3 - 1) * 5} s={pop(t, a + i * 9, 6)}>
         <div style={{ width: 440, height: 120, background: "#fffaf0", border: `6px solid ${C.ink}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}><T size={32} col={C.red}>Report: tank unsafe</T></div></At>)}
-      <At x={600} y={620} s={pop(t, c(46, "again") - 4)}><T size={90} col={C.red}>Again…</T></At>
-      <At x={600} y={730} s={pop(t, c(46, "again") + 14)}><T size={90} col={C.red}>and again.</T></At>
+      <At x={600} y={620} s={pop(t, c(48, "again") - 4)}><T size={90} col={C.red}>Again…</T></At>
+      <At x={600} y={730} s={pop(t, c(48, "again") + 14)}><T size={90} col={C.red}>and again.</T></At>
     </Cam></Paper>
   );
 };
@@ -363,9 +381,9 @@ const response: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} ox={30}>
     <Banner text="The company's options" t={t} col={C.blue} />
     <At x={360} y={280} center={false}><div>
-      <Row text="Drain the tank" t={t} at={c(48, "drain") - 6} mark="x" markAt={c(48, "drain") + 4} size={76} strike />
-      <Row text="Repair it" t={t} at={c(48, "repair") - 6} mark="x" markAt={c(48, "repair") + 4} size={76} strike />
-      <Row text="Call in an engineer" t={t} at={c(48, "call") - 6} mark="x" markAt={c(48, "engineer") + 2} size={76} strike />
+      <Row text="Drain the tank" t={t} at={c(50, "drain") - 6} mark="x" markAt={c(50, "drain") + 4} size={76} strike />
+      <Row text="Repair it" t={t} at={c(50, "repair") - 6} mark="x" markAt={c(50, "repair") + 4} size={76} strike />
+      <Row text="Call in an engineer" t={t} at={c(50, "call") - 6} mark="x" markAt={c(50, "engineer") + 2} size={76} strike />
     </div></At>
   </Cam></Paper>
 );
@@ -380,7 +398,7 @@ const blend: React.FC<G> = ({ t, d, c }) => {
       <Svg>{tank(560, 0)}{tank(1360, 1)}{arrow(820, 460, 1100, 460, k(t, 6, 10), C.red, 14)}</Svg>
       <At x={560} y={770}><T size={48}>Streaks show</T></At>
       <At x={1360} y={770} o={k(t, 10)}><T size={48}>Painted brown</T></At>
-      <At x={960} y={130} s={pop(t, c(50, "blend") - 4)}><T size={84} col={C.mol2}>Blends right in</T></At>
+      <At x={960} y={130} s={pop(t, c(52, "blend") - 4)}><T size={84} col={C.mol2}>Blends right in</T></At>
     </Cam></Paper>
   );
 };
@@ -389,13 +407,13 @@ const sept1918: React.FC<G> = ({ t, d, c }) => (
     <At x={960} y={420} s={pop(t, 0)}><div style={{ width: 640, background: "#fffaf0", border: `8px solid ${C.ink}`, borderRadius: 18, overflow: "hidden", boxShadow: `0 14px 0 ${C.ink}` }}>
       <div style={{ background: C.red, padding: "18px 0", textAlign: "center" }}><T size={64} col="#fff">September</T></div>
       <div style={{ padding: "40px 0", textAlign: "center" }}><T size={180}>1918</T></div></div></At>
-    <Stamp text="Gonzales quits" t={t} at={c(51, "quit") - 2} x={960} y={640} size={96} />
+    <Stamp text="Gonzales quits" t={t} at={c(53, "quit") - 2} x={960} y={640} size={96} />
   </Cam></Paper>
 );
 
 // ---------------- 4. January 15, 1919 ----------------
 const thermo: React.FC<G> = ({ t, d, c }) => {
-  const a = c(54, "2") - 4, b = c(54, "40"), u = ease(k(t, a, Math.max(10, b - a))), deg = Math.round(lerp(2, 41, u)), H = 430;
+  const a = c(56, "2") - 4, b = c(56, "40"), u = ease(k(t, a, Math.max(10, b - a))), deg = Math.round(lerp(2, 41, u)), H = 430;
   const col = u < 0.5 ? C.blue : C.red;
   return (
     <Paper><Cam t={t} d={d}>
@@ -412,7 +430,7 @@ const thermo: React.FC<G> = ({ t, d, c }) => {
   );
 };
 const layers: React.FC<G> = ({ t, d, c }) => {
-  const fill = easeOut(k(t, 0, 50)), full = pop(t, c(56, "nearly") - 4);
+  const fill = easeOut(k(t, 0, 50)), full = pop(t, c(58, "nearly") - 4);
   return (
     <Paper><Cam t={t} d={d}>
       <Svg>
@@ -458,7 +476,7 @@ const triggers: React.FC<G> = ({ t, d, v }) => {
   );
 };
 const clock: React.FC<G> = ({ t, d, c }) => {
-  const a = c(62, "12:30") - 6, u = ease(k(t, a, 14)), mins = lerp(0, 30, u), hrs = 12 + mins / 60;
+  const a = c(64, "12:30") - 6, u = ease(k(t, a, 14)), mins = lerp(0, 30, u), hrs = 12 + mins / 60;
   return (
     <Paper><Cam t={t} d={d}>
       <At x={560} y={420} s={pop(t, 0)}><div style={{ width: 520, background: "#fffaf0", border: `8px solid ${C.ink}`, borderRadius: 18, overflow: "hidden", boxShadow: `0 14px 0 ${C.ink}` }}>
@@ -477,7 +495,7 @@ const clock: React.FC<G> = ({ t, d, c }) => {
   );
 };
 const wavestats: React.FC<G> = ({ t, d, c }) => {
-  const w = ease(k(t, c(70, "160") - 10, 16));
+  const w = ease(k(t, c(72, "160") - 10, 16));
   return (
     <Paper><Cam t={t} d={d} from={1.0} to={1.05}>
       <Svg>
@@ -487,7 +505,7 @@ const wavestats: React.FC<G> = ({ t, d, c }) => {
         {w > 0 ? <path d={`M${960 - 700 * w} 830 L${960 + 700 * w} 830`} stroke={C.blue} strokeWidth={10} /> : null}
       </Svg>
       <At x={320} y={300} s={pop(t, 0)}><T size={70} col={C.red}>25 ft high</T></At>
-      <At x={1100} y={200} s={pop(t, c(70, "160") - 2)}><T size={100} col={C.blue} style={{ textShadow: `0 6px 0 ${C.ink}` }}>160 ft wide</T></At>
+      <At x={1100} y={200} s={pop(t, c(72, "160") - 2)}><T size={100} col={C.blue} style={{ textShadow: `0 6px 0 ${C.ink}` }}>160 ft wide</T></At>
     </Cam></Paper>
   );
 };
@@ -506,7 +524,7 @@ const runner: React.FC<G> = ({ t, d }) => {
   );
 };
 const floodmap: React.FC<G> = ({ t, d, c }) => {
-  const u = easeOut(k(t, 0, c(79, "deep") + 6));
+  const u = easeOut(k(t, 0, c(81, "deep") + 6));
   return (
     <AbsoluteFill><Cam t={t} d={d} from={1.35} to={1.2} ox={63} oy={46}>
       <BostonMap>
@@ -514,7 +532,7 @@ const floodmap: React.FC<G> = ({ t, d, c }) => {
         <circle cx={MAP_TANK.x} cy={MAP_TANK.y} r={16} fill={C.red} stroke={C.ink} strokeWidth={5} />
       </BostonMap>
     </Cam>
-      <At x={960} y={130} s={pop(t, c(79, "2") - 4)}><div style={{ background: "#fffaf0", border: `6px solid ${C.ink}`, borderRadius: 12, padding: "10px 30px" }}><T size={60} col={C.mol2}>Several blocks · 2–3 ft deep</T></div></At>
+      <At x={960} y={130} s={pop(t, c(81, "2") - 4)}><div style={{ background: "#fffaf0", border: `6px solid ${C.ink}`, borderRadius: 12, padding: "10px 30px" }}><T size={60} col={C.mol2}>Several blocks · 2–3 ft deep</T></div></At>
     </AbsoluteFill>
   );
 };
@@ -527,7 +545,7 @@ const cold: React.FC<G> = ({ t, d }) => (
   </Cam></AbsoluteFill>
 );
 const viscosity: React.FC<G> = ({ t, d, c }) => {
-  const cool = ease(k(t, c(84, "winter") - 6, 30)), px = lerp(1500, 520, cool), py = 645 - 420 * Math.pow(cool, 1.6);
+  const cool = ease(k(t, c(86, "winter") - 6, 30)), px = lerp(1500, 520, cool), py = 645 - 420 * Math.pow(cool, 1.6);
   return (
     <Paper><Cam t={t} d={d}>
       <Svg>
@@ -538,22 +556,22 @@ const viscosity: React.FC<G> = ({ t, d, c }) => {
       <At x={1010} y={760}><T size={44}>Colder ←   temperature   → warmer</T></At>
       <At x={250} y={470} r={-90}><T size={44}>Thicker</T></At>
       <At x={1150} y={120} s={pop(t, 0)}><T size={70} col={C.mol2}>Thicker as it cools</T></At>
-      <At x={1460} y={600} o={k(t, c(84, "flows") - 4, 8) * (1 - cool)}><T size={48} col={C.red}>flows easily</T></At>
-      <At x={820} y={300} o={k(t, c(84, "set") - 4, 8)}><T size={48} col={C.blue}>starts to set</T></At>
+      <At x={1460} y={600} o={k(t, c(86, "flows") - 4, 8) * (1 - cool)}><T size={48} col={C.red}>flows easily</T></At>
+      <At x={820} y={300} o={k(t, c(86, "set") - 4, 8)}><T size={48} col={C.blue}>starts to set</T></At>
     </Cam></Paper>
   );
 };
 const harvard: React.FC<G> = ({ t, d, c, v }) => (
   <Paper><Cam t={t} d={d}>
-    {v === 0 ? <NameCard name="Harvard, 2016" role="Rebuilt the disaster" t={t} at={0} roleAt={c(85, "rebuilt") - 4} col={C.red} icon={<Icon kind="doc" s={170} />} /> : <>
+    {v === 0 ? <NameCard name="Harvard, 2016" role="Rebuilt the disaster" t={t} at={0} roleAt={c(87, "rebuilt") - 4} col={C.red} icon={<Icon kind="doc" s={170} />} /> : <>
       <Banner text="How they rebuilt it" t={t} col={C.red} />
       {([["map", "Old maps", "maps"], ["cloud", "Weather records", "weather"], ["model", "A scale model", "scale"]] as const).map(([ic, l, w], i) =>
-        <Node key={l} x={420 + i * 540} y={500} s={pop(t, c(85, w) - 6)} icon={ic} label={l} />)}
+        <Node key={l} x={420 + i * 540} y={500} s={pop(t, c(87, w) - 6)} icon={ic} label={l} />)}
     </>}
   </Cam></Paper>
 );
 const spreadcool: React.FC<G> = ({ t, d, c }) => {
-  const s = easeOut(k(t, 0, c(86, "fast") + 10)), cl = ease(k(t, c(86, "cooled") - 8, 30));
+  const s = easeOut(k(t, 0, c(88, "fast") + 10)), cl = ease(k(t, c(88, "cooled") - 8, 30));
   const col = `rgb(${Math.round(lerp(190, 70, cl))},${Math.round(lerp(100, 34, cl))},${Math.round(lerp(30, 14, cl))})`;
   return (
     <Paper tone="#dccfae"><Cam t={t} d={d} from={1.0} to={1.08}>
@@ -563,20 +581,20 @@ const spreadcool: React.FC<G> = ({ t, d, c }) => {
         {cl < 0.6 ? [0, 1, 2, 3].map((i) => <ellipse key={i} cx={760 + i * 120} cy={460 + (i % 2) * 40} rx={50} ry={12} fill="#fff" opacity={0.35 * (1 - cl) * s} />) : null}
         <rect x={900} y={430} width={120} height={140} fill="#9a929e" stroke={C.ink} strokeWidth={6} />
       </Svg>
-      <At x={420} y={110} s={pop(t, c(86, "spread") - 4)}><T size={64} col={C.red}>Spread fast</T></At>
-      <At x={1460} y={110} s={pop(t, c(86, "cooled") - 4)}><T size={64} col={C.blue}>Cooled · thickened</T></At>
+      <At x={420} y={110} s={pop(t, c(88, "spread") - 4)}><T size={64} col={C.red}>Spread fast</T></At>
+      <At x={1460} y={110} s={pop(t, c(88, "cooled") - 4)}><T size={64} col={C.blue}>Cooled · thickened</T></At>
     </Cam></Paper>
   );
 };
 const memorial: React.FC<G> = ({ t, d, c }) => (
   <AbsoluteFill style={{ background: "#2a2430" }}><Cam t={t} d={d} from={1.0} to={1.04}>
-    <Big n="21" label="people died" t={t} at={c(90, "21") - 6} x={960} y={300} size={240} col="#f6efdc" lcol="#cfc6d4" />
-    <At x={960} y={560} o={k(t, c(91, "10") - 6, 10)}><T size={72} col="#f6efdc">Ages 10 to 78</T></At>
-    <At x={960} y={680} o={k(t, c(92, "150") - 6, 10)}><T size={56} w={800} col="#cfc6d4">About 150 more injured</T></At>
+    <Big n="21" label="people died" t={t} at={c(92, "21") - 6} x={960} y={300} size={240} col="#f6efdc" lcol="#cfc6d4" />
+    <At x={960} y={560} o={k(t, c(93, "10") - 6, 10)}><T size={72} col="#f6efdc">Ages 10 to 78</T></At>
+    <At x={960} y={680} o={k(t, c(94, "150") - 6, 10)}><T size={56} w={800} col="#cfc6d4">About 150 more injured</T></At>
   </Cam></AbsoluteFill>
 );
 const cadets: React.FC<G> = ({ t, d, c }) => {
-  const a = c(95, "116") - 6, n = count(t, a, a + 36, 0, 116);
+  const a = c(97, "116") - 6, n = count(t, a, a + 36, 0, 116);
   return (
     <Paper><Cam t={t} d={d}>
       <At x={480} y={330} s={pop(t, a - 4)}><T size={230} col={C.blue} style={{ textShadow: `0 10px 0 ${C.ink}` }}>{n}</T></At>
@@ -587,7 +605,7 @@ const cadets: React.FC<G> = ({ t, d, c }) => {
   );
 };
 const fourdays: React.FC<G> = ({ t, d, c }) => {
-  const a = c(99, "four") - 10, n = Math.max(1, Math.min(4, Math.floor((t - a) / 6) + 1));
+  const a = c(101, "four") - 10, n = Math.max(1, Math.min(4, Math.floor((t - a) / 6) + 1));
   return (
     <Paper tone="#ddd2bc"><Cam t={t} d={d}>
       {Array.from({ length: n }, (_, i) => <At key={i} x={600 + i * 60} y={420 + i * 10} r={(i - 1.5) * 4} s={pop(t, a + i * 6, 6)}>
@@ -626,9 +644,9 @@ const sticky: React.FC<G> = ({ t, d }) => (
   </Cam></Paper>
 );
 const harborbrown: React.FC<G> = ({ t, d, c }) => {
-  const b = ease(k(t, 0, 30)), sm = k(t, c(113, "summer") - 8, 12);
+  const b = ease(k(t, 0, 30)), sm = k(t, c(115, "summer") - 8, 12);
   const col = `rgb(${Math.round(lerp(159, 122, b))},${Math.round(lerp(195, 82, b))},${Math.round(lerp(217, 40, b))})`;
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"], m = Math.min(5, Math.floor(lerp(0, 5.99, ease(k(t, 20, Math.max(20, c(113, "summer") - 20))))));
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"], m = Math.min(5, Math.floor(lerp(0, 5.99, ease(k(t, 20, Math.max(20, c(115, "summer") - 20))))));
   return (
     <AbsoluteFill style={{ background: col }}><Cam t={t} d={d}>
       <Svg>{[0, 1, 2, 3, 4].map((i) => <path key={i} d={`M0 ${300 + i * 130} Q480 ${270 + i * 130 + Math.sin(t / 10 + i) * 10} 960 ${300 + i * 130} T1920 ${300 + i * 130}`} stroke="#fff" strokeWidth={4} fill="none" opacity={0.25} />)}
@@ -637,7 +655,7 @@ const harborbrown: React.FC<G> = ({ t, d, c }) => {
       <At x={1640} y={480} s={pop(t, 16)}><div style={{ width: 300, background: "#fffaf0", border: `8px solid ${C.ink}`, borderRadius: 14, overflow: "hidden" }}>
         <div style={{ background: sm > 0 ? C.yellow : C.ink, padding: "8px 0", textAlign: "center" }}><T size={36} col={sm > 0 ? C.ink : "#fff"}>1919</T></div>
         <div style={{ padding: "20px 0", textAlign: "center" }}><T size={120}>{months[m]}</T></div></div></At>
-      <At x={740} y={520} s={pop(t, c(113, "brown") - 4)}><T size={92} col="#f6efdc" style={{ textShadow: `0 6px 0 ${C.ink}` }}>Brown until summer</T></At>
+      <At x={740} y={520} s={pop(t, c(115, "brown") - 4)}><T size={92} col="#f6efdc" style={{ textShadow: `0 6px 0 ${C.ink}` }}>Brown until summer</T></At>
     </Cam></AbsoluteFill>
   );
 };
@@ -646,11 +664,11 @@ const harborbrown: React.FC<G> = ({ t, d, c }) => {
 const lawsuit: React.FC<G> = ({ t, d, c, v }) => (
   <Paper><Cam t={t} d={d}>
     <Svg>{Array.from({ length: 40 }, (_, i) => { const x = 160 + (i % 8) * 92, y = 230 + Math.floor(i / 8) * 104, o = v ? 1 : k(t, i * 0.8, 4); return <g key={i} opacity={o}><circle cx={x} cy={y} r={20} fill={[C.blue, C.red, C.green, C.mol2][i % 4]} /><rect x={x - 22} y={y + 22} width={44} height={44} rx={10} fill={[C.blue, C.red, C.green, C.mol2][i % 4]} /></g>; })}</Svg>
-    <At x={500} y={130} s={v ? 1 : pop(t, c(116, "hundred") - 6)}><T size={70}>100+ people sued</T></At>
-    <At x={1450} y={430} s={v ? 1 : pop(t, c(116, "United") - 6)}><div style={{ background: C.blue, border: `8px solid ${C.ink}`, borderRadius: 18, padding: "34px 40px", textAlign: "center", boxShadow: `0 12px 0 ${C.ink}` }}>
+    <At x={500} y={130} s={v ? 1 : pop(t, c(118, "hundred") - 6)}><T size={70}>100+ people sued</T></At>
+    <At x={1450} y={430} s={v ? 1 : pop(t, c(118, "United") - 6)}><div style={{ background: C.blue, border: `8px solid ${C.ink}`, borderRadius: 18, padding: "34px 40px", textAlign: "center", boxShadow: `0 12px 0 ${C.ink}` }}>
       <T size={44} col="#fff">U.S. Industrial</T><T size={44} col="#fff">Alcohol Co.</T></div></At>
-    <At x={960} y={430} o={v ? 1 : k(t, c(116, "United"), 8)}><T size={90} col={C.red}>vs</T></At>
-    {v ? <Stamp text="Class action" sub="one of the first in Massachusetts" t={t} at={c(116, "class") - 4} x={960} y={620} size={110} r={-6} /> : null}
+    <At x={960} y={430} o={v ? 1 : k(t, c(118, "United"), 8)}><T size={90} col={C.red}>vs</T></At>
+    {v ? <Stamp text="Class action" sub="one of the first in Massachusetts" t={t} at={c(118, "class") - 4} x={960} y={620} size={110} r={-6} /> : null}
   </Cam></Paper>
 );
 const bomb: React.FC<G> = ({ t, d, c }) => (
@@ -661,18 +679,18 @@ const bomb: React.FC<G> = ({ t, d, c }) => (
       <rect x={660} y={300} width={600} height={440} fill="none" stroke="#fff" strokeWidth={8} />
       <path d="M720 740 L640 800 M1200 740 L1280 800" stroke="#fff" strokeWidth={6} strokeDasharray="12 10" />
     </Svg>
-    <At x={960} y={600} s={pop(t, c(118, "bomb") - 6)}><Icon kind="bomb" s={260} /></At>
+    <At x={960} y={600} s={pop(t, c(120, "bomb") - 6)}><Icon kind="bomb" s={260} /></At>
     <At x={960} y={120} s={pop(t, 0)}><T size={60} col="#fff">The company's claim</T></At>
-    <At x={960} y={220} s={pop(t, c(118, "anarchists") - 6)}><T size={84} col={C.yellow} style={{ textShadow: `0 6px 0 ${C.ink}` }}>Anarchists planted a bomb</T></At>
+    <At x={960} y={220} s={pop(t, c(120, "anarchists") - 6)}><T size={84} col={C.yellow} style={{ textShadow: `0 6px 0 ${C.ink}` }}>Anarchists planted a bomb</T></At>
   </Cam></AbsoluteFill>
 );
 const warlink: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d}>
     <Node x={460} y={460} s={pop(t, 0)} icon="barrel" label="Molasses" col="#f3dcc0" />
-    <Node x={960} y={460} s={pop(t, c(118, "alcohol") - 4)} icon="flask" label="Alcohol" />
-    <Node x={1460} y={460} s={pop(t, c(118, "explosives") - 6)} icon="shell" label="War explosives" />
-    <Svg>{arrow(610, 420, 800, 420, k(t, c(118, "alcohol"), 8), C.mol2)}{arrow(1110, 420, 1300, 420, k(t, c(118, "explosives") - 2, 8), C.red)}</Svg>
-    <At x={960} y={130} s={pop(t, c(118, "explosives") + 8)}><T size={64} col={C.red}>A reason to target it?</T></At>
+    <Node x={960} y={460} s={pop(t, c(120, "alcohol") - 4)} icon="flask" label="Alcohol" />
+    <Node x={1460} y={460} s={pop(t, c(120, "explosives") - 6)} icon="shell" label="War explosives" />
+    <Svg>{arrow(610, 420, 800, 420, k(t, c(120, "alcohol"), 8), C.mol2)}{arrow(1110, 420, 1300, 420, k(t, c(120, "explosives") - 2, 8), C.red)}</Svg>
+    <At x={960} y={130} s={pop(t, c(120, "explosives") + 8)}><T size={64} col={C.red}>A reason to target it?</T></At>
   </Cam></Paper>
 );
 const headlines: React.FC<G> = ({ t, d, v }) => {
@@ -691,7 +709,7 @@ const headlines: React.FC<G> = ({ t, d, v }) => {
 };
 const mailbombs: React.FC<G> = ({ t, d, c }) => {
   const dests = [[150, 220], [260, 330], [420, 180], [560, 300], [690, 260], [780, 360], [860, 160], [620, 420], [360, 420], [480, 120]];
-  const a = c(121, "mailed") - 10;
+  const a = c(123, "mailed") - 10;
   return (
     <Paper><Cam t={t} d={d}>
       <svg width={1920} height={1080} style={{ position: "absolute" }}><g transform="translate(460 240) scale(1.0)">
@@ -701,7 +719,7 @@ const mailbombs: React.FC<G> = ({ t, d, c }) => {
           {u > 0 && u < 1 ? <g transform={`translate(${lerp(sx, x, u) - 22} ${lerp(sy, y, u) - 16 - 60 * Math.sin(u * Math.PI)}) scale(0.44)`}><Icon kind="envelope" s={100} /></g> : null}</g>; })}
       </g></svg>
       <At x={960} y={110} s={pop(t, 0)}><T size={66}>1919: bombs in the mail</T></At>
-      <At x={960} y={190} o={k(t, c(121, "officials") - 4, 8)}><T size={46} col={C.red}>to officials across the country</T></At>
+      <At x={960} y={190} o={k(t, c(123, "officials") - 4, 8)}><T size={46} col={C.red}>to officials across the country</T></At>
     </Cam></Paper>
   );
 };
@@ -721,12 +739,12 @@ const years: React.FC<G> = ({ t, d }) => {
 const WIT: [string, string][] = [["gear", "Engineers"], ["bomb", "Explosives experts"], ["family", "Survivors"], ["worker", "Company employees"]];
 const witnesses: React.FC<G> = ({ t, d, c, v }) => {
   if (v === 0) {
-    const n = Math.min(180, Math.floor(lerp(0, 60, k(t, 0, c(125, "testified"))) + lerp(0, 120, k(t, c(125, "thousands") - 6, 20))));
+    const n = Math.min(180, Math.floor(lerp(0, 60, k(t, 0, c(127, "testified"))) + lerp(0, 120, k(t, c(127, "thousands") - 6, 20))));
     return (
       <Paper><Cam t={t} d={d} from={1.1} to={1.0}>
         <Svg>{Array.from({ length: n }, (_, i) => { const x = 120 + (i % 30) * 58, y = 260 + Math.floor(i / 30) * 86; return <g key={i}><circle cx={x} cy={y} r={14} fill={[C.blue, C.red, C.green, C.mol2, C.grey][i % 5]} /><rect x={x - 16} y={y + 16} width={32} height={34} rx={8} fill={[C.blue, C.red, C.green, C.mol2, C.grey][i % 5]} /></g>; })}</Svg>
         <At x={960} y={130} s={pop(t, 0)}><T size={74}>Hundreds of witnesses</T></At>
-        <At x={960} y={790} s={pop(t, c(125, "thousands") - 4)}><T size={60} col={C.red}>…by some counts, thousands</T></At>
+        <At x={960} y={790} s={pop(t, c(127, "thousands") - 4)}><T size={60} col={C.red}>…by some counts, thousands</T></At>
       </Cam></Paper>
     );
   }
@@ -755,8 +773,8 @@ const facts: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} ox={30}>
     <Banner text="What the testimony showed" t={t} col={C.mol2} />
     <At x={260} y={300} center={false}><div>
-      <Row text="No engineering training" t={t} at={c(132, "no") - 6} mark="x" markAt={c(132, "training") - 2} size={76} />
-      <Row text="Never tested with water" t={t} at={c(132, "never") - 6} mark="x" markAt={c(132, "water") - 2} size={76} />
+      <Row text="No engineering training" t={t} at={c(134, "no") - 6} mark="x" markAt={c(134, "training") - 2} size={76} />
+      <Row text="Never tested with water" t={t} at={c(134, "never") - 6} mark="x" markAt={c(134, "water") - 2} size={76} />
     </div></At>
   </Cam></Paper>
 );
@@ -766,21 +784,21 @@ const ruling: React.FC<G> = ({ t, d, c, v }) => (
       <T size={54}>Auditor's report</T><T size={40} w={800} col={C.grey}>Hugh Ogden · 1925</T>
       {Array.from({ length: 7 }, (_, j) => <div key={j} style={{ height: 14, background: "rgba(36,23,38,0.3)", margin: "22px 0", width: `${94 - (j % 3) * 14}%` }} />)}
     </div></At>
-    {v === 0 ? <At x={1420} y={430} s={pop(t, c(133, "six") - 4)}><T size={84} col={C.red}>6 years later</T></At> : null}
-    {v >= 1 ? <Stamp text="No bomb" t={t} at={v === 1 ? c(134, "bomb") - 4 : -20} x={600} y={380} size={130} /> : null}
+    {v === 0 ? <At x={1420} y={430} s={pop(t, c(135, "six") - 4)}><T size={84} col={C.red}>6 years later</T></At> : null}
+    {v >= 1 ? <Stamp text="No bomb" t={t} at={v === 1 ? c(136, "bomb") - 4 : -20} x={600} y={380} size={130} /> : null}
     {v === 2 ? <At x={990} y={300} center={false}><div>
-      <Row text="Tank too weak" t={t} at={c(135, "weak") - 8} mark="check" markAt={c(135, "weak")} size={48} />
-      <Row text="Company responsible" t={t} at={c(135, "responsible") - 10} mark="check" markAt={c(135, "responsible") - 2} size={48} />
+      <Row text="Tank too weak" t={t} at={c(137, "weak") - 8} mark="check" markAt={c(137, "weak")} size={48} />
+      <Row text="Company responsible" t={t} at={c(137, "responsible") - 10} mark="check" markAt={c(137, "responsible") - 2} size={48} />
     </div></At> : null}
   </Cam></Paper>
 );
 const money: React.FC<G> = ({ t, d, c, v }) => {
-  if (v === 0) { const a = c(136, "628000") - 6, n = count(t, a, a + 24, 0, 628000);
+  if (v === 0) { const a = c(138, "628000") - 6, n = count(t, a, a + 24, 0, 628000);
     return <Paper><Cam t={t} d={d}><At x={960} y={400} o={k(t, a - 2, 4)}><T size={210} col={C.green} style={{ textShadow: `0 10px 0 ${C.ink}` }}>${fmt(n)}</T></At>
-      <At x={960} y={590} o={k(t, c(136, "settle") - 4, 8)}><T size={64}>to settle the claims</T></At></Cam></Paper>; }
+      <At x={960} y={590} o={k(t, c(138, "settle") - 4, 8)}><T size={64}>to settle the claims</T></At></Cam></Paper>; }
   if (v === 1) return <Paper><Cam t={t} d={d}><At x={960} y={300}><T size={90} col={C.grey}>$628,000 in 1925</T></At>
-    <At x={960} y={520} s={pop(t, c(137, "11") - 6)}><T size={170} col={C.green} style={{ textShadow: `0 8px 0 ${C.ink}` }}>≈ $11 million</T></At>
-    <At x={960} y={680} o={k(t, c(137, "today") - 4)}><T size={64}>today</T></At></Cam></Paper>;
+    <At x={960} y={520} s={pop(t, c(139, "11") - 6)}><T size={170} col={C.green} style={{ textShadow: `0 8px 0 ${C.ink}` }}>≈ $11 million</T></At>
+    <At x={960} y={680} o={k(t, c(139, "today") - 4)}><T size={64}>today</T></At></Cam></Paper>;
   return <Paper tone="#e6dcc6"><Cam t={t} d={d}><At x={960} y={360} s={pop(t, 0)}><T size={190} col={C.ink}>≈ $7,000</T></At>
     <At x={960} y={560} o={k(t, 8)}><T size={60}>to each family of those who died</T></At></Cam></Paper>;
 };
@@ -788,7 +806,7 @@ const money: React.FC<G> = ({ t, d, c, v }) => {
 // ---------------- 8. what changed ----------------
 const plans: React.FC<G> = ({ t, d, c, v }) => {
   const zoom = v === 1 ? [1.5, 1.6, 74, 74] : v === 3 ? [1.25, 1.35, 74, 72] : [1.0, 1.05, 50, 45];
-  const calc = v >= 2 ? k(t, v === 2 ? c(141, "calculations") - 8 : -40, 30) : 0;
+  const calc = v >= 2 ? k(t, v === 2 ? c(143, "calculations") - 8 : -40, 30) : 0;
   return (
     <AbsoluteFill style={{ background: "#2f5fb5" }}><Cam t={t} d={d} from={zoom[0]} to={zoom[1]} ox={zoom[2]} oy={zoom[3]}>
       <Svg>
@@ -802,14 +820,14 @@ const plans: React.FC<G> = ({ t, d, c, v }) => {
       </Svg>
       <At x={1180} y={720} center={false}><T size={30} col="#fff">Engineer:</T></At>
       {v >= 2 ? <At x={1300} y={240} o={calc}><T size={34} col={C.yellow}>calculations</T></At> : null}
-      {v === 1 ? <At x={1500} y={640} s={pop(t, c(140, "checking") - 6)}><T size={80} col={C.yellow}>?</T></At> : null}
+      {v === 1 ? <At x={1500} y={640} s={pop(t, c(142, "checking") - 6)}><T size={80} col={C.yellow}>?</T></At> : null}
       {v === 3 ? <>
-        <Svg><path d={`M1300 ${700} q30 -40 60 0 t60 0 t60 0 t60 0`} fill="none" stroke="#fff" strokeWidth={6} strokeDasharray={600} strokeDashoffset={600 * (1 - k(t, c(141, "signed") - 4, 14))} /></Svg>
-        <Stamp text="Sealed" sub="licensed engineer" t={t} at={c(141, "sealed") - 4} x={1520} y={560} size={70} col={C.yellow} r={-10} />
+        <Svg><path d={`M1300 ${700} q30 -40 60 0 t60 0 t60 0 t60 0`} fill="none" stroke="#fff" strokeWidth={6} strokeDasharray={600} strokeDashoffset={600 * (1 - k(t, c(143, "signed") - 4, 14))} /></Svg>
+        <Stamp text="Sealed" sub="licensed engineer" t={t} at={c(143, "sealed") - 4} x={1520} y={560} size={70} col={C.yellow} r={-10} />
       </> : null}
     </Cam>
       {v === 0 ? <At x={960} y={90} s={pop(t, 0)}><T size={64} col="#fff" style={{ textShadow: `0 5px 0 ${C.ink}` }}>Before the flood</T></At> : null}
-      {v === 1 ? <At x={960} y={90} o={k(t, c(140, "checking") - 4)}><T size={64} col={C.yellow} style={{ textShadow: `0 5px 0 ${C.ink}` }}>Nobody checked the math</T></At> : null}
+      {v === 1 ? <At x={960} y={90} o={k(t, c(142, "checking") - 4)}><T size={64} col={C.yellow} style={{ textShadow: `0 5px 0 ${C.ink}` }}>Nobody checked the math</T></At> : null}
       {v >= 2 ? <At x={960} y={90} s={v === 2 ? pop(t, 0) : 1}><T size={64} col="#fff" style={{ textShadow: `0 5px 0 ${C.ink}` }}>After the flood</T></At> : null}
     </AbsoluteFill>
   );
@@ -842,21 +860,21 @@ const radar: React.FC<G> = ({ t, d, c, v }) => {
       </g></Svg>
     </Cam>
       {v === 0 ? <At x={960} y={90} s={pop(t, 0)}><div style={{ background: "#fffaf0", border: `6px solid ${C.ink}`, borderRadius: 12, padding: "10px 30px" }}><T size={52}>2019 · 100 years on</T></div></At> : null}
-      {v === 0 ? <At x={1480} y={700} o={k(t, c(148, "radar") - 4)}><T size={40} col="#fff" style={{ textShadow: `0 3px 0 ${C.ink}` }}>Ground-penetrating radar</T></At> : null}
-      {v === 1 ? <At x={960} y={90} s={pop(t, c(149, "base") - 4)}><div style={{ background: "#fffaf0", border: `6px solid ${C.ink}`, borderRadius: 12, padding: "10px 30px" }}><T size={52} col={C.red}>The tank's concrete base</T></div></At> : null}
-      {v === 1 ? <At x={1500} y={640} s={pop(t, c(149, "20") - 4)}><T size={80} col="#fff" style={{ textShadow: `0 5px 0 ${C.ink}` }}>~20 in down</T></At> : null}
+      {v === 0 ? <At x={1480} y={700} o={k(t, c(150, "radar") - 4)}><T size={40} col="#fff" style={{ textShadow: `0 3px 0 ${C.ink}` }}>Ground-penetrating radar</T></At> : null}
+      {v === 1 ? <At x={960} y={90} s={pop(t, c(151, "base") - 4)}><div style={{ background: "#fffaf0", border: `6px solid ${C.ink}`, borderRadius: 12, padding: "10px 30px" }}><T size={52} col={C.red}>The tank's concrete base</T></div></At> : null}
+      {v === 1 ? <At x={1500} y={640} s={pop(t, c(151, "20") - 4)}><T size={80} col="#fff" style={{ textShadow: `0 5px 0 ${C.ink}` }}>~20 in down</T></At> : null}
     </AbsoluteFill>
   );
 };
 const recap: React.FC<G> = ({ t, d, c }) => (
   <Dark><Cam t={t} d={d}>
-    {([["Warning signs", c(151, "warning")], ["A coat of brown paint", c(151, "coat")], ["21 lives", c(151, "21")]] as const).map(([l, a], i) =>
+    {([["Warning signs", c(153, "warning")], ["A coat of brown paint", c(153, "coat")], ["21 lives", c(153, "21")]] as const).map(([l, a], i) =>
       <At key={l} x={960} y={250 + i * 190} s={pop(t, a - 4)}><T size={i === 2 ? 120 : 84} col={i === 2 ? C.yellow : "#f6efdc"} style={{ textShadow: `0 6px 0 #000` }}>{l}</T></At>)}
   </Cam></Dark>
 );
 
 export const BOARDS: Record<string, React.FC<G>> = {
-  count21, headline, title, whatfor, warmap, chain, caribbean, company, pipeline, northend, neighborhood, scale, gallons,
+  count21, headline, title, nofix, sued, whatfor, warmap, chain, caribbean, company, pipeline, northend, neighborhood, scale, gallons,
   jellcard, notrain, deadline, corners, watertest, heavier, pressure, mayville, wallcut, manganese, rivets,
   groan, reports, response, blend, sept1918,
   thermo, layers, triggers, clock, wavestats, runner, floodmap,

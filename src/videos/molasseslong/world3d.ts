@@ -371,6 +371,7 @@ export class LWorld {
     };
     for (const q of this.lastPeople) {
       const head = box(q.p, -0.27, 0.27, 1.16, 1.84), body = box(q.p, -0.3, 0.3, 0.05, 1.16);
+      if (st.lunge) continue;
       if (head.frac < 0 && body.frac !== 0) out.push(`${q.name}: too close to the camera`);
       else if (head.frac > 0.02 && head.frac < 0.97 && (!q.walking || (head.vcut && head.inX))) out.push(`${q.name}: head cut off by the frame edge (${Math.round(head.frac * 100)}% in shot)`);
       else if (head.frac <= 0.02 && body.frac > 0.12) out.push(`${q.name}: body in shot without the head`);

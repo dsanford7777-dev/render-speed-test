@@ -23,6 +23,8 @@ export type St = {
   wave?: number | null; surge?: number; sheet?: boolean; fire?: number; twist?: number; el?: boolean; ship?: boolean; shipAt?: V3; pipe?: boolean;
   pole?: boolean; mph?: boolean; debris?: boolean; drips?: "seam"; rivets?: number;
   people?: Person[]; closeup?: boolean;
+  /** a deliberate lunge at the lens: the framing check allows people this close */ lunge?: boolean;
+  /** full-frame colour wipe over the 3D (0..1), e.g. the wave swallowing the lens */ wipe?: { color: string; a: number };
   subjects?: [string, V3, number][];
 };
 
@@ -62,7 +64,58 @@ const TANK_TOP: V3 = [TANK[0] + TANK_R * 0.7, D0 + TANK_H * 0.75, TANK[2] - TANK
 // ---------------- specs ----------------
 type Spec = (s: ShotDef, f: number) => St;
 export const SPECS: Record<string, Spec> = {
-  // ===== cold open =====
+  // ===== cold open (rewritten) =====
+  // frame 1: snap in on a brush slapping brown over a leaking seam
+  "hook-brush": (s, f) => {
+    const sn = glide((f - s.a) / 9), pk = 0.1 + 0.08 * smooth((f - s.a) / Math.max(1, s.b - s.a)), y = TANK_H * pk;
+    const p: V3 = [TANK[0] + TANK_R + 0.7, D0 + Math.max(0, y - 1.3), TANK[2] - 1.2];
+    return {
+      light: "golden", el: false, paint: pk, drips: "seam", dof: 8, sunAz: 70,
+      cam: cam(L3(M(7, 3.2, -45), [p[0] + 3.6, p[1] + 1.75, p[2] + 2.6], sn), L3(M(-4, 2.0, -52.6), [p[0] - 0.3, p[1] + 1.25, p[2]], sn), 40, -0.06 * (1 - sn)),
+      people: [{ who: "painter", p, expr: "whistle", brush: true }],
+      subjects: [["paint line", wallPt(y, -1.2), 0.5]],
+    };
+  },
+  // January 1919: the brown tank splits, rivets shooting out, molasses bursting from the crack
+  burst: (s, f) => {
+    const u = (f - s.a) / Math.max(1, s.b - s.a), ck = smooth(u / 0.4), k = smooth((u - 0.1) / 0.5), sh = Math.max(0, 1 - u * 1.5);
+    return {
+      light: "winter", el: false, paint: 1, crack: ck, gush: smooth((u - 0.2) / 0.6), rivets: (f - s.a - 3) / FPS, dof: 4,
+      cam: cam(add(L3(M(5.5, 1.8, -55.0), M(10.0, 2.5, -57.0), k), shake(f, 0.14 * sh)), M(-4, 3.4, -52.2), 50 + 6 * k),
+      subjects: [["crack", wallPt(3, 0), 0.5]],
+    };
+  },
+  // LUNGE: low in the street, the wave rushes the camera and swallows the frame
+  "wave-lunge": (s, f) => {
+    const u = (f - s.a) / Math.max(1, s.b - s.a), wz = -110 - 19 * smooth(u * 1.1), near = clamp01((u - 0.55) / 0.45);
+    return {
+      light: "winter", flood: true, wave: wz, surge: 1.05, mph: true, lunge: true, dof: 3,
+      cam: cam(add(M(3.2, 1.0, -129.5), shake(f, 0.03 + 0.18 * near)), M(5.4, 3.6 + 2.5 * near, -112), 50 + 8 * near, 0.04 * near),
+      wipe: { color: "#3a1a08", a: clamp01((u - 0.82) / 0.18) },
+      subjects: u < 0.6 ? [["wave crest", [WAVE.x, D0 + WAVE.H * 0.85, wz + 0.5], 0.5]] : [],
+    };
+  },
+  // a worker at the tank's foot, looking up at the streaked wall
+  "worker-warn": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "golden", el: false, dof: 8,
+      cam: cam(L3(M(4.0, 1.3, -63.0), M(2.6, 1.7, -60.6), u), L3(M(-2, 2.6, -56.5), M(-3, 5.5, -55), u), 46),
+      people: [{ who: "folk2", p: M(-1.4, 0, -57.6), expr: "nervous", look: -1, headTilt: -0.15 }],
+      subjects: [["leak streaks", wallPt(5, -2), 0.5]],
+    };
+  },
+  // LUNGE: the camera snaps into the worker's face as he warns them
+  "worker-close": (s, f) => {
+    const sn = glide((f - s.a) / 7), dr = smooth((f - s.a - 7) / Math.max(1, s.b - s.a - 7));
+    return {
+      light: "golden", el: false, dof: 14, closeup: true, lunge: true,
+      cam: cam(add(L3(M(2.6, 1.7, -60.6), M(-0.55, 1.55, -58.7), sn), [0.05 * dr, 0, 0]), M(-1.4, 1.5, -57.6), 40, 0.04 * (1 - sn)),
+      people: [{ who: "folk2", p: M(-1.4, 0, -57.6), expr: "shock", look: 0 }],
+    };
+  },
+
+  // ===== cold open (first version; kept for reuse later) =====
   // frame 1: the wave fills the street, people running at the lens; the camera backs away low
   "wave-street": (s, f) => {
     const u = U(s, f, lin), wz = -101 - 9 * u, t = (f - s.a) / FPS;
@@ -95,7 +148,7 @@ export const SPECS: Record<string, Spec> = {
   "firehouse-shove": (s, f) => {
     const u = U(s, f, smooth);
     return {
-      light: "winter", flood: true, sheet: true, debris: true, fire: atWord(f, 2, "knocked", 14), dof: 3,
+      light: "winter", flood: true, sheet: true, debris: true, fire: smooth(((f - s.a) / Math.max(1, s.b - s.a) - 0.25) * 2.5), dof: 3,
       cam: cam(L3(M(8.0, 1.8, -114.5), M(7.6, 2.8, -110.0), u), M(-2.5, 4.0, -104.2), 44),
       subjects: [["firehouse", add(FIRE, [-1.0, 5.0, 0]), 0.5]],
     };
@@ -104,7 +157,7 @@ export const SPECS: Record<string, Spec> = {
   "el-twist": (s, f) => {
     const u = U(s, f, smooth);
     return {
-      light: "winter", flood: true, sheet: true, debris: true, fire: 1, twist: atWord(f, 2, "twisted", 16, -4), dof: 3,
+      light: "winter", flood: true, sheet: true, debris: true, fire: 1, twist: smooth(((f - s.a) / Math.max(1, s.b - s.a)) * 2.2), dof: 3,
       cam: cam(L3(M(1.5, 2.6, -111), M(0.8, 7.2, -113), u), L3(M(8, 5.6, -120), M(8.5, 6.8, -120), u), 46),
       subjects: [["twisted span", [EL.x, D0 + EL.h, EL.bentZ], 0.5]],
     };
@@ -134,6 +187,17 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "golden", el: false, paint: pk, dof: 6,
       cam: cam(L3(M(8, 1.8 + y * 0.3, -63), M(6.5, 2.4 + y * 0.45, -60), u), [TANK[0] + 2, D0 + y + 0.6, TANK[2] - 1.0], 42),
+      people: [{ who: "painter", p, expr: "whistle", brush: true }],
+      subjects: [["paint line", wallPt(y, -1.2), 0.5]],
+    };
+  },
+  // high above the painter, looking down the wall as the brown climbs past the streaks
+  "paint-high": (s, f) => {
+    const u = U(s, f), pk = 0.45 + 0.2 * smooth((f - s.a) / Math.max(1, s.b - s.a)), y = TANK_H * pk;
+    const p: V3 = [TANK[0] + TANK_R + 0.7, D0 + Math.max(0, y - 1.3), TANK[2] - 1.2];
+    return {
+      light: "golden", el: false, paint: pk, dof: 4,
+      cam: cam(L3(M(2.5, 16.5, -48.5), M(1.6, 15.0, -51.0), u), [p[0] - 0.2, p[1] + 0.8, p[2] + 0.2], 44, 0.08),
       people: [{ who: "painter", p, expr: "whistle", brush: true }],
       subjects: [["paint line", wallPt(y, -1.2), 0.5]],
     };

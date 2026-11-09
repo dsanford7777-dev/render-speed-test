@@ -74,11 +74,15 @@ const Inner: React.FC<{ kit: Kit; shot: ShotDef | null; f: number }> = ({ kit, s
   return (<><primitive object={world.root} dispose={null} />{post}</>);
 };
 
-export const View3D: React.FC<{ kit: Kit; shot: ShotDef | null; f: number; visible: boolean }> = ({ kit, shot, f, visible }) => (
+export const View3D: React.FC<{ kit: Kit; shot: ShotDef | null; f: number; visible: boolean }> = ({ kit, shot, f, visible }) => {
+  const wipe = visible && shot && has3D(shot) ? SPECS[shot.g](shot, f).wipe : undefined;
+  return (
   <div style={{ position: "absolute", inset: 0, opacity: visible ? 1 : 0 }}>
     <ThreeCanvas width={1920} height={1080} shadows gl={{ antialias: false, stencil: false, powerPreference: "high-performance", toneMappingExposure: 1.0 }}
       camera={{ fov: 40, near: 0.05, far: 1500 }}>
       <Inner kit={kit} shot={visible ? shot : null} f={f} />
     </ThreeCanvas>
+    {wipe && wipe.a > 0 ? <div style={{ position: "absolute", inset: 0, background: wipe.color, opacity: wipe.a }} /> : null}
   </div>
-);
+  );
+};
