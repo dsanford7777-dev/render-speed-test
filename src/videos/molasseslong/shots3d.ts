@@ -4,7 +4,7 @@
 // Grammar (same as the Shorts, framed for 16:9): every shot moves; slow push-ins, cranes, orbits; glide = smootherstep.
 import { LightPreset } from "../bridge/lights";
 import { Expr } from "../bridge/toon";
-import { D0, MX, M, V3, TANK, WAVE, POLE, MPH, FIRE, EL, CART, DESK, PLAQUE, HOSE, JELL5 } from "../molasses/story";
+import { D0, MX, M, V3, TANK, WAVE, POLE, MPH, FIRE, EL, CART, DESK, PLAQUE, HOSE, JELL5, KIDS_AT } from "../molasses/story";
 import { TANK_R, TANK_H } from "../molasses/props";
 import { FPS, ShotDef, wordAt } from "./timeline";
 
@@ -21,7 +21,7 @@ export type St = {
   light: Light3; cam: Cam; dof?: number; sunAz?: number; sunLook?: [number, number]; noSunDisc?: boolean;
   tank?: boolean; flood?: boolean; paint?: number; crack?: number; gush?: number;
   wave?: number | null; surge?: number; sheet?: boolean; fire?: number; twist?: number; el?: boolean; ship?: boolean; shipAt?: V3; pipe?: boolean;
-  pole?: boolean; mph?: boolean; debris?: boolean; drips?: "seam"; rivets?: number; desk?: boolean; hose?: boolean; xMark?: number;
+  pole?: boolean; mph?: boolean; debris?: boolean; drips?: "seam" | "cups"; rivets?: number; flakes?: number; desk?: boolean; hose?: boolean; xMark?: number;
   people?: Person[]; closeup?: boolean;
   /** a deliberate lunge at the lens: the framing check allows people this close */ lunge?: boolean;
   /** full-frame colour wipe over the 3D (0..1), e.g. the wave swallowing the lens */ wipe?: { color: string; a: number };
@@ -316,6 +316,113 @@ export const SPECS: Record<string, Spec> = {
       light: "golden", el: false, dof: 4, sunAz: 200,
       cam: cam(L3(M(9, 0.9, -78), M(3.5, 1.1, -63), sn * 0.6 + u * 0.4), L3(M(-12, 9, -52), M(-5, 6, -52), u), 50 - 6 * u, 0.06 * u),
       subjects: [["tank", wallPt(6, -2), 0.5]],
+    };
+  },
+
+  // ===== 3. the warning signs =====
+  // crane down from above the street onto the leaking tank
+  "tank-wide": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "golden", el: false, dof: 0,
+      cam: cam(L3(M(4, 13, -68), M(5, 5.5, -63), u), L3(M(-14, 5, -50), M(-14, 7.5, -51), u), 50),
+      people: walkersZ(FOLK.slice(0, 3), [MX + 2.5, MX + 6], [-80, -55], (f - s.a) / FPS),
+      subjects: [["tank streaks", wallPt(6, -3), 0.5]],
+    };
+  },
+  // low against the wall, looking up a seam as molasses beads out of it
+  "seam-leak": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "golden", el: false, drips: "seam", dof: 6, sunAz: 160,
+      cam: cam(L3(M(0.4, 0.5, -48.4), M(0.1, 0.8, -49.4), u), L3(wallPt(4.0, -2.0), wallPt(4.6, -1.4), u), 46, -0.1),
+      subjects: [["leaking seam", wallPt(3.4, -0.4), 0.2]],
+    };
+  },
+  // tilt down a long brown streak, following it to the ground
+  "streaks-run": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "golden", el: false, drips: "seam", dof: 4, sunAz: 70,
+      cam: cam(L3(M(2.4, 6.0, -55.5), M(2.0, 3.0, -55.0), u), L3(wallPt(8, -3.5), wallPt(2.6, -3.3), u), 44),
+      subjects: [["streak", wallPt(4, -3.5), 0.3]],
+    };
+  },
+  // neighbors stop in the street and stare up at the streaks
+  neighbors: (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "golden", el: false, dof: 4,
+      cam: cam(L3(M(7.5, 1.3, -64), M(6.8, 1.5, -62), u), L3(M(-4, 2.6, -53), M(-6, 3.8, -52.5), u), 46),
+      people: [
+        { who: "folk0", p: M(1.6, 0, -57.2), expr: "shock", headTilt: -0.25 },
+        { who: "folk3", p: M(2.8, 0, -58.8), expr: "nervous", headTilt: -0.2, look: -1 },
+        { who: "folk4", p: M(0.6, 0, -59.8), expr: "dazed", headTilt: -0.3 },
+      ],
+      subjects: [["tank streaks", wallPt(6, -3), 0.5]],
+    };
+  },
+  // families holding cans under the drips; slow orbit along the line
+  cans: (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "golden", el: false, drips: "cups", dof: 8, sunAz: 160,
+      cam: cam(orb(M(-3.3, 0, -52.2), 4.4, 1.4, 1.15 + 0.5 * u), M(-3.6, 1.1, -52.2), 46),
+      people: [
+        { who: "folk1", p: KIDS_AT[0], expr: "smile", cup: true },
+        { who: "kid1", p: KIDS_AT[1], expr: "grin", cup: true },
+        { who: "folk3", p: KIDS_AT[2], expr: "smile_closed", cup: true },
+      ],
+      subjects: [["cups", [KIDS_AT[1][0] + 0.3, KIDS_AT[1][1] + 0.7, KIDS_AT[1][2]], 0.05]],
+    };
+  },
+  // kids along the wall licking it like candy: low truck past them at kid height
+  "kids-sticks": (s, f) => {
+    const u = U(s, f, lin);
+    return {
+      light: "golden", el: false, drips: "seam", dof: 10, sunAz: 160,
+      cam: cam(M(0.3, 0.85, -55.8 + 6.5 * u), M(-3.8, 0.95, -53.2 + 3.0 * u), 42),
+      people: KIDS_AT.map((p, k) => ({ who: `kid${k}`, p, expr: (k === 1 ? "lick" : k === 0 ? "grin" : "laugh") as Expr })),
+      subjects: [["kids", [KIDS_AT[1][0], KIDS_AT[1][1] + 0.8, KIDS_AT[1][2]], 0.1]],
+    };
+  },
+  // the tank groans: low angle, the camera shuddering with it
+  "tank-groan": (s, f) => {
+    const u = U(s, f), q = 0.5 + 0.5 * Math.sin((f - s.a) * 0.45);
+    return {
+      light: "golden", el: false, dof: 0,
+      cam: cam(add(L3(M(3.5, 0.6, -61), M(2.5, 0.7, -58.5), u), shake(f, 0.04 + 0.05 * q)), wallPt(11, -4), 50, 0.03 * Math.sin(f * 0.7)),
+      subjects: [["tank", wallPt(8, -3), 0.5]],
+    };
+  },
+  // Isaac Gonzales (the cold open's worker) walking up to the company desk with his report
+  "gonzales-walk": (s, f) => {
+    const u = U(s, f, lin), t = (f - s.a) / FPS, z = -66 + 6.2 * u, ph = ((t * 1.25 / 1.6) % 1 + 1) % 1;
+    return {
+      light: "golden", el: false, desk: true, dof: 6,
+      cam: cam(M(4.6, 1.5, z + 3.2), M(0.4, 1.3, z - 1.0), 44),
+      people: [{ who: "folk2", p: M(0.9, 0, z), expr: "nervous", side: { phase: ph, mirror: true, stride: 0.8 } }, { who: "jell", p: JELL5, expr: "grin" }],
+    };
+  },
+  // flakes of rusting steel dropped on Jell's desk, Jell still grinning
+  "steel-flakes": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "golden", el: false, desk: true, flakes: smooth((f - s.a - 4) / 22), dof: 12,
+      cam: cam(L3(M(1.6, 2.6, -57.2), M(0.9, 2.0, -57.8), u), L3(add(DESK, [-0.1, 0.8, 0]), add(DESK, [-0.4, 1.1, -0.3]), u), 42),
+      people: [{ who: "jell", p: JELL5, expr: "grin" }, { who: "folk2", p: M(-0.6, 0, -60.7), expr: "nervous", look: -1 }],
+      subjects: [["desk", add(DESK, [0, 0.86, 0]), 0.1]],
+    };
+  },
+  // "In 1918, they painted it brown": crane out from the painter to the whole tank going brown
+  painter: (s, f) => {
+    const u = U(s, f), pk = 0.3 + 0.6 * smooth((f - s.a) / Math.max(1, s.b - s.a)), y = TANK_H * pk;
+    const p: V3 = [TANK[0] + TANK_R + 0.7, D0 + Math.max(0, y - 1.3), TANK[2] - 1.2];
+    return {
+      light: "golden", el: false, paint: pk, dof: 0,
+      cam: cam(L3([p[0] + 3.0, p[1] + 2.2, p[2] - 2.5], M(10, 10, -76), u), L3([p[0], p[1] + 1.0, p[2]], M(-14, 7, -50), u), 46),
+      people: [{ who: "painter", p, expr: "whistle", brush: true }],
+      subjects: [["paint line", wallPt(y, -1.2), 0.5]],
     };
   },
 };

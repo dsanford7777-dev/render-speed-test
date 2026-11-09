@@ -13,6 +13,7 @@ import { ship } from "../fahrenheit/props";
 import { WINTER } from "./shots3d";
 import { Board } from "../dst/props";
 import { FPS } from "./timeline";
+const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 import { St, Light3, Person } from "./shots3d";
 import {
   D0, MX, M, V3, TANK, STREET, EL, FIRE, WAVE, GALLONS, EASEL, DESK, PLAQUE, HOSE, CAL, POLE, MPH, CART, HAT,
@@ -75,7 +76,7 @@ export class LWorld {
   private cups: THREE.Group[] = []; private pipes: THREE.Mesh[] = []; private plank: THREE.Group; private brush: THREE.Group;
   private drips: THREE.Mesh[] = []; private rivets: THREE.Mesh[] = [];
   private lastPeople: { name: string; p: V3; walking: boolean }[] = [];
-  private ship!: THREE.Group; private quayPipe!: THREE.Group;
+  private ship!: THREE.Group; private quayPipe!: THREE.Group; private flakes: THREE.Mesh[] = [];
   private ray = new THREE.Raycaster();
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private sph = new THREE.Sphere(); private v = new THREE.Vector3();
 
@@ -163,6 +164,8 @@ export class LWorld {
     const deck = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 6.9, 12).rotateX(-Math.atan2(6.4, 2.5)), pm); deck.position.set(MX - 18, 4.7, -27.2);
     for (const m of [run, up, hoseUp, deck]) { m.castShadow = true; this.quayPipe.add(m); }
     this.quayPipe.visible = false; R.add(this.quayPipe);
+    const fm = lam("steelFlake", () => ({ color: "#8e8a94" }));
+    for (let i = 0; i < 7; i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.16 - (i % 3) * 0.03, 0.025, 0.11 + (i % 2) * 0.04), fm); m.castShadow = true; m.visible = false; R.add(m); this.flakes.push(m); }
     // ---- the El, the firehouse ----
     this.el = elRail(EL.z0, EL.z1, EL.h, EL.bentZ); this.el.group.position.set(EL.x, D0, 0); R.add(this.el.group);
     const fh = firehouse(); this.fire = fh.g; this.fireBase = fh.base as unknown as THREE.Mesh;
@@ -294,6 +297,11 @@ export class LWorld {
         d.visible = true; d.position.set(TANK[0] + TANK_R + 0.04, D0 + y0 - u * 2.2, zz);
       }
     });
+    this.flakes.forEach((m, i) => {
+      const k = st.flakes === undefined ? 0 : clamp01(st.flakes * 1.6 - i * 0.08), top = D0 + 0.84;
+      m.visible = k > 0;
+      if (m.visible) { m.position.set(DESK[0] - 0.45 + (i % 4) * 0.2, top + (1 - k * k) * 1.4, DESK[2] - 0.15 + Math.floor(i / 4) * 0.22); m.rotation.set((1 - k) * 3 + i, i * 0.7, (1 - k) * 2); }
+    });
     this.rivets.forEach((r, i) => {
       const tau = st.rivets ?? -1;
       r.visible = tau > 0 && tau < 1.6;
@@ -314,9 +322,14 @@ export class LWorld {
     for (const q of people) if (q.cup && ci < this.cups.length) {
       const cpp = this.cups[ci], pp = this.pipes[ci++], wallX = TANK[0] + TANK_R;
       cpp.visible = true; cpp.position.set(q.p[0] + 0.3, q.p[1] + 0.66, q.p[2] + 0.2);
-      pp.visible = true; pp.scale.x = cpp.position.x - wallX + 0.06; pp.position.set((wallX + cpp.position.x + 0.06) / 2, D0 + 1.8, cpp.position.z);
+      pp.visible = false; void wallX;
     }
     for (let i = ci; i < this.cups.length; i++) { this.cups[i].visible = false; this.pipes[i].visible = false; }
+    if (st.drips === "cups") this.drips.forEach((d, i) => {
+      if (i >= 2 * ci) return;
+      const k = i % ci, u = ((t * 1.1 + Math.floor(i / ci) * 0.5 + k * 0.29) % 1), cp = this.cups[k].position;
+      d.visible = true; d.position.set(cp.x, D0 + 1.72 - u * (D0 + 1.72 - cp.y - 0.12), cp.z);
+    });
     const pnt = people.find((q) => q.brush);
     if (pnt) {
       this.plank.visible = this.brush.visible = true;
