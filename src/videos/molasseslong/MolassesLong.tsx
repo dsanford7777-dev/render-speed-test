@@ -6,6 +6,7 @@ import { AbsoluteFill, Audio, getInputProps, staticFile, useCurrentFrame } from 
 import { TOTAL, VOICE_END, SHOTS, shotAt, wordAt, XFADE, CHAPTER_SHOTS, CHAPTERS, ShotDef, segAt, FPS } from "./timeline";
 import { BOARDS } from "./boards";
 import { Placeholder } from "./Placeholder";
+import { Photo, PHOTOS } from "./Photo";
 import { View3D, useKit, has3D } from "./View3D";
 import { Captions } from "./Captions";
 import { C, T, Paper, pop, k, ease } from "./kit";
@@ -19,6 +20,7 @@ const Shot: React.FC<{ shot: ShotDef; f: number }> = ({ shot, f }) => {
     const [key, v] = shot.g.split(":"), B = BOARDS[key];
     if (B) return <B t={t} d={shot.b - shot.a} v={Number(v ?? 0)} c={(seg, w) => wordAt(seg, w) - shot.a} />;
   }
+  if (shot.k === "photo" && PHOTOS[shot.g]) return <Photo shot={shot} t={t} />;
   return <Placeholder shot={shot} t={t} />;
 };
 

@@ -832,6 +832,60 @@ const plans: React.FC<G> = ({ t, d, c, v }) => {
     </AbsoluteFill>
   );
 };
+// ---------------- 5–6 (converted from 3D interiors) ----------------
+const horses: React.FC<G> = ({ t, d }) => (
+  <AbsoluteFill style={{ background: "linear-gradient(#d9e3ee 0%, #cdd6e0 55%, #6b3a1a 55%, #4a2410 100%)" }}><Cam t={t} d={d} from={1.0} to={1.06}>
+    <Svg>{[0, 1, 2, 3].map((i) => <path key={i} d={`M0 ${640 + i * 70} Q480 ${620 + i * 70 + Math.sin(t / 14 + i) * 6} 960 ${640 + i * 70} T1920 ${640 + i * 70}`} stroke="#8a4a20" strokeWidth={6} fill="none" opacity={0.5} />)}</Svg>
+    {[[520, 560, 1.25], [980, 580, 1.0], [1400, 570, 1.15]].map(([x, y, sc], i) => (
+      <At key={i} x={x} y={y} s={sc * pop(t, i * 6)}><div style={{ clipPath: "inset(0 0 34% 0)" }}><Icon kind="horse" s={300} /></div></At>
+    ))}
+    <At x={960} y={170} s={pop(t, 4)}><div style={{ background: "#fffaf0", border: `6px solid ${C.ink}`, borderRadius: 12, padding: "12px 34px" }}><T size={58} col={C.mol2}>Horses trapped too</T></div></At>
+  </Cam></AbsoluteFill>
+);
+const hospital: React.FC<G> = ({ t, d }) => (
+  <Paper tone="#e4ece8"><Cam t={t} d={d} from={1.0} to={1.05}>
+    <Svg>{[0, 1, 2, 3, 4].map((i) => { const x = 330 + i * 300, o = k(t, 4 + i * 4, 8); return <g key={i} opacity={o}>
+      <rect x={x - 110} y={560} width={220} height={46} rx={10} fill="#fffaf0" stroke={C.ink} strokeWidth={7} />
+      <rect x={x - 110} y={536} width={60} height={30} rx={8} fill="#dfe8f0" stroke={C.ink} strokeWidth={6} />
+      <path d={`M${x - 100} 606 L${x - 100} 660 M${x + 100} 606 L${x + 100} 660`} stroke={C.ink} strokeWidth={8} /></g>; })}</Svg>
+    <At x={1500} y={430} s={pop(t, 14)}><Icon kind="nurse" s={230} /></At>
+    <At x={420} y={420} s={pop(t, 20)}><div style={{ background: "#fff", border: `8px solid ${C.ink}`, borderRadius: 20, width: 130, height: 130, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <svg width={90} height={90}><path d="M45 8 L45 82 M8 45 L82 45" stroke={C.red} strokeWidth={22} /></svg></div></At>
+    <At x={960} y={180} s={pop(t, 0)}><T size={70}>A makeshift hospital</T></At>
+  </Cam></Paper>
+);
+const STICKY2: [string, string][] = [["subway", "Subway platforms"], ["streetcar", "Streetcar seats"], ["phone", "Pay phones & homes"]];
+const sticky2: React.FC<G> = ({ t, d, v }) => {
+  const [ic, label] = STICKY2[v ?? 0];
+  return (
+    <Paper><Cam t={t} d={d} from={1.0} to={1.05}>
+      <At x={v === 2 ? 760 : 960} y={420} s={pop(t, 0)} r={-3}><div style={{ background: "#fffaf0", border: `10px solid ${C.ink}`, borderRadius: 34, padding: 40, boxShadow: `0 12px 0 ${C.ink}` }}><Icon kind={ic} s={300} /></div></At>
+      {v === 2 && <At x={1180} y={440} s={pop(t, 8)} r={3}><div style={{ background: "#fffaf0", border: `10px solid ${C.ink}`, borderRadius: 34, padding: 40, boxShadow: `0 12px 0 ${C.ink}` }}><Icon kind="home" s={260} /></div></At>}
+      <Svg>{STEPS.map(([x, y], i) => { const px = 300 + x * 2.2, py = 760 + y * 0.35 + (i % 2) * 26, o = k(t, 6 + i * 3, 4);
+        return <ellipse key={i} cx={px} cy={py} rx={16} ry={28} fill={C.mol} opacity={0.85 * o} transform={`rotate(80 ${px} ${py})`} />; })}</Svg>
+      <At x={960} y={130} s={pop(t, 4)}><T size={66} col={C.mol2}>{label}</T></At>
+    </Cam></Paper>
+  );
+};
+const skyline: React.FC<G> = ({ t, d }) => {
+  const bs = [[120, 300], [260, 420], [380, 260], [520, 520], [660, 340], [800, 600], [960, 450], [1100, 680], [1240, 380], [1380, 500], [1520, 300], [1660, 420], [1800, 280]];
+  return (
+    <AbsoluteFill style={{ background: "linear-gradient(#9fc3d9 0%, #dbe9f1 80%)" }}><Cam t={t} d={d} from={1.0} to={1.05} ox={46}>
+      <Svg>{bs.map(([x, h], i) => <g key={i}><rect x={x - 60} y={800 - h} width={120} height={h + 200} fill={i % 2 ? "#5d6b80" : "#7a879a"} stroke={C.ink} strokeWidth={6} />
+        {Array.from({ length: Math.floor(h / 60) }, (_, j) => <rect key={j} x={x - 40} y={830 - h + j * 60} width={80} height={22} fill="#e8eef4" opacity={0.6} />)}</g>)}
+        <rect x={0} y={880} width={1920} height={200} fill="#4f6b84" /></Svg>
+      <At x={960} y={150} s={pop(t, 2)}><T size={64}>Boston today</T></At>
+    </Cam></AbsoluteFill>
+  );
+};
+
+const helpers: React.FC<G> = ({ t, d, c }) => (
+  <Paper><Cam t={t} d={d}>
+    {([["police", "Police", 330], ["helmet", "Firefighters", 750], ["nurse", "Red Cross\nnurses", 1170], ["family", "Volunteers", 1590]] as [string, string, number][]).map(([ic, l, x], i) =>
+      <Node key={ic} x={x} y={430} s={pop(t, c(99, ["Police", "firefighters", "Red", "volunteers"][i]) - 4)} icon={ic} label={l} />)}
+  </Cam></Paper>
+);
+
 const spread: React.FC<G> = ({ t, d }) => {
   const dots = [[860, 120], [700, 200], [560, 280], [420, 160], [300, 300], [180, 220], [760, 330], [640, 420], [480, 400], [820, 250], [380, 250], [250, 370]];
   return (
@@ -879,7 +933,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
   groan, reports, response, blend, sept1918,
   thermo, layers, triggers, clock, wavestats, runner, floodmap,
   cold, viscosity, harvard, spreadcool, memorial, cadets, fourdays,
-  footprints, sticky, harborbrown,
+  footprints, sticky, harborbrown, horses, hospital, sticky2, skyline, helpers,
   lawsuit, bomb, warlink, headlines, mailbombs, ogden, years, witnesses, pages, facts, ruling, money,
   plans, spread, radar, recap,
 };

@@ -21,8 +21,11 @@ jobs:
           for src in $(git diff --name-only HEAD~1 HEAD -- 'public/*/fetch.json'); do
             for p in $(jq -r '.files | keys[]' "$src"); do
               mkdir -p "$(dirname "$p")"
-              curl -sSfL -o "$p" "$(jq -r --arg p "$p" '.files[$p]' "$src")"
-              echo "$p: $(stat -c %s "$p") bytes" | tee -a $GITHUB_STEP_SUMMARY
+              if curl -sSfL -A "ParadoxTownRender/1.0 (github actions; render-speed-test)" -o "$p" "$(jq -r --arg p "$p" '.files[$p]' "$src")"; then
+                echo "$p: $(stat -c %s "$p") bytes" | tee -a $GITHUB_STEP_SUMMARY
+              else
+                rm -f "$p"; echo "$p: FAILED" | tee -a $GITHUB_STEP_SUMMARY
+              fi
             done
             git rm -q "$src"
           done

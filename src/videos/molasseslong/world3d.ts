@@ -10,7 +10,8 @@ import { TONE, CHAR, LFB, untone } from "../bridge/shade";
 import { NOINK } from "../bridge/ink";
 import { Pool, Actor, Fx } from "../bridge/cast";
 import { ship } from "../fahrenheit/props";
-import { WINTER } from "./shots3d";
+import { buildChamber, Chamber } from "../dst/props";
+import { WINTER, COURT } from "./shots3d";
 import { Board } from "../dst/props";
 import { FPS } from "./timeline";
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
@@ -77,6 +78,7 @@ export class LWorld {
   private drips: THREE.Mesh[] = []; private rivets: THREE.Mesh[] = [];
   private lastPeople: { name: string; p: V3; walking: boolean }[] = [];
   private ship!: THREE.Group; private quayPipe!: THREE.Group; private flakes: THREE.Mesh[] = [];
+  private court!: THREE.Group; private park!: THREE.Group;
   private ray = new THREE.Raycaster();
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private sph = new THREE.Sphere(); private v = new THREE.Vector3();
 
@@ -170,6 +172,36 @@ export class LWorld {
     const deck = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 6.9, 12).rotateX(-Math.atan2(6.4, 2.5)), pm); deck.position.set(MX - 18, 4.7, -27.2);
     for (const m of [run, up, hoseUp, deck]) { m.castShadow = true; this.quayPipe.add(m); }
     this.quayPipe.visible = false; R.add(this.quayPipe);
+    // the 1919 courtroom: the DST short's chamber, floating high above the set (only sky shows over its walls),
+    // its Congress board swapped for a court sign and its candy removed
+    this.court = new THREE.Group(); R.add(this.court);
+    const ch: Chamber = buildChamber(this.court, COURT[0], COURT[1], COURT[2]);
+    ch.candies.forEach((c) => (c.visible = false));
+    (ch.board.material as THREE.MeshLambertMaterial) = lam("courtBoard", () => ({ map: ctex("courtBoard", 1024, 384, (g) => {
+      g.fillStyle = "#2f2a3a"; g.fillRect(0, 0, 1024, 384); g.strokeStyle = "#e8c45a"; g.lineWidth = 14; g.strokeRect(14, 14, 996, 356);
+      g.fillStyle = "#e8c45a"; g.textAlign = "center"; g.font = "900 92px Montserrat, sans-serif"; g.fillText("MOLASSES CASE", 512, 170);
+      g.fillStyle = "#f6efdc"; g.font = "800 54px Montserrat, sans-serif"; g.fillText("COURT HEARING · 1919–1925", 512, 280);
+    }) }));
+    this.court.visible = false;
+    // the park on the tank site today: ballfield diamond, backstop, bocce strip, swing set
+    this.park = new THREE.Group(); R.add(this.park);
+    const pgrass = lam("parkGrass", () => ({ color: "#6f9a52" })), dirt = lam("parkDirt", () => ({ color: "#c9965a" })), white = lam("parkWhite", () => ({ color: "#f4f1e8" }));
+    const fenceM = lam("parkFence", () => ({ color: "#5d6470" }));
+    const pg = new THREE.Mesh(new THREE.PlaneGeometry(34, 30).rotateX(-Math.PI / 2), pgrass); pg.position.set(TANK[0], D0 + 0.03, TANK[2]); this.park.add(pg);
+    const dia = new THREE.Mesh(new THREE.PlaneGeometry(13, 13).rotateX(-Math.PI / 2).rotateY(Math.PI / 4), dirt); dia.position.set(TANK[0] + 2, D0 + 0.04, TANK[2] + 2); this.park.add(dia);
+    const inf = new THREE.Mesh(new THREE.PlaneGeometry(8, 8).rotateX(-Math.PI / 2).rotateY(Math.PI / 4), pgrass); inf.position.set(TANK[0] + 2, D0 + 0.05, TANK[2] + 2); this.park.add(inf);
+    for (const [dx, dz] of [[0, -4.6], [4.6, 0], [0, 4.6], [-4.6, 0]]) { const b = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.08, 0.45), white); b.position.set(TANK[0] + 2 + dx, D0 + 0.08, TANK[2] + 2 + dz); b.rotation.y = Math.PI / 4; this.park.add(b); }
+    for (let i = 0; i < 7; i++) { const a2 = -0.9 + i * 0.3, x = TANK[0] + 2 + Math.sin(a2) * 8.5, z = TANK[2] + 2 - 4.6 - Math.cos(a2) * 3.2 - 1.5;
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 3.2, 8), fenceM); post.position.set(x, D0 + 1.6, z); this.park.add(post);
+      if (i < 6) { const a3 = a2 + 0.15, net = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 3.0), lam("parkNet", () => ({ color: "#8a8f99", transparent: true, opacity: 0.45, side: THREE.DoubleSide })));
+        net.position.set(TANK[0] + 2 + Math.sin(a3) * 8.5, D0 + 1.5, TANK[2] + 2 - 4.6 - Math.cos(a3) * 3.2 - 1.5); net.rotation.y = -a3; this.park.add(net); } }
+    const bocce = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.18, 14), lam("bocce", () => ({ color: "#d9b77a" }))); bocce.position.set(TANK[0] + 13, D0 + 0.09, TANK[2] - 4); this.park.add(bocce);
+    const swingM = lam("swingFrame", () => ({ color: "#c9373a" }));
+    for (const dz of [-1.6, 1.6]) for (const dx of [-0.8, 0.8]) { const l = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 3.0, 8), swingM); l.position.set(TANK[0] + 13 + dx * 0.6, D0 + 1.45, TANK[2] + 9 + dz); l.rotation.x = dx * 0.25; this.park.add(l); }
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 3.4, 8).rotateX(Math.PI / 2), swingM); bar.position.set(TANK[0] + 13, D0 + 2.9, TANK[2] + 9); this.park.add(bar);
+    for (const dz of [-0.7, 0.7]) { const seat = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, 0.25), lam("swingSeat", () => ({ color: "#2b2b33" }))); seat.position.set(TANK[0] + 13, D0 + 0.6, TANK[2] + 9 + dz); this.park.add(seat); }
+    this.park.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh) { m.receiveShadow = true; m.castShadow = true; } });
+    this.park.visible = false;
     const fm = lam("steelFlake", () => ({ color: "#8e8a94" }));
     for (let i = 0; i < 7; i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.16 - (i % 3) * 0.03, 0.025, 0.11 + (i % 2) * 0.04), fm); m.castShadow = true; m.visible = false; R.add(m); this.flakes.push(m); }
     // ---- the El, the firehouse ----
@@ -286,6 +318,7 @@ export class LWorld {
     this.ship.visible = st.ship !== false;
     if (st.shipAt) this.ship.position.set(...st.shipAt); else this.ship.position.set(MX - 30, 0.6, -22);
     this.quayPipe.visible = !!st.pipe;
+    this.court.visible = !!st.court; this.park.visible = !!st.park;
     // short-only signs and props stay hidden unless a spec asks for them
     this.gallons.group.visible = false; this.easel.visible = this.plan.group.visible = false;
     this.desk.visible = this.plaque.group.visible = !!st.desk; this.hose.visible = !!st.hose; this.cal.group.visible = false;

@@ -8,6 +8,8 @@ import { D0, MX, M, V3, TANK, WAVE, POLE, MPH, FIRE, EL, CART, DESK, PLAQUE, HOS
 import { TANK_R, TANK_H } from "../molasses/props";
 import { FPS, ShotDef, wordAt } from "./timeline";
 
+/** the courtroom's centre: floating high above the set so only sky shows over its walls */
+export const COURT: V3 = [MX, D0 + 120, -60];
 export type Light3 = "day" | "golden" | "winter";
 /** January 1919: the same daylight, cooler and paler */
 export const WINTER: Partial<LightPreset> = { lit: [1.02, 1.06, 1.16], shade: [0.34, 0.38, 0.52], lift: [0.08, 0.1, 0.16], fog: "#d9e3ee" };
@@ -21,7 +23,7 @@ export type St = {
   light: Light3; cam: Cam; dof?: number; sunAz?: number; sunLook?: [number, number]; noSunDisc?: boolean;
   tank?: boolean; flood?: boolean; paint?: number; crack?: number; gush?: number;
   wave?: number | null; surge?: number; sheet?: boolean; fire?: number; twist?: number; el?: boolean; ship?: boolean; shipAt?: V3; pipe?: boolean;
-  pole?: boolean; mph?: boolean; debris?: boolean; drips?: "seam" | "cups"; rivets?: number; flakes?: number; desk?: boolean; hose?: boolean; xMark?: number; /** 0..1: one rivet flying from the crack into the lens */ lungeRivet?: number;
+  pole?: boolean; mph?: boolean; debris?: boolean; drips?: "seam" | "cups"; rivets?: number; flakes?: number; desk?: boolean; hose?: boolean; xMark?: number; /** 0..1: one rivet flying from the crack into the lens */ lungeRivet?: number; court?: boolean; park?: boolean;
   people?: Person[]; closeup?: boolean;
   /** a deliberate lunge at the lens: the framing check allows people this close */ lunge?: boolean;
   /** full-frame colour wipe over the 3D (0..1), e.g. the wave swallowing the lens */ wipe?: { color: string; a: number };
@@ -555,5 +557,304 @@ export const SPECS: Record<string, Spec> = {
       subjects: [["flooded street", M(4, 0.3, -70), 1]],
     };
   },
+  // ===== 5. the real killer =====
+  // high over the street: one glossy brown sheet where the wave passed
+  "glossy-aerial": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, debris: true, fire: 1, twist: 1, dof: 0,
+      cam: cam(L3(M(16, 24, -138), M(14, 19, -128), u), L3(M(4, 0, -98), M(4, 0, -96), u), 46, -0.05 + 0.05 * u),
+      subjects: [["brown sheet", M(5, 0.35, -100), 1]],
+    };
+  },
+  // low on the street: the wave has gone, everything still under the brown
+  "wave-gone": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, debris: true, fire: 1, twist: 1, dof: 4,
+      cam: cam(L3(M(3.2, 1.3, -132), M(3.0, 1.1, -126), u), L3(M(4, 1.0, -96), M(4, 0.9, -96), u), 44),
+      subjects: [["brown sheet", M(4, 0.35, -105), 1]],
+    };
+  },
+  // close and low over the surface, sliding toward the half-sunk cart as it sets
+  thicken: (s, f) => {
+    const u = U(s, f, smooth);
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, debris: true, dof: 8,
+      cam: cam(L3(M(0.6, 1.1, -98.5), M(1.4, 0.8, -96.4), u), L3(add(CART, [0, 0.55, 0]), add(CART, [0, 0.45, 0]), u), 40, 0.04),
+      subjects: [["cart", add(CART, [0, 0.6, 0]), 0.3]],
+    };
+  },
+  // wide and far: figures sunk in the brown, unable to get up
+  "stuck-wide": (s, f) => {
+    const u = U(s, f);
+    const P: [number, number][] = [[1.4, -101], [3.6, -103.5], [4.6, -100.2], [2.4, -106.0]];
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, debris: true, fire: 1, twist: 1, dof: 0,
+      cam: cam(L3(M(3.2, 4.2, -120), M(3.0, 3.6, -116), u), L3(M(3, 0.4, -102), M(3, 0.5, -102), u), 40),
+      people: P.map(([x, z], i) => ({ who: FOLK[i], p: M(x, -0.45 - 0.1 * (i % 2), z), expr: (i % 2 ? "pained" : "nervous") as Expr, look: i % 2 ? 1 : -1, headTilt: 0.1 })),
+      subjects: [["stuck people", M(5.5, 0.8, -102.5), 1]],
+    };
+  },
+  // rescuers wading in from the west side, stuck to the knees
+  "rescuers-stuck": (s, f) => {
+    const u = U(s, f);
+    const P: [number, number, number][] = [[1.0, -96, -0.3], [2.6, -98, -0.38], [4.4, -95.2, -0.42], [0.2, -99.5, -0.25]];
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, debris: true, dof: 2,
+      cam: cam(L3(M(0.2, 2.2, -88), M(0.6, 1.9, -90.5), u), L3(M(3, 0.9, -97), M(3.5, 0.9, -97.5), u), 42),
+      people: P.map(([x, z, y], i) => ({ who: FOLK[(i + 2) % 5], p: M(x, y, z), expr: (i % 2 ? "stern" : "nervous") as Expr, look: i % 2 ? -1 : 1 })),
+      subjects: [["rescuers", M(2.4, 0.9, -97), 1]],
+    };
+  },
+  // the molasses closing around the cart's wheels: a slow, tightening push
+  grip: (s, f) => {
+    const u = U(s, f, lin);
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, debris: true, dof: 10, closeup: true,
+      cam: cam(L3(M(0.8, 1.0, -96.6), M(1.4, 0.8, -95.4), u), add(CART, [0, 0.4, 0]), 38 - 4 * u, -0.05),
+      subjects: [["cart", add(CART, [0, 0.5, 0]), 0.2]],
+    };
+  },
+  // a line of cadets wading in, waist-deep
+  "cadets-wade": (s, f) => {
+    const u = U(s, f), t = (f - s.a) / FPS;
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, debris: true, dof: 2,
+      cam: cam(L3(M(3.4, 2.0, -84), M(3.2, 1.8, -86.5), u), L3(M(2.5, 0.9, -95), M(2.6, 0.9, -96), u), 44),
+      people: [0, 1, 2, 3, 4].map((i) => ({ who: FOLK[i], p: M(0.6 + i * 0.95, -0.62 + 0.03 * Math.sin(t * 3 + i), -92 - i * 1.3 - 0.25 * t), expr: (i % 2 ? "stern" : "neutral") as Expr, look: -1 })),
+      subjects: [["cadets", M(4.5, 0.9, -95), 1]],
+    };
+  },
+  // grey harbor: a boat creeping across the water off the drowned waterfront
+  "harbor-search": (s, f) => {
+    const u = U(s, f, lin);
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, shipAt: [MX - 26 + 6 * u, 0.6, -10], dof: 0,
+      cam: cam(L3(M(12, 3.2, 2), M(9, 3.0, 0), u), L3(M(-22, 1.5, -12), M(-18, 1.5, -12), u), 42),
+      subjects: [["boat", [MX - 26 + 6 * u, 3, -10], 1]],
+    };
+  },
+
+  // ===== 6. the cleanup =====
+  // fresh water does nothing: low over the shining surface, sliding sideways
+  freshwater: (s, f) => {
+    const u = U(s, f, lin);
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, debris: true, dof: 6,
+      cam: cam(M(3.8 - 2.2 * u, 0.85, -90.5), M(2.5 - 2.2 * u, 0.4, -86), 40, 0.05),
+      subjects: [["brown sheet", M(2.5 - 2.2 * u, 0.35, -86), 0.5]],
+    };
+  },
+  // the fireboat at the quay, pumping harbor water up into the street
+  fireboat: (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, pipe: true, shipAt: [MX - 18, 0.6, -21], dof: 0,
+      cam: cam(L3(M(10, 6, -6), M(6, 5, -12), u), L3(M(-16, 3, -30), M(-6, 2, -48), u), 46),
+      subjects: [["fireboat", M(-18, 3, -21), 1]],
+    };
+  },
+  // crews walking the brown, scattering sand
+  sand: (s, f) => {
+    const u = U(s, f), t = (f - s.a) / FPS;
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, dof: 2,
+      cam: cam(L3(M(2.0, 1.8, -80), M(2.4, 1.7, -83), u), L3(M(6, 1, -92), M(6, 1, -95), u), 44),
+      people: walkersZ(FOLK.slice(1, 4), [MX + 4, MX + 7.5], [-100, -86], t).map((q) => ({ ...q, p: [q.p[0], D0 + 0.3, q.p[2]] as V3, expr: "stern" as Expr })),
+      subjects: [["crews", M(5.5, 1, -93), 1]],
+    };
+  },
+
+  // ===== 7. who's to blame =====
+  // the company men outside the ruined office, shrugging it off
+  boardroom: (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, desk: true, dof: 8,
+      cam: cam(L3(M(4.5, 1.6, -63.5), M(3.2, 1.6, -62.2), u), L3(M(-1.2, 1.5, -60), M(-1.4, 1.6, -59.8), u), 42),
+      people: [{ who: "jell", p: M(-1.5, 0.3, -60.2), expr: "smile_closed", look: 1 }, { who: "folk4", p: M(-0.2, 0.3, -61.2), expr: "neutral", look: -1 }],
+      subjects: [["company men", M(-0.9, 1.5, -60.6), 0.5]],
+    };
+  },
+  // the courtroom, wide: crane down the hall to the bench
+  courtroom: (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "day", tank: false, court: true, dof: 0,
+      cam: cam(L3(add(COURT, [3.5, 5.5, -12]), add(COURT, [2.2, 2.4, -8.5]), u), add(COURT, [0, 2.0, 4]), 48),
+      people: COURT_CAST(false),
+      subjects: [["bench", add(COURT, [0, 1.8, 4.4]), 1]],
+    };
+  },
+  // the company's lawyer, pointing at the bomb theory
+  lawyer: (s, f) => {
+    const u = U(s, f, smooth);
+    return {
+      light: "day", tank: false, court: true, dof: 10,
+      cam: cam(L3(add(COURT, [-2.4, 1.6, -5.2]), add(COURT, [-1.4, 1.6, -3.6]), u), add(COURT, [0.9, 1.5, -2.0]), 40, 0.04),
+      people: COURT_CAST(true),
+      subjects: [["lawyer", add(COURT, [0.9, 1.3, -2.0]), 0.5]],
+    };
+  },
+  // the bench: the court appoints an auditor
+  "court-appoint": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "day", tank: false, court: true, dof: 8,
+      cam: cam(L3(add(COURT, [2.0, 1.4, -3.5]), add(COURT, [1.0, 1.7, -1.2]), u), add(COURT, [0.6, 2.2, 4.4]), 44),
+      people: COURT_CAST(false),
+      subjects: [["bench", add(COURT, [0, 2.0, 4.4]), 0.5]],
+    };
+  },
+  // Ogden at the bench, a slow orbit
+  "ogden-bench": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "day", tank: false, court: true, dof: 10, closeup: true,
+      cam: cam(orb(add(COURT, [1.2, 0, 4.6]), 4.2, 1.9, -0.35 + 0.5 * u), add(COURT, [1.2, 1.7, 4.6]), 38),
+      people: [COURT_CAST(false)[0]],
+      subjects: [["Ogden", add(COURT, [1.2, 1.4, 4.6]), 0.3]],
+    };
+  },
+
+  // ===== 8–9. after, and today =====
+  // walking past a big building today
+  building: (s, f) => {
+    const u = U(s, f, lin), t = (f - s.a) / FPS;
+    return {
+      light: "day", tank: false, el: false, ship: false, dof: 4,
+      cam: cam(M(5.0, 1.6, -70 - 4 * u), M(12, 2.6, -73 - 4 * u), 44),
+      people: [{ who: "folk1", p: M(9.2, 0, -70.5 - 4.2 * u), expr: "smile_closed", side: { phase: (t * 0.8) % 1, mirror: false, stride: 0.8 } }],
+      subjects: [["building", M(12, 3, -73 - 4 * u), 1]],
+    };
+  },
+  // tilt up the face of the building
+  "building-up": (s, f) => {
+    const u = U(s, f, smooth);
+    return {
+      light: "day", tank: false, el: false, ship: false, dof: 0,
+      cam: cam(M(8.0, 1.0, -76), L3(M(12, 2.5, -78), M(12, 9, -78.5), u), 52, 0.06 * u),
+      subjects: [["building", M(12, 5, -78), 1]],
+    };
+  },
+  // the North End street today: no El, no tank
+  "northend-today": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "day", tank: false, el: false, ship: false, dof: 0,
+      cam: cam(L3(M(5, 8, -140), M(5, 4, -130), u), L3(M(4, 1, -80), M(4, 1.5, -80), u), 48),
+      people: walkersZ(FOLK, [MX + 2.5, MX + 7.5], [-120, -85], (f - s.a) / FPS),
+      subjects: [["street", M(5, 1, -100), 1]],
+    };
+  },
+  // a hot summer day: people in the street in the glare
+  "summer-street": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "golden", tank: false, el: false, ship: false, dof: 3, noSunDisc: true,
+      cam: cam(L3(M(3, 1.5, -112), M(3.5, 1.6, -108), u), M(6, 1.5, -95), 44),
+      people: [{ who: "folk0", p: M(5, 0, -101), expr: "dazed", look: -1, headTilt: 0.12 }, { who: "folk3", p: M(7.2, 0, -103.5), expr: "neutral", look: 1 }, ...walkersZ(["folk2", "folk4"], [MX + 3, MX + 8], [-100, -90], (f - s.a) / FPS)],
+      subjects: [["people", M(6, 1.2, -102), 1]],
+    };
+  },
+  // a faint brown haze over the same street
+  haze: (s, f) => {
+    const u = U(s, f), a = 0.22 + 0.06 * Math.sin((f - s.a) / 9);
+    return {
+      light: "golden", tank: false, el: false, ship: false, dof: 3, noSunDisc: true,
+      cam: cam(L3(M(3.5, 1.6, -108), M(4, 1.8, -104), u), M(6, 2.5, -90), 44),
+      wipe: { color: "#8a5a2a", a },
+      people: walkersZ(["folk2", "folk4"], [MX + 3, MX + 8], [-100, -90], (f - s.a) / FPS),
+    };
+  },
+  // the empty quay where the tank stood
+  "quay-empty-2": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "day", tank: false, el: false, dof: 0,
+      cam: cam(L3(M(3, 13, -62), M(1, 11, -58), u), L3(M(-16, 0.5, -52), M(-17, 0.5, -50), u), 46),
+      subjects: [["empty quay", M(-16, 0, -52), 1]],
+    };
+  },
+  // the site as a rail yard: the same empty ground, a long slow drift
+  railyard: (s, f) => {
+    const u = U(s, f, lin);
+    return {
+      light: "winter", tank: false, el: false, ship: false, dof: 0,
+      cam: cam(M(3 - 6 * u, 15, -63), M(-16 - 4 * u, 0, -50), 48),
+      subjects: [["site", M(-16, 0, -52), 1]],
+    };
+  },
+  // today: the park on the tank's spot — ballfield, bocce, swings
+  "park-today": (s, f) => {
+    const u = U(s, f), t = (f - s.a) / FPS;
+    return {
+      light: "day", tank: false, el: false, ship: false, park: true, dof: 0,
+      cam: cam(orb(add(TANK, [2, 0, 2]), 18, 10 - 3 * u, 0.7 + 0.35 * u), add(TANK, [4, 0.5, 0]), 46),
+      people: [{ who: "kid0", p: add(TANK, [13, 0, 8.3]), expr: "laugh" }, { who: "kid1", p: add(TANK, [2, 0, -2.6]), expr: "grin", side: { phase: (t * 0.9) % 1, mirror: false } }, { who: "folk3", p: add(TANK, [13.2, 0, -3]), expr: "smile" }],
+      subjects: [["park", add(TANK, [3, 0, 2]), 1]],
+    };
+  },
+  // a slow drip of molasses: the cold open's leaking seam again
+  drip: (s, f) => SPECS["tank-leak-close"](s, f),
+  "wave-callback": (s, f) => SPECS["wave-run"](s, f),
+
+  // ===== replacing archive slots without a license-safe photo =====
+  // the busy North End street before the flood: crane down among the walkers
+  "northend-1919": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "golden", el: false, dof: 0,
+      cam: cam(L3(M(5, 9, -135), M(4.5, 2.2, -124), u), L3(M(5, 1, -95), M(5, 1.6, -95), u), 48),
+      people: walkersZ(FOLK, [MX + 3, MX + 7.5], [-118, -88], (f - s.a) / FPS),
+      subjects: [["street", M(5, 1, -100), 1]],
+    };
+  },
+  // the firehouse knocked off its base, sitting in the brown
+  "firehouse-ruin": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, debris: true, fire: 1, twist: 1, dof: 2,
+      cam: cam(L3(M(6.0, 1.6, -116), M(4.2, 2.2, -112), u), add(FIRE, [-1.6, 3.5, -0.8]), 44, 0.03),
+      subjects: [["firehouse", add(FIRE, [-2.0, 4.0, -0.8]), 0.5]],
+    };
+  },
+  // help arriving: people hurrying in along the street's edge
+  rescue: (s, f) => {
+    const u = U(s, f), t = (f - s.a) / FPS;
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, debris: true, dof: 2,
+      cam: cam(L3(M(3.0, 1.5, -76), M(3.2, 1.6, -80), u), L3(M(4, 1.2, -95), M(4, 1.2, -96), u), 46),
+      people: walkersZ(FOLK.slice(0, 4), [MX + 2.4, MX + 4.2], [-96, -84], t * 1.4).map((q, i) => ({ ...q, p: [q.p[0], D0 + 0.3, q.p[2]] as V3, expr: (i % 2 ? "stern" : "nervous") as Expr })),
+      subjects: [["rescuers", M(3.3, 1, -90), 1]],
+    };
+  },
+  // the Navy training ship tied up at the quay
+  nantucket: (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, shipAt: [MX - 18, 0.6, -21], dof: 0,
+      cam: cam(L3(M(-2, 3, -6), M(-6, 4.5, -10), u), L3(M(-18, 4, -21), M(-19, 4.5, -22), u), 46),
+      subjects: [["ship", M(-18, 4, -21), 1]],
+    };
+  },
+  // weeks of work: crews out on the street
+  workers: (s, f) => {
+    const u = U(s, f, lin), t = (f - s.a) / FPS;
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, debris: true, fire: 1, twist: 1, dof: 0,
+      cam: cam(M(2.6 + 1.5 * u, 6.5, -86 - 3 * u), M(5, 0.5, -106 - 3 * u), 46),
+      people: walkersZ(FOLK, [MX + 2.6, MX + 7.0], [-110, -96], t).map((q) => ({ ...q, p: [q.p[0], D0 + 0.3, q.p[2]] as V3, expr: "stern" as Expr })),
+      subjects: [["crews", M(5, 1, -103), 1]],
+    };
+  },
 };
+/** the judge on the bench, the lawyer standing in front, a couple of people at the desks */
+const COURT_CAST = (lawyer: boolean): Person[] => [
+  { who: "folk4", p: add(COURT, [1.2, 0.4, 4.6]), expr: "stern" },
+  { who: "folk0", p: add(COURT, [0.9, 0, -2.0]), expr: lawyer ? "grin" : "neutral", look: lawyer ? 1 : 0 },
+  { who: "folk1", p: add(COURT, [-4.2, 0, -1.2]), expr: "nervous", look: 1 },
+  { who: "folk3", p: add(COURT, [4.3, 0, -1.6]), expr: "neutral", look: -1 },
+];
 void CART;
