@@ -1,0 +1,28 @@
+name: Remux soundtrack
+# Swap a new soundtrack onto an already-rendered video without re-rendering the picture.
+# Inputs: the release tag holding the rendered video, and the composition (its public/<lowercase>/mix.m4a is used).
+on:
+  workflow_dispatch:
+    inputs:
+      source_tag: { description: "Release tag with the rendered video", required: true }
+      composition: { description: "Composition id, e.g. MolassesLong", required: true }
+permissions:
+  contents: write
+jobs:
+  remux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remux
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          set -e
+          C="${{ inputs.composition }}"; LC=$(echo "$C" | tr A-Z a-z)
+          gh release download "${{ inputs.source_tag }}" -p "$C.mp4" -D src
+          sudo apt-get -qq update >/dev/null && sudo apt-get -qq install -y ffmpeg >/dev/null
+          ffmpeg -loglevel error -y -i "src/$C.mp4" -i "public/$LC/mix.m4a" -map 0:v -map 1:a -c:v copy -c:a copy \
+            -shortest -movflags +faststart "$C.mp4"
+          TAG="$C-$(date -u +%Y%m%d-%H%M)-mix"
+          printf "Picture from %s, soundtrack public/%s/mix.m4a (commit %s).\n" "${{ inputs.source_tag }}" "$LC" "${GITHUB_SHA::7}" > notes.md
+          gh release create "$TAG" "$C.mp4" --title "$TAG" --notes-file notes.md
+          echo "Released $TAG" >> $GITHUB_STEP_SUMMARY
