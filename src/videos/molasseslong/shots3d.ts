@@ -23,7 +23,7 @@ export type St = {
   light: Light3; cam: Cam; dof?: number; sunAz?: number; sunLook?: [number, number]; noSunDisc?: boolean;
   tank?: boolean; flood?: boolean; paint?: number; crack?: number; gush?: number;
   wave?: number | null; surge?: number; sheet?: boolean; fire?: number; twist?: number; el?: boolean; ship?: boolean; shipAt?: V3; pipe?: boolean;
-  pole?: boolean; mph?: boolean; debris?: boolean; drips?: "seam" | "cups"; rivets?: number; flakes?: number; desk?: boolean; hose?: boolean; xMark?: number; /** 0..1: one rivet flying from the crack into the lens */ lungeRivet?: number; court?: boolean; park?: boolean;
+  pole?: boolean; mph?: boolean; debris?: boolean; drips?: "seam" | "cups"; rivets?: number; flakes?: number; desk?: boolean; hose?: boolean; xMark?: number; /** 0..1: one rivet flying from the crack into the lens */ lungeRivet?: number; court?: boolean; park?: boolean; rails?: boolean;
   people?: Person[]; closeup?: boolean;
   /** a deliberate lunge at the lens: the framing check allows people this close */ lunge?: boolean;
   /** full-frame colour wipe over the 3D (0..1), e.g. the wave swallowing the lens */ wipe?: { color: string; a: number };
@@ -572,7 +572,7 @@ export const SPECS: Record<string, Spec> = {
     const u = U(s, f);
     return {
       light: "winter", paint: 1, flood: true, sheet: true, debris: true, fire: 1, twist: 1, dof: 4,
-      cam: cam(L3(M(3.2, 1.3, -132), M(3.0, 1.1, -126), u), L3(M(4, 1.0, -96), M(4, 0.9, -96), u), 44),
+      cam: cam(L3(M(1.6, 1.3, -132), M(1.5, 1.1, -126), u), L3(M(4, 1.0, -96), M(4, 0.9, -96), u), 44),
       subjects: [["brown sheet", M(4, 0.35, -105), 1]],
     };
   },
@@ -591,7 +591,7 @@ export const SPECS: Record<string, Spec> = {
     const P: [number, number][] = [[1.4, -101], [3.6, -103.5], [4.6, -100.2], [2.4, -106.0]];
     return {
       light: "winter", paint: 1, flood: true, sheet: true, debris: true, fire: 1, twist: 1, dof: 0,
-      cam: cam(L3(M(3.2, 4.2, -120), M(3.0, 3.6, -116), u), L3(M(3, 0.4, -102), M(3, 0.5, -102), u), 40),
+      cam: cam(L3(M(1.6, 4.2, -120), M(1.5, 3.6, -116), u), L3(M(3, 0.4, -102), M(3, 0.5, -102), u), 40),
       people: P.map(([x, z], i) => ({ who: FOLK[i], p: M(x, -0.45 - 0.1 * (i % 2), z), expr: (i % 2 ? "pained" : "nervous") as Expr, look: i % 2 ? 1 : -1, headTilt: 0.1 })),
       subjects: [["stuck people", M(5.5, 0.8, -102.5), 1]],
     };
@@ -660,7 +660,7 @@ export const SPECS: Record<string, Spec> = {
     const u = U(s, f), t = (f - s.a) / FPS;
     return {
       light: "winter", paint: 1, flood: true, sheet: true, dof: 2,
-      cam: cam(L3(M(2.0, 1.8, -80), M(2.4, 1.7, -83), u), L3(M(6, 1, -92), M(6, 1, -95), u), 44),
+      cam: cam(L3(M(1.4, 1.8, -80), M(1.8, 1.7, -83), u), L3(M(6, 1, -92), M(6, 1, -95), u), 44),
       people: walkersZ(FOLK.slice(1, 4), [MX + 4, MX + 7.5], [-100, -86], t).map((q) => ({ ...q, p: [q.p[0], D0 + 0.3, q.p[2]] as V3, expr: "stern" as Expr })),
       subjects: [["crews", M(5.5, 1, -93), 1]],
     };
@@ -703,7 +703,7 @@ export const SPECS: Record<string, Spec> = {
     return {
       light: "day", tank: false, court: true, dof: 8,
       cam: cam(L3(add(COURT, [2.0, 1.4, -3.5]), add(COURT, [1.0, 1.7, -1.2]), u), add(COURT, [0.6, 2.2, 4.4]), 44),
-      people: COURT_CAST(false),
+      people: COURT_CAST(false).filter((q) => q.who !== "folk0"),
       subjects: [["bench", add(COURT, [0, 2.0, 4.4]), 0.5]],
     };
   },
@@ -781,7 +781,7 @@ export const SPECS: Record<string, Spec> = {
   railyard: (s, f) => {
     const u = U(s, f, lin);
     return {
-      light: "winter", tank: false, el: false, ship: false, dof: 0,
+      light: "winter", tank: false, el: false, ship: false, rails: true, dof: 0,
       cam: cam(M(3 - 6 * u, 15, -63), M(-16 - 4 * u, 0, -50), 48),
       subjects: [["site", M(-16, 0, -52), 1]],
     };
@@ -825,7 +825,7 @@ export const SPECS: Record<string, Spec> = {
     const u = U(s, f), t = (f - s.a) / FPS;
     return {
       light: "winter", paint: 1, flood: true, sheet: true, debris: true, dof: 2,
-      cam: cam(L3(M(3.0, 1.5, -76), M(3.2, 1.6, -80), u), L3(M(4, 1.2, -95), M(4, 1.2, -96), u), 46),
+      cam: cam(L3(M(1.6, 1.5, -76), M(1.8, 1.6, -80), u), L3(M(4, 1.2, -95), M(4, 1.2, -96), u), 46),
       people: walkersZ(FOLK.slice(0, 4), [MX + 2.4, MX + 4.2], [-96, -84], t * 1.4).map((q, i) => ({ ...q, p: [q.p[0], D0 + 0.3, q.p[2]] as V3, expr: (i % 2 ? "stern" : "nervous") as Expr })),
       subjects: [["rescuers", M(3.3, 1, -90), 1]],
     };

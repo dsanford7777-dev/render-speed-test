@@ -78,7 +78,7 @@ export class LWorld {
   private drips: THREE.Mesh[] = []; private rivets: THREE.Mesh[] = [];
   private lastPeople: { name: string; p: V3; walking: boolean }[] = [];
   private ship!: THREE.Group; private quayPipe!: THREE.Group; private flakes: THREE.Mesh[] = [];
-  private court!: THREE.Group; private park!: THREE.Group;
+  private court!: THREE.Group; private park!: THREE.Group; private rails!: THREE.Group;
   private ray = new THREE.Raycaster();
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private sph = new THREE.Sphere(); private v = new THREE.Vector3();
 
@@ -202,6 +202,17 @@ export class LWorld {
     for (const dz of [-0.7, 0.7]) { const seat = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, 0.25), lam("swingSeat", () => ({ color: "#2b2b33" }))); seat.position.set(TANK[0] + 13, D0 + 0.6, TANK[2] + 9 + dz); this.park.add(seat); }
     this.park.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh) { m.receiveShadow = true; m.castShadow = true; } });
     this.park.visible = false;
+    // the rail yard years: tracks across the old tank yard
+    this.rails = new THREE.Group(); R.add(this.rails);
+    const steel = lam("railSteel", () => ({ color: "#5d5a58" })), tie = lam("railTie", () => ({ color: "#6b4a30" })), ballast = lam("ballast", () => ({ color: "#8f8a80" }));
+    for (let k = 0; k < 5; k++) {
+      const z = TANK[2] - 10 + k * 4.5;
+      const bed2 = new THREE.Mesh(new THREE.BoxGeometry(30, 0.08, 2.6), ballast); bed2.position.set(TANK[0], D0 + 0.04, z); this.rails.add(bed2);
+      for (const dz of [-0.72, 0.72]) { const r2 = new THREE.Mesh(new THREE.BoxGeometry(30, 0.14, 0.1), steel); r2.position.set(TANK[0], D0 + 0.2, z + dz); this.rails.add(r2); }
+      for (let i = 0; i < 30; i++) { const t2 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.1, 2.0), tie); t2.position.set(TANK[0] - 14.5 + i, D0 + 0.11, z); this.rails.add(t2); }
+    }
+    this.rails.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh) m.receiveShadow = true; });
+    this.rails.visible = false;
     const fm = lam("steelFlake", () => ({ color: "#8e8a94" }));
     for (let i = 0; i < 7; i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.16 - (i % 3) * 0.03, 0.025, 0.11 + (i % 2) * 0.04), fm); m.castShadow = true; m.visible = false; R.add(m); this.flakes.push(m); }
     // ---- the El, the firehouse ----
@@ -318,7 +329,7 @@ export class LWorld {
     this.ship.visible = st.ship !== false;
     if (st.shipAt) this.ship.position.set(...st.shipAt); else this.ship.position.set(MX - 30, 0.6, -22);
     this.quayPipe.visible = !!st.pipe;
-    this.court.visible = !!st.court; this.park.visible = !!st.park;
+    this.court.visible = !!st.court; this.park.visible = !!st.park; this.rails.visible = !!st.rails;
     // short-only signs and props stay hidden unless a spec asks for them
     this.gallons.group.visible = false; this.easel.visible = this.plan.group.visible = false;
     this.desk.visible = this.plaque.group.visible = !!st.desk; this.hose.visible = !!st.hose; this.cal.group.visible = false;
