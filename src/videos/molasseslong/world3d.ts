@@ -155,6 +155,12 @@ export class LWorld {
     // ---- the tank and its ship ----
     this.tank = buildTank(); this.tank.group.position.set(...TANK); R.add(this.tank.group);
     const sh = ship(); sh.position.set(MX - 30, 0.6, -22); sh.rotation.y = 0.05; R.add(sh); this.ship = sh;
+    // the Fahrenheit short's ship flies Britain's 1724 flag; a 1919 molasses tanker gets a plain pennant instead
+    const pennant = lam("plainPennant", () => ({ color: "#c9373a", side: THREE.DoubleSide }));
+    sh.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (m.isMesh && m.geometry instanceof THREE.PlaneGeometry && [2.4, 2.6].includes(Math.round(m.geometry.parameters.width * 10) / 10)) m.material = pennant;
+    });
     // the pipe from the quay to the tank (ship-pump shot): along the yard, then up the tank's north face
     this.quayPipe = new THREE.Group();
     const pm = lam("ironHandle", () => ({ color: "#4a4e5a" }));
@@ -303,6 +309,13 @@ export class LWorld {
       if (m.visible) { m.position.set(DESK[0] - 0.45 + (i % 4) * 0.2, top + (1 - k * k) * 1.4, DESK[2] - 0.15 + Math.floor(i / 4) * 0.22); m.rotation.set((1 - k) * 3 + i, i * 0.7, (1 - k) * 2); }
     });
     this.rivets.forEach((r, i) => {
+      if (i === 0 && st.lungeRivet !== undefined) {
+        // the hero rivet: from the crack straight into the lens
+        const k = st.lungeRivet, from = new THREE.Vector3(TANK[0] + TANK_R + 0.1, D0 + 3.4, TANK[2]), to = cam.position.clone().addScaledVector(cam.getWorldDirection(this.v), 0.35);
+        r.visible = k > 0 && k < 1; r.position.copy(from.lerp(to, k * k)); r.scale.setScalar(1 + 2 * k);
+        return;
+      }
+      r.scale.setScalar(1);
       const tau = st.rivets ?? -1;
       r.visible = tau > 0 && tau < 1.6;
       if (r.visible) {

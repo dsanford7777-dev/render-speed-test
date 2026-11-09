@@ -21,7 +21,7 @@ export type St = {
   light: Light3; cam: Cam; dof?: number; sunAz?: number; sunLook?: [number, number]; noSunDisc?: boolean;
   tank?: boolean; flood?: boolean; paint?: number; crack?: number; gush?: number;
   wave?: number | null; surge?: number; sheet?: boolean; fire?: number; twist?: number; el?: boolean; ship?: boolean; shipAt?: V3; pipe?: boolean;
-  pole?: boolean; mph?: boolean; debris?: boolean; drips?: "seam" | "cups"; rivets?: number; flakes?: number; desk?: boolean; hose?: boolean; xMark?: number;
+  pole?: boolean; mph?: boolean; debris?: boolean; drips?: "seam" | "cups"; rivets?: number; flakes?: number; desk?: boolean; hose?: boolean; xMark?: number; /** 0..1: one rivet flying from the crack into the lens */ lungeRivet?: number;
   people?: Person[]; closeup?: boolean;
   /** a deliberate lunge at the lens: the framing check allows people this close */ lunge?: boolean;
   /** full-frame colour wipe over the 3D (0..1), e.g. the wave swallowing the lens */ wipe?: { color: string; a: number };
@@ -423,6 +423,136 @@ export const SPECS: Record<string, Spec> = {
       cam: cam(L3([p[0] + 3.0, p[1] + 2.2, p[2] - 2.5], M(10, 10, -76), u), L3([p[0], p[1] + 1.0, p[2]], M(-14, 7, -50), u), 46),
       people: [{ who: "painter", p, expr: "whistle", brush: true }],
       subjects: [["paint line", wallPt(y, -1.2), 0.5]],
+    };
+  },
+
+  // ===== 4. January 15, 1919 =====
+  // the brown tank on a bitter January morning
+  "tank-winter": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "winter", paint: 1, dof: 0,
+      cam: cam(L3(M(3, 2.0, -70), M(3.4, 6.5, -66), u), L3(M(-14, 6, -50), M(-15, 9, -51), u), 48),
+      subjects: [["tank", wallPt(7, -2), 0.5]],
+    };
+  },
+  // the cold street: people hurrying, collars up
+  "cold-street": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "winter", paint: 1, dof: 3,
+      cam: cam(L3(M(2.0, 1.6, -96), M(2.4, 2.2, -90), u), L3(M(6, 2.5, -70), M(5, 3.5, -62), u), 46),
+      people: walkersZ(FOLK.slice(0, 4), [MX + 3.2, MX + 1.6], [-82, -64], (f - s.a) / FPS).map((q) => ({ ...q, expr: "pained" as Expr })),
+    };
+  },
+  // a ship at the quay pumping warm molasses up into the tank
+  "ship-warm": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "winter", paint: 1, pipe: true, shipAt: [MX - 18, 0.6, -21], dof: 0,
+      cam: cam(L3(M(6, 3, -14), M(2, 5, -20), u), L3(M(-18, 3, -30), M(-18, 9, -40), u), 46),
+      subjects: [["pipe", M(-18, 4, -39.5), 0.3]],
+    };
+  },
+  // "already too weak": low on the base, a slow push toward the bottom seam
+  "tank-weak": (s, f) => {
+    const u = U(s, f, smooth);
+    return {
+      light: "winter", paint: 1, dof: 5, sunAz: 160,
+      cam: cam(L3(M(3.5, 0.5, -60), M(0.6, 0.6, -55.5), u), L3(wallPt(3, -3), wallPt(1.2, -1), u), 50, 0.05),
+      subjects: [["base seam", wallPt(1.0, -1), 0.3]],
+    };
+  },
+  // lunchtime in the unusual warmth: workers out on the street
+  lunch: (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "day", paint: 1, dof: 4,
+      cam: cam(L3(M(-1.0, 1.4, -78), M(0.0, 1.6, -74), u), L3(M(5, 1.6, -64), M(4, 2.8, -60), u), 46),
+      people: [
+        { who: "folk0", p: M(2.0, 0, -66.5), expr: "laugh" }, { who: "folk1", p: M(3.0, 0, -67.2), expr: "smile" },
+        { who: "folk4", p: M(1.2, 0, -68.4), expr: "grin", look: 1 },
+        ...walkersZ(["folk3"], [MX + 6.5, MX + 6.5], [-80, -64], (f - s.a) / FPS),
+      ],
+      subjects: [["tank", wallPt(7, -4), 0.5]],
+    };
+  },
+  // kids playing near the tank
+  "kids-play": (s, f) => {
+    const u = U(s, f), t = (f - s.a) / FPS;
+    return {
+      light: "day", paint: 1, dof: 4,
+      cam: cam(L3(M(5.5, 1.0, -70), M(5.0, 1.2, -67), u), M(-1, 1.6, -62), 46),
+      people: walkersX(["kid0", "kid1", "kid2"], [-63.2, -64.6], [MX - 3, MX + 4], t * 1.8).map((q) => ({ ...q, expr: "laugh" as Expr })),
+    };
+  },
+  // a deep rumble "like an elevated train": under the El, the camera trembling
+  "el-rumble": (s, f) => {
+    const u = U(s, f), q = smooth((f - s.a) / Math.max(1, s.b - s.a));
+    return {
+      light: "day", paint: 1, dof: 0,
+      cam: cam(add(L3(M(7.0, 1.0, -86), M(7.0, 1.3, -82), u), shake(f, 0.02 + 0.06 * q)), L3(M(7, 6.5, -74), M(6, 6, -60), u), 56, 0.06 * q * Math.sin(f * 0.8)),
+      subjects: [["El", [EL.x, D0 + EL.h, -76], 0.5]],
+    };
+  },
+  // LUNGE: right at the seam as the rivets shoot out, straight at the lens
+  "rivets-pop": (s, f) => {
+    const u = (f - s.a) / Math.max(1, s.b - s.a), k = smooth(u / 0.3);
+    return {
+      light: "winter", paint: 1, crack: 0.2 + 0.25 * k, rivets: (f - s.a - 4) / FPS * 0.11, lunge: true, dof: 4, sunAz: 160,
+      cam: cam(add(L3(M(3.4, 3.8, -51.2), M(1.9, 3.5, -51.8), k), shake(f, 0.03 + 0.08 * k)), wallPt(3.6, 0), 48, 0.06 * k),
+      lungeRivet: clamp01((u - 0.62) / 0.3),
+      wipe: { color: "#fff6dc", a: 0.85 * clamp01(1 - Math.abs(u - 0.93) / 0.05) },
+      subjects: [["rivet seam", wallPt(3.4, 0), 0.1]],
+    };
+  },
+  split: (s, f) => SPECS.burst(s, f),
+  // two million gallons at once: high and wide as the burst tank empties into the street
+  outpour: (s, f) => {
+    const u = U(s, f), wz = -66 - 14 * smooth((f - s.a) / Math.max(1, s.b - s.a));
+    return {
+      light: "winter", paint: 1, flood: true, wave: wz, surge: 0.85, sheet: true, dof: 0,
+      cam: cam(add(L3(M(8.5, 12, -94), M(8.0, 10, -87), u), shake(f, 0.03)), L3(M(-4, 3, -64), M(-2, 2, -72), u), 50),
+      subjects: [["wave crest", [WAVE.x, D0 + WAVE.H * 0.8, wz + 0.5], 0.5]],
+    };
+  },
+  "wave-25ft": (s, f) => SPECS["wave-pole"](s, f),
+  "wave-35mph": (s, f) => SPECS["wave-run"](s, f),
+  // steel panels flung out of the bursting tank: whip from the tank toward the El
+  "steel-fling": (s, f) => {
+    const u = (f - s.a) / Math.max(1, s.b - s.a), w = glide(u * 1.3);
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, rivets: (f - s.a) / FPS * 0.8, debris: true, dof: 2,
+      cam: cam(add(M(9.6, 2.0, -70), shake(f, 0.06)), L3(M(-6, 6, -56), M(7, 5.5, -96), w), 52, -0.08 + 0.16 * w),
+    };
+  },
+  "el-car": (s, f) => SPECS["el-twist"](s, f),
+  // the wave smashing into the houses along the street
+  homes: (s, f) => {
+    const u = (f - s.a) / Math.max(1, s.b - s.a), wz = -98 - 12 * smooth(u);
+    return {
+      light: "winter", paint: 1, flood: true, wave: wz, surge: 1, sheet: true, debris: true, dof: 2,
+      cam: cam(add(M(-0.2, 1.4, -114), shake(f, 0.03 + 0.06 * u)), L3(M(-3, 4, -100), M(-2, 5, -104), u), 50, 0.04),
+      subjects: [["wave crest", [WAVE.x, D0 + WAVE.H * 0.8, wz + 0.5], 0.5]],
+    };
+  },
+  // the company's own desk swallowed: molasses over the street, the TREASURER sign sticking out
+  offices: (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, desk: true, debris: true, dof: 6,
+      cam: cam(L3(M(3.2, 0.9, -61.5), M(2.2, 1.2, -60.2), u), L3(add(PLAQUE, [0, -0.6, 0]), add(PLAQUE, [0, -0.2, 0]), u), 44, -0.06),
+      subjects: [["TREASURER sign", PLAQUE, 0.1]],
+    };
+  },
+  "firehouse-trap": (s, f) => SPECS["firehouse-shove"](s, f),
+  // over the harbor looking back at the drowned waterfront
+  "truck-harbor": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "winter", paint: 1, flood: true, sheet: true, debris: true, dof: 0,
+      cam: cam(L3(M(14, 9, -12), M(10, 7.5, -18), u), L3(M(0, 1, -50), M(-2, 0.5, -60), u), 50),
+      subjects: [["flooded street", M(4, 0.3, -70), 1]],
     };
   },
 };
