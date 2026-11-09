@@ -65,7 +65,7 @@ const EndCard: React.FC<{ t: number }> = ({ t }) => {
         <div style={{ ...row(26), marginTop: 56 }}>
           <T size={40} w={800} col={C.gold} up={false}>Same stories in 60 seconds:</T>
           <div style={{ display: "flex", alignItems: "center", gap: 20, marginTop: 10 }}>
-            <T size={58} col="#fff" up={false} style={{ textShadow: `0 6px 0 #000` }}>@paradoxtownhq</T>
+            <T size={58} col="#fff" up={false} style={{ textShadow: `0 6px 0 #000` }}>@ParadoxTownHQ</T>
             <svg width={110} height={56} viewBox="0 0 110 56" style={{ transform: `translateX(${bob * 0.6}px)` }}>
               <path d="M6 28 H80" stroke="#fff" strokeWidth={14} strokeLinecap="round" />
               <path d="M64 8 L100 28 L64 48" fill="none" stroke="#fff" strokeWidth={14} strokeLinecap="round" strokeLinejoin="round" />
