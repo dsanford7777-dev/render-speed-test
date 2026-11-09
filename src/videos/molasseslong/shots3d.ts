@@ -163,9 +163,8 @@ export const SPECS: Record<string, Spec> = {
   "tank-golden": (s, f) => {
     const u = U(s, f);
     return {
-      light: "golden", dof: 0,
+      light: "golden", el: false, dof: 0,
       cam: cam(L3(M(9, 1.4, -74), M(7, 3.0, -70), u), L3(M(-14, 9, -50), M(-15, 10, -50), u), 48),
-      people: walkersX(FOLK.slice(0, 4), [-66.5, -68.5], [MX - 2, MX + 10], (f - s.a) / FPS),
       subjects: [["tank", TANK_TOP, 0.5]],
     };
   },
