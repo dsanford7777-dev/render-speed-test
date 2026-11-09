@@ -88,10 +88,11 @@ jobs:
           ffmpeg -loglevel error -y $IN -filter_complex "${FC}${CAT}concat=n=$N:v=1:a=0[out]" -map "[out]" \
             -c:v libx264 -crf 16 -preset medium -pix_fmt yuv420p -movflags +faststart ../video.mp4
           cd ..
-          # narration: public/<composition, lower case>/voice.mp3, laid under the whole video
-          VOICE="repo/public/$(echo '${{ needs.plan.outputs.composition }}' | tr A-Z a-z)/voice.mp3"
+          # soundtrack: public/<composition, lower case>/mix.m4a (voice + music + effects) if present, else voice.mp3
+          VOICE="repo/public/$(echo '${{ needs.plan.outputs.composition }}' | tr A-Z a-z)/mix.m4a"
+          [ -f "$VOICE" ] || VOICE="repo/public/$(echo '${{ needs.plan.outputs.composition }}' | tr A-Z a-z)/voice.mp3"
           if [ -f "$VOICE" ]; then
-            ffmpeg -loglevel error -y -i video.mp4 -i "$VOICE" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k \
+            ffmpeg -loglevel error -y -i video.mp4 -i "$VOICE" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 256k \
               -af apad -shortest -movflags +faststart voiced.mp4 && mv voiced.mp4 video.mp4
             echo "- Voice: $VOICE" >> voice.txt
           else
