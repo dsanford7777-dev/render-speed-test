@@ -6,6 +6,7 @@ import { AbsoluteFill, Audio, getInputProps, staticFile, useCurrentFrame } from 
 import { TOTAL, VOICE_END, SHOTS, shotAt, wordAt, XFADE, CHAPTER_SHOTS, CHAPTERS, ShotDef, segAt, FPS } from "./timeline";
 import { BOARDS } from "./boards";
 import { Placeholder } from "./Placeholder";
+import { View3D, useKit, has3D } from "./View3D";
 import { Captions } from "./Captions";
 import { C, T, Paper, pop, k, ease } from "./kit";
 
@@ -13,6 +14,7 @@ export const MOLASSESLONG_FRAMES = TOTAL;
 
 const Shot: React.FC<{ shot: ShotDef; f: number }> = ({ shot, f }) => {
   const t = f - shot.a;
+  if (has3D(shot)) return null;
   if (shot.k === "2d") {
     const [key, v] = shot.g.split(":"), B = BOARDS[key];
     if (B) return <B t={t} d={shot.b - shot.a} v={Number(v ?? 0)} c={(seg, w) => wordAt(seg, w) - shot.a} />;
@@ -46,11 +48,15 @@ const EndCard: React.FC<{ t: number }> = ({ t }) => (
 export const MolassesLong: React.FC = () => {
   const f = useCurrentFrame();
   const voice = (getInputProps() as { voice?: boolean }).voice;
+  const kit = useKit();
+  if (!kit) return null;
   if (f >= VOICE_END) return <AbsoluteFill><EndCard t={f - VOICE_END} />{voice ? <Audio src={staticFile("molasseslong/voice.mp3")} /> : null}</AbsoluteFill>;
   const s = shotAt(f) ?? SHOTS[SHOTS.length - 1];
-  const prev = SHOTS[s.id - 2], fade = CHAPTER_SHOTS.has(s.id) && prev && f < s.a + XFADE ? (f - s.a + 1) / (XFADE + 1) : 1;
+  const prev = SHOTS[s.id - 2], d3 = has3D(s);
+  const fade = CHAPTER_SHOTS.has(s.id) && prev && !d3 && !has3D(prev) && f < s.a + XFADE ? (f - s.a + 1) / (XFADE + 1) : 1;
   return (
     <AbsoluteFill style={{ background: "#000" }}>
+      <View3D kit={kit} shot={s} f={f} visible={d3} />
       {fade < 1 ? <AbsoluteFill><Shot shot={prev} f={f} /></AbsoluteFill> : null}
       <AbsoluteFill style={{ opacity: fade }}><Shot shot={s} f={f} /></AbsoluteFill>
       <ChapterTag f={f} />
