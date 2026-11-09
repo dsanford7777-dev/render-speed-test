@@ -1,0 +1,33 @@
+name: Fetch files
+# Push public/<video>/fetch.json  { "files": { "<path in repo>": "<url>", ... } }  and this downloads each URL to its
+# path and commits it (for audio the sandbox can't download, e.g. ElevenLabs takes). The JSON is removed afterwards
+# because signed URLs expire. Nothing is processed: joining/aligning is done by the other workflows or locally.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["public/*/fetch.json"]
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 2 }
+      - name: Download
+        run: |
+          set -e
+          for src in $(git diff --name-only HEAD~1 HEAD -- 'public/*/fetch.json'); do
+            for p in $(jq -r '.files | keys[]' "$src"); do
+              mkdir -p "$(dirname "$p")"
+              curl -sSfL -o "$p" "$(jq -r --arg p "$p" '.files[$p]' "$src")"
+              echo "$p: $(stat -c %s "$p") bytes" | tee -a $GITHUB_STEP_SUMMARY
+            done
+            git rm -q "$src"
+          done
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add -A public && git commit -m "Fetch files" && git push
