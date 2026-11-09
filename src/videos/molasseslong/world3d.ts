@@ -56,7 +56,7 @@ const CAST = (name: string): Who => {
 };
 
 const tier = (d: number): [number, number, number] => d < 3.2 ? [1800, 3000, 3.0] : d < 6.5 ? [1080, 1800, 1.8] : d < 16 ? [480, 800, 0.8] : [240, 400, 0.4];
-type Pose = { expr: Expr; look?: number; headTilt?: number; facing?: -1 | 0 | 1; blink?: number; side?: { phase: number; mirror: boolean; stride?: number }; cup?: boolean; brush?: boolean };
+type Pose = { expr: Expr; look?: number; headTilt?: number; facing?: -1 | 0 | 1; blink?: number; side?: { phase: number; mirror: boolean; stride?: number; dir?: [number, number] }; cup?: boolean; brush?: boolean };
 
 export class LWorld {
   root = new THREE.Group();
@@ -398,7 +398,9 @@ export class LWorld {
       if (!this.frustum.intersectsSphere(this.sph.set(this.v.set(q.p[0], q.p[1] + 1.1, q.p[2]), 3.5))) continue;
       const d = cam.position.distanceTo(this.v.set(q.p[0], q.p[1] + 1.2, q.p[2]));
       const W_ = CAST(q.who), [w, h, k] = tier(d), a = this.actor(ai++);
-      const mirror = !!q.side && q.side.mirror;
+      // facing follows the walk direction as seen on screen (sprites face screen-right unmirrored)
+      const sd = q.side?.dir, rx = cam.matrixWorld.elements[0], rz = cam.matrixWorld.elements[2];
+      const mirror = !!q.side && (sd ? sd[0] * rx + sd[1] * rz < 0 : q.side.mirror);
       const lt = mirror ? Math.PI - lightA : lightA, bl = q.blink ?? blink(W_.seed);
       const pkey = q.side
         ? `S|${W_.key}|${q.expr}|${Math.round(q.side.phase * 16)}|${bl}|${lt.toFixed(2)}`

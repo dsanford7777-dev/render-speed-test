@@ -17,7 +17,7 @@ export const WINTER: Partial<LightPreset> = { lit: [1.02, 1.06, 1.16], shade: [0
 export type Cam = { pos: V3; look: V3; fov: number; roll: number };
 export type Person = {
   who: string; p: V3; expr: Expr; look?: number; headTilt?: number; facing?: -1 | 0 | 1; blink?: number;
-  side?: { phase: number; mirror: boolean; stride?: number }; running?: boolean; cup?: boolean; brush?: boolean;
+  side?: { phase: number; mirror: boolean; stride?: number; dir?: [number, number] }; running?: boolean; cup?: boolean; brush?: boolean;
 };
 export type St = {
   light: Light3; cam: Cam; dof?: number; sunAz?: number; sunLook?: [number, number]; noSunDisc?: boolean;
@@ -51,13 +51,13 @@ const FOLK = ["folk0", "folk1", "folk2", "folk3", "folk4"];
 const walkersX = (names: string[], lanes: [number, number], span: [number, number], t: number): Person[] => names.map((n, k) => {
   const dir = k % 2 ? -1 : 1, lane = dir > 0 ? lanes[0] : lanes[1], sp = 1.2 + 0.1 * (k % 3), Ln = span[1] - span[0];
   const x0 = span[0] + ((k * 3.7) % Ln), u = span[0] + ((((x0 - span[0]) + dir * sp * t) % Ln) + Ln) % Ln, dist = (u - span[0]) * dir;
-  return { who: n, p: [u, D0, lane], expr: "smile_closed", side: { phase: ((dist / 1.6) % 1 + 1) % 1, mirror: dir < 0, stride: 0.8 } };
+  return { who: n, p: [u, D0, lane], expr: "smile_closed", side: { phase: ((dist / 1.6) % 1 + 1) % 1, mirror: dir < 0, stride: 0.8, dir: [dir, 0] } };
 });
 /** people walking along the street (z), some each way */
 const walkersZ = (names: string[], xs: [number, number], span: [number, number], t: number): Person[] => names.map((n, k) => {
   const dir = k % 2 ? -1 : 1, x = dir > 0 ? xs[0] : xs[1], sp = 1.15 + 0.1 * (k % 3), Ln = span[1] - span[0];
   const z0 = span[0] + ((k * 5.3) % Ln), z = span[0] + ((((z0 - span[0]) + dir * sp * t) % Ln) + Ln) % Ln, dist = (z - span[0]) * dir;
-  return { who: n, p: [x, D0, z], expr: "smile_closed", side: { phase: ((dist / 1.6) % 1 + 1) % 1, mirror: dir > 0, stride: 0.8 } };
+  return { who: n, p: [x, D0, z], expr: "smile_closed", side: { phase: ((dist / 1.6) % 1 + 1) % 1, mirror: dir > 0, stride: 0.8, dir: [0, dir] } };
 });
 
 const wallPt = (y: number, dz = 0): V3 => [TANK[0] + TANK_R, D0 + y, TANK[2] + dz];
