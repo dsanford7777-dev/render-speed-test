@@ -4,7 +4,7 @@
 // Grammar (same as the Shorts, framed for 16:9): every shot moves; slow push-ins, cranes, orbits; glide = smootherstep.
 import { LightPreset } from "../bridge/lights";
 import { Expr } from "../bridge/toon";
-import { D0, MX, M, V3, TANK, WAVE, POLE, MPH, FIRE, EL, CART } from "../molasses/story";
+import { D0, MX, M, V3, TANK, WAVE, POLE, MPH, FIRE, EL, CART, DESK, PLAQUE, HOSE, JELL5 } from "../molasses/story";
 import { TANK_R, TANK_H } from "../molasses/props";
 import { FPS, ShotDef, wordAt } from "./timeline";
 
@@ -21,7 +21,7 @@ export type St = {
   light: Light3; cam: Cam; dof?: number; sunAz?: number; sunLook?: [number, number]; noSunDisc?: boolean;
   tank?: boolean; flood?: boolean; paint?: number; crack?: number; gush?: number;
   wave?: number | null; surge?: number; sheet?: boolean; fire?: number; twist?: number; el?: boolean; ship?: boolean; shipAt?: V3; pipe?: boolean;
-  pole?: boolean; mph?: boolean; debris?: boolean; drips?: "seam"; rivets?: number;
+  pole?: boolean; mph?: boolean; debris?: boolean; drips?: "seam"; rivets?: number; desk?: boolean; hose?: boolean; xMark?: number;
   people?: Person[]; closeup?: boolean;
   /** a deliberate lunge at the lens: the framing check allows people this close */ lunge?: boolean;
   /** full-frame colour wipe over the 3D (0..1), e.g. the wave swallowing the lens */ wipe?: { color: string; a: number };
@@ -258,6 +258,64 @@ export const SPECS: Record<string, Spec> = {
       light: "golden", dof: 0,
       cam: cam(L3(M(2.5, 0.8, -66), M(3, 13, -74), u), L3(M(-6, 3, -54), M(-12, 13, -52), u), 50),
       subjects: [["tank", wallPt(TANK_H * 0.5, -2), 0.5]],
+    };
+  },
+
+  // ===== 2. built by a treasurer =====
+  // Arthur Jell at his desk beside the tank, ledger out, pleased with himself
+  "jell-desk": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "golden", el: false, desk: true, dof: 10,
+      cam: cam(L3(M(6.0, 3.2, -62.0), M(3.0, 1.75, -59.6), u), L3(M(-1.6, 1.4, -58.9), M(-1.6, 1.85, -58.9), u), 40, 0.05 * (1 - u)),
+      people: [{ who: "jell", p: JELL5, expr: "grin" }],
+      subjects: [["TREASURER sign", PLAQUE, 0.1]],
+    };
+  },
+  // snap-zoom onto the TREASURER plaque
+  "plaque-snap": (s, f) => {
+    const sn = glide((f - s.a) / 8), dr = smooth((f - s.a - 8) / Math.max(1, s.b - s.a - 8));
+    return {
+      light: "golden", el: false, desk: true, dof: 16, closeup: true,
+      cam: cam(add(L3(M(4.0, 3.0, -61.5), add(PLAQUE, [2.1 - 0.25 * dr, 0.15, -0.6]), sn), [0, 0, 0]), PLAQUE, 34, 0.08 * (1 - sn) - 0.03 * dr),
+      people: [{ who: "jell", p: JELL5, expr: "grin" }],
+      subjects: [["TREASURER sign", PLAQUE, 0.1]],
+    };
+  },
+  // "Jell skipped it": crane down onto the unused hose; a big red X slams on it
+  "hose-x": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "golden", el: false, hose: true, xMark: smooth((f - s.a - 6) / 7), dof: 8,
+      cam: cam(L3(M(1.0, 4.2, -63.2), M(2.4, 1.1, -64.2), u), L3(M(-2.5, 0.2, -62.5), M(-2.4, 0.6, -62.5), u), 44),
+      subjects: [["hose", add(HOSE, [0, 0.3, 0]), 0.1], ["red X", [HOSE[0] + 0.7, HOSE[1] + 0.55, HOSE[2] - 0.2], 0.1]],
+    };
+  },
+  // molasses going straight in: crane up the pipe from the quay to the top of the tank
+  "pour-in": (s, f) => {
+    const u = U(s, f);
+    return {
+      light: "golden", pipe: true, shipAt: [MX - 18, 0.6, -21], el: false, dof: 0,
+      cam: cam(L3(M(-10, 1.6, -33), M(-8, 15, -36), u), L3(M(-18, 2, -38), M(-18, 15, -42), u), 48, 0.04 * u),
+      subjects: [["pipe", M(-18, 1 + u * 12, -39.5), 0.3]],
+    };
+  },
+  // macro along a seam of rivets, sliding past them
+  "rivets-macro": (s, f) => {
+    const u = U(s, f, lin);
+    return {
+      light: "golden", el: false, dof: 10, closeup: true, sunAz: 160,
+      cam: cam(wallPt(2.9 + 0.2 * u, -4.5 + 6 * u).map((v, i) => v + (i === 0 ? 1.4 : 0)) as V3, wallPt(2.9, -3.0 + 6 * u), 32, 0.12),
+      subjects: [["rivet seam", wallPt(2.9, -3.0 + 6 * u), 0.05]],
+    };
+  },
+  // "built to fail": the tank looming at dusk, a hard push in toward the base
+  "tank-dusk": (s, f) => {
+    const u = U(s, f, smooth), sn = glide((f - s.a) / 18);
+    return {
+      light: "golden", el: false, dof: 4, sunAz: 200,
+      cam: cam(L3(M(9, 0.9, -78), M(3.5, 1.1, -63), sn * 0.6 + u * 0.4), L3(M(-12, 9, -52), M(-5, 6, -52), u), 50 - 6 * u, 0.06 * u),
+      subjects: [["tank", wallPt(6, -2), 0.5]],
     };
   },
 };

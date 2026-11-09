@@ -213,7 +213,7 @@ const gallons: React.FC<G> = ({ t, d, c }) => {
 // ---------------- 2. built by a treasurer ----------------
 const jellcard: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d}>
-    <NameCard name="Arthur Jell" role="Company treasurer" t={t} at={0} roleAt={c(24, "treasurer") - 4} icon={<Icon kind="doc" s={170} />} />
+    <NameCard name="Arthur Jell" role="Company treasurer" t={t} at={0} roleAt={8} icon={<Icon kind="doc" s={170} />} />
   </Cam></Paper>
 );
 const notrain: React.FC<G> = ({ t, d, c }) => (

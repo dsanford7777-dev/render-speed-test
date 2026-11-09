@@ -157,8 +157,8 @@ export class LWorld {
     // the pipe from the quay to the tank (ship-pump shot): along the yard, then up the tank's north face
     this.quayPipe = new THREE.Group();
     const pm = lam("ironHandle", () => ({ color: "#4a4e5a" }));
-    const run = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 10, 12).rotateX(Math.PI / 2), pm); run.position.set(MX - 18, D0 + 0.3, -35.2);
-    const up = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 15.2, 12), pm); up.position.set(MX - 18, D0 + 7.6, -40.6);
+    const run = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 9.2, 14).rotateX(Math.PI / 2), pm); run.position.set(MX - 18, D0 + 0.34, -34.8);
+    const up = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 15.6, 14), pm); up.position.set(MX - 18, D0 + 7.8, -39.5); // just outside the north wall (z = -40.17 at this x)
     const hoseUp = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 5, 12), pm); hoseUp.position.set(MX - 18, D0 - 1.6, -30.4);
     const deck = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 6.9, 12).rotateX(-Math.atan2(6.4, 2.5)), pm); deck.position.set(MX - 18, 4.7, -27.2);
     for (const m of [run, up, hoseUp, deck]) { m.castShadow = true; this.quayPipe.add(m); }
@@ -279,7 +279,9 @@ export class LWorld {
     this.quayPipe.visible = !!st.pipe;
     // short-only signs and props stay hidden unless a spec asks for them
     this.gallons.group.visible = false; this.easel.visible = this.plan.group.visible = false;
-    this.desk.visible = this.plaque.group.visible = false; this.hose.visible = this.x.visible = false; this.cal.group.visible = false;
+    this.desk.visible = this.plaque.group.visible = !!st.desk; this.hose.visible = !!st.hose; this.cal.group.visible = false;
+    const xs = st.xMark ?? 0;
+    this.x.visible = xs > 0.01; this.x.scale.setScalar(Math.max(0.001, xs * (1 + 0.15 * Math.sin(Math.min(1, xs) * Math.PI))));
     this.pole.visible = this.feet.group.visible = !!st.pole;
     this.mph.group.visible = !!st.mph;
     this.cart.visible = this.hat.visible = !!st.debris;
