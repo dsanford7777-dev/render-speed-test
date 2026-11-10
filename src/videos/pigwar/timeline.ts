@@ -64,9 +64,9 @@ const raw: Omit<ShotDef, "a" | "b">[] = [
   { id: 6, s0: 5, s1: 5, light: "day" },      // low over the water: a British warship sails in
   { id: 7, s0: 6, s1: 6, light: "day" },      // the "461" board pops up beside the US line and cannons
   { id: 8, s0: 7, s1: 7, light: "day" },      // the "2,140" board pops up beside the redcoats
-  { id: 9, s0: 8, s1: 8, light: "golden" },   // the governor points at the island, the ship behind him
-  { id: 10, s0: 9, s1: 9, light: "golden" },  // the admiral shakes his head; "NO" board
-  { id: 11, s0: 10, s1: 10, light: "golden" }, // the pig with a "WAR? OVER A PIG?" board
+  { id: 9, s0: 8, s1: 8, light: "day" },   // the governor points at the island, the ship behind him
+  { id: 10, s0: 9, s1: 9, light: "day" },  // the admiral shakes his head; "NO" board
+  { id: 11, s0: 10, s1: 10, light: "day" }, // the pig with a "WAR? OVER A PIG?" board
   { id: 12, s0: 11, s1: 11, light: "day" },   // two camps on one meadow; the year counter runs 1860 -> 1871
   { id: 13, s0: 12, s1: 12, light: "day" },   // the Kaiser in the hall under the ARBITRATION board
   { id: 14, s0: 13, s1: 13, light: "day" },   // the flag on the hill: Britain's comes down, America's goes up on "America"

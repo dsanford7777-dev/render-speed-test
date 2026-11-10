@@ -231,7 +231,7 @@ export class PWorld {
     const fAm = wordAt(13, "America");
     this.hillUK.raise(id === 14 ? 1 - smooth((f - (fAm - 30)) / 30) : 1);
     this.hillUS.raise(id === 14 ? smooth((f - (fAm - 8)) / 22) : 1);
-    setPop(this.y1872.group, id === 14 ? pop(wordAt(13, "1872")) : 0);
+    setPop(this.y1872.group, id === 14 ? pop(wordAt(13, "1872")) * (1 - smooth((f - (fAm - 10)) / 6)) : 0);
     // ship
     this.ship.visible = [1, 6, 7, 8, 9, 10, 11].includes(id);
     if (id === 6) this.ship.position.set(-228 + 8 * smooth((f - A(6)) / (s.b - s.a + 10)), 0.6 + 0.08 * Math.sin(t * 2), SHIP_Z);
@@ -356,7 +356,7 @@ export class PWorld {
       case 11: return [["war over a pig board", this.warPig.pos(), 0.2, w(10, "war") + 8, s.b, this.warPig.group], all("pig", pigAt(), 0.12, this.pigA.g)];
       case 12: return [["year counter", this.years.pos(), 0.1, s.a + 20, s.b, this.years.group]];
       case 13: return [all("arbitration board", V(...C(0, 3.1, 5.9)), 0.3)];
-      case 14: return [["1872 board", this.y1872.pos(), 0.1, w(13, "1872") + 8, s.b, this.y1872.group], ["US flag", this.hillUS.clothPos(), 0.3, w(13, "America") + 10, s.b, this.hillUS.group]];
+      case 14: return [["1872 board", this.y1872.pos(), 0.1, w(13, "1872") + 8, w(13, "America") - 4, this.y1872.group], ["US flag", this.hillUS.clothPos(), 0.3, w(13, "America") + 10, s.b, this.hillUS.group]];
       case 16: return [all("grave", this.stone.localToWorld(new THREE.Vector3(0, 0.6, -0.1)), 0.1, this.stone)];
       default: return [];
     }
