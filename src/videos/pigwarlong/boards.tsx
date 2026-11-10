@@ -50,7 +50,7 @@ const Portrait: React.FC<{ who: string; s?: number }> = ({ who, s = 300 }) => {
   const p = PORTRAITS[who];
   return (
     <div style={{ width: s, height: s * 1.25, border: `8px solid ${C.ink}`, borderRadius: 14, overflow: "hidden", background: "#d9cfb8", flex: "none", position: "relative" }}>
-      {p ? <Img src={staticFile(p.file)} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: p.pos ?? "50% 25%", filter: "sepia(0.4) contrast(1.05)" }} />
+      {p ? <Img src={staticFile(p.file)} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: p.pos ?? "50% 25%", transform: `scale(${p.zoom ?? 1})`, transformOrigin: p.pos ?? "50% 25%", filter: "sepia(0.4) contrast(1.05)" }} />
         : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%" }}><Icon kind="person" s={s * 0.7} /></div>}
     </div>
   );

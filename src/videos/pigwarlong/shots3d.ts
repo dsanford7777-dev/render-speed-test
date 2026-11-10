@@ -66,7 +66,7 @@ const pigSt: V3 = St(0, 0, 0);
 // ---------------- the standoff (cold open, chapter 4, the loop at the end) ----------------
 const standoffWide = (s: ShotDef, f: number, loop = false): St3 => ({
   light: "day", dof: 3,
-  cam: push(St(0, 2.3, -13.5), St(0, 1.5, 0), f, loop ? s.a : 0, 0.0016, 46),
+  cam: push(St(0, 2.1, -11.5), St(0, 1.4, 0), f, loop ? s.a : 0, 0.0016, 46),
   pig: { p: pigSt, turn: 0.25 * Math.sin(t(f) * 2.2) },
   ship: SHIP_AT, ship2: SHIP2_AT, cannons: 4,
   people: [...line(US4, St, -1.6, -0.9, 0.6, "stern", 1), ...line(UK4, St, 1.6, 0.9, 0.6, "stern", -1)],
@@ -304,11 +304,11 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["UK flag pole", Cp(1.2, 2.2, 1.6), 0.2]],
   }),
   statue: (s, f) => {
-    const a = -0.5 + 0.8 * U(s, f, smooth), r = 3.4;
-    const c: V3 = G(4 + r * Math.sin(a), 1.55, -r * Math.cos(a));
+    const a = -0.5 + 0.8 * U(s, f, smooth), r = 5.2;
+    const c: V3 = G(4 + r * Math.sin(a), 1.9, -r * Math.cos(a));
     return {
       light: "day", dof: 8, statue: true,
-      cam: cam(c, G(4, 1.25, 0), 40),
+      cam: cam(c, G(4, 1.05, 0), 40),
       subjects: [["statue", G(4, 1.4, -0.4), 0.1]],
     };
   },

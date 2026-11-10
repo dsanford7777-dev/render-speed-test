@@ -237,7 +237,7 @@ const EC: [number, number] = [650, 350], AC: [number, number] = [1430, 770];
 const ROAD = "M650 350 C 760 420 840 520 960 560 C 1100 610 1260 660 1430 770";
 const islandMap = (t: number, d: number, c: G["c"], v: number) => {
   // v0 English Camp (north, sheltered bay); v1 American Camp (south); v2 13 miles; v3 the road between them
-  const ec = v === 0 ? pop(t, c(138, "English") - 4, 10) : 1, ac = v === 1 ? pop(t, c(140, "American") - 4, 10) : v > 1 ? 1 : 0;
+  const ec = v === 0 ? pop(t, 8, 10) : 1, ac = v === 1 ? pop(t, c(140, "American") - 4, 10) : v > 1 ? 1 : 0;
   const miles = v === 2 ? easeOut(k(t, 0, 20)) : 0, road = v === 3 ? easeOut(k(t, c(147, "road") - 4, 40)) : 0;
   return (
     <svg width={1920} height={1080} style={{ position: "absolute", overflow: "visible" }}>
