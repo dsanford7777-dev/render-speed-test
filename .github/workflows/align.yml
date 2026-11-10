@@ -46,14 +46,15 @@ jobs:
           for s in $SHORTS; do
             echo "== $s"; python scripts/align.py "public/$s/voice.mp3" "src/videos/$s/timeline.ts" 2>&1 | tee -a align.log
             COMP=$(grep -o "id=\"[A-Za-z]*\"" src/Root.tsx | cut -d'"' -f2 | grep -ix "$s" | head -1)
-            if [ "${{ inputs.render }}" != "false" ]; then
+            if [ -f "public/$s/norender" ]; then NORENDER=1; echo "NORENDER=1" >> $GITHUB_ENV; fi
+            if [ "${{ inputs.render }}" != "false" ] && [ ! -f "public/$s/norender" ]; then
               printf '{ "composition": "%s", "chunks": 10, "note": "aligned to voice" }\n' "$COMP" > render.json
             fi
           done
-          if [ "${{ inputs.render }}" = "false" ]; then MSG="Align $SHORTS to the voice (no render)"; else MSG="Align $SHORTS to the voice and render"; fi
+          if [ "${{ inputs.render }}" = "false" ] || [ -n "$NORENDER" ]; then MSG="Align $SHORTS to the voice (no render)"; else MSG="Align $SHORTS to the voice and render"; fi
           git add -A src public render.json && git commit -m "$MSG" && git push
       - name: Start the render
-        if: ${{ inputs.render != false }}
+        if: ${{ inputs.render != false && env.NORENDER != '1' }}
         env: { GH_TOKEN: "${{ github.token }}" }
         run: gh workflow run render.yml --ref main --repo "${{ github.repository }}"
       - name: Save the log to the logs branch
