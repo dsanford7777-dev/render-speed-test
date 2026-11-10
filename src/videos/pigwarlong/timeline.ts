@@ -286,7 +286,7 @@ const raw: RawShot[] = [
   { s: 28, w: null, k: "2d", g: "map:claims:0" },
   { s: 29, w: null, k: "2d", g: "map:claims:1" },
   { s: 30, w: null, k: "2d", g: "samesentence" },
-  { s: 32, w: null, k: "3d", g: "island-quiet", n: "The empty island meadow, slow drift" },
+  { s: 32, w: null, k: "2d", g: "map:straits:6" },
   { s: 34, w: null, k: "2d", g: "map:claims:2" },
   { s: 35, w: null, k: "2d", g: "bellevue" },
   { s: 37, w: null, k: "2d", g: "griffin" },

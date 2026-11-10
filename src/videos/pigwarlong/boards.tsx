@@ -59,14 +59,14 @@ const Portrait: React.FC<{ who: string; s?: number }> = ({ who, s = 300 }) => {
   );
 };
 const Person: React.FC<{ t: number; d: number; who: string; name: string; role: string; col?: string; c?: number; extra?: string; extraAt?: number; stamp?: string; stampAt?: number }> =
-  ({ t, d, who, name, role, col = C.blue, c = 0, extra, extraAt, stamp, stampAt }) => (
+  ({ t, d, who, name, role, col = C.blue, c: cue = 0, extra, extraAt, stamp, stampAt }) => { const c = Math.min(cue, 3); return (
     <Paper><Cam t={t} d={d} from={1.0} to={1.06}>
       <AbsoluteFill style={{ transform: `scale(${Math.min(1, 1640 / (name.length * 66 + 520))})`, transformOrigin: "50% 39%" }}>
         <NameCard name={name} role={role} t={t} at={c} x={960} y={420} col={col} icon={<Portrait who={who} s={250} />} extra={extra} extraAt={extraAt} />
       </AbsoluteFill>
       {stamp ? <Stamp text={stamp} t={t} at={stampAt ?? 10} x={1420} y={650} size={96} /> : null}
     </Cam></Paper>
-  );
+  ); };
 const Pill: React.FC<{ text: string; col?: string; fg?: string; size?: number }> = ({ text, col = "#fffaf0", fg = C.ink, size = 44 }) => (
   <div style={{ background: col, border: `6px solid ${C.ink}`, borderRadius: 14, padding: "10px 30px", boxShadow: `0 8px 0 ${C.ink}` }}><T size={size} col={fg}>{text}</T></div>
 );
@@ -130,7 +130,7 @@ const cast3: React.FC<G> = ({ t, d, c }) => {
     <Paper><Cam t={t} d={d} from={1.0} to={1.06}>
       <div style={{ position: "absolute", top: 180, width: 1920, display: "flex", justifyContent: "center", gap: 90 }}>
         {items.map(([g, l, w]) => (
-          <div key={l} style={{ transform: `scale(${pop(t, c(8, w) - 4, 10)})`, display: "flex", flexDirection: "column", alignItems: "center", gap: 20, width: 460 }}>
+          <div key={l} style={{ transform: `scale(${pop(t, l === "2 empires" ? 2 : c(8, w) - 4, 10)})`, display: "flex", flexDirection: "column", alignItems: "center", gap: 20, width: 460 }}>
             <div style={{ background: "#fffaf0", border: `8px solid ${C.ink}`, borderRadius: 30, padding: 26, boxShadow: `0 10px 0 ${C.ink}` }}><Glyph kind={g} s={190} /></div>
             <T size={46} style={{ whiteSpace: "normal", textAlign: "center" }}>{l}</T>
           </div>))}
@@ -140,7 +140,7 @@ const cast3: React.FC<G> = ({ t, d, c }) => {
 };
 const zeroshots: React.FC<G> = ({ t, d, c, v }) => (
   <Dark><Cam t={t} d={d} from={v ? 1.12 : 1.0} to={v ? 1.0 : 1.08}>
-    <At x={960 + (v ? shake(t, c(11, "Almost") - 2) : 0)} y={360} s={pop(t, v ? 0 : c(9, "nobody") - 4, 10)}>
+    <At x={960 + (v ? shake(t, c(11, "Almost") - 2) : 0)} y={360} s={pop(t, v ? 0 : 2, 10)}>
       <div style={{ textAlign: "center" }}>
         <T size={70} col="#cfd6e8" style={{ letterSpacing: 12 }}>Shots fired at people</T>
         <T size={300} col={C.yellow} style={{ textShadow: `0 16px 0 #000` }}>0</T>
@@ -175,7 +175,7 @@ const quote: React.FC<G> = ({ t, d, c, v }) => {
   return (
     <Paper><Cam t={t} d={d} from={v ? 1.18 : 1.0} to={v ? 1.25 : 1.06} oy={45}>
       <At x={960} y={400} s={v ? 1 : pop(t, 0, 10)}><Doc w={1420} r={0}>
-        <Serif size={60}>“…to the middle of <span style={{ position: "relative", display: "inline-block" }}><b>the channel</b>
+        <Serif size={60}>“…to the middle of <span style={{ position: "relative", display: "inline-block", background: v === 0 ? `rgba(255,216,77,${0.85 * k(t, c(20, "channel") - 2, 8)})` : "rgba(255,216,77,0.85)" }}><b>the channel</b>
           <svg width={360} height={120} style={{ position: "absolute", left: 6, top: -20, overflow: "visible" }}><ellipse cx={178} cy={45} rx={186} ry={56} fill="none" stroke={C.red} strokeWidth={8} pathLength={1} strokeDasharray={`${circ} 1`} /></svg>
         </span> which separates the continent from Vancouver's Island…”</Serif>
       </Doc></At>
@@ -191,14 +191,16 @@ const samesentence: React.FC<G> = ({ t, d, c }) => (
       <path d="M960 230 L560 420" stroke={C.blue} strokeWidth={10} pathLength={1} strokeDasharray={`${easeOut(k(t, c(31, "both") - 4, 14))} 1`} />
       <path d="M960 230 L1360 420" stroke={C.red} strokeWidth={10} pathLength={1} strokeDasharray={`${easeOut(k(t, c(31, "both") - 4, 14))} 1`} />
     </svg>
-    <At x={560} y={520} s={pop(t, c(31, "sure") - 4, 10)}><div style={{ textAlign: "center" }}><Glyph kind="flagUS" s={170} /><Pill text="= HARO" col={C.blue} fg="#fff" size={60} /></div></At>
-    <At x={1360} y={520} s={pop(t, c(31, "different") - 4, 10)}><div style={{ textAlign: "center" }}><Glyph kind="flagUK" s={170} /><Pill text="= ROSARIO" col={C.red} fg="#fff" size={60} /></div></At>
+    <At x={560} y={500} s={pop(t, 4, 10)}><Glyph kind="flagUS" s={170} /></At>
+    <At x={1360} y={500} s={pop(t, 8, 10)}><Glyph kind="flagUK" s={170} /></At>
+    <At x={560} y={660} s={pop(t, c(31, "sure") - 4, 10)}><Pill text="= HARO" col={C.blue} fg="#fff" size={60} /></At>
+    <At x={1360} y={660} s={pop(t, c(31, "different") - 4, 10)}><Pill text="= ROSARIO" col={C.red} fg="#fff" size={60} /></At>
   </Cam></Paper>
 );
 const bellevue: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} from={1.0} to={1.06}>
     <At x={960} y={130} s={pop(t, 0, 10)}><Pill text="1853" col={C.red} fg="#fff" size={70} /></At>
-    <At x={620} y={430} s={pop(t, c(35, "Hudson's") - 4, 10)}><div style={{ textAlign: "center" }}><Glyph kind="flagUK" s={190} /><T size={44}>Hudson's Bay Company</T></div></At>
+    <At x={620} y={430} s={pop(t, 4, 10)}><div style={{ textAlign: "center" }}><Glyph kind="flagUK" s={190} /><T size={44}>Hudson's Bay Company</T></div></At>
     <At x={1320} y={430} s={pop(t, c(35, "sheep") - 4, 10)}><div style={{ display: "flex", gap: 10 }}><Glyph kind="sheep" s={170} /><Glyph kind="sheep" s={140} /></div></At>
     <At x={960} y={690} s={pop(t, c(36, "Belle") - 4, 10)}><div style={{ background: "#8a5a3a", border: `8px solid ${C.ink}`, borderRadius: 10, padding: "16px 50px", boxShadow: `0 10px 0 ${C.ink}` }}><T size={80} col="#fffaf0" style={{ fontFamily: "Georgia, serif" }}>Belle Vue Farm</T></div></At>
   </Cam></Paper>
@@ -222,7 +224,8 @@ const flagground: React.FC<G> = ({ t, d, c }) => (
 );
 const settlers: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} from={1.0} to={1.06}>
-    <At x={960} y={150} s={pop(t, c(45, "Washington") - 4, 10)}><Pill text="Washington Territory: “Ours.”" col={C.blue} fg="#fff" size={56} /></At>
+    <At x={960} y={150} s={pop(t, 2, 10)}><Pill text="The Americans: “Ours too.”" col={C.blue} fg="#fff" size={56} /></At>
+    <At x={1460} y={250} s={pop(t, c(45, "Washington") - 4, 10)} r={4}><Pill text="Washington Territory" size={40} /></At>
     <div style={{ position: "absolute", top: 330, width: 1920, display: "flex", justifyContent: "center", gap: 50 }}>
       {[0, 1, 2, 3, 4].map((i) => <div key={i} style={{ transform: `translateX(${(1 - easeOut(k(t, c(45, "settlers") - 6 + i * 4, 16))) * 900}px)`, opacity: k(t, c(45, "settlers") - 6 + i * 4, 6) }}><Glyph kind="person" s={190} /></div>)}
     </div>
@@ -247,7 +250,7 @@ const date: React.FC<G> = ({ t, d, c, v }) => {
   );
   return (
     <Paper><Cam t={t} d={d} from={1.0} to={1.06}>
-      <VS t={t} at={0} mid="=" l={card("1846", "Treaty signed", C.blue)} r={<div style={{ opacity: k(t, c(54, "13") - 8, 6) }}>{card("1859", "Pig shot", C.red)}</div>} />
+      <VS t={t} at={0} mid="=" l={card("1846", "Treaty signed", C.blue)} r={<div style={{ opacity: k(t, c(53, "June") - 4, 6) }}>{card("1859", "Pig shot", C.red)}</div>} />
       <At x={960} y={110} s={pop(t, c(54, "Exactly") - 2, 10)}><Pill text="13 years to the day" col={C.yellow} size={60} /></At>
     </Cam></Paper>
   );
@@ -270,7 +273,8 @@ const offer: React.FC<G> = ({ t, d, c, v }) => {
   const hund = <div style={{ textAlign: "center" }}><T size={50}>Griffin wants</T><T size={230} col={C.red} style={{ textShadow: `0 10px 0 ${C.ink}` }}>$100</T></div>;
   if (v === 0) return (
     <Paper><Cam t={t} d={d} from={1.0} to={1.06}>
-      <div style={{ position: "absolute", top: 230, width: 1920, display: "flex", justifyContent: "center", gap: 200 }}>
+      <At x={960} y={170} s={pop(t, 2, 10)}><div style={{ display: "flex", alignItems: "center", gap: 20 }}><Glyph kind="blackpig" s={170} /><Pill text="What's a pig worth?" size={46} /></div></At>
+      <div style={{ position: "absolute", top: 330, width: 1920, display: "flex", justifyContent: "center", gap: 200 }}>
         <div style={{ transform: `scale(${pop(t, c(58, "$10") - 4, 10)})` }}>{ten}</div>
         <div style={{ transform: `scale(${pop(t, c(59, "$100") - 4, 10)}) translateX(${shake(t, c(59, "$100"))}px)` }}>{hund}</div>
       </div>
@@ -289,6 +293,7 @@ const offer: React.FC<G> = ({ t, d, c, v }) => {
 const exchange: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} from={1.0} to={1.05}>
     <At x={960} y={110} s={pop(t, 0, 10)}><Pill text="The story goes…" size={46} /></At>
+
     <div style={{ position: "absolute", left: 140, top: 230 }}><Bubble who="Cutlar" text="“It was eating my potatoes.”" side="l" s={pop(t, c(61, "It") - 4, 10)} /></div>
     <div style={{ position: "absolute", right: 140, top: 480 }}><Bubble who="Griffin" text="“It is up to you to keep your potatoes out of my pig.”" side="r" s={pop(t, c(62, "It") - 4, 10)} col="#ffe0e0" /></div>
   </Cam></Paper>
@@ -305,7 +310,7 @@ const logic: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} from={1.0} to={1.06}>
     <At x={960} y={130} s={pop(t, 0, 10)}><Pill text="The real problem" col={C.red} fg="#fff" size={56} /></At>
     <div style={{ position: "absolute", top: 300, width: 1920, display: "flex", justifyContent: "center", alignItems: "center", gap: 40 }}>
-      <div style={{ transform: `scale(${pop(t, c(71, "British") - 4, 10)})`, textAlign: "center" }}><Glyph kind="court" s={200} /><T size={42}>British court</T></div>
+      <div style={{ transform: `scale(${pop(t, 4, 10)})`, textAlign: "center" }}><Glyph kind="court" s={200} /><T size={42}>British court</T></div>
       <T size={90} col={C.grey} style={{ opacity: k(t, c(71, "arrest") - 4, 6) }}>→</T>
       <div style={{ transform: `scale(${pop(t, c(71, "American") - 4, 10)})`, textAlign: "center" }}><Glyph kind="person" s={200} /><T size={42}>arrests an American</T></div>
       <T size={90} col={C.grey} style={{ opacity: k(t, c(71, "then") - 4, 6) }}>=</T>
@@ -344,6 +349,7 @@ const tribune: React.FC<G> = ({ t, d, c }) => (
 const leave: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} from={1.0} to={1.12} oy={40}>
     <At x={960} y={170} s={pop(t, 0, 10)}><Pill text="Message to Pickett" size={50} /></At>
+    <At x={960} y={700} s={pop(t, 4, 10)}><div style={{ display: "flex", alignItems: "center", gap: 30, opacity: 1 - k(t, c(87, "Leave") - 4, 6) * 0.6 }}><Glyph kind="ship" s={150} /><T size={70} col={C.grey}>→</T><Portrait who="pickett" s={110} /></div></At>
     <At x={960 + shake(t, c(87, "Leave") - 2, 20)} y={450} s={pop(t, c(87, "Leave") - 4, 8)}><T size={300} col={C.red} style={{ textShadow: `0 14px 0 ${C.ink}` }}>LEAVE.</T></At>
   </Cam></Paper>
 );
@@ -408,7 +414,8 @@ const squabble: React.FC<G> = ({ t, d }) => (
 const orders: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} from={1.0} to={1.05}>
     <At x={960} y={130} s={pop(t, 0, 10)}><Pill text="Orders to Captain Hornby" col={C.blue} fg="#fff" size={52} /></At>
-    <div style={{ position: "absolute", left: 420, top: 260 }}>
+    <At x={1680} y={500} s={pop(t, 4, 10)}><Portrait who="hornby" s={230} /></At>
+    <div style={{ position: "absolute", left: 200, top: 260 }}>
       <Row text="Don't land" t={t} at={c(106, "Don't") - 4} mark="x" markAt={c(106, "land") + 2} size={70} />
       <Row text="Don't touch the guns" t={t} at={c(107, "Don't") - 4} mark="x" markAt={c(107, "guns") + 2} size={70} />
       <Row text="Hold and wait for diplomats" t={t} at={c(108, "Hold") - 4} mark="check" markAt={c(108, "diplomats") + 2} size={70} />
@@ -451,9 +458,9 @@ const civilwar: React.FC<G> = ({ t, d, c, v }) => {
 };
 const scott: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} from={1.0} to={1.05}>
-    <At x={420} y={430} s={pop(t, c(124, "Winfield") - 4, 10)}><Portrait who="scott" s={330} /></At>
+    <At x={420} y={430} s={pop(t, 2, 10)}><Portrait who="scott" s={330} /></At>
     <div style={{ position: "absolute", left: 760, top: 170 }}>
-      <div style={{ transform: `scale(${pop(t, c(124, "Winfield") - 2, 10)})`, transformOrigin: "0 50%" }}><T size={100}>Winfield Scott</T><T size={46} col={C.blue}>Commanding general, U.S. Army</T></div>
+      <div style={{ transform: `scale(${pop(t, 6, 10)})`, transformOrigin: "0 50%" }}><T size={100}>Winfield Scott</T><T size={46} col={C.blue}>Commanding general, U.S. Army</T></div>
       <div style={{ marginTop: 30 }}>
         <Row text="War of 1812 veteran" t={t} at={c(125, "1812") - 6} mark="check" markAt={c(125, "1812")} size={54} />
         <Row text="Calmed 2 border crises" t={t} at={c(125, "calmed") - 4} mark="check" markAt={c(125, "crises")} size={54} />
@@ -473,8 +480,8 @@ const scottorders: React.FC<G> = ({ t, d, c }) => (
 const letters: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} from={1.0} to={1.06}>
     <At x={960} y={130} s={pop(t, 0, 10)}><Pill text="October 1859" col={C.red} fg="#fff" size={56} /></At>
-    <At x={460} y={440} s={pop(t, c(130, "letters") - 6, 10)}><Portrait who="scott" s={220} /></At>
-    <At x={1460} y={440} s={pop(t, c(130, "Douglas") - 4, 10)}><Portrait who="douglas" s={220} /></At>
+    <At x={460} y={440} s={pop(t, 2, 10)}><Portrait who="scott" s={220} /></At>
+    <At x={1460} y={440} s={pop(t, 6, 10)}><Portrait who="douglas" s={220} /></At>
     {[0, 1, 2].map((i) => { const u = ((t - c(130, "letters")) / 40 + i / 3) % 1; const on = t > c(130, "letters"); return on ? <At key={i} x={lerp(640, 1280, i % 2 ? 1 - u : u)} y={420 - Math.sin(u * Math.PI) * 140}><Glyph kind="letter" s={120} /></At> : null; })}
     <At x={960} y={720} s={pop(t, c(130, "deal") - 4, 10)}><Glyph kind="handshake" s={200} /></At>
   </Cam></Paper>
@@ -482,6 +489,7 @@ const letters: React.FC<G> = ({ t, d, c }) => (
 const deal: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} from={1.0} to={1.04}>
     <At x={960} y={120} s={pop(t, 0, 10)}><Pill text="The deal" col={C.green} fg="#fff" size={56} /></At>
+    <At x={1640} y={620} s={pop(t, 4, 10)}><Glyph kind="handshake" s={220} /></At>
     <div style={{ position: "absolute", left: 340, top: 230 }}>
       <Row text="Pull back most forces" t={t} at={c(131, "pull") - 4} mark="check" markAt={c(131, "forces")} size={64} />
       <Row text="One small camp each" t={t} at={c(132, "small") - 6} mark="check" markAt={c(132, "camp")} size={64} />
@@ -513,6 +521,7 @@ const parties: React.FC<G> = ({ t, d, c }) => {
   return (
     <Paper><Cam t={t} d={d} from={1.0} to={1.05}>
       <At x={960} y={120} s={pop(t, 0, 10)}><Pill text="Together" col={C.green} fg="#fff" size={56} /></At>
+      <At x={960} y={700} s={pop(t, 4, 10)}><div style={{ display: "flex", gap: 20 }}><Glyph kind="flagUS" s={130} /><Glyph kind="flagUK" s={130} /></div></At>
       <div style={{ position: "absolute", top: 260, width: 1920, display: "flex", justifyContent: "center", gap: 50 }}>
         {items.map(([g, l, at]) => <div key={l} style={{ transform: `scale(${pop(t, at - 4, 10)})`, textAlign: "center", width: 380 }}>
           <div style={{ background: "#fffaf0", border: `8px solid ${C.ink}`, borderRadius: 30, padding: 26, boxShadow: `0 10px 0 ${C.ink}`, display: "inline-block" }}><Glyph kind={g} s={190} /></div>
@@ -523,7 +532,8 @@ const parties: React.FC<G> = ({ t, d, c }) => {
 };
 const together: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} from={1.0} to={1.05}>
-    <div style={{ position: "absolute", left: 300, top: 180 }}>
+    <At x={960} y={110} s={pop(t, 2, 10)}><Pill text="Trouble on the island?" size={50} /></At>
+    <div style={{ position: "absolute", left: 300, top: 210 }}>
       <Row text="Theft" t={t} at={c(152, "theft") - 4} mark="check" markAt={c(152, "together") - 6} size={70} />
       <Row text="Fights" t={t} at={c(152, "fights") - 4} mark="check" markAt={c(152, "together") - 4} size={70} />
       <Row text="Smuggling" t={t} at={c(152, "smuggling") - 4} mark="check" markAt={c(152, "together") - 2} size={70} />
@@ -584,6 +594,7 @@ const kaiser: React.FC<G> = ({ t, d }) => <Person t={t} d={d} who="kaiser" name=
 const rules: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} from={1.0} to={1.05}>
     <At x={960} y={120} s={pop(t, 0, 10)}><Pill text="The rules" col="#2b3a63" fg="#fff" size={56} /></At>
+    <At x={1640} y={560} s={pop(t, 4, 10)}><Portrait who="kaiser" s={210} /></At>
     <div style={{ position: "absolute", top: 230, width: 1920, display: "flex", justifyContent: "center", gap: 80 }}>
       <div style={{ transform: `scale(${pop(t, c(168, "Haro") - 4, 10)})` }}><Pill text="HARO" col={C.blue} fg="#fff" size={80} /></div>
       <T size={70} style={{ opacity: k(t, c(168, "or") - 4, 6) }}>or</T>
@@ -601,7 +612,7 @@ const commission: React.FC<G> = ({ t, d, c }) => (
     <div style={{ position: "absolute", top: 280, width: 1920, display: "flex", justifyContent: "center", gap: 80 }}>
       {[0, 1, 2].map((i) => <div key={i} style={{ transform: `scale(${pop(t, c(171, "three") - 4 + i * 4, 10)})` }}><Glyph kind="expert" s={260} /></div>)}
     </div>
-    <At x={960} y={680} s={pop(t, c(171, "evidence") - 4, 10)}><Glyph kind="scroll" s={140} /></At>
+    <At x={960} y={680} s={pop(t, 2, 10)}><Glyph kind="scroll" s={140} /></At>
   </Cam></Paper>
 );
 const bancroft: React.FC<G> = ({ t, d, c }) => <Person t={t} d={d} who="bancroft" name="George Bancroft" role="Made America's case" c={c(172, "George") - 4} />;

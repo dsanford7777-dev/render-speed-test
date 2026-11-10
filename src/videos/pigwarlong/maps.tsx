@@ -94,8 +94,9 @@ const wideMap = (t: number, d: number, c: G["c"], v: number) => {
       </g>
       {v === 1 ? <g transform={`translate(1640 640) scale(${pop(t, c(15, "1846") - 4, 10)})`}><rect x={-150} y={-70} width={300} height={140} rx={16} fill="#fffaf0" stroke={INK} strokeWidth={7} /><text x={0} y={30} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={96} fill={C.red}>1846</text></g> : null}
       {/* the 49th parallel, drawn from the Rockies west to the ocean */}
-      <Draw d="M1900 470 L1300 470 L740 470" u={line} col={C.red} w={14} />
-      {line > 0 ? <Label x={1610} y={450} text="49TH PARALLEL" size={36} col={C.red} sp={6} o={k(t, 6, 10)} /> : null}
+      <Draw d="M1900 470 L1300 470 L740 470" u={line} col={C.yellow} w={26} />
+      <Draw d="M1900 470 L1300 470 L740 470" u={line} col={C.ink} w={10} />
+      {line > 0 ? <Label x={1610} y={445} text="49TH PARALLEL" size={36} col={C.ink} sp={6} o={k(t, 6, 10)} /> : null}
     </WideBase>
   );
 };
@@ -151,7 +152,7 @@ const straitMap = (name: string, t: number, d: number, c: G["c"], v: number) => 
   }
   if (name === "straits") {
     // v0: one problem -> two channels; v1 Haro; v2 Rosario; v3 islands; v4 Haro wide & deep; v5 Rosario the shipping lane
-    const two = v === 0 ? ease(k(t, c(24, "two") - 4, 16)) : 1;
+    const two = v === 0 ? ease(k(t, c(24, "two") - 4, 16)) : v === 6 ? 0 : 1;
     const haroHi = v === 1 ? ease(k(t, 0, 12)) : v === 4 ? 1 : 0, rosHi = v === 2 ? ease(k(t, 0, 12)) : v === 5 ? 1 : 0;
     const isl = v === 3 ? ease(k(t, c(27, "San") - 4, 12)) : 0;
     return (
@@ -161,7 +162,7 @@ const straitMap = (name: string, t: number, d: number, c: G["c"], v: number) => 
         {v === 0 ? <g transform={`translate(1500 600) scale(${pop(t, 0, 10)})`}><rect x={-250} y={-90} width={500} height={170} rx={16} fill="#fffaf0" stroke={INK} strokeWidth={7} />
           <text y={-22} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={50} fill={INK}>ONE PROBLEM</text>
           <text y={48} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={50} fill={C.red} opacity={two}>TWO CHANNELS</text></g> : null}
-        <g opacity={v === 0 ? two : 1}>
+        <g opacity={v === 0 ? two : v === 6 ? 0 : 1}>
           <g transform={`translate(700 460) scale(${1 + 0.15 * haroHi})`}><rect x={-120} y={-40} width={240} height={64} rx={10} fill={haroHi > 0.5 ? C.blue : "#fffaf0"} stroke={INK} strokeWidth={6} />
             <text y={10} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={38} fill={haroHi > 0.5 ? "#fff" : INK}>HARO</text></g>
           <g transform={`translate(1310 300) scale(${1 + 0.15 * rosHi})`}><rect x={-150} y={-40} width={300} height={64} rx={10} fill={rosHi > 0.5 ? C.red : "#fffaf0"} stroke={INK} strokeWidth={6} />
@@ -171,6 +172,8 @@ const straitMap = (name: string, t: number, d: number, c: G["c"], v: number) => 
         {v === 2 ? <Label x={1420} y={560} text="EAST ▶" size={40} col={C.red} sp={6} o={k(t, 6, 10)} /> : null}
         {ISLANDS.map((p, i) => <path key={i} d={p} fill={C.yellow} opacity={isl} />)}
         {v === 3 ? <g opacity={isl}><Label x={975} y={820} text="SAN JUAN ISLANDS" size={44} sp={8} /></g> : null}
+        {v === 6 ? <g>{ISLANDS.map((p, i) => <path key={i} d={p} fill="#9cc48a" />)}
+          <g transform={`translate(975 500) scale(${pop(t, 6, 10)})`}><rect x={-230} y={-44} width={460} height={72} rx={12} fill="#fffaf0" stroke={INK} strokeWidth={6} /><text y={12} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={36} fill={INK}>JUST ISLANDS… FOR NOW</text></g></g> : null}
         {v === 4 ? <g>
           <g transform={`translate(560 600) scale(${pop(t, c(173, "widest") - 2, 10)})`}><rect x={-150} y={-46} width={300} height={74} rx={12} fill={C.blue} stroke={INK} strokeWidth={6} /><text y={14} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={40} fill="#fff">WIDEST</text></g>
           <g transform={`translate(560 700) scale(${pop(t, c(173, "deepest") - 2, 10)})`}><rect x={-150} y={-46} width={300} height={74} rx={12} fill={C.blue} stroke={INK} strokeWidth={6} /><text y={14} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={40} fill="#fff">DEEPEST</text></g>
@@ -313,7 +316,7 @@ const americasMap = (name: string, t: number, d: number, c: G["c"], v: number) =
 const VIEWS: Record<string, View[]> = {
   oregon: [[1.0, 960, 520], [1.0, 960, 520], [1.0, 960, 500]],
   water: [[1.0, 960, 520], [1.0, 900, 540]],
-  straits: [[0.98, 960, 520], [1.05, 820, 540], [1.05, 1100, 540], [1.25, 975, 610], [1.05, 820, 540], [1.05, 1100, 540]],
+  straits: [[0.98, 960, 520], [1.05, 820, 540], [1.05, 1100, 540], [1.25, 975, 610], [1.05, 820, 540], [1.05, 1100, 540], [1.3, 960, 580]],
   claims: [[1.0, 960, 540], [1.0, 960, 540], [1.0, 960, 540]],
   victoria: [[1.25, 830, 620]],
   ruling: [[1.0, 900, 540], [1.15, 960, 600]],
