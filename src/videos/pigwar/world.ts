@@ -24,7 +24,7 @@ const US: Outfit = { jacket: "#2f4f8f", pants: "#7f9cc9", boots: "#1e1a20", hat:
 const UK: Outfit = { jacket: "#c9373a", pants: "#2b2f3d", boots: "#1e1a20", hat: "shako", belt: "#f1efe6", buttons: "#e8c45a", rifle: true, skin: SKIN };
 const USK: Outfit[] = [US, { ...US, skin: "#f5c9a0", moustache: "#6b4a2f" }, { ...US, skin: "#c99067" }, { ...US, skin: "#ecd0b6" }, { ...US, skin: "#f5c9a0" }, { ...US, skin: SKIN, moustache: "#2a201a" }];
 const UKK: Outfit[] = [UK, { ...UK, skin: "#f5c9a0", moustache: "#b5462f" }, { ...UK, skin: "#ecd0b6" }, { ...UK, skin: "#f5c9a0" }, { ...UK, skin: SKIN, moustache: "#4a3020" }, { ...UK, skin: "#ecd0b6" }];
-const CUTLAR: Outfit = { jacket: "#7a4b2a", pants: "#4a5a7a", boots: "#3a2a20", hat: "cap", cap: "#d9a441", skin: "#f5c9a0", moustache: "#6b4a2f", rifle: true };
+const CUTLAR: Outfit = { jacket: "#5d7a3a", pants: "#4a5a7a", boots: "#3a2a20", hat: "cap", cap: "#d9a441", skin: "#f5c9a0", moustache: "#6b4a2f", rifle: true };
 const OFFICER_UK: Outfit = { jacket: "#c9373a", pants: "#2b2f3d", boots: "#1e1a20", hat: "shako_tall", buttons: "#e8c45a", sash: "#e8c45a", sword: true, moustache: "#4a3020", skin: "#ecd0b6", build: "stout" };
 const GOVERNOR: Outfit = { jacket: "#2b2f3d", pants: "#2b2f3d", boots: "#1e1a20", hat: "tophat", buttons: "#d9d4c8", skin: "#c99067" };
 const ADMIRAL: Outfit = { jacket: "#1f2f5f", pants: "#1f2f5f", boots: "#1e1a20", hat: "cap", cap: "#1f2f5f", buttons: "#e8c45a", sash: "#e8c45a", moustache: "#e8e8e8", skin: "#f5c9a0", build: "stout" };
@@ -131,7 +131,7 @@ export class PWorld {
     this.mound.scale.set(1.2, 0.18, 1); this.mound.position.set(...Hl(0, -0.05, 0.5)); this.mound.receiveShadow = true; R.add(this.mound);
     this.hillUS = new Flag("usFlag1859", usFlagTex, 4.4, 1.6); this.hillUS.group.position.set(...Hl(-1.0, 0.62, 0)); R.add(this.hillUS.group);
     this.hillUK = new Flag("union1801", ukFlagTex, 4.4, 1.6); this.hillUK.group.position.set(...Hl(1.0, 0.62, 0)); R.add(this.hillUK.group);
-    this.y1872 = new Board(1.1, 0.55, "year_1872", () => yearTex("1872"), 0.55); this.y1872.group.position.set(...Hl(-1.75, 0.55 + 0.27, -2.6)); R.add(this.y1872.group);
+    this.y1872 = new Board(1.1, 0.55, "year_1872", () => yearTex("1872"), 1.15); this.y1872.group.position.set(...Hl(-0.7, 1.15 + 0.27, -2.4)); R.add(this.y1872.group);
     // ---- the warship (1801 Union flag) ----
     this.ship = ship(); this.ship.position.set(-216, 0.6, SHIP_Z); R.add(this.ship);
     const uf = lam("union1801", () => ({ map: ukFlagTex(), side: THREE.DoubleSide }));
@@ -264,8 +264,8 @@ export class PWorld {
     switch (id) {
       case 1: {
         const fp = wordAt(0, "pig");
-        line(USK.slice(0, 3), 10, "us", -1.1, -0.85, 0.5, St, f > fp ? "shock" : "stern", 1);
-        line(UKK.slice(0, 3), 20, "uk", 1.1, 0.85, 0.5, St, f > fp ? "shock" : "stern", -1);
+        line(USK.slice(0, 2), 10, "us", -0.75, -0.6, 0.5, St, f > fp ? "shock" : "stern", 1);
+        line(UKK.slice(0, 2), 20, "uk", 0.75, 0.6, 0.5, St, f > fp ? "shock" : "stern", -1);
         break;
       }
       case 3: people.push({ w: who(CUTLAR, 5, "cutlar"), p: Fm(-1.5, 0, -2.0), pose: { expr: f >= fShot ? "shock" : "stern", look: 1, blink: blink(5) } }); break;
