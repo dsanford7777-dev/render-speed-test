@@ -217,14 +217,14 @@ export class PWorld {
     if (id === 1) { P.g.position.set(...St(0, 0, 0)); P.head.rotation.y = 0.25 * Math.sin(t * 2.2); }
     if (id === 3) {
       const fShot = wordAt(2, "shot"), jump = f >= fShot ? Math.max(0, Math.sin(clamp01((f - fShot) / 9) * Math.PI)) : 0;
-      P.g.position.set(...Fm(1.0, 0.45 * jump, -1.6)); P.g.rotation.y = -0.35;
+      P.g.position.set(...Fm(0.6, 0.45 * jump, -1.6)); P.g.rotation.y = -0.35;
       P.head.rotation.x = f < fShot ? 0.25 + 0.2 * Math.sin(t * 9) : -0.15;
     }
     if (id === 11) { P.g.position.set(...Q(0.2, 0, -0.5)); P.head.rotation.z = 0.12 * Math.sin(t * 2.5); }
     // BANG on "shot" (shot 3), beside the farmer's rifle
     const fShot = wordAt(2, "shot"), bk = id === 3 ? (f >= fShot - 1 && f < fShot + 16 ? 1 : 0) : 0;
     this.bang.visible = bk > 0;
-    if (bk) { const u = clamp01((f - fShot + 1) / 4); this.bang.position.set(...Fm(-1.0, 1.75, -2.1)); this.bang.quaternion.copy(cam.quaternion); this.bang.scale.setScalar(0.4 + 0.75 * u); }
+    if (bk) { const u = clamp01((f - fShot + 1) / 4); this.bang.position.set(...Fm(-0.45, 1.75, -2.1)); this.bang.quaternion.copy(cam.quaternion); this.bang.scale.setScalar(0.4 + 0.75 * u); }
     this.arrest.group.visible = id === 4;
     // flags
     for (const fl of [this.hillUS, this.hillUK, this.campUS, this.campUK, this.march]) fl.wave(t);
@@ -234,7 +234,7 @@ export class PWorld {
     setPop(this.y1872.group, id === 14 ? pop(wordAt(13, "1872")) : 0);
     // ship
     this.ship.visible = [1, 6, 7, 8, 9, 10, 11].includes(id);
-    if (id === 6) this.ship.position.set(-234 + 12 * smooth((f - A(6)) / (s.b - s.a + 10)), 0.6 + 0.08 * Math.sin(t * 2), SHIP_Z);
+    if (id === 6) this.ship.position.set(-228 + 8 * smooth((f - A(6)) / (s.b - s.a + 10)), 0.6 + 0.08 * Math.sin(t * 2), SHIP_Z);
     else if (id >= 9) this.ship.position.set(-178, 0.6, SHIP_Z);
     else this.ship.position.set(-214, 0.6, SHIP_Z);
     this.ship.rotation.z = 0.015 * Math.sin(t * 1.6);
@@ -264,14 +264,16 @@ export class PWorld {
     switch (id) {
       case 1: {
         const fp = wordAt(0, "pig");
-        line(USK.slice(0, 2), 10, "us", -0.75, -0.6, 0.5, St, f > fp ? "shock" : "stern", 1);
-        line(UKK.slice(0, 2), 20, "uk", 0.75, 0.6, 0.5, St, f > fp ? "shock" : "stern", -1);
+        if (f < fp - 3) { // the punch-in on "pig" frames the pig alone
+          line(USK.slice(0, 2), 10, "us", -0.75, -0.6, 0.5, St, "stern", 1);
+          line(UKK.slice(0, 2), 20, "uk", 0.75, 0.6, 0.5, St, "stern", -1);
+        }
         break;
       }
-      case 3: people.push({ w: who(CUTLAR, 5, "cutlar"), p: Fm(-1.5, 0, -2.0), pose: { expr: f >= fShot ? "shock" : "stern", look: 1, blink: blink(5) } }); break;
+      case 3: people.push({ w: who(CUTLAR, 5, "cutlar"), p: Fm(-0.9, 0, -2.0), pose: { expr: f >= fShot ? "shock" : "stern", look: 1, blink: blink(5) } }); break;
       case 4:
-        people.push({ w: who(OFFICER_UK, 30, "officer"), p: Fm(-0.65, 0, -3.6), pose: { expr: "stern", look: -1, blink: blink(30) } });
-        people.push({ w: who({ ...CUTLAR, rifle: false }, 5, "cutlar_nr"), p: Fm(-1.95, 0, -3.9), pose: { expr: "nervous", look: 1, blink: blink(5), headTilt: 0.08 } });
+        people.push({ w: who(OFFICER_UK, 30, "officer"), p: Fm(-0.5, 0, -3.6), pose: { expr: "stern", look: -1, blink: blink(30) } });
+        people.push({ w: who({ ...CUTLAR, rifle: false }, 5, "cutlar_nr"), p: Fm(-1.6, 0, -3.9), pose: { expr: "nervous", look: 1, blink: blink(5), headTilt: 0.08 } });
         break;
       case 5: {
         const sp = 1.35, t0 = SHOTS[4].a / FPS;
@@ -282,8 +284,8 @@ export class PWorld {
         });
         break;
       }
-      case 7: line(USK, 10, "us", -2.0, -1.0, 0.0, St, "stern", 1); break;
-      case 8: line(UKK, 20, "uk", 2.0, 1.0, 0.0, St, "stern", -1); break;
+      case 7: line(USK.slice(0, 4), 10, "us", -3.1, -0.9, 0.0, St, "stern", 1); break;
+      case 8: line(UKK.slice(0, 4), 20, "uk", 3.1, 0.9, 0.0, St, "stern", -1); break;
       case 9: people.push({ w: who(GOVERNOR, 40, "governor"), p: Q(-1.0, 0, 0), pose: { expr: "stern", look: 1, blink: blink(40), wave: 0.9 } }); break;
       case 10: {
         const fr = wordAt(9, "refused"), shake = f >= fr - 4 ? (Math.floor((f - fr) / 5) % 2 ? 1 : -1) as -1 | 1 : 0;
@@ -345,7 +347,7 @@ export class PWorld {
     switch (id) {
       case 1: return [all("pig", pigAt(), 0.15, this.pigA.g)];
       case 2: return [["US flag", this.hillUS.clothPos(), 0.3, s.a, w(1, "claimed") - 14, this.hillUS.group], ["UK flag", this.hillUK.clothPos(), 0.3, w(1, "claimed") + 14, s.b, this.hillUK.group]];
-      case 3: return [all("pig", pigAt(), 0.12, this.pigA.g)];
+      case 3: return [["pig", pigAt(), 0.12, s.a, w(2, "potatoes") - 4, this.pigA.g]];
       case 4: return [all("arrest order", this.arrest.pos(), 0.1, this.arrest.group)];
       case 6: return [all("warship", this.ship.localToWorld(new THREE.Vector3(1, 5, 0)), 0.5, this.ship)];
       case 7: return [["461 board", this.b461.pos(), 0.2, w(6, "461") + 8, s.b, this.b461.group]];

@@ -61,24 +61,24 @@ const keys = (): Record<number, Key[]> => {
   ];
   // 2 the island: low under the two flags on the hill, glide from America's to Britain's
   c[2] = [
-    { f: A(2), s: (f) => dolly(Hl(-1.2, 1.0, -9.0), Hl(1.2, 1.3, -8.0), Hl(-0.6, 3.0, 0), Hl(0.6, 3.0, 0), f, A(2), B(2), { fov: 48 }) },
+    { f: A(2), s: (f) => dolly(Hl(-1.0, 2.0, -7.5), Hl(1.0, 2.3, -6.6), Hl(-0.5, 3.6, 0), Hl(0.5, 3.6, 0), f, A(2), B(2), { fov: 46 }) },
   ];
   // 3 the farmer and the pig in his potatoes; snap to the pig on "pig", BANG on "shot" is a separate card
   c[3] = [
-    { f: A(3), s: (f) => push(Fm(-0.4, 1.45, -7.4), Fm(-0.2, 0.95, -1.4), f, A(3), 0.0025, { fov: 46 }) },
-    { f: wordAt(2, "pig") - 3, cut: true, s: (f) => push(Fm(1.0, 0.9, -4.6), Fm(1.0, 0.45, -1.6), f, wordAt(2, "pig") - 3, 0.003, { fov: 42 }) },
-    { f: wordAt(2, "potatoes") - 3, cut: true, s: (f) => push(Fm(1.4, 1.0, -3.9), Fm(1.6, 0.25, -1.0), f, wordAt(2, "potatoes") - 3, 0.003, { fov: 44 }) },
+    { f: A(3), s: (f) => push(Fm(-0.15, 1.45, -7.6), Fm(-0.15, 0.95, -1.4), f, A(3), 0.002, { fov: 46 }) },
+    { f: wordAt(2, "pig") - 3, cut: true, s: (f) => push(Fm(0.6, 0.9, -4.6), Fm(0.6, 0.45, -1.6), f, wordAt(2, "pig") - 3, 0.003, { fov: 42 }) },
+    { f: wordAt(2, "potatoes") - 3, cut: true, s: (f) => push(Fm(0.5, 1.0, -3.9), Fm(0.5, 0.25, -1.4), f, wordAt(2, "potatoes") - 3, 0.003, { fov: 44 }) },
   ];
   // 4 the British officer holds up the ARREST ORDER; the farmer flinches
-  c[4] = [{ f: A(4), s: (f) => push(Fm(-0.9, 1.45, -9.8), Fm(-0.9, 1.25, -4.0), f, A(4), 0.0028, { fov: 46 }) }];
+  c[4] = [{ f: A(4), s: (f) => push(Fm(-0.7, 1.45, -9.8), Fm(-0.7, 1.25, -4.0), f, A(4), 0.0025, { fov: 46 }) }];
   // 5 American soldiers march past behind their flag (seen across the column)
   c[5] = [{ f: A(5), s: (f) => dolly(St(-3, 1.3, -14.5), St(-1, 1.5, -13.0), St(-3, 1.3, -6), St(-1, 1.4, -6), f, A(5), B(5), { fov: 44 }) }];
   // 6 low over the water: the warship sails in and fills the frame
   c[6] = [{ f: A(6), s: (f) => push([-208, 1.6, -27.5], [-221, 4.6, SHIP_Z], f, A(6), 0.004, { fov: 50, roll: -0.03 }) }];
   // 7 the American line and its cannons; the "461" board pops up
-  c[7] = [{ f: A(7), s: (f) => push(St(-5.4, 1.9, -9.8), St(-4.6, 1.6, 0.5), f, A(7), 0.0025, { fov: 46 }) }];
+  c[7] = [{ f: A(7), s: (f) => push(St(-5.4, 1.9, -9.8), St(-4.6, 1.6, 0.5), f, A(7), 0.0012, { fov: 46 }) }];
   // 8 across to the redcoats; the "2,140" board
-  c[8] = [{ f: A(8), s: (f) => push(St(5.4, 1.9, -9.8), St(4.6, 1.6, 0.5), f, A(8), 0.0025, { fov: 46 }) }];
+  c[8] = [{ f: A(8), s: (f) => push(St(5.4, 1.9, -9.8), St(4.6, 1.6, 0.5), f, A(8), 0.0012, { fov: 46 }) }];
   // 9 the governor points across the water
   c[9] = [{ f: A(9), s: (f) => push(Q(-1.6, 1.55, -5.4), Q(-1.0, 1.75, 2.0), f, A(9), 0.0025, { fov: 44 }) }];
   // 10 the admiral shakes his head; NO board
@@ -92,7 +92,7 @@ const keys = (): Record<number, Key[]> => {
   // 14 the hill: Britain's flag comes down, America's goes up; push in on "America"
   c[14] = [
     { f: A(14), s: (f) => push(Hl(0, 1.5, -8.5), Hl(0, 2.8, 0), f, A(14), 0.002, { fov: 48 }) },
-    { f: on(13, "America", 16), dur: 16, s: (f) => push(Hl(-0.6, 2.4, -5.0), Hl(-0.6, 3.6, 0), f, on(13, "America", 16), 0.002, { fov: 44 }) },
+    { f: on(13, "America", 16), dur: 16, s: (f) => push(Hl(-0.6, 2.2, -5.5), Hl(-0.6, 3.0, 0), f, on(13, "America", 16), 0.002, { fov: 46 }) },
   ];
   // 15 crane over the empty field toward the little grave
   c[15] = [{ f: A(15), s: (f) => dolly(G(0, 4.0, -12), G(0, 1.5, -5.0), G(0, 0.3, 2), G(0, 0.5, 0), f, A(15), B(15), { fov: 46 }) }];
