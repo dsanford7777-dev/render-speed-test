@@ -412,6 +412,23 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
     p.poly(body, null, ow);
     const [bx, by] = R([[cx, yb + 1 * u]])[0];
     p.ell(bx, by, 0.45 * W, 0.05 * HH, "#1d1b22", ow, 0, 360, (a * 180) / Math.PI);
+  } else if (o.hat === "spike") {
+    // Prussian spiked helmet (Pickelhaube): black leather dome, brass spike on a cross base, brass front plate, peak
+    const yb = crown + 0.3 * HH, wb = 0.53 * W, hd = 0.5 * HH, col = "#1d1b22", brass = "#e8c45a";
+    const dome: P2[] = [];
+    for (let i = 0; i <= 16; i++) { const t = (i / 16) * Math.PI; dome.push([cx - wb * Math.cos(t), yb - hd * Math.sin(t)]); }
+    const body = R(dome);
+    p.shadedFill(body, col, "#0c0b10", light, wb, 0.4);
+    p.poly(body, null, ow);
+    const deg = (a * 180) / Math.PI;
+    p.poly(R([[cx - 7 * u, yb - hd + 2 * u], [cx + 7 * u, yb - hd + 2 * u], [cx + 4 * u, yb - hd - 6 * u], [cx - 4 * u, yb - hd - 6 * u]]), brass, 2 * u);
+    p.poly(R([[cx - 3.5 * u, yb - hd - 6 * u], [cx + 3.5 * u, yb - hd - 6 * u], [cx, yb - hd - 30 * u]]), brass, 2 * u);
+    if (!side) {
+      const [bx, by] = R([[cx, yb - 0.45 * hd]])[0];
+      p.ell(bx, by, 12 * u, 11 * u, brass, 2 * u, 0, 360, deg);
+      const [px, py] = R([[cx + 3 * u * facing, yb + 2 * u]])[0];
+      p.ell(px, py, 36 * u, 0.05 * HH, "#16171b", 2.5 * u, 0, 180, deg);
+    } else p.poly(R([[cx + 36 * u, yb - 1 * u], [cx + 62 * u, yb + 7 * u], [cx + 34 * u, yb + 6 * u]]), "#16171b", 2.5 * u);
   } else if (o.hat === "bonnet") {
     const [bx, by] = R([[cx + (side ? 6 * u : 0), crown + 0.16 * HH]])[0];
     p.arc(bx, by, 0.5 * W, 0.2 * HH, 200, 340, 7 * u, BONNET_BRIM);
