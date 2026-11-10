@@ -10,38 +10,41 @@ const Dark: React.FC<{ children: React.ReactNode; tone?: string }> = ({ children
   <AbsoluteFill style={{ background: `radial-gradient(ellipse at 50% 40%, #2c3550 0%, ${tone} 75%)` }}>{children}</AbsoluteFill>
 );
 const Svg: React.FC<{ children: React.ReactNode }> = ({ children }) => <svg width={1920} height={1080} style={{ position: "absolute", overflow: "visible" }}>{children}</svg>;
-const st = { fill: "none", stroke: C.ink, strokeWidth: 7, strokeLinejoin: "round" as const, strokeLinecap: "round" as const };
+const st = { stroke: C.ink, strokeWidth: 7, strokeLinejoin: "round" as const, strokeLinecap: "round" as const };
+const sto = { ...st, fill: "none" };
 
 /** extra glyphs for this story (100 x 100 box) */
 const Glyph: React.FC<{ kind: string; s?: number }> = ({ kind, s = 160 }) => {
   const body = (() => {
     switch (kind) {
-      case "pig": return <><ellipse cx={50} cy={56} rx={36} ry={24} fill="#f3a7b5" {...st} /><circle cx={80} cy={46} r={14} fill="#f3a7b5" {...st} /><ellipse cx={90} cy={50} rx={6} ry={5} fill="#e88a9c" {...st} /><path d="M70 34 L74 24 L80 34" fill="#f3a7b5" {...st} /><circle cx={80} cy={42} r={2.5} fill={C.ink} /><path d="M28 76 L28 90 M44 78 L44 90 M60 78 L60 90 M72 74 L72 90" {...st} /><path d="M14 52 Q6 46 12 40" {...st} /></>;
-      case "blackpig": return <><ellipse cx={50} cy={56} rx={36} ry={24} fill="#3a3038" {...st} /><circle cx={80} cy={46} r={14} fill="#3a3038" {...st} /><ellipse cx={90} cy={50} rx={6} ry={5} fill="#d98a9a" {...st} /><path d="M70 34 L74 24 L80 34" fill="#3a3038" {...st} /><circle cx={80} cy={42} r={2.5} fill="#fff" /><path d="M28 76 L28 90 M44 78 L44 90 M60 78 L60 90 M72 74 L72 90" {...st} /><path d="M14 52 Q6 46 12 40" {...st} /></>;
-      case "sheep": return <><path d="M22 56 Q14 40 30 34 Q34 20 50 26 Q64 18 72 32 Q88 34 84 50 Q90 66 74 70 L26 70 Q12 68 22 56 Z" fill="#fbf7ee" {...st} /><ellipse cx={84} cy={52} rx={9} ry={11} fill="#3a3038" {...st} /><path d="M34 70 L34 88 M66 70 L66 88" {...st} /></>;
+      case "pig": return <><ellipse cx={50} cy={56} rx={36} ry={24} fill="#f3a7b5" {...st} /><circle cx={80} cy={46} r={14} fill="#f3a7b5" {...st} /><ellipse cx={90} cy={50} rx={6} ry={5} fill="#e88a9c" {...st} /><path d="M70 34 L74 24 L80 34" fill="#f3a7b5" {...st} /><circle cx={80} cy={42} r={2.5} fill={C.ink} /><path d="M28 76 L28 90 M44 78 L44 90 M60 78 L60 90 M72 74 L72 90" {...sto} /><path d="M14 52 Q6 46 12 40" {...sto} /></>;
+      case "blackpig": return <><ellipse cx={50} cy={56} rx={36} ry={24} fill="#3a3038" {...st} /><circle cx={80} cy={46} r={14} fill="#3a3038" {...st} /><ellipse cx={90} cy={50} rx={6} ry={5} fill="#d98a9a" {...st} /><path d="M70 34 L74 24 L80 34" fill="#3a3038" {...st} /><circle cx={80} cy={42} r={2.5} fill="#fff" /><path d="M28 76 L28 90 M44 78 L44 90 M60 78 L60 90 M72 74 L72 90" {...sto} /><path d="M14 52 Q6 46 12 40" {...sto} /></>;
+      case "sheep": return <><path d="M22 56 Q14 40 30 34 Q34 20 50 26 Q64 18 72 32 Q88 34 84 50 Q90 66 74 70 L26 70 Q12 68 22 56 Z" fill="#fbf7ee" {...st} /><ellipse cx={84} cy={52} rx={9} ry={11} fill="#3a3038" {...st} /><path d="M34 70 L34 88 M66 70 L66 88" {...sto} /></>;
       case "potato": return <><path d="M20 52 Q18 30 44 26 Q74 20 82 44 Q88 70 60 76 Q26 82 20 52 Z" fill="#c9a26a" {...st} /><circle cx={40} cy={44} r={3} fill={C.ink} /><circle cx={62} cy={40} r={3} fill={C.ink} /><circle cx={56} cy={60} r={3} fill={C.ink} /></>;
       case "cannon": return <><path d="M14 42 L76 26 L80 40 L18 58 Z" fill="#3a3a48" {...st} /><circle cx={34} cy={68} r={18} fill="#8a5a3a" {...st} /><circle cx={34} cy={68} r={5} fill={C.ink} /></>;
-      case "crown": return <><path d="M14 78 L18 34 L36 54 L50 24 L64 54 L82 34 L86 78 Z" fill={C.gold} {...st} /><path d="M14 78 L86 78" {...st} /></>;
+      case "crown": return <><path d="M14 78 L18 34 L36 54 L50 24 L64 54 L82 34 L86 78 Z" fill={C.gold} {...st} /><path d="M14 78 L86 78" {...sto} /></>;
       case "eagle": return <><path d="M50 30 Q40 20 30 26 Q18 32 8 30 Q20 46 34 48 L40 70 L50 62 L60 70 L66 48 Q80 46 92 30 Q82 32 70 26 Q60 20 50 30 Z" fill="#6b4a2f" {...st} /><circle cx={50} cy={30} r={9} fill="#fbf7ee" {...st} /></>;
-      case "scroll": return <><rect x={22} y={14} width={56} height={72} fill="#fffaf0" {...st} /><path d="M16 14 Q22 4 28 14 M72 86 Q78 96 84 86" {...st} /><path d="M32 34 L68 34 M32 48 L68 48 M32 62 L56 62" {...st} /></>;
-      case "letter": return <><rect x={10} y={24} width={80} height={54} fill="#fffaf0" {...st} /><path d="M10 24 L50 56 L90 24" {...st} /></>;
-      case "ship": return <><path d="M10 66 L90 66 L78 86 L22 86 Z" fill="#6b4a2f" {...st} /><path d="M50 66 L50 12" {...st} /><path d="M50 16 L80 56 L50 56 Z" fill="#fffaf0" {...st} /><path d="M50 22 L24 56 L50 56 Z" fill="#fffaf0" {...st} /></>;
-      case "gun": return <><path d="M8 50 L70 42 L72 52 L40 58 L34 74 L22 74 L26 58 L8 58 Z" fill="#6b4a2f" {...st} /><path d="M70 44 L94 40" {...st} /></>;
-      case "flagUS": return <><path d="M20 90 L20 10" {...st} /><rect x={20} y={12} width={66} height={42} fill="#fffaf0" {...st} />{[0, 1, 2].map((i) => <rect key={i} x={20} y={16 + i * 14} width={66} height={7} fill={C.red} />)}<rect x={20} y={12} width={28} height={22} fill={C.blue} /><rect x={20} y={12} width={66} height={42} {...st} /></>;
-      case "flagUK": return <><path d="M20 90 L20 10" {...st} /><rect x={20} y={12} width={66} height={42} fill={C.blue} {...st} /><path d="M20 12 L86 54 M86 12 L20 54" stroke="#fff" strokeWidth={9} /><path d="M53 12 L53 54 M20 33 L86 33" stroke="#fff" strokeWidth={13} /><path d="M53 12 L53 54 M20 33 L86 33" stroke={C.red} strokeWidth={7} /><rect x={20} y={12} width={66} height={42} {...st} /></>;
-      case "cake": return <><rect x={18} y={50} width={64} height={36} fill="#f3a7b5" {...st} /><path d="M18 62 Q34 70 50 62 Q66 54 82 62" {...st} /><path d="M34 50 L34 34 M50 50 L50 30 M66 50 L66 34" {...st} /><path d="M34 26 L34 30 M50 22 L50 26 M66 26 L66 30" stroke={C.yellow} strokeWidth={8} strokeLinecap="round" /></>;
+      case "scroll": return <><rect x={22} y={14} width={56} height={72} fill="#fffaf0" {...st} /><path d="M16 14 Q22 4 28 14 M72 86 Q78 96 84 86" {...sto} /><path d="M32 34 L68 34 M32 48 L68 48 M32 62 L56 62" {...sto} /></>;
+      case "letter": return <><rect x={10} y={24} width={80} height={54} fill="#fffaf0" {...st} /><path d="M10 24 L50 56 L90 24" {...sto} /></>;
+      case "ship": return <><path d="M10 66 L90 66 L78 86 L22 86 Z" fill="#6b4a2f" {...st} /><path d="M50 66 L50 12" {...sto} /><path d="M50 16 L80 56 L50 56 Z" fill="#fffaf0" {...st} /><path d="M50 22 L24 56 L50 56 Z" fill="#fffaf0" {...st} /></>;
+      case "gun": return <><path d="M8 50 L70 42 L72 52 L40 58 L34 74 L22 74 L26 58 L8 58 Z" fill="#6b4a2f" {...st} /><path d="M70 44 L94 40" {...sto} /></>;
+      case "flagUS": return <><path d="M20 90 L20 10" {...sto} /><rect x={20} y={12} width={66} height={42} fill="#fffaf0" {...st} />{[0, 1, 2].map((i) => <rect key={i} x={20} y={16 + i * 14} width={66} height={7} fill={C.red} />)}<rect x={20} y={12} width={28} height={22} fill={C.blue} /><rect x={20} y={12} width={66} height={42} {...sto} /></>;
+      case "flagUK": return <><path d="M20 90 L20 10" {...sto} /><rect x={20} y={12} width={66} height={42} fill={C.blue} {...st} /><path d="M20 12 L86 54 M86 12 L20 54" stroke="#fff" strokeWidth={9} /><path d="M53 12 L53 54 M20 33 L86 33" stroke="#fff" strokeWidth={13} /><path d="M53 12 L53 54 M20 33 L86 33" stroke={C.red} strokeWidth={7} /><rect x={20} y={12} width={66} height={42} {...sto} /></>;
+      case "cake": return <><rect x={18} y={50} width={64} height={36} fill="#f3a7b5" {...st} /><path d="M18 62 Q34 70 50 62 Q66 54 82 62" {...sto} /><path d="M34 50 L34 34 M50 50 L50 30 M66 50 L66 34" {...sto} /><path d="M34 26 L34 30 M50 22 L50 26 M66 26 L66 30" stroke={C.yellow} strokeWidth={8} strokeLinecap="round" /></>;
       case "tree": return <><path d="M50 8 L80 60 L62 60 L84 84 L16 84 L38 60 L20 60 Z" fill={C.green} {...st} /><rect x={44} y={84} width={12} height={10} fill="#6b4a2f" /></>;
-      case "picnic": return <><path d="M10 50 L90 50 L84 60 L16 60 Z" fill={C.red} {...st} /><path d="M24 60 L18 90 M76 60 L82 90" {...st} /><path d="M30 50 Q30 36 42 36 Q54 36 54 50" fill="#c9a26a" {...st} /><rect x={62} y={30} width={14} height={20} fill="#cfe8f0" {...st} /></>;
+      case "picnic": return <><path d="M10 50 L90 50 L84 60 L16 60 Z" fill={C.red} {...st} /><path d="M24 60 L18 90 M76 60 L82 90" {...sto} /><path d="M30 50 Q30 36 42 36 Q54 36 54 50" fill="#c9a26a" {...st} /><rect x={62} y={30} width={14} height={20} fill="#cfe8f0" {...st} /></>;
       case "horse": return <><path d="M14 54 Q20 38 48 40 L66 40 L76 22 L90 30 L84 44 L76 46 L74 62 L70 90 M24 56 L22 90 M38 60 L40 90 M62 62 L58 90" fill="none" {...st} /><path d="M14 54 Q20 38 48 40 L66 40 L74 62 Q50 70 24 62 Z" fill="#8a5a3a" stroke="none" /></>;
       case "cup": return <><path d="M26 30 L74 30 L68 86 L32 86 Z" fill="#e8c45a" {...st} /><path d="M26 42 L74 42" stroke="#fffaf0" strokeWidth={6} /></>;
-      case "handshake": return <><path d="M6 44 L30 34 L52 44 L70 36 L94 46 L94 64 L72 70 L56 82 Q48 86 42 80 L22 66 L6 64 Z" fill="#f5c9a0" {...st} /><path d="M52 44 L40 56 Q46 62 54 56 L64 50" {...st} /></>;
-      case "court": return <><path d="M10 34 L50 12 L90 34 Z" fill="#e9dcb8" {...st} /><path d="M20 40 L20 78 M40 40 L40 78 M60 40 L60 78 M80 40 L80 78" {...st} /><path d="M10 84 L90 84" {...st} /></>;
+      case "handshake": return <><path d="M6 44 L30 34 L52 44 L70 36 L94 46 L94 64 L72 70 L56 82 Q48 86 42 80 L22 66 L6 64 Z" fill="#f5c9a0" {...st} /><path d="M52 44 L40 56 Q46 62 54 56 L64 50" {...sto} /></>;
+      case "court": return <><path d="M10 34 L50 12 L90 34 Z" fill="#e9dcb8" {...st} /><path d="M20 40 L20 78 M40 40 L40 78 M60 40 L60 78 M80 40 L80 78" {...sto} /><path d="M10 84 L90 84" {...sto} /></>;
       case "expert": return <><circle cx={50} cy={28} r={14} fill="#f5c9a0" {...st} /><path d="M38 28 L62 28" stroke={C.ink} strokeWidth={4} /><circle cx={44} cy={28} r={5} fill="none" stroke={C.ink} strokeWidth={4} /><circle cx={56} cy={28} r={5} fill="none" stroke={C.ink} strokeWidth={4} /><path d="M26 92 L30 56 Q50 40 70 56 L74 92 Z" fill="#2b3a63" {...st} /></>;
-      case "capitol": return <><path d="M20 84 L80 84 L80 60 L20 60 Z" fill="#fbf7ee" {...st} /><path d="M30 60 Q30 34 50 30 Q70 34 70 60" fill="#fbf7ee" {...st} /><path d="M50 30 L50 16" {...st} /><path d="M28 66 L28 84 M40 66 L40 84 M60 66 L60 84 M72 66 L72 84" {...st} /></>;
+      case "capitol": return <><path d="M20 84 L80 84 L80 60 L20 60 Z" fill="#fbf7ee" {...st} /><path d="M30 60 Q30 34 50 30 Q70 34 70 60" fill="#fbf7ee" {...st} /><path d="M50 30 L50 16" {...sto} /><path d="M28 66 L28 84 M40 66 L40 84 M60 66 L60 84 M72 66 L72 84" {...sto} /></>;
       case "bigben": return <><rect x={36} y={26} width={28} height={64} fill="#d9c08a" {...st} /><path d="M36 26 L50 6 L64 26" fill="#d9c08a" {...st} /><circle cx={50} cy={40} r={9} fill="#fffaf0" {...st} /></>;
-      default: return <Icon kind={kind} s={s} />;
+      case "person": return <><circle cx={50} cy={26} r={14} fill="#f5c9a0" {...st} /><path d="M26 92 L30 56 Q50 40 70 56 L74 92 Z" fill={C.blue} {...st} /></>;
+      default: return null;
     }
   })();
+  if (!body) return <Icon kind={kind} s={s} />;
   return <svg width={s} height={s} viewBox="0 0 100 100" style={{ overflow: "visible" }}>{body}</svg>;
 };
 
@@ -51,14 +54,16 @@ const Portrait: React.FC<{ who: string; s?: number }> = ({ who, s = 300 }) => {
   return (
     <div style={{ width: s, height: s * 1.25, border: `8px solid ${C.ink}`, borderRadius: 14, overflow: "hidden", background: "#d9cfb8", flex: "none", position: "relative" }}>
       {p ? <Img src={staticFile(p.file)} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: p.pos ?? "50% 25%", transform: `scale(${p.zoom ?? 1})`, transformOrigin: p.pos ?? "50% 25%", filter: "sepia(0.4) contrast(1.05)" }} />
-        : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%" }}><Icon kind="person" s={s * 0.7} /></div>}
+        : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%" }}><Glyph kind="person" s={s * 0.7} /></div>}
     </div>
   );
 };
 const Person: React.FC<{ t: number; d: number; who: string; name: string; role: string; col?: string; c?: number; extra?: string; extraAt?: number; stamp?: string; stampAt?: number }> =
   ({ t, d, who, name, role, col = C.blue, c = 0, extra, extraAt, stamp, stampAt }) => (
     <Paper><Cam t={t} d={d} from={1.0} to={1.06}>
-      <NameCard name={name} role={role} t={t} at={c} x={960} y={420} col={col} icon={<Portrait who={who} s={250} />} extra={extra} extraAt={extraAt} />
+      <AbsoluteFill style={{ transform: `scale(${Math.min(1, 1640 / (name.length * 66 + 520))})`, transformOrigin: "50% 39%" }}>
+        <NameCard name={name} role={role} t={t} at={c} x={960} y={420} col={col} icon={<Portrait who={who} s={250} />} extra={extra} extraAt={extraAt} />
+      </AbsoluteFill>
       {stamp ? <Stamp text={stamp} t={t} at={stampAt ?? 10} x={1420} y={650} size={96} /> : null}
     </Cam></Paper>
   );
@@ -171,7 +176,7 @@ const quote: React.FC<G> = ({ t, d, c, v }) => {
     <Paper><Cam t={t} d={d} from={v ? 1.18 : 1.0} to={v ? 1.25 : 1.06} oy={45}>
       <At x={960} y={400} s={v ? 1 : pop(t, 0, 10)}><Doc w={1420} r={0}>
         <Serif size={60}>“…to the middle of <span style={{ position: "relative", display: "inline-block" }}><b>the channel</b>
-          <svg width={360} height={120} style={{ position: "absolute", left: -30, top: -20, overflow: "visible" }}><ellipse cx={170} cy={45} rx={175} ry={56} fill="none" stroke={C.red} strokeWidth={8} pathLength={1} strokeDasharray={`${circ} 1`} /></svg>
+          <svg width={360} height={120} style={{ position: "absolute", left: 6, top: -20, overflow: "visible" }}><ellipse cx={178} cy={45} rx={186} ry={56} fill="none" stroke={C.red} strokeWidth={8} pathLength={1} strokeDasharray={`${circ} 1`} /></svg>
         </span> which separates the continent from Vancouver's Island…”</Serif>
       </Doc></At>
       {v === 0 ? null : <Stamp text="SINGULAR" t={t} at={c(22, "Singular") - 2} x={1300} y={680} size={110} />}
@@ -219,7 +224,7 @@ const settlers: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} from={1.0} to={1.06}>
     <At x={960} y={150} s={pop(t, c(45, "Washington") - 4, 10)}><Pill text="Washington Territory: “Ours.”" col={C.blue} fg="#fff" size={56} /></At>
     <div style={{ position: "absolute", top: 330, width: 1920, display: "flex", justifyContent: "center", gap: 50 }}>
-      {[0, 1, 2, 3, 4].map((i) => <div key={i} style={{ transform: `translateX(${(1 - easeOut(k(t, c(45, "settlers") - 6 + i * 4, 16))) * 900}px)`, opacity: k(t, c(45, "settlers") - 6 + i * 4, 6) }}><Icon kind="person" s={190} col={[C.blue, C.green, "#c9a26a", C.blue, C.mol2][i]} /></div>)}
+      {[0, 1, 2, 3, 4].map((i) => <div key={i} style={{ transform: `translateX(${(1 - easeOut(k(t, c(45, "settlers") - 6 + i * 4, 16))) * 900}px)`, opacity: k(t, c(45, "settlers") - 6 + i * 4, 6) }}><Glyph kind="person" s={190} /></div>)}
     </div>
     <At x={960} y={700} s={pop(t, c(45, "land") - 4, 10)}><Pill text="Staking out land" size={52} /></At>
   </Cam></Paper>
@@ -302,7 +307,7 @@ const logic: React.FC<G> = ({ t, d, c }) => (
     <div style={{ position: "absolute", top: 300, width: 1920, display: "flex", justifyContent: "center", alignItems: "center", gap: 40 }}>
       <div style={{ transform: `scale(${pop(t, c(71, "British") - 4, 10)})`, textAlign: "center" }}><Glyph kind="court" s={200} /><T size={42}>British court</T></div>
       <T size={90} col={C.grey} style={{ opacity: k(t, c(71, "arrest") - 4, 6) }}>→</T>
-      <div style={{ transform: `scale(${pop(t, c(71, "American") - 4, 10)})`, textAlign: "center" }}><Icon kind="person" s={200} col={C.blue} /><T size={42}>arrests an American</T></div>
+      <div style={{ transform: `scale(${pop(t, c(71, "American") - 4, 10)})`, textAlign: "center" }}><Glyph kind="person" s={200} /><T size={42}>arrests an American</T></div>
       <T size={90} col={C.grey} style={{ opacity: k(t, c(71, "then") - 4, 6) }}>=</T>
       <div style={{ transform: `scale(${pop(t, c(71, "then") + 10, 10)})`, textAlign: "center" }}><Glyph kind="flagUK" s={200} /><T size={42}>British island</T></div>
     </div>
@@ -345,8 +350,8 @@ const leave: React.FC<G> = ({ t, d, c }) => (
 const bunkerhill: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} from={1.0} to={1.06}>
     <At x={420} y={410} s={pop(t, 0, 10)}><Portrait who="pickett" s={300} /></At>
-    <At x={1160} y={410} s={pop(t, 2, 10)}><div style={{ width: 1050 }}><Bubble who="Capt. George Pickett" text="“We'll make a Bunker Hill of it.”" side="l" s={1} col={C.yellow} /></div></At>
-    <At x={1300} y={720} o={k(t, 20, 10)}><T size={34} col={C.grey} up={false}>Bunker Hill (1775): Americans dug in on a hill and made the British pay for it</T></At>
+    <At x={1220} y={410} s={pop(t, 2, 10)}><div style={{ width: 1100, transform: "scale(1.15)" }}><Bubble who="Capt. George Pickett" text="“We'll make a Bunker Hill of it.”" side="l" s={1} col={C.yellow} /></div></At>
+    <At x={960} y={740} o={k(t, 20, 10)}><T size={34} col={C.grey} up={false}>Bunker Hill (1775): Americans dug in on a hill and made the British pay for it</T></At>
   </Cam></Paper>
 );
 const buildup: React.FC<G> = ({ t, d, c }) => {
@@ -390,7 +395,7 @@ const force: React.FC<G> = ({ t, d, c }) => (
 const navy: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} from={1.0} to={1.06}>
     <At x={960} y={160} s={pop(t, 0, 10)}><Pill text="To land troops…" size={56} /></At>
-    <At x={960} y={460} s={pop(t, c(100, "navy") - 4, 10)}><div style={{ display: "flex", alignItems: "center", gap: 30 }}><Glyph kind="ship" s={260} /><T size={120} col={C.blue}>…he needed the navy</T></div></At>
+    <At x={960} y={460} s={pop(t, c(100, "navy") - 4, 10)}><div style={{ display: "flex", alignItems: "center", gap: 30 }}><Glyph kind="ship" s={220} /><T size={88} col={C.blue}>…he needed the navy</T></div></At>
   </Cam></Paper>
 );
 const baynes: React.FC<G> = ({ t, d, c }) => <Person t={t} d={d} who="baynes" name="R. Adm. Lambert Baynes" role="Royal Navy, Pacific" col={C.blue} c={c(101, "Rear") - 4} />;
@@ -541,7 +546,7 @@ const gettysburg: React.FC<G> = ({ t, d, c }) => (
 const charge: React.FC<G> = ({ t, d, c }) => (
   <Dark tone="#1a1010"><Cam t={t} d={d} from={1.0} to={1.1}>
     <At x={960} y={260} s={pop(t, 0, 10)}><T size={60} col="#cfd6e8">History named it after him</T></At>
-    <At x={960 + shake(t, c(159, "Pickett's") - 2, 16)} y={470} s={pop(t, c(159, "Pickett's") - 4, 9)}><T size={200} col="#ff6b6b" style={{ textShadow: "0 12px 0 #000" }}>Pickett's Charge</T></At>
+    <At x={960 + shake(t, c(159, "Pickett's") - 2, 16)} y={470} s={pop(t, c(159, "Pickett's") - 4, 9)}><T size={140} col="#ff6b6b" style={{ textShadow: "0 12px 0 #000" }}>Pickett's Charge</T></At>
   </Cam></Dark>
 );
 const irony: React.FC<G> = ({ t, d, c }) => (
@@ -602,8 +607,8 @@ const commission: React.FC<G> = ({ t, d, c }) => (
 const bancroft: React.FC<G> = ({ t, d, c }) => <Person t={t} d={d} who="bancroft" name="George Bancroft" role="Made America's case" c={c(172, "George") - 4} />;
 const lastleave: React.FC<G> = ({ t, d, c }) => (
   <Paper><Cam t={t} d={d} from={1.0} to={1.06}>
-    <At x={620} y={400} s={pop(t, 0, 10)}><div style={{ textAlign: "center" }}><Glyph kind="flagUK" s={220} /><T size={52}>Royal Marines leave</T><T size={46} col={C.grey}>Nov 1872</T></div></At>
-    <At x={1300} y={400} s={pop(t, c(179, "1874") - 6, 10)}><div style={{ textAlign: "center" }}><Glyph kind="flagUS" s={220} /><T size={52}>Last U.S. troops leave</T><T size={46} col={C.grey}>1874</T></div></At>
+    <At x={540} y={400} s={pop(t, 0, 10)}><div style={{ textAlign: "center" }}><Glyph kind="flagUK" s={220} /><T size={48}>Royal Marines leave</T><T size={44} col={C.grey}>Nov 1872</T></div></At>
+    <At x={1380} y={400} s={pop(t, c(179, "1874") - 6, 10)}><div style={{ textAlign: "center" }}><Glyph kind="flagUS" s={220} /><T size={48}>Last U.S. troops leave</T><T size={44} col={C.grey}>1874</T></div></At>
   </Cam></Paper>
 );
 
@@ -614,8 +619,8 @@ const final: React.FC<G> = ({ t, d, c }) => {
   return (
     <Paper><Cam t={t} d={d} from={1.0} to={1.04}>
       <At x={960} y={100} s={pop(t, 0, 10)}><Pill text="The final count" col={C.ink} fg="#fff" size={56} /></At>
-      <div style={{ position: "absolute", left: 200, top: 190, display: "grid", gridTemplateColumns: "760px 760px", columnGap: 40 }}>
-        {rows.map(([s, at]) => <Row key={s} text={s} t={t} at={at - 4} mark="check" markAt={at + 4} size={48} />)}
+      <div style={{ position: "absolute", left: 110, top: 190, display: "grid", gridTemplateColumns: "800px 900px", columnGap: 30 }}>
+        {rows.map(([s, at]) => <Row key={s} text={s} t={t} at={at - 4} mark="check" markAt={at + 4} size={42} />)}
       </div>
     </Cam></Paper>
   );

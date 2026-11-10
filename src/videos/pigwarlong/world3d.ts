@@ -320,7 +320,7 @@ export class LWorld {
       this.ray.set(cam.position, dir.normalize()); this.ray.far = dist; this.ray.layers.set(0);
       const hit = this.ray.intersectObject(this.root, true).find((h) => {
         const m = h.object as THREE.Mesh, mat = m.material as THREE.Material;
-        let o: THREE.Object3D | null = m; while (o) { if (!o.visible) return false; o = o.parent; }
+        let o: THREE.Object3D | null = m; while (o) { if (!o.visible || o === this.pigA.g || o === this.statue.g) return false; o = o.parent; }
         return !(Array.isArray(mat) ? false : mat.transparent || (mat as THREE.Material & { alphaTest?: number }).alphaTest > 0) && h.object !== this.sky;
       });
       if (hit && hit.distance < dist - r) out.push(`${name}: hidden behind something ${(dist - hit.distance).toFixed(2)} m in front of it`);

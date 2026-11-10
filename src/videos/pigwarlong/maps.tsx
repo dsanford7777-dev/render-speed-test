@@ -158,7 +158,9 @@ const straitMap = (name: string, t: number, d: number, c: G["c"], v: number) => 
       <StraitBase>
         <Draw d={HARO} u={two} col={v === 4 || v === 1 ? C.blue : "#4d7da0"} w={v === 4 ? 58 : 30} />
         <Draw d={ROSARIO} u={two} col={v === 5 || v === 2 ? C.red : "#4d7da0"} w={v === 5 ? 22 : 30} />
-        {v === 0 ? <g><Label x={960} y={130} text="ONE PROBLEM" size={60} sp={10} o={k(t, 0, 10)} /><Label x={960} y={200} text="TWO CHANNELS" size={60} sp={10} col={C.red} o={two} /></g> : null}
+        {v === 0 ? <g transform={`translate(1500 600) scale(${pop(t, 0, 10)})`}><rect x={-250} y={-90} width={500} height={170} rx={16} fill="#fffaf0" stroke={INK} strokeWidth={7} />
+          <text y={-22} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={50} fill={INK}>ONE PROBLEM</text>
+          <text y={48} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={50} fill={C.red} opacity={two}>TWO CHANNELS</text></g> : null}
         <g opacity={v === 0 ? two : 1}>
           <g transform={`translate(700 460) scale(${1 + 0.15 * haroHi})`}><rect x={-120} y={-40} width={240} height={64} rx={10} fill={haroHi > 0.5 ? C.blue : "#fffaf0"} stroke={INK} strokeWidth={6} />
             <text y={10} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={38} fill={haroHi > 0.5 ? "#fff" : INK}>HARO</text></g>
@@ -169,7 +171,10 @@ const straitMap = (name: string, t: number, d: number, c: G["c"], v: number) => 
         {v === 2 ? <Label x={1420} y={560} text="EAST ▶" size={40} col={C.red} sp={6} o={k(t, 6, 10)} /> : null}
         {ISLANDS.map((p, i) => <path key={i} d={p} fill={C.yellow} opacity={isl} />)}
         {v === 3 ? <g opacity={isl}><Label x={975} y={820} text="SAN JUAN ISLANDS" size={44} sp={8} /></g> : null}
-        {v === 4 ? <g><Label x={560} y={300} text="WIDEST" size={44} col={C.blue} sp={8} o={k(t, c(173, "widest") - 2, 8)} /><Label x={560} y={356} text="DEEPEST" size={44} col={C.blue} sp={8} o={k(t, c(173, "deepest") - 2, 8)} /></g> : null}
+        {v === 4 ? <g>
+          <g transform={`translate(560 600) scale(${pop(t, c(173, "widest") - 2, 10)})`}><rect x={-150} y={-46} width={300} height={74} rx={12} fill={C.blue} stroke={INK} strokeWidth={6} /><text y={14} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={40} fill="#fff">WIDEST</text></g>
+          <g transform={`translate(560 700) scale(${pop(t, c(173, "deepest") - 2, 10)})`}><rect x={-150} y={-46} width={300} height={74} rx={12} fill={C.blue} stroke={INK} strokeWidth={6} /><text y={14} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={40} fill="#fff">DEEPEST</text></g>
+        </g> : null}
         {v === 5 ? <g>{[0, 1, 2].map((i) => { const u = (t / 90 + i / 3) % 1; const y = lerp(220, 820, u); return <g key={i} transform={`translate(${1180 - 10 * Math.sin(u * 3)} ${y})`}><path d="M-22 -10 L22 -10 L14 12 L-14 12 Z" fill="#fffaf0" stroke={INK} strokeWidth={5} /><path d="M0 -10 L0 -46 L20 -16 Z" fill="#fffaf0" stroke={INK} strokeWidth={4} /></g>; })}
           <Label x={1420} y={620} text="SHIPS USED IT" size={40} col={C.red} sp={6} o={k(t, c(174, "ships") - 2, 8)} /></g> : null}
       </StraitBase>
@@ -183,12 +188,12 @@ const straitMap = (name: string, t: number, d: number, c: G["c"], v: number) => 
       <StraitBase>
         <Draw d={HARO} u={v === 0 ? 1 : 0} col={C.blue} w={22} />
         <Draw d={ROSARIO} u={v === 1 ? 1 : 0} col={C.red} w={22} />
-        {ISLANDS.map((p, i) => <path key={i} d={p} fill={half ? (i % 2 ? C.red : C.blue) : v === 0 ? C.blue : C.red} opacity={(v === 0 ? us : uk) * 0.85} />)}
+        {ISLANDS.map((p, i) => <path key={i} d={p} fill={half ? "#8a5ca8" : v === 0 ? C.blue : C.red} opacity={(half ? 0.7 : (v === 0 ? us : uk) * 0.85)} />)}
         {v === 0 ? <g transform={`translate(${islandsCenter[0]} 860) scale(${pop(t, c(28, "American") - 2, 10)})`}><rect x={-230} y={-48} width={460} height={76} rx={12} fill={C.blue} stroke={INK} strokeWidth={6} /><text y={14} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={44} fill="#fff">AMERICAN</text></g> : null}
         {v === 1 ? <g transform={`translate(${islandsCenter[0]} 860) scale(${pop(t, c(29, "British") - 2, 10)})`}><rect x={-200} y={-48} width={400} height={76} rx={12} fill={C.red} stroke={INK} strokeWidth={6} /><text y={14} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={44} fill="#fff">BRITISH</text></g> : null}
         {v === 2 ? <g>
-          <Draw d="M600 300 C 700 380 800 450 880 540" u={easeOut(k(t, 4, 18))} col={C.red} w={16} />
-          <Draw d="M1500 520 C 1350 560 1200 600 1010 620" u={easeOut(k(t, 10, 18))} col={C.blue} w={16} />
+          <Pin x={960} y={690} s={pop(t, 4, 10)} col={C.red} label="HBC FARM" lx={-150} ly={60} size={30} />
+          <Pin x={900} y={600} s={pop(t, 10, 10)} col={C.blue} label="U.S. SETTLERS" lx={-200} ly={-40} size={30} />
         </g> : null}
       </StraitBase>
     );
@@ -231,10 +236,10 @@ const straitMap = (name: string, t: number, d: number, c: G["c"], v: number) => 
 };
 
 // ---------------- ISLAND: San Juan Island and its two camps ----------------
-const SJI = "M520 170 L640 150 L760 190 L860 250 L960 330 L1060 420 L1170 520 L1280 610 L1400 690 L1520 740 L1600 790 L1560 830 L1440 800 L1320 760 L1220 720 L1120 690 L1010 650 L900 590 L790 520 L700 450 L620 380 L560 300 L520 240 Z";
-const GARRISON = "M640 300 C 610 330 600 370 630 390 C 660 400 680 370 670 330 Z";
-const EC: [number, number] = [650, 350], AC: [number, number] = [1430, 770];
-const ROAD = "M650 350 C 760 420 840 520 960 560 C 1100 610 1260 660 1430 770";
+const SJI = "M470 210 L590 150 L720 165 L830 225 L930 295 L1010 375 L1080 445 L1180 515 L1300 595 L1420 665 L1540 725 L1605 785 L1545 812 L1420 782 L1300 744 L1180 724 L1060 704 L940 664 L820 624 L700 566 L600 486 L515 404 L465 310 Z";
+const GARRISON = "M466 300 C 500 290 540 310 545 335 C 548 360 515 372 480 360 Z";
+const EC: [number, number] = [535, 335], AC: [number, number] = [1430, 770];
+const ROAD = "M535 335 C 650 420 780 500 920 560 C 1080 620 1260 670 1430 770";
 const islandMap = (t: number, d: number, c: G["c"], v: number) => {
   // v0 English Camp (north, sheltered bay); v1 American Camp (south); v2 13 miles; v3 the road between them
   const ec = v === 0 ? pop(t, 8, 10) : 1, ac = v === 1 ? pop(t, c(140, "American") - 4, 10) : v > 1 ? 1 : 0;
@@ -245,12 +250,12 @@ const islandMap = (t: number, d: number, c: G["c"], v: number) => {
       <Waves seed={5} />
       <path d={SJI} fill={LAND} stroke={INK} strokeWidth={8} strokeLinejoin="round" />
       <path d={GARRISON} fill={SEA} stroke={INK} strokeWidth={6} />
-      {Array.from({ length: 22 }, (_, i) => { const x = 620 + i * 40 + (i % 3) * 8, y = 260 + i * 20 + ((i * 37) % 60); return <g key={i} transform={`translate(${x} ${y})`} opacity={0.55}><path d="M0 -26 L14 6 L-14 6 Z" fill="#5f8a55" /><rect x={-3} y={6} width={6} height={8} fill="#6b4a2f" /></g>; })}
+      {Array.from({ length: 26 }, (_, i) => { const x = 600 + i * 34 + (i % 3) * 10, y = 250 + i * 17 + ((i * 37) % 120); return <g key={i} transform={`translate(${x} ${y})`} opacity={0.55}><path d="M0 -26 L14 6 L-14 6 Z" fill="#5f8a55" /><rect x={-3} y={6} width={6} height={8} fill="#6b4a2f" /></g>; })}
       <Label x={1120} y={540} text="SAN JUAN ISLAND" size={40} sp={10} o={0.7} r={30} />
       <Label x={330} y={160} text="▲ NORTH" size={32} sp={6} col="#5d87a6" />
       <Draw d={ROAD} u={road} col="#8a5a3a" w={12} dash="18 14" />
       {v === 2 ? <g>
-        <Draw d={"M650 350 L1430 770"} u={miles} col={C.ink} w={8} dash="6 18" />
+        <Draw d={"M535 335 L1430 770"} u={miles} col={C.ink} w={8} dash="6 18" />
         <g transform={`translate(1040 470) scale(${pop(t, 8, 10)})`}><rect x={-160} y={-50} width={320} height={84} rx={14} fill={C.yellow} stroke={INK} strokeWidth={7} /><text y={16} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={50} fill={INK}>13 MILES</text></g>
       </g> : null}
       <Pin x={EC[0]} y={EC[1]} s={ec} col={C.red} label="ENGLISH CAMP" lx={10} ly={-56} size={36} />
@@ -260,38 +265,45 @@ const islandMap = (t: number, d: number, c: G["c"], v: number) => {
 };
 
 // ---------------- AMERICAS: news by ship; Scott's route ----------------
-const NA = "M200 -80 L260 60 L300 160 L330 250 L360 330 L380 420 L420 500 L470 560 L540 620 L620 680 L700 730 L780 780 L860 830 L940 870 L1020 905 L1110 935 L1170 955 L1230 960 L1260 945 L1240 920 L1200 900 L1180 870 L1230 840 L1280 820 L1330 760 L1360 700 L1380 640 L1430 600 L1470 560 L1500 500 L1520 440 L1500 400 L1520 360 L1560 320 L1600 260 L1650 200 L1720 120 L1800 40 L1860 -80 Z";
-const SA = "M1230 990 L1300 980 L1400 1000 L1500 1040 L1560 1100 L1580 1160 L1180 1160 L1200 1060 Z";
-const PNW: [number, number] = [330, 250], NY: [number, number] = [1505, 395], DC: [number, number] = [1470, 450], PAN: [number, number] = [1235, 958];
-const ROUTE = "M1505 395 C 1620 520 1560 760 1400 860 C 1330 905 1290 935 1255 955 L1215 965 C 1100 1040 900 1010 700 900 C 520 800 300 600 250 420 C 230 340 280 280 330 250";
+// projected from rough lon/lat coastline points: x = 240 + (lon + 140) * 16, y = (58 - lat) * 17
+const NA = "M240 -68 L320 0 L368 51 L400 60 L432 110 L440 128 L480 156 L486 165 L494 196 L494 238 L491 272 L499 306 L520 343 L530 366 L550 400 L584 408 L605 430 L621 468 L645 510 L680 544 L720 595 L728 575 L701 527 L669 471 L643 450 L675 484 L707 522 L738 552 L790 604 L792 638 L816 663 L880 697 L944 719 L1000 740 L1072 762 L1104 782 L1109 816 L1136 833 L1168 847 L1200 860 L1216 843 L1240 845 L1238 833 L1208 826 L1176 833 L1144 801 L1144 731 L1072 717 L1064 688 L1080 620 L1034 629 L1016 672 L968 677 L925 638 L917 578 L922 513 L968 484 L1040 491 L1056 471 L1120 479 L1152 493 L1157 518 L1171 544 L1194 559 L1200 530 L1179 468 L1184 442 L1216 413 L1264 388 L1264 357 L1272 332 L1296 298 L1344 280 L1360 272 L1349 255 L1408 224 L1424 221 L1456 212 L1504 212 L1520 196 L1448 153 L1424 133 L1520 128 L1584 110 L1560 60 L1504 17 L1456 -34 L1456 -68 Z";
+const SA = "M1240 845 L1248 857 L1240 918 L1200 978 L1184 1037 L1168 1122 L1840 1122 L1840 1037 L1680 986 L1648 901 L1568 884 L1520 842 L1488 804 L1392 806 L1336 775 L1280 808 L1251 835 Z";
+const CUBA = "M1120 614 L1168 593 L1200 593 L1248 620 L1293 643 L1240 648 L1200 617 L1152 612 Z";
+const VI_AM = "M426 122 L440 134 L472 155 L486 163 L506 165 L499 151 L474 134 L434 121 Z";
+const ROUTE = "M1296 298 L1328 374 L1288 459 L1232 518 L1256 592 L1286 649 L1264 731 L1202 823 L1210 835 L1168 870 L1040 782 L880 726 L776 646 L704 578 L632 502 L576 425 L504 347 L474 255 L477 173 L502 166";
+const NEWS = "M502 166 L477 173 L474 255 L504 347 L576 425 L632 502 L704 578 L776 646 L880 726 L1040 782 L1168 870 L1210 835";
+const TELE = ["M1296 294 L1200 299 L1078 274 L1037 330 L966 321", "M1248 325 L1128 321 L1037 330", "M1248 325 L1200 391 L1130 413 L1040 476", "M1296 294 L1344 267"];
+const TELE_END: [number, number][] = [[966, 321], [1037, 330], [1040, 476]];
+const PNW: [number, number] = [510, 162], NY: [number, number] = [1296, 294], PAN: [number, number] = [1206, 831];
 const americasMap = (name: string, t: number, d: number, c: G["c"], v: number) => {
   const tele = name === "telegraph";
+  const nu = v === 1 ? easeOut(k(t, 2, Math.max(30, d - 8))) : 0;
   return (
     <svg width={1920} height={1080} style={{ position: "absolute", overflow: "visible" }}>
       <rect x={-400} y={-300} width={2700} height={1700} fill={SEA} />
       <Waves seed={7} />
-      <path d={NA} fill={LAND} stroke={INK} strokeWidth={7} strokeLinejoin="round" />
-      <path d={SA} fill={LAND} stroke={INK} strokeWidth={7} strokeLinejoin="round" />
-      <Label x={900} y={330} text="UNITED STATES" size={46} sp={14} o={0.55} />
+      <path d={NA} fill={LAND} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
+      <path d={SA} fill={LAND} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
+      <path d={CUBA} fill={LAND} stroke={INK} strokeWidth={5} strokeLinejoin="round" />
+      <path d={VI_AM} fill={LAND} stroke={INK} strokeWidth={4} strokeLinejoin="round" />
+      <Label x={880} y={360} text="UNITED STATES" size={44} sp={14} o={0.5} />
+      <Label x={300} y={620} text="PACIFIC" size={36} sp={10} col="#5d87a6" />
+      <Label x={1560} y={520} text="ATLANTIC" size={36} sp={10} col="#5d87a6" />
       {tele ? <g>
-        {/* telegraph lines in the east stop at the Missouri: nothing reaches the Pacific Northwest */}
-        {[["M1505 395 L1300 420 L1100 440 L1020 450", 0], ["M1470 450 L1250 520 L1060 560", 4], ["M1505 395 L1400 300 L1250 280 L1080 300", 8], ["M1300 420 L1280 600 L1180 760", 12]].map(([p, a], i) =>
-          <Draw key={i} d={p as string} u={easeOut(k(t, a as number, 22))} col="#6b4a2f" w={7} dash="14 10" />)}
-        {[[1020, 450], [1060, 560], [1080, 300]].map(([x, y], i) => <g key={i} opacity={k(t, 24, 8)}><circle cx={x} cy={y} r={10} fill="#6b4a2f" /></g>)}
-        <g transform={`translate(640 380) scale(${pop(t, c(116, "telegraph") - 2, 10)})`}><rect x={-230} y={-50} width={460} height={84} rx={14} fill="#fffaf0" stroke={INK} strokeWidth={7} /><text y={16} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={44} fill={C.red}>NO TELEGRAPH</text></g>
-        <Pin x={PNW[0]} y={PNW[1]} s={pop(t, 2, 10)} col={C.red} label="SAN JUAN" lx={110} ly={-30} size={32} />
+        {TELE.map((p, i) => <Draw key={i} d={p} u={easeOut(k(t, i * 4, 22))} col="#6b4a2f" w={7} dash="14 10" />)}
+        {TELE_END.map(([x, y], i) => <circle key={i} cx={x} cy={y} r={10} fill="#6b4a2f" opacity={k(t, 24, 8)} />)}
+        <g transform={`translate(720 250) scale(${pop(t, c(116, "telegraph") - 2, 10)})`}><rect x={-220} y={-48} width={440} height={80} rx={14} fill="#fffaf0" stroke={INK} strokeWidth={7} /><text y={14} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={42} fill={C.red}>NO TELEGRAPH</text></g>
+        <Pin x={PNW[0]} y={PNW[1]} s={pop(t, 2, 10)} col={C.red} label="SAN JUAN" lx={0} ly={-40} size={30} />
         {v === 1 ? <g>
-          <Draw d={"M330 250 C 280 300 230 360 250 420 C 300 600 520 800 700 900 C 900 1010 1100 1040 1215 965"} u={easeOut(k(t, 4, Math.max(30, d - 10)))} col={C.blue} w={10} dash="4 18" />
-          {(() => { const u = easeOut(k(t, 4, Math.max(30, d - 10))); const x = lerp(330, 1215, u), y = 250 + Math.sin(u * Math.PI) * 650 + (965 - 250) * u * 0.1; return <g transform={`translate(${x} ${Math.min(980, y)})`}><path d="M-30 -12 L30 -12 L20 14 L-20 14 Z" fill="#fffaf0" stroke={INK} strokeWidth={5} /><path d="M0 -12 L0 -56 L26 -18 Z" fill="#fffaf0" stroke={INK} strokeWidth={4} /></g>; })()}
-          <g transform={`translate(560 760) scale(${pop(t, c(117, "ship") - 2, 10)})`}><rect x={-200} y={-46} width={400} height={76} rx={12} fill={C.yellow} stroke={INK} strokeWidth={6} /><text y={14} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={40} fill={INK}>NEWS BY SHIP</text></g>
+          <Draw d={NEWS} u={nu} col={C.blue} w={9} dash="4 18" />
+          <g transform={`translate(560 600) scale(${pop(t, c(117, "ship") - 2, 10)})`}><rect x={-200} y={-46} width={400} height={76} rx={12} fill={C.yellow} stroke={INK} strokeWidth={6} /><text y={14} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={40} fill={INK}>NEWS BY SHIP</text></g>
         </g> : null}
       </g> : <g>
-        {/* Scott: New York -> Panama -> the Pacific Northwest */}
-        <Pin x={NY[0]} y={NY[1]} s={pop(t, c(128, "New") - 4, 10)} col={C.blue} label="NEW YORK" lx={0} ly={-50} size={32} />
-        <Pin x={PAN[0]} y={PAN[1]} s={pop(t, c(128, "Panama") - 4, 10)} col={C.yellow} label="PANAMA" lx={-150} ly={0} size={32} />
-        <Pin x={PNW[0]} y={PNW[1]} s={pop(t, 2, 10)} col={C.red} label="SAN JUAN" lx={110} ly={-30} size={32} />
-        <Draw d={ROUTE} u={easeOut(k(t, c(128, "sailing") - 4, Math.max(40, d - c(128, "sailing"))))} col={C.blue} w={11} dash="4 18" />
-        <g transform={`translate(860 560) scale(${pop(t, c(128, "6") - 4, 10)})`}><rect x={-190} y={-60} width={380} height={100} rx={16} fill={C.red} stroke={INK} strokeWidth={7} /><text y={20} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={62} fill="#fff">6 WEEKS</text></g>
+        <Draw d={ROUTE} u={easeOut(k(t, c(128, "sailing") - 4, Math.max(40, d - c(128, "sailing"))))} col={C.blue} w={10} dash="4 18" />
+        <Pin x={NY[0]} y={NY[1]} s={pop(t, c(128, "New") - 4, 10)} col={C.blue} label="NEW YORK" lx={30} ly={-46} size={30} />
+        <Pin x={PAN[0]} y={PAN[1]} s={pop(t, c(128, "Panama") - 4, 10)} col={C.yellow} label="PANAMA" lx={150} ly={10} size={30} />
+        <Pin x={PNW[0]} y={PNW[1]} s={pop(t, 2, 10)} col={C.red} label="SAN JUAN" lx={0} ly={-40} size={30} />
+        <g transform={`translate(900 520) scale(${pop(t, c(128, "6") - 4, 10)})`}><rect x={-190} y={-60} width={380} height={100} rx={16} fill={C.red} stroke={INK} strokeWidth={7} /><text y={20} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={62} fill="#fff">6 WEEKS</text></g>
       </g>}
     </svg>
   );
@@ -307,8 +319,8 @@ const VIEWS: Record<string, View[]> = {
   ruling: [[1.0, 900, 540], [1.15, 960, 600]],
   today: [[0.95, 960, 540], [1.0, 960, 520]],
   camps: [[1.0, 960, 520], [1.0, 1060, 560], [0.95, 1020, 520], [1.0, 1040, 540]],
-  telegraph: [[1.0, 940, 560], [0.95, 880, 600]],
-  route: [[0.95, 940, 600]],
+  telegraph: [[0.9, 900, 520], [0.9, 900, 540]],
+  route: [[0.9, 900, 540]],
 };
 export const MapBoard: React.FC<G & { name: string }> = ({ name, t, d, c, v }) => {
   const vw = (VIEWS[name] ?? [[1, 960, 540]])[Math.min(v, (VIEWS[name]?.length ?? 1) - 1)];

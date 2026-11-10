@@ -85,7 +85,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   }),
   "ship-bay": (s, f) => ({
     light: "day", dof: 0,
-    cam: push([-203, 7.6, -37], [-212, 4.4, SHIP_Z], f, s.a, 0.0018, 46),
+    cam: push([-204, 2.0, -27.5], [-214, 4.4, SHIP_Z], f, s.a, 0.0025, 52, -0.02),
     ship: SHIP_AT, ship2: SHIP2_AT,
     subjects: [["warship", [-213, 5, SHIP_Z], 0.5]],
   }),
@@ -129,7 +129,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       light: "day", dof: 8,
       cam: f < fp - 3 ? push(Fm(-0.15, 1.45, -7.6), Fm(-0.15, 0.95, -1.4), f, s.a, 0.002, 44) : push(Fm(0.3, 1.1, -5.4), Fm(0.4, 0.6, -1.6), f, fp - 3, 0.003, 42),
       pig: { p: Fm(0.6, 0, -1.6), ry: -0.35, nod: 0.25 + 0.2 * Math.sin(t(f) * 9) },
-      people: [{ who: "cutlar", p: Fm(-1.0, 0, -2.3), expr: f > fp ? "shock" : "stern", look: 1 }],
+      people: f < fp - 3 ? [{ who: "cutlar", p: Fm(-1.0, 0, -2.3), expr: "stern", look: 1 }] : [],
       subjects: f > fp + 4 ? [["pig", Fm(0.6, 0.6, -1.9), 0.12]] : [],
     };
   },
@@ -167,7 +167,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   },
   landing: (s, f) => {
     const m = marchers(["pickett", ...US4], Q, -5.6, 1.0, f, s.a, 1, 1.2, 1.3, false);
-    return { light: "day", dof: 4, cam: dolly(s, f, Q(-1.5, 2.0, -9.5), Q(0.5, 2.0, -9.0), Q(-3.5, 1.0, 2.5), Q(-1.5, 1.0, 2.5), 46), people: m.people, dock: true };
+    return { light: "day", dof: 4, cam: dolly(s, f, Q(-2.0, 1.7, -6.2), Q(0.2, 1.7, -5.8), Q(-3.6, 1.1, 2.0), Q(-1.6, 1.1, 2.0), 46), people: m.people, dock: true };
   },
   "ship-arrives": (s, f) => ({
     light: "day", dof: 0,
@@ -177,7 +177,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   }),
   "pickett-hill": (s, f) => ({
     light: "day", dof: 5, hillUK: -1,
-    cam: push(Hl(-1.0, 1.25, -7.2), Hl(-1.2, 1.9, 0), f, s.a, 0.0022, 44),
+    cam: push(Hl(-1.0, 1.45, -8.6), Hl(-1.0, 2.15, 0), f, s.a, 0.0022, 46),
     people: [{ who: "pickett", p: onHill(-1.7, -0.9), expr: "stern", look: 1 }, { who: "us1", p: onHill(0.2, -0.2), expr: "stern", look: -1 }, { who: "us2", p: onHill(-3.0, 0.2), expr: "stern", look: 1 }],
     subjects: [["US flag", Hl(-0.4, 3.6, 0), 0.3]],
   }),
@@ -196,7 +196,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     light: "day", dof: 10,
     cam: push(St(0, 0.85, -3.6), St(0, 0.6, 0), f, s.a, 0.002, 42),
     pig: { p: pigSt, turn: 0.3 * Math.sin(t(f) * 1.8) },
-    people: [...line(US4.slice(0, 3), St, -2.4, -0.9, 3.0, "stern", 1), ...line(UK4.slice(0, 3), St, 2.4, 0.9, 3.0, "stern", -1)],
+    people: [...line(US4.slice(0, 2), St, -2.2, -0.9, 3.0, "stern", 1), ...line(UK4.slice(0, 2), St, 2.2, 0.9, 3.0, "stern", -1)],
     subjects: [["pig", St(0, 0.6, -0.3), 0.15]],
   }),
   governor: (s, f) => ({
@@ -222,7 +222,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   },
   "close-wide": (s, f) => ({
     light: "day", dof: 0,
-    cam: dolly(s, f, St(-2, 6.5, -24), St(2, 5.0, -21), St(-1, 1.0, 2), St(1, 1.0, 2), 50),
+    cam: dolly(s, f, St(-2, 4.2, -15.5), St(2, 3.4, -13.5), St(-1, 1.0, 2), St(1, 1.0, 2), 48),
     pig: { p: pigSt }, ship: SHIP_AT, ship2: SHIP2_AT, cannons: 4,
     people: [...line(US6, St, -1.6, -0.9, 0.6, "stern", 1), ...line(UK6, St, 1.6, 0.9, 0.6, "stern", -1)],
   }),
@@ -233,7 +233,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   }),
   "ship-bay2": (s, f) => ({
     light: "day", dof: 0,
-    cam: dolly(s, f, [-190, 7.4, -38], [-196, 7.8, -38], [-206, 4.2, SHIP_Z], [-209, 4.4, SHIP_Z], 48),
+    cam: dolly(s, f, [-190, 2.2, -27.5], [-196, 2.4, -27.5], [-206, 4.4, SHIP_Z], [-209, 4.4, SHIP_Z], 52),
     ship: SHIP_AT, ship2: SHIP2_AT,
     subjects: [["warship", [-213, 5, SHIP_Z], 0.5]],
   }),
@@ -243,7 +243,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     ship: SHIP_AT, people: line(UK6, St, 2.6, 0.9, 0.0, "stern", -1),
   }),
   "pig-dead": (s, f) => ({
-    light: "golden", dof: 8, grave: true,
+    light: "day", dof: 8, grave: true,
     cam: push(G(0, 1.2, -4.2), G(0, 0.55, 0), f, s.a, 0.002, 42),
     subjects: [["grave", G(0, 0.6, -0.1), 0.1]],
   }),
@@ -257,7 +257,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["US flag", Cp(-1.4, 2.9, 1.6), 0.3], ["UK flag", Cp(1.7, 2.9, 1.6), 0.3]],
   }),
   "camps-quiet": (s, f) => ({
-    light: "golden", dof: 0,
+    light: "day", dof: 0,
     cam: dolly(s, f, Cp(-6, 4.0, -16), Cp(6, 4.0, -16), Cp(-2, 1.0, 3), Cp(2, 1.0, 3), 48),
   }),
   "camps-friends": (s, f) => ({
@@ -274,12 +274,12 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "day", dof: 4, cam: dolly(s, f, Cp(-1.5, 1.5, -14.5), Cp(0.5, 1.5, -14), Cp(-1.5, 1.3, -3), Cp(0.5, 1.3, -3), 44), people: m.people, march: m.flag };
   },
   "camps-friends2": (s, f) => ({
-    light: "golden", dof: 6,
+    light: "day", dof: 6,
     cam: dolly(s, f, Cp(-1.2, 1.5, -6.8), Cp(1.0, 1.5, -6.6), Cp(0, 1.35, -2.3), Cp(0, 1.35, -2.3), 42),
     people: [{ who: "us3", p: Cp(-0.9, 0, -2.3), expr: "smile", look: 1, wave: 0.8 }, { who: "uk2", p: Cp(0.9, 0, -2.3), expr: "smile", look: -1 }],
   }),
   "camps-peace": (s, f) => ({
-    light: "golden", dof: 0,
+    light: "day", dof: 0,
     cam: dolly(s, f, Cp(0, 2.2, -12), Cp(0, 6.5, -17), Cp(0, 1.4, 1), Cp(0, 0.6, 3), 50),
     people: [{ who: "us0", p: Cp(-0.9, 0, -2.3), expr: "smile", look: 1 }, { who: "uk0", p: Cp(0.9, 0, -2.3), expr: "smile", look: -1 }],
   }),
@@ -298,17 +298,17 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     };
   },
   "flag-down": (s, f) => ({
-    light: "golden", dof: 4,
+    light: "day", dof: 4,
     cam: push(Cp(2.2, 1.4, -6.4), Cp(1.6, 2.6, 1.6), f, s.a, 0.0018, 44),
     campUK: 1 - smooth((f - s.a - 10) / Math.max(20, (s.b - s.a) * 0.6)),
     subjects: [["UK flag pole", Cp(1.2, 2.2, 1.6), 0.2]],
   }),
   statue: (s, f) => {
     const a = -0.5 + 0.8 * U(s, f, smooth), r = 5.2;
-    const c: V3 = G(4 + r * Math.sin(a), 1.9, -r * Math.cos(a));
+    const c: V3 = G(4 + r * Math.sin(a), 1.6, -r * Math.cos(a));
     return {
       light: "day", dof: 8, statue: true,
-      cam: cam(c, G(4, 1.05, 0), 40),
+      cam: cam(c, G(4, 0.75, 0), 40),
       subjects: [["statue", G(4, 1.4, -0.4), 0.1]],
     };
   },
