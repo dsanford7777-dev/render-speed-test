@@ -277,7 +277,7 @@ const raw: RawShot[] = [
   { s: 16, w: null, k: "2d", g: "map:oregon:2" },
   { s: 18, w: null, k: "2d", g: "map:water:0" },
   { s: 19, w: null, k: "2d", g: "map:water:1" },
-  { s: 20, w: null, k: "2d", g: "quote:0" },
+  { s: 20, w: "quote", k: "2d", g: "quote:0" },
   { s: 21, w: null, k: "2d", g: "quote:1" },
   { s: 23, w: null, k: "2d", g: "map:straits:0" },
   { s: 25, w: null, k: "2d", g: "map:straits:1" },
