@@ -412,6 +412,15 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
     p.poly(body, null, ow);
     const [bx, by] = R([[cx, yb + 1 * u]])[0];
     p.ell(bx, by, 0.45 * W, 0.05 * HH, "#1d1b22", ow, 0, 360, (a * 180) / Math.PI);
+  } else if (o.hat === "fedora") {
+    // soft felt hat: low pinched crown, dark band, wide brim (colour = o.cap)
+    const yb = crown + 0.24 * HH, ht = 0.44 * HH, wb = 0.34 * W, wt = 0.27 * W, col = o.cap ?? "#4a4652";
+    const body = R([...sag(yb, wb).reverse(), [cx - wt, yb - ht], [cx, yb - ht + 0.07 * HH], [cx + wt, yb - ht]]);
+    p.shadedFill(body, col, mul(col, SH_FELT), light, wt, 0.4);
+    p.clip(body, () => p.band(R([[cx - wb - 4 * u, yb - 0.09 * HH], [cx + wb + 4 * u, yb - 0.09 * HH]]), "#2e2a36", 0.12 * HH, 0.8 * u));
+    p.poly(body, null, ow);
+    const [bx, by] = R([[cx, yb + 1 * u]])[0];
+    p.ell(bx, by, 0.6 * W, 0.06 * HH, shade(col, 0.82), ow, 0, 360, (a * 180) / Math.PI);
   } else if (o.hat === "spike") {
     // Prussian spiked helmet (Pickelhaube): black leather dome, brass spike on a cross base, brass front plate, peak
     const yb = crown + 0.3 * HH, wb = 0.53 * W, hd = 0.5 * HH, col = "#1d1b22", brass = "#e8c45a";
