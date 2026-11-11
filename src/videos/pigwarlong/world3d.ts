@@ -260,7 +260,9 @@ export class LWorld {
       if (!this.frustum.intersectsSphere(this.sph.set(this.v.set(q.p[0], q.p[1] + 1.1, q.p[2]), 3.5))) continue;
       const d = cam.position.distanceTo(this.v.set(q.p[0], q.p[1] + 1.2, q.p[2]));
       const [cw, ch, kk] = tier(d), act = this.actor(ai++), bl = blink(w.seed);
-      const mirror = !!q.side && q.side.mirror;
+      // side cards are drawn walking toward canvas right; marchers move along world x, so whether they read as moving
+      // left or right depends on the camera: flip when world +x points left on screen (camera looking along +z)
+      const mirror = !!q.side && (q.side.mirror !== (right.x < 0));
       const lt = mirror ? Math.PI - lightA : lightA;
       const key = q.side
         ? `S|${w.key}|${q.expr}|${Math.round(q.side.phase * 16)}|${bl}|${lt.toFixed(2)}`

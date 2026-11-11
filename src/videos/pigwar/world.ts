@@ -306,7 +306,8 @@ export class PWorld {
       if (!this.frustum.intersectsSphere(this.sph.set(this.v.set(q.p[0], q.p[1] + 1.1, q.p[2]), 3.5))) continue;
       const d = cam.position.distanceTo(this.v.set(q.p[0], q.p[1] + 1.2, q.p[2]));
       const [w, h, k] = tier(d), a = this.actor(ai++), Pz = q.pose;
-      const mirror = !!Pz.side && Pz.side.mirror;
+      // side cards walk toward canvas right; flip when world +x points left on screen (camera looking along +z)
+      const mirror = !!Pz.side && (Pz.side.mirror !== (right.x < 0));
       const light = mirror ? Math.PI - lightA : lightA;
       const key = Pz.side
         ? `S|${q.w.key}|${Pz.expr}|${Math.round(Pz.side.phase * 16)}|${Pz.blink ?? 0}|${light.toFixed(2)}`
