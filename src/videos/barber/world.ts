@@ -23,10 +23,9 @@ const LK: Record<Light, WorldLook> = { day: LOOK.day, golden: LOOK.golden, night
 // ---------------- cast ----------------
 const BARBER: Outfit = { jacket: "#f1ece0", pants: "#3b3f52", boots: "#3a2a20", hat: "hair", hair: "#2a201a", moustache: "#2a201a", buttons: "#c9373a", skin: "#f5c9a0", build: "stout" };
 const PATIENT: Outfit = { jacket: "#5d7a3a", pants: "#6b4a2f", boots: "#3a2a20", hat: "hair", hair: "#d9a441", skin: SKIN };
-const LADY: Outfit = { jacket: "#7b5ac9", pants: "#3b3f52", boots: "#4a3426", hat: "bonnet", dress: "#d9a441", skin: "#ecd0b6" };
 type Who = { o: Outfit; seed: number; key: string };
 const who = (o: Outfit, seed: number, key: string): Who => ({ o, seed, key });
-const B_ = who(BARBER, 3, "barber"), C_ = who(PATIENT, 7, "patient"), W_ = who(LADY, 11, "passerby");
+const B_ = who(BARBER, 3, "barber"), C_ = who(PATIENT, 7, "patient");
 
 /** drawing size by distance: [canvas w, h, scale from the 600 x 1000 design] */
 const tier = (d: number): [number, number, number] => d < 3.2 ? [1800, 3000, 3.0] : d < 6.5 ? [1080, 1800, 1.8] : d < 16 ? [480, 800, 0.8] : [240, 400, 0.4];
@@ -120,13 +119,13 @@ export class BWorld {
     const panel = new THREE.Mesh(new THREE.PlaneGeometry(FRONT.z1 - FRONT.z0, FRONT.h), lam("barberFront", () => ({ map: frontTex() })));
     panel.rotation.y = Math.PI / 2; panel.position.set(FRONT.x, D0 + FRONT.h / 2, (FRONT.z0 + FRONT.z1) / 2); panel.receiveShadow = true; R.add(panel);
     this.sillG = sill(); this.sillG.g.position.set(...SILL); R.add(this.sillG.g);
-    this.banned = new THREE.Mesh(new THREE.PlaneGeometry(2.3, 0.94), new THREE.MeshBasicMaterial({ map: bannedTex(), transparent: true, depthWrite: false, toneMapped: false }));
-    this.banned.layers.set(NOINK); this.banned.renderOrder = 5; this.banned.rotation.y = Math.PI / 2; this.banned.position.set(-5.55, D0 + 1.72, SILL[2]); R.add(this.banned);
+    this.banned = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.7), new THREE.MeshBasicMaterial({ map: bannedTex(), transparent: true, depthWrite: false, toneMapped: false }));
+    this.banned.layers.set(NOINK); this.banned.renderOrder = 5; this.banned.rotation.y = Math.PI / 2; this.banned.position.set(-5.5, D0 + 1.6, SILL[2]); R.add(this.banned);
     this.pole = new Pole(1.2, 0.13); this.pole.group.position.set(...POLE); R.add(this.pole.group);
     this.staff = new Staff(1.25); this.staff.group.position.set(...POLE); R.add(this.staff.group);
-    this.flag = new Flag("usFlag1859", usFlagTex, 3.3, 1.3); this.flag.group.position.set(...FLAG); this.flag.group.rotation.y = Math.PI / 2; R.add(this.flag.group);
+    this.flag = new Flag("usFlag1859", usFlagTex, 2.7, 1.15); this.flag.group.position.set(...FLAG); this.flag.group.rotation.y = Math.PI / 2; R.add(this.flag.group);
     // ---- boards in the shop ----
-    this.surgeon = new Board(1.5, 0.59, "barberSurgeon", surgeonTex); this.surgeon.group.position.set(...S(-0.95, 2.45, 0.9)); R.add(this.surgeon.group);
+    this.surgeon = new Board(1.5, 0.59, "barberSurgeon", surgeonTex); this.surgeon.group.position.set(...S(0.1, 2.8, 1.6)); R.add(this.surgeon.group);
     this.jobs = new Board(1.6, 0.66, "jobs_0", () => jobsTex(0)); this.jobs.group.position.set(...S(0, 2.38, 1.45)); R.add(this.jobs.group);
   }
 
@@ -200,12 +199,12 @@ export class BWorld {
     this.staff.wrap(id === 7 ? 0 : id === 8 ? smooth((f - (A(8) + 4)) / Math.max(1, SHOTS[7].b - SHOTS[7].a - 10)) : 1, t);
     // flag on "flag"
     this.flag.wave(t);
-    setPop(this.flag.group, id === 12 ? pop(w(16, "flag")) : 0);
+    setPop(this.flag.group, id === 12 ? pop(w(16, "America")) : 0);
     // window bowls and the BANNED stamp
     for (const b of this.sillG.bowls) b.setFill(0.9);
     const fBan = w(8, "banned") - 3;
     this.banned.visible = id === 6 && f >= fBan;
-    if (this.banned.visible) { const u = clamp01((f - fBan) / 5); this.banned.scale.setScalar(1.6 - 0.6 * u); (this.banned.material as THREE.MeshBasicMaterial).opacity = u; }
+    if (this.banned.visible) { const u = clamp01((f - fBan) / 5); this.banned.scale.setScalar(1.25 - 0.45 * u); (this.banned.material as THREE.MeshBasicMaterial).opacity = u; }
     // shop boards
     setPop(this.surgeon.group, id === 2 ? pop(w(2, "surgeon")) : 0);
     const nJobs = id !== 3 ? 0 : f >= w(3, "blood") ? 3 : f >= w(3, "teeth") ? 2 : f >= w(3, "hair") ? 1 : 0;
@@ -214,14 +213,14 @@ export class BWorld {
     const sh = this.shop, fCut = w(5, "cut"), fRan = w(6, "ran"), bowlTop = S(-1.35, 1.45, 0.35);
     sh.bowl.setFill(id < 5 ? 0 : id > 5 ? 0.85 : f < fCut ? 0 : f < fRan ? 0.15 * smooth((f - fCut) / 20) : 0.15 + 0.7 * smooth((f - fRan) / 40));
     sh.drops.forEach((d, k) => {
-      const f0 = fCut + k * 9, u = (f - f0) / 9;
+      const f0 = fCut + k * 6, u = (f - f0) / 18;
       d.visible = id === 5 && u >= 0 && (f < fRan + 30 ? true : false);
       const uu = ((u % 1) + 1) % 1;
-      d.position.set(bowlTop[0] + (k - 1) * 0.03, bowlTop[1] - uu * 0.55, bowlTop[2]);
+      d.position.set(bowlTop[0] + (k - 1) * 0.02, bowlTop[1] - uu * 0.55, bowlTop[2]);
     });
     // the staff in the patient's hand (shots 3, 4)
     sh.heldStaff.visible = id === 3 || id === 4;
-    sh.heldStaff.position.set(...S(0.27, 0.95, 0.42));
+    sh.heldStaff.position.set(...S(0.33, 0.92, 0.2));
 
 
     // ---- cast ----
@@ -231,13 +230,12 @@ export class BWorld {
     const people: { w: Who; p: V3; pose: Pose }[] = [];
     const blink = (seed: number) => { const n = Math.floor((t + seed * 0.37) / 2.3), ph = (t + seed * 0.37) - n * 2.3; return ph < 0.13 ? 1 : 0; };
     switch (id) {
-      case 2: people.push({ w: B_, p: S(0.85, 0, 1.05), pose: { expr: f > w(2, "surgeon") ? "grin" : "smile", look: -1, blink: blink(3) } }); break;
+      case 2: people.push({ w: B_, p: S(0.6, 0, 1.05), pose: { expr: f > w(2, "surgeon") ? "grin" : "smile", look: -1, blink: blink(3) } }); break;
       case 3:
-        people.push({ w: C_, p: S(0, 0, 0.55), pose: { expr: f > w(3, "blood") ? "shock" : f > w(3, "teeth") ? "nervous" : "smile", sit: true, blink: blink(7) } });
-        people.push({ w: B_, p: S(0.95, 0, 1.15), pose: { expr: "grin", look: -1, blink: blink(3) } });
+        people.push({ w: C_, p: S(0, 0.42, 0.34), pose: { expr: f > w(3, "blood") ? "shock" : f > w(3, "teeth") ? "nervous" : "smile", sit: true, blink: blink(7) } });
+        people.push({ w: B_, p: S(0.62, 0, 1.3), pose: { expr: "grin", look: -1, blink: blink(3) } });
         break;
-      case 4: people.push({ w: C_, p: S(0, 0, 0.55), pose: { expr: "pained", sit: true, blink: blink(7) } }); break;
-      case 6: people.push({ w: W_, p: [-3.7, D0, 100.9], pose: { expr: f > w(7, "windows") ? "shock" : "neutral", look: 1, blink: blink(11) } }); break;
+      case 4: people.push({ w: C_, p: S(0, 0.42, 0.34), pose: { expr: "pained", sit: true, blink: blink(7) } }); break;
     }
     this.lastPeople = people.map((q) => ({ name: q.w.key, p: q.p, walking: !!q.pose.side }));
     let ai = 0;
@@ -287,13 +285,13 @@ export class BWorld {
       case 1: return [all("pole", V(...POLE), 0.2, this.pole.group), ["pole top", V(...P(0, 0.75, 0)), 0.05, s.a, w(1, "blood") - 4, this.pole.group]];
       case 2: return [["SURGEON board", this.surgeon.pos(), 0.2, w(2, "surgeon") + 4, s.b, this.surgeon.group]];
       case 3: return [["jobs board", this.jobs.pos(), 0.2, s.a, s.b, this.jobs.group]];
-      case 4: return [all("held staff", V(...S(0.27, 0.95, 0.42)), 0.05, this.shop.heldStaff)];
+      case 4: return [all("held staff", V(...S(0.33, 0.92, 0.2)), 0.05, this.shop.heldStaff)];
       case 5: return [all("bowl", V(...S(-1.35, 0.92, 0.35)), 0.08, this.shop.bowl.group)];
       case 6: return [all("window bowls", V(SILL[0], SILL[1] + 0.1, SILL[2]), 0.3, this.sillG.g)];
       case 7: case 8: return [all("staff", V(...POLE), 0.1, this.staff.group)];
       case 9: case 10: return [all("pole", V(...POLE), 0.1, this.pole.group)];
       case 11: return [all("ball on top", V(...P(0, 0.75, 0)), 0.05, this.pole.group)];
-      case 12: return [["pole", V(...POLE), 0.1, s.a, s.b, this.pole.group], ["flag", this.flag.clothPos(), 0.2, w(16, "flag") + 6, SHOTS[11].b - 40, this.flag.group]];
+      case 12: return [["pole", V(...POLE), 0.1, s.a, s.b, this.pole.group], ["flag", this.flag.clothPos(), 0.2, w(16, "America") + 6, SHOTS[11].b - 40, this.flag.group]];
       default: return [];
     }
   }

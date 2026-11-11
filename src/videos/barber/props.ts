@@ -9,7 +9,7 @@ import { INK, paintText } from "../dst/props";
 const shadowAll = <T extends THREE.Object3D>(g: T): T => { g.traverse((o) => { o.castShadow = true; o.receiveShadow = true; }); return g; };
 const font = (px: number, w = 900) => `${w} ${px}px "DejaVu Sans", "Arial Black", Arial, sans-serif`;
 const lathe = (pts: [number, number][], seg = 28) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), seg);
-export const RED = "#d8323a", BLUE = "#2f4f9f", BRASS = "#d9a83a";
+export const RED = "#d8323a", BLUE = "#2f4f9f", BRASS = "#f0c24e";
 
 // ---------------- stripes ----------------
 /** the pole's sleeve: `n` stripe sets around, each red [+ blue] + white; v runs up the pole */
@@ -21,12 +21,12 @@ export const stripeTex = (blue: boolean) => ctex(`poleStripes_${blue}`, 512, 512
 });
 /** washed but still stained bandages: off-white strips with blotchy red-brown stains, frayed gaps between strips */
 export const bandageTex = () => ctex("bandages", 512, 512, (g, r) => {
-  g.fillStyle = "#efe6d4"; g.fillRect(0, 0, 512, 512);
+  g.fillStyle = "#fbf6ea"; g.fillRect(0, 0, 512, 512);
   const n = 4, w = 512 / n;
   for (let i = 0; i < n; i++) {
     // a stained band on half of each strip
     const x0 = i * w + w * 0.45;
-    g.fillStyle = "#b8343a"; g.fillRect(x0, 0, w * 0.5, 512);
+    g.fillStyle = "#c62f38"; g.fillRect(x0, 0, w * 0.5, 512);
     for (let k = 0; k < 26; k++) { g.fillStyle = k % 3 ? "rgba(140,30,40,0.45)" : "rgba(239,230,212,0.7)"; const y = r() * 512; g.beginPath(); g.ellipse(x0 + r() * w * 0.5, y, 6 + r() * 14, 10 + r() * 30, 0, 0, Math.PI * 2); g.fill(); }
     g.fillStyle = "rgba(36,23,38,0.55)"; g.fillRect(i * w, 0, 4, 512);
   }
@@ -45,7 +45,7 @@ export class Pole {
     const capT = new THREE.Mesh(lathe([[0, 0], [r * 1.25, 0], [r * 1.25, 0.06], [r * 0.9, 0.12], [r * 0.4, 0.16], [0, 0.16]]), brass); capT.position.y = len / 2;
     const capB = capT.clone(); capB.rotation.x = Math.PI; capB.position.y = -len / 2;
     this.ball = new THREE.Mesh(new THREE.SphereGeometry(r * 0.75, 20, 14), brass); this.ball.position.y = len / 2 + 0.16 + r * 0.6;
-    this.bowl = brassBowl(r * 1.6); this.bowl.position.y = len / 2 + 0.14; this.bowl.visible = false;
+    const bb = new BloodBowl(r * 1.6); bb.setFill(0.7); this.bowl = bb.group; this.bowl.position.y = len / 2 + 0.14; this.bowl.visible = false;
     const tip = new THREE.Mesh(new THREE.SphereGeometry(r * 0.3, 12, 10), brass); tip.position.y = -len / 2 - 0.2;
     // wall bracket toward -x (the wall)
     const iron = lam("ironHandle", () => ({ color: "#4a4e5a" }));
@@ -72,7 +72,7 @@ export class Staff {
     const G = this.group;
     this.wood = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.055, len, 14), lam("staffWood", () => ({ color: "#9a6a3e" })));
     const bt = rep(bandageTex(), 1, 1); bt.wrapS = THREE.RepeatWrapping;
-    this.cloth = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, len * 0.82, 32, 16, true), lam("bandageSleeve", () => ({ map: bt, side: THREE.DoubleSide })));
+    this.cloth = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, len * 0.82, 32, 16, true), lam("bandageSleeve", () => ({ map: bt, side: THREE.DoubleSide })));
     this.cloth.position.y = -len * 0.05;
     this.bowl = brassBowl(0.2); this.bowl.position.y = len / 2;
     // loose hanging ends below the sleeve (sway in the wind)
@@ -254,6 +254,6 @@ export const sill = () => {
   const g = new THREE.Group();
   const board = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.08, 2.6), lam("signWood", () => ({ color: "#5a3b2a" }))); g.add(board);
   const bowls: BloodBowl[] = [];
-  for (const z of [-0.8, 0, 0.8]) { const b = new BloodBowl(0.17); b.setFill(0.9); b.group.position.set(0.02, 0.04, z); g.add(b.group); bowls.push(b); }
+  for (const z of [-0.8, 0, 0.8]) { const b = new BloodBowl(0.22); b.setFill(0.9); b.group.position.set(0.02, 0.04, z); g.add(b.group); bowls.push(b); }
   return { g: shadowAll(g), bowls };
 };

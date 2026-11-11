@@ -14,7 +14,7 @@ export const P = (x: number, y: number, z: number): V3 => [POLE[0] + x, POLE[1] 
 /** the shop front panel (on the house front at x = -6) and its window sill */
 export const FRONT = { x: -5.97, z0: 97.2, z1: 102.8, h: 3.85 };
 export const SILL: V3 = [-5.76, D0 + 0.76, 99.07];
-export const FLAG: V3 = [-4.75, D0, 95.35];
+export const FLAG: V3 = [-4.35, D0, 95.85];
 
 export const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 export const smooth = (x: number) => { const u = clamp01(x); return u * u * (3 - 2 * u); };
@@ -50,43 +50,43 @@ export const B = (id: number) => SHOTS[id - 1].b;
 const on = (seg: number, w: string, dur = 24) => wordAt(seg, w) - Math.round(dur / 2);
 
 /** the hook framing: low on the street, the pole big in the upper half of the frame (the ending glides back to it) */
-export const HOOK_POS: V3 = P(2.15, -0.75, -1.25), HOOK_LOOK: V3 = P(0, -0.35, 0);
+export const HOOK_POS: V3 = P(2.7, -0.8, -1.4), HOOK_LOOK: V3 = P(0, -0.48, -0.05);
 const keys = (): Record<number, Key[]> => {
   const c: Record<number, Key[]> = {};
   // 1 hook: the spinning pole; punch in on "blood"
   c[1] = [
     { f: 0, s: (f) => push(HOOK_POS, HOOK_LOOK, f, 0, 0.0018, { fov: 44 }) },
-    { f: wordAt(1, "blood") - 3, cut: true, s: (f) => push(P(1.35, -0.45, -0.75), P(0, -0.15, 0), f, wordAt(1, "blood") - 3, 0.002, { fov: 42 }) },
+    { f: wordAt(1, "blood") - 3, cut: true, s: (f) => push(P(2.0, -0.6, -1.0), P(0, -0.5, 0), f, wordAt(1, "blood") - 3, 0.002, { fov: 42 }) },
   ];
   // 2 the barber behind his chair; the BARBER = SURGEON board above
   c[2] = [{ f: A(2), s: (f) => push(S(0.35, 1.6, -3.3), S(0.35, 1.55, 0.9), f, A(2), 0.0025, { fov: 46 }) }];
   // 3 the customer in the chair, the barber's icons above
   c[3] = [{ f: A(3), s: (f) => push(S(0, 1.35, -2.9), S(0, 1.45, 0.8), f, A(3), 0.0022, { fov: 46 }) }];
   // 4 close on the hand squeezing the staff
-  c[4] = [{ f: A(4), s: (f) => push(S(0.05, 1.0, -1.35), S(0.12, 0.95, 0.5), f, A(4), 0.003, { fov: 42 }) }];
+  c[4] = [{ f: A(4), s: (f) => push(S(0.15, 1.15, -1.75), S(0.15, 1.05, 0.35), f, A(4), 0.0025, { fov: 44 }) }];
   // 5 the bowl on the table: drops on "cut", fills on "ran"
-  c[5] = [{ f: A(5), s: (f) => push(S(-1.35, 1.3, -0.55), S(-1.35, 0.92, 0.35), f, A(5), 0.0022, { fov: 44 }) }];
+  c[5] = [{ f: A(5), s: (f) => push(S(-1.35, 1.55, -0.85), S(-1.35, 1.05, 0.35), f, A(5), 0.0022, { fov: 44 }) }];
   // 6 the shop window from the street; punch in on "banned"
   c[6] = [
-    { f: A(6), s: (f) => push([-1.9, D0 + 1.65, 98.1], [SILL[0], D0 + 1.35, SILL[2] + 0.1], f, A(6), 0.0018, { fov: 48 }) },
-    { f: wordAt(8, "banned") - 3, cut: true, s: (f) => push([-2.6, D0 + 1.6, 98.6], [SILL[0], D0 + 1.45, SILL[2]], f, wordAt(8, "banned") - 3, 0.0015, { fov: 46 }) },
+    { f: A(6), s: (f) => push([-3.0, D0 + 1.25, 98.0], [SILL[0], D0 + 0.5, SILL[2] + 0.35], f, A(6), 0.0018, { fov: 46 }) },
+    { f: wordAt(8, "banned") - 3, cut: true, s: (f) => push([-2.9, D0 + 1.45, 98.6], [SILL[0], D0 + 0.95, SILL[2]], f, wordAt(8, "banned") - 3, 0.0015, { fov: 50 }) },
   ];
   // 7 the staff outside the shop with the bandages hanging to dry
-  c[7] = [{ f: A(7), s: (f) => push(P(2.4, -0.55, -0.9), P(0, -0.15, 0.25), f, A(7), 0.0018, { fov: 46 }) }];
+  c[7] = [{ f: A(7), s: (f) => push(P(3.1, -0.75, -1.3), P(0, -0.2, 0.1), f, A(7), 0.0018, { fov: 46 }) }];
   // 8 the twist: slow push toward the sleeve (continues straight into 9 through the dissolve)
-  const p8 = P(2.0, -0.4, -0.75), l8 = P(0, -0.05, 0);
+  const p8 = P(2.5, -0.55, -1.0), l8 = P(0, -0.1, 0);
   c[8] = [{ f: A(8), s: (f) => push(p8, l8, f, A(8), 0.0016, { fov: 44 }) }];
   c[9] = [{ f: A(9) - 10, s: (f) => push(p8, l8, f, A(8), 0.0016, { fov: 44 }) }];
   // 10 close on the stripes
   c[10] = [{ f: A(10), s: (f) => push(P(0.95, -0.05, -0.45), P(0, 0.0, 0), f, A(10), 0.002, { fov: 40 }) }];
   // 11 up to the ball on top; push in on "bowl"
   c[11] = [
-    { f: A(11), s: (f) => push(P(1.6, 0.2, -0.75), P(0, 0.55, 0), f, A(11), 0.0018, { fov: 42 }) },
-    { f: wordAt(14, "bowl") - 3, cut: true, s: (f) => push(P(0.95, 0.75, -0.42), P(0, 0.72, 0), f, wordAt(14, "bowl") - 3, 0.0015, { fov: 40 }) },
+    { f: A(11), s: (f) => push(P(2.1, 0.0, -1.0), P(0, 0.45, 0), f, A(11), 0.0018, { fov: 42 }) },
+    { f: wordAt(14, "bowl") - 3, cut: true, s: (f) => push(P(1.3, 1.25, -0.6), P(0, 0.62, 0), f, wordAt(14, "bowl") - 3, 0.0015, { fov: 40 }) },
   ];
   // 12 the blue stripe and the flag, then glide back to the hook framing so the video loops
   c[12] = [
-    { f: A(12), s: (f) => push(P(2.3, -0.55, -1.75), P(0, -0.2, -0.45), f, A(12), 0.0012, { fov: 46 }) },
+    { f: A(12), s: (f) => push(P(3.4, -0.75, -2.3), P(0, -0.3, -0.55), f, A(12), 0.0012, { fov: 48 }) },
     { f: B(12) - 40, dur: 34, s: () => ({ pos: HOOK_POS, look: HOOK_LOOK, fov: 44 }) },
   ];
   return c;
