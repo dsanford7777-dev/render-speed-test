@@ -50,12 +50,12 @@ export const B = (id: number) => SHOTS[id - 1].b;
 const on = (seg: number, w: string, dur = 24) => wordAt(seg, w) - Math.round(dur / 2);
 
 /** the hook framing: low on the street, the pole big in the upper half of the frame (the ending glides back to it) */
-export const HOOK_POS: V3 = P(2.7, -0.8, -1.4), HOOK_LOOK: V3 = P(0, -0.48, -0.05);
+export const HOOK_POS: V3 = P(2.95, -0.8, -1.5), HOOK_LOOK: V3 = P(0, -0.3, -0.05);
 const keys = (): Record<number, Key[]> => {
   const c: Record<number, Key[]> = {};
   // 1 hook: the spinning pole; punch in on "blood"
   c[1] = [
-    { f: 0, s: (f) => push(HOOK_POS, HOOK_LOOK, f, 0, 0.0018, { fov: 44 }) },
+    { f: 0, s: (f) => push(HOOK_POS, HOOK_LOOK, f, 0, 0.001, { fov: 44 }) },
     { f: wordAt(1, "blood") - 3, cut: true, s: (f) => push(P(2.0, -0.6, -1.0), P(0, -0.5, 0), f, wordAt(1, "blood") - 3, 0.002, { fov: 42 }) },
   ];
   // 2 the barber behind his chair; the BARBER = SURGEON board above
@@ -63,7 +63,7 @@ const keys = (): Record<number, Key[]> => {
   // 3 the customer in the chair, the barber's icons above
   c[3] = [{ f: A(3), s: (f) => push(S(0, 1.35, -2.9), S(0, 1.45, 0.8), f, A(3), 0.0022, { fov: 46 }) }];
   // 4 close on the hand squeezing the staff
-  c[4] = [{ f: A(4), s: (f) => push(S(0.15, 1.15, -1.75), S(0.15, 1.05, 0.35), f, A(4), 0.0025, { fov: 44 }) }];
+  c[4] = [{ f: A(4), s: (f) => push(S(0.15, 1.35, -1.95), S(0.15, 1.25, 0.35), f, A(4), 0.0018, { fov: 46 }) }];
   // 5 the bowl on the table: drops on "cut", fills on "ran"
   c[5] = [{ f: A(5), s: (f) => push(S(-1.35, 1.55, -0.85), S(-1.35, 1.05, 0.35), f, A(5), 0.0022, { fov: 44 }) }];
   // 6 the shop window from the street; punch in on "banned"

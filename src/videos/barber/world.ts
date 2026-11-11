@@ -45,7 +45,7 @@ export class BWorld {
   private clouds: THREE.Mesh[] = []; private cloudMaps: Record<Light, THREE.Texture[]>;
   private shop: Shop; private pole: Pole; private staff: Staff; private sillG: { g: THREE.Group; bowls: BloodBowl[] };
   private banned: THREE.Mesh; private surgeon: Board; private jobs: Board; private flag: Flag;
-  private lastPeople: { name: string; p: V3; walking: boolean }[] = [];
+  private lastPeople: { name: string; p: V3; walking: boolean; sit?: boolean }[] = [];
   private ray = new THREE.Raycaster();
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private sph = new THREE.Sphere(); private v = new THREE.Vector3();
 
@@ -195,7 +195,7 @@ export class BWorld {
     this.pole.bowl.visible = id === 11 && f >= fBowl - 2;
     if (this.pole.bowl.visible) this.pole.bowl.scale.setScalar(Math.max(0.001, pop(fBowl)));
     // the staff: hanging bandages (7), twisting (8), fully wrapped under the dissolve (9)
-    this.staff.group.visible = (id === 7 || id === 8 || id === 9) && street;
+    this.staff.group.visible = (id === 7 || id === 8) && street;
     this.staff.wrap(id === 7 ? 0 : id === 8 ? smooth((f - (A(8) + 4)) / Math.max(1, SHOTS[7].b - SHOTS[7].a - 10)) : 1, t);
     // flag on "flag"
     this.flag.wave(t);
@@ -233,11 +233,11 @@ export class BWorld {
       case 2: people.push({ w: B_, p: S(0.6, 0, 1.05), pose: { expr: f > w(2, "surgeon") ? "grin" : "smile", look: -1, blink: blink(3) } }); break;
       case 3:
         people.push({ w: C_, p: S(0, 0.42, 0.34), pose: { expr: f > w(3, "blood") ? "shock" : f > w(3, "teeth") ? "nervous" : "smile", sit: true, blink: blink(7) } });
-        people.push({ w: B_, p: S(0.62, 0, 1.3), pose: { expr: "grin", look: -1, blink: blink(3) } });
+        people.push({ w: B_, p: S(0.5, 0, 1.35), pose: { expr: "grin", look: -1, blink: blink(3) } });
         break;
       case 4: people.push({ w: C_, p: S(0, 0.42, 0.34), pose: { expr: "pained", sit: true, blink: blink(7) } }); break;
     }
-    this.lastPeople = people.map((q) => ({ name: q.w.key, p: q.p, walking: !!q.pose.side }));
+    this.lastPeople = people.map((q) => ({ name: q.w.key, p: q.p, walking: !!q.pose.side, sit: !!q.pose.sit }));
     let ai = 0;
     for (const q of people) {
       if (!this.frustum.intersectsSphere(this.sph.set(this.v.set(q.p[0], q.p[1] + 1.1, q.p[2]), 3.5))) continue;
@@ -311,7 +311,8 @@ export class BWorld {
       return { frac: (ix * iy) / Math.max(1e-6, (b - a) * (d - cc)), h: d - cc, vcut: cc < -1 || d > 1, inX: b > -1 && a < 1 };
     };
     for (const q of this.lastPeople) {
-      const head = box(q.p, -0.27, 0.27, 1.16, 1.84), body = box(q.p, -0.3, 0.3, 0.05, 1.16);
+      // seated cards draw the head ~0.8 m lower than standing ones (legs folded under the torso)
+      const dy = q.sit ? -0.8 : 0, head = box(q.p, -0.27, 0.27, 1.16 + dy, 1.84 + dy), body = box(q.p, -0.3, 0.3, 0.05, 1.16 + dy);
       if (head.frac < 0 && body.frac !== 0) out.push(`${q.name}: too close to the camera`);
       // people walking through a street may enter and leave at the sides; nobody may be cut at the top or bottom
       else if (head.frac > 0.02 && head.frac < 0.97 && (!q.walking || (head.vcut && head.inX))) out.push(`${q.name}: head cut off by the frame edge (${Math.round(head.frac * 100)}% in shot)`);
