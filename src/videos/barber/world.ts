@@ -10,13 +10,13 @@ import { TONE, CHAR, LFB, untone } from "../bridge/shade";
 import { NOINK } from "../bridge/ink";
 import { Pool, Actor, Fx } from "../bridge/cast";
 import { FPS, SHOTS, Light, wordAt } from "./timeline";
-import { D0, SHOP, S, P, V3, camAt, smooth, clamp01, POLE, FRONT, SILL, FLAG, A } from "./story";
+import { D0, SHOP, S, P, V3, camAt, smooth, clamp01, POLE, FRONT, SILL, FLAG, A, LADY } from "./story";
 import { buildShop, Shop, Pole, Staff, sill, frontTex, bannedTex, jobsTex, surgeonTex, BloodBowl } from "./props";
 import { Board } from "../dst/props";
 import { Flag, usFlagTex } from "../pigwar/props";
 
 /** shots whose big face close-up is the point */
-const CLOSEUP_OK = new Set<number>([4]);
+const CLOSEUP_OK = new Set<number>([2, 3, 4, 6]);
 const LP: Record<Light, LightPreset> = { day: LIGHTS.day, golden: LIGHTS.golden, night: LIGHTS.day };
 const LK: Record<Light, WorldLook> = { day: LOOK.day, golden: LOOK.golden, night: LOOK.day };
 
@@ -25,11 +25,12 @@ const BARBER: Outfit = { jacket: "#f1ece0", pants: "#3b3f52", boots: "#3a2a20", 
 const PATIENT: Outfit = { jacket: "#5d7a3a", pants: "#6b4a2f", boots: "#3a2a20", hat: "hair", hair: "#d9a441", skin: SKIN };
 type Who = { o: Outfit; seed: number; key: string };
 const who = (o: Outfit, seed: number, key: string): Who => ({ o, seed, key });
-const B_ = who(BARBER, 3, "barber"), C_ = who(PATIENT, 7, "patient");
+const LADY_O: Outfit = { jacket: "#7b5ac9", pants: "#3b3f52", boots: "#4a3426", hat: "bonnet", dress: "#5a8fc2", skin: "#c99067" };
+const B_ = who(BARBER, 3, "barber"), C_ = who(PATIENT, 7, "patient"), W_ = who(LADY_O, 11, "passerby");
 
 /** drawing size by distance: [canvas w, h, scale from the 600 x 1000 design] */
 const tier = (d: number): [number, number, number] => d < 3.2 ? [1800, 3000, 3.0] : d < 6.5 ? [1080, 1800, 1.8] : d < 16 ? [480, 800, 0.8] : [240, 400, 0.4];
-type Pose = { expr: Expr; look?: number; headTilt?: number; facing?: -1 | 0 | 1; blink?: number; sit?: boolean; side?: { phase: number; mirror: boolean; stride?: number } };
+type Pose = { expr: Expr; look?: number; headTilt?: number; facing?: -1 | 0 | 1; blink?: number; sit?: boolean; sweat?: boolean; side?: { phase: number; mirror: boolean; stride?: number } };
 
 // ---------------- world ----------------
 export class BWorld {
@@ -230,12 +231,13 @@ export class BWorld {
     const people: { w: Who; p: V3; pose: Pose }[] = [];
     const blink = (seed: number) => { const n = Math.floor((t + seed * 0.37) / 2.3), ph = (t + seed * 0.37) - n * 2.3; return ph < 0.13 ? 1 : 0; };
     switch (id) {
-      case 2: people.push({ w: B_, p: S(0.6, 0, 1.05), pose: { expr: f > w(2, "surgeon") ? "grin" : "smile", look: -1, blink: blink(3) } }); break;
+      case 2: people.push({ w: B_, p: S(0.6, 0, 1.05), pose: { expr: f > w(2, "surgeon") - 3 ? "grin" : "smile", look: f > w(2, "surgeon") - 3 ? -1 : 0, blink: blink(3) } }); break;
       case 3:
-        people.push({ w: C_, p: S(0, 0.42, 0.34), pose: { expr: f > w(3, "blood") ? "shock" : f > w(3, "teeth") ? "nervous" : "smile", sit: true, blink: blink(7) } });
-        people.push({ w: B_, p: S(0.5, 0, 1.35), pose: { expr: "grin", look: -1, blink: blink(3) } });
+        people.push({ w: C_, p: S(0, 0.42, 0.34), pose: { expr: f > w(3, "blood") - 3 ? "dazed" : f > w(3, "teeth") ? "nervous" : "smile", sit: true, blink: blink(7), sweat: f > w(3, "teeth") } });
+        if (f < w(3, "blood") - 3) people.push({ w: B_, p: S(0.5, 0, 1.35), pose: { expr: "grin", look: -1, blink: blink(3) } });
         break;
-      case 4: people.push({ w: C_, p: S(0, 0.42, 0.34), pose: { expr: "pained", sit: true, blink: blink(7) } }); break;
+      case 4: people.push({ w: C_, p: S(0, 0.42, 0.34), pose: { expr: "pained", sit: true, blink: blink(7), sweat: true } }); break;
+      case 6: if (f >= w(7, "ads") - 3 && f < w(8, "banned") - 3) people.push({ w: W_, p: LADY, pose: { expr: "shock", blink: blink(11), sweat: true } }); break;
     }
     this.lastPeople = people.map((q) => ({ name: q.w.key, p: q.p, walking: !!q.pose.side, sit: !!q.pose.sit }));
     let ai = 0;
@@ -261,6 +263,12 @@ export class BWorld {
     // ---- effects: contact shadows under everyone standing ----
     const fxl: { key: string; cw: number; ch: number; draw: (p: Pen) => void; pos: V3; w: number; h: number; flat?: boolean; soft?: boolean }[] = [];
     const cc = "#8a8ab0";
+    // sweat drop beside the head (screen right, a little toward the lens), bobbing
+    for (const q of people) if (q.pose.sweat) {
+      const hy = q.p[1] + (q.pose.sit ? 0.78 : 1.58) + 0.02 * Math.sin(t * 6), sp = V(q.p[0], hy, q.p[2]).addScaledVector(right, 0.24);
+      const toCam = cam.position.clone().sub(sp).normalize(); sp.addScaledVector(toCam, 0.12);
+      fxl.push({ key: "sweatDrop", cw: 128, ch: 192, draw: sweatDrop, pos: [sp.x, sp.y, sp.z], w: 0.09, h: 0.135 });
+    }
     for (const q of people) if (!q.pose.sit) fxl.push({ key: `blob|contact|${cc}`, cw: 128, ch: 128, draw: (p) => fxContact(p, cc), pos: [q.p[0], q.p[1] + 0.022, q.p[2]], w: 0.55, h: 0.42, flat: true });
 
     let fi = 0;
@@ -284,10 +292,10 @@ export class BWorld {
     switch (id) {
       case 1: return [all("pole", V(...POLE), 0.2, this.pole.group), ["pole top", V(...P(0, 0.75, 0)), 0.05, s.a, w(1, "blood") - 4, this.pole.group]];
       case 2: return [["SURGEON board", this.surgeon.pos(), 0.2, w(2, "surgeon") + 4, s.b, this.surgeon.group]];
-      case 3: return [["jobs board", this.jobs.pos(), 0.2, s.a, s.b, this.jobs.group]];
+      case 3: return [["jobs board", this.jobs.pos(), 0.2, s.a, w(3, "blood") - 4, this.jobs.group]];
       case 4: return [all("held staff", V(...S(0.33, 0.92, 0.2)), 0.05, this.shop.heldStaff)];
       case 5: return [all("bowl", V(...S(-1.35, 0.92, 0.35)), 0.08, this.shop.bowl.group)];
-      case 6: return [all("window bowls", V(SILL[0], SILL[1] + 0.1, SILL[2]), 0.3, this.sillG.g)];
+      case 6: return [["window bowls", V(SILL[0], SILL[1] + 0.1, SILL[2]), 0.3, s.a, w(7, "ads") - 4, this.sillG.g], ["window bowls", V(SILL[0], SILL[1] + 0.1, SILL[2]), 0.3, w(8, "banned") - 2, s.b, this.sillG.g]];
       case 7: case 8: return [all("staff", V(...POLE), 0.1, this.staff.group)];
       case 9: case 10: return [all("pole", V(...POLE), 0.1, this.pole.group)];
       case 11: return [all("ball on top", V(...P(0, 0.75, 0)), 0.05, this.pole.group)];
@@ -337,6 +345,12 @@ export class BWorld {
     return out;
   }
 }
+/** cartoon sweat drop: light blue teardrop, ink outline, white glint */
+const sweatDrop = (p: Pen) => {
+  const g = p.g; g.beginPath(); g.moveTo(64, 14); g.quadraticCurveTo(118, 110, 108, 138); g.arc(64, 132, 44, 0.15, Math.PI - 0.15); g.quadraticCurveTo(10, 110, 64, 14); g.closePath();
+  g.fillStyle = "#9fd3f5"; g.fill(); g.lineWidth = 10; g.strokeStyle = "#241726"; g.stroke();
+  g.fillStyle = "rgba(255,255,255,0.85)"; g.beginPath(); g.ellipse(48, 128, 9, 18, 0.3, 0, Math.PI * 2); g.fill();
+};
 const discTex = () => ctex("sunDisc", 128, 128, (g) => {
   const gr = g.createRadialGradient(64, 64, 58, 64, 64, 64); gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(1, "rgba(255,255,255,0)");
   g.fillStyle = gr; g.fillRect(0, 0, 128, 128);

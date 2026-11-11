@@ -15,6 +15,9 @@ export const P = (x: number, y: number, z: number): V3 => [POLE[0] + x, POLE[1] 
 export const FRONT = { x: -5.97, z0: 97.2, z1: 102.8, h: 3.85 };
 export const SILL: V3 = [-5.76, D0 + 0.76, 99.07];
 export const FLAG: V3 = [-4.35, D0, 95.85];
+/** the passer-by who recoils from the window (shot 6), and the close-up on her */
+export const LADY: V3 = [-3.55, D0, 101.7];
+export const LADY_CAM: V3 = [-1.95, D0 + 1.62, 100.85], LADY_LOOK: V3 = [-3.55, D0 + 1.56, 101.7];
 
 export const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 export const smooth = (x: number) => { const u = clamp01(x); return u * u * (3 - 2 * u); };
@@ -59,16 +62,23 @@ const keys = (): Record<number, Key[]> => {
     { f: wordAt(1, "blood") - 3, cut: true, s: (f) => push(P(2.0, -0.6, -1.0), P(0, -0.5, 0), f, wordAt(1, "blood") - 3, 0.002, { fov: 42 }) },
   ];
   // 2 the barber behind his chair; the BARBER = SURGEON board above
-  c[2] = [{ f: A(2), s: (f) => push(S(0.35, 1.6, -3.3), S(0.35, 1.55, 0.9), f, A(2), 0.0025, { fov: 46 }) }];
+  c[2] = [
+    { f: A(2), s: (f) => push(S(0.42, 1.62, -0.95), S(0.6, 1.58, 1.05), f, A(2), 0.0025, { fov: 42 }) },
+    { f: wordAt(2, "surgeon") - 3, cut: true, s: (f) => push(S(0.35, 1.6, -3.3), S(0.35, 1.55, 0.9), f, wordAt(2, "surgeon") - 3, 0.0025, { fov: 46 }) },
+  ];
   // 3 the customer in the chair, the barber's icons above
-  c[3] = [{ f: A(3), s: (f) => push(S(0, 1.35, -2.9), S(0, 1.45, 0.8), f, A(3), 0.0022, { fov: 46 }) }];
+  c[3] = [
+    { f: A(3), s: (f) => push(S(0, 1.35, -2.9), S(0, 1.45, 0.8), f, A(3), 0.0022, { fov: 46 }) },
+    { f: wordAt(3, "blood") - 3, cut: true, s: (f) => push(S(0, 1.3, -1.35), S(0, 1.25, 0.34), f, wordAt(3, "blood") - 3, 0.002, { fov: 42 }) },
+  ];
   // 4 close on the hand squeezing the staff
-  c[4] = [{ f: A(4), s: (f) => push(S(0.15, 1.35, -1.95), S(0.15, 1.25, 0.35), f, A(4), 0.0018, { fov: 46 }) }];
+  c[4] = [{ f: A(4), s: (f) => push(S(0.12, 1.25, -1.7), S(0.14, 1.17, 0.3), f, A(4), 0.0012, { fov: 44 }) }];
   // 5 the bowl on the table: drops on "cut", fills on "ran"
   c[5] = [{ f: A(5), s: (f) => push(S(-1.35, 1.55, -0.85), S(-1.35, 1.05, 0.35), f, A(5), 0.0022, { fov: 44 }) }];
   // 6 the shop window from the street; punch in on "banned"
   c[6] = [
     { f: A(6), s: (f) => push([-3.0, D0 + 1.25, 98.0], [SILL[0], D0 + 0.5, SILL[2] + 0.35], f, A(6), 0.0018, { fov: 46 }) },
+    { f: wordAt(7, "ads") - 3, cut: true, s: (f) => push(LADY_CAM, LADY_LOOK, f, wordAt(7, "ads") - 3, 0.003, { fov: 42 }) },
     { f: wordAt(8, "banned") - 3, cut: true, s: (f) => push([-2.9, D0 + 1.45, 98.6], [SILL[0], D0 + 0.95, SILL[2]], f, wordAt(8, "banned") - 3, 0.0015, { fov: 50 }) },
   ];
   // 7 the staff outside the shop with the bandages hanging to dry
@@ -93,7 +103,7 @@ const keys = (): Record<number, Key[]> => {
 };
 let CAMS: Record<number, Key[]> | null = null;
 /** camera shakes: [shot, frame, strength]; 7-frame kicks that flip sign every frame */
-const SHAKES = (): [number, number, number][] => [[1, wordAt(1, "blood") - 3, 1], [5, wordAt(5, "cut"), 0.6], [6, wordAt(8, "banned") - 3, 1]];
+const SHAKES = (): [number, number, number][] => [[1, wordAt(1, "blood") - 3, 1], [3, wordAt(3, "blood") - 3, 0.8], [5, wordAt(5, "cut"), 0.6], [6, wordAt(7, "ads") - 3, 0.6], [6, wordAt(8, "banned") - 3, 1]];
 let SH: [number, number, number][] | null = null;
 export const camAt = (id: number, f: number): Cam => {
   CAMS ??= keys(); SH ??= SHAKES();
