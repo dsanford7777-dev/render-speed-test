@@ -23,7 +23,7 @@ const items = (): Item[] => {
     { key: "real", kind: "stamp", text: "CORRUPT = REAL", f0: m.corrupt, f1: A(11), y: 17, rot: -4, bg: "#2f9a57", fg: "#ffffff", size: 92 },
     { key: "vienna", kind: "pill", text: "VIENNA", f0: A(13) + 6, f1: m.nothing - 2, y: 13 },
     { key: "capone", kind: "pill", text: "AL CAPONE", sub: "Chicago", f0: m.capone - 2, f1: m.handed - 2, y: 15 },
-    { key: "fifty", kind: "call", text: "$50,000", f0: m.fifty, f1: m.got - 2, y: 18, fg: "#7fe08f", size: 170 },
+    { key: "fifty", kind: "call", text: "$50,000", f0: m.fifty, f1: m.got - 2, y: 10, fg: "#7fe08f", size: 170 },
     { key: "reward", kind: "call", text: "REWARD!", f0: m.reward + 5, f1: m.honesty - 3, y: 18, fg: "#ffd84d", size: 150 },
   ].filter((i) => i.f1 > i.f0 && i.f0 < LOOP_F() && i.f0 >= 0 && i.f1 <= B(19)) as Item[];
 };

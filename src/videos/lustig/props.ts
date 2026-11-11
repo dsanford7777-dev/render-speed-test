@@ -221,6 +221,8 @@ export const topHat = () => {
   const top = new THREE.Mesh(new THREE.CircleGeometry(0.115, 24), felt); top.rotation.x = -Math.PI / 2; top.position.y = 0.2;
   const brim = new THREE.Mesh(new THREE.RingGeometry(0.1, 0.19, 28), felt); brim.rotation.x = -Math.PI / 2;
   const bd = new THREE.Mesh(new THREE.CylinderGeometry(0.109, 0.108, 0.045, 24, 1, true), band); bd.position.y = 0.035;
-  G.add(crown, top, brim, bd);
+  // red silk lining, seen when the hat is held out upside down
+  const lining = new THREE.Mesh(new THREE.CircleGeometry(0.1, 24), lam("hatLining", () => ({ color: "#c2384a" }))); lining.rotation.x = Math.PI / 2; lining.position.y = 0.17;
+  G.add(crown, top, brim, bd, lining);
   return shadowAll(G);
 };

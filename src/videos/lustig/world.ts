@@ -252,8 +252,8 @@ export class LWorld {
     this.hat.visible = hatOut || id === 18;
     if (hatOut) {
       const u = expo((f - (m.bribe - 5)) / 7);
-      this.hat.position.copy(at(S(-1.5, 1.12, 1.55)).lerp(at(S(-1.21, 1.3, 0.3)), u));
-      this.hat.rotation.set(Math.PI / 2, 0, 0.25 * Math.sin(t * 9)); this.hat.scale.setScalar(1);
+      this.hat.position.copy(at(S(-1.5, 1.12, 1.55)).lerp(at(S(-1.21, 1.27, 0.05)), u));
+      this.hat.rotation.set(1.15, 0, 0.25 * Math.sin(t * 9)); this.hat.scale.setScalar(1);
     }
     if (id === 18) { const d = Math.exp(-(f - A(18)) / 22); this.hat.position.set(LU0[0], D0 + 0.01, LU0[2]); this.hat.rotation.set(0.3 * d * Math.sin(t * 13), t * 7 * d, 0.3 * d * Math.cos(t * 13)); this.hat.scale.setScalar(1); }
     // the newspaper he hides behind: turned to the camera, held a little toward it; headline changes on the words
@@ -311,7 +311,7 @@ export class LWorld {
         break;
       case 11: add(P_, DEALERS[0], { expr: "relief_open", blink: blink(7), pass: true }); break;
       case 12:
-        if (f < m.suitcase - 2) { const z = runZ(f); add(L_, [0.8, D0, z], { expr: "grin", blink: 0, side: { phase: (((150 - z) / 2.4) % 1 + 1) % 1, dir: [0, 0, -1], stride: 1.5 } }); }
+        if (f < m.suitcase - 2) { const z = runZ(f); add(L_, [0.8, D0, z], { expr: "grin", blink: 0, side: { phase: (((140 - z) / 2.4) % 1 + 1) % 1, dir: [0, 0, -1], stride: 1.5 } }); }
         else add(L_, [0.6, D0, frontZ(f)], { expr: "laugh", blink: 0, march: (t * 3.4) % 1, pass: true });
         break;
       case 13: add(L_, QUAY, { expr: f < m.nothing - 2 ? "neutral" : f < m.nothing + 8 ? "shock" : "grin", blink: f < m.nothing - 2 ? blink(3) : 0 }); break;

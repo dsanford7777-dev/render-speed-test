@@ -98,18 +98,18 @@ export const LOOP_F = () => B(19) - 24;
 /** shot 5: the dealers' z as they march in toward the salon (salon coordinates) */
 export const dealersZ = (f: number) => -9.5 + 2.7 * (f - A(5)) / FPS;
 /** shot 12a: Lustig's z running down the main street away from the tower (8 m/s) */
-export const runZ = (f: number) => 150 - 8 * (f - A(12)) / FPS;
+export const runZ = (f: number) => 140 - 8 * (f - A(12)) / FPS;
 /** shot 12b: running straight at the lens */
-export const frontZ = (f: number) => { const f0 = M().suitcase - 2; return 128 - (128 - 102.7) * lin((f - f0) / Math.max(1, B(12) - f0)); };
+export const frontZ = (f: number) => { const f0 = M().suitcase - 2; return 116 - (116 - 102.7) * lin((f - f0) / Math.max(1, B(12) - f0)); };
 /** shot 17: the gendarme's z charging down the street */
-export const copZ = (f: number) => 140 - (140 - 121.9) * Math.pow(lin((f - A(17)) / Math.max(1, B(17) - 2 - A(17))), 1.25);
+export const copZ = (f: number) => 134 - (134 - 121.5) * Math.pow(lin((f - A(17)) / Math.max(1, B(17) - 2 - A(17))), 1.25);
 /** shot 19: x of the cash on the table (salon coordinates): over to Lustig on "handed", back on "gave" */
 export const cashX = (f: number) => 1.4 - 1.8 * smooth((f - M().handed) / 14) + 1.8 * smooth((f - M().gave) / 12);
 
 // ---------------- the cameras ----------------
 /** the opening frame (the ending cuts back to it) */
 const hook = (f: number): Cam => {
-  const u = expo(f / 26), a = 34 - 16 * u, r = 86 - 20 * u;
+  const u = expo(f / 50), a = 34 - 16 * u, r = 86 - 20 * u;
   const c = full(orb(T(0, 37 + 2 * u, 0), a, r, 1.4 + 1.6 * u - (37 + 2 * u), { fov: 66, roll: 0.05 * (1 - u) }));
   return c;
 };
@@ -127,7 +127,7 @@ const keys = (): Record<number, Key[]> => {
   c[3] = [
     { f: A(3), s: (f) => { const u = smooth((f - A(3)) / Math.max(1, m.paris - 6 - A(3))); return orb(n3, 28 - 36 * u, 3.1 - 0.6 * u, 0.25 - 0.1 * u, { fov: 44, roll: 0.05 - 0.08 * u }); } },
     { f: m.paris - 4, dur: 6, s: (f) => move({ pos: T(30, 3, -30), look: T(0, 22, 0), fov: 60, roll: -0.08 }, { pos: T(34, 40, -34), look: T(0, 44, 0), fov: 56, roll: 0.04 }, f, m.paris - 4, m.standing - 4, smooth, 0) },
-    { f: m.standing - 2, cut: true, s: (f) => move({ pos: T(-44, 1.6, -50), look: T(0, 40, 0), fov: 70, roll: 0.34 }, { pos: T(-30, 2.2, -35), look: T(0, 40, 0), fov: 70, roll: 0.2 }, f, m.standing - 2, m.standing + 14, expo, 0) },
+    { f: m.standing - 2, cut: true, s: (f) => move({ pos: T(-44, 1.6, -50), look: T(0, 40, 0), fov: 70, roll: 0.34 }, { pos: T(-26, 2.2, -31), look: T(0, 40, 0), fov: 70, roll: 0.16 }, f, m.standing - 2, B(3), smooth, 0) },
   ];
   // 4 corkscrew down onto the forged letter; then low across the table as the envelopes fly at the lens
   c[4] = [
@@ -137,7 +137,7 @@ const keys = (): Record<number, Key[]> => {
   // 5 backing away in front of the dealers as they march in under the arch; then crane up and out over the salon
   c[5] = [
     { f: A(5), s: (f) => { const z = dealersZ(f); return { pos: S(0.3, 0.8, z + 5.0), look: S(0, 1.4, z), fov: 58, roll: -0.05 }; } },
-    { f: m.luxury - 3, cut: true, s: (f) => move({ pos: S(-0.6, 1.7, -1.5), look: S(-0.6, 1.7, 1.75), fov: 52 }, { pos: S(-0.6, 3.4, -4.4), look: S(-0.6, 1.8, 1.75), fov: 66, roll: 0.03 }, f, m.luxury - 3, m.luxury + 21, expo, 0) },
+    { f: m.luxury - 3, cut: true, s: (f) => move({ pos: S(-0.4, 1.7, -1.5), look: S(-0.4, 1.7, 1.75), fov: 52 }, { pos: S(-0.4, 3.8, -6.2), look: S(-0.4, 1.8, 1.75), fov: 68, roll: 0.03 }, f, m.luxury - 3, m.luxury + 30, expo, 0) },
   ];
   // 6 low under Lustig's chin; then the model tower topples at the lens
   c[6] = [
@@ -146,13 +146,13 @@ const keys = (): Record<number, Key[]> => {
   ];
   // 7 long lens sliding across the dealers' faces; snap to Lustig: shh
   c[7] = [
-    { f: A(7), s: (f) => { const x = -1.6 + 4.2 * smooth((f - A(7)) / Math.max(1, m.tell - 4 - A(7))); return { pos: S(x, 1.6, -2.2), look: S(x, 1.58, 1.75), fov: 24 }; } },
+    { f: A(7), s: (f) => { const x = -1.0 + 3.0 * smooth((f - A(7)) / Math.max(1, m.tell - 4 - A(7))); return { pos: S(x, 1.6, -2.2), look: S(x, 1.58, 1.75), fov: 24 }; } },
     { f: m.tell - 2, cut: true, s: (f) => snap(S(-2.72, 1.6, -1.0), [LU_S[0], D0 + 1.62, LU_S[2]], f, m.tell - 2, { fov: 32, roll: -0.1 }) },
   ];
   // 8 the three dealers; snap to Poisson; flip the tilt on "nervous"
   const po: V3 = [DEALERS[0][0], D0 + 1.58, DEALERS[0][2]];
   c[8] = [
-    { f: A(8), s: (f) => move({ pos: S(0.5, 1.5, -4.6), look: S(0.5, 1.5, 1.75), fov: 62 }, { pos: S(0.5, 1.5, -4.2), look: S(0.5, 1.5, 1.75), fov: 62 }, f, A(8), m.andre - 3, lin, 0) },
+    { f: A(8), s: (f) => move({ pos: S(0.5, 1.45, -4.0), look: S(0.5, 1.95, 1.75), fov: 62 }, { pos: S(0.5, 1.45, -3.6), look: S(0.5, 1.95, 1.75), fov: 62 }, f, A(8), m.andre - 3, lin, 0) },
     { f: m.andre - 3, cut: true, s: (f) => snap(S(-0.72, 1.56, -0.5), po, f, m.andre - 3, { fov: 32, roll: -0.12 }) },
     { f: m.nervous - 2, cut: true, s: (f) => snap(S(-1.12, 1.52, -0.45), po, f, m.nervous - 2, { fov: 32, roll: 0.14 }, 1.25, 4) },
   ];
@@ -204,7 +204,7 @@ const keys = (): Record<number, Key[]> => {
   const cap: V3 = [CAPONE[0], D0 + 1.6, CAPONE[2]];
   c[19] = [
     { f: A(19), s: (f) => move({ pos: S(2.0, 0.95, -1.1), look: cap, fov: 40, roll: -0.1 }, { pos: S(1.7, 1.12, -0.45), look: cap, fov: 40, roll: -0.1 }, f, A(19), A(19) + 14, expo, 0.001) },
-    { f: m.handed - 2, cut: true, s: (f) => { const x = cashX(f); return { pos: S(x + 0.2, 1.04, -0.95), look: S(x, 0.92, 0.55), fov: 50, roll: 0.05 }; } },
+    { f: m.handed - 2, cut: true, s: (f) => { const x = cashX(f), h = f < m.gave ? smooth((f - (m.handed + 14)) / 40) : Math.max(0, 1 - (f - m.gave) / 6) + 0.6 * smooth((f - (m.gave + 12)) / 30); return { pos: S(x + 0.2 - 0.5 * h, 1.04 + 0.12 * h, -0.95 + 0.3 * h), look: S(x, 0.92 + 0.1 * h, 0.55), fov: 50, roll: 0.05 - 0.08 * h }; } },
     { f: m.got - 2, cut: true, s: (f) => { const u = f - (m.got - 2); return { pos: S(1.55, 1.5, -0.95 - 0.004 * u), look: S(1.4, 1.58, 1.75), fov: 40, roll: -0.05 }; } },
     { f: m.honesty - 3, cut: true, s: (f) => snap(S(-0.25, 1.6, -0.5), [LU_C[0], D0 + 1.62, LU_C[2]], f, m.honesty - 3, { fov: 32, roll: 0.12 }) },
     { f: LOOP_F(), cut: true, s: () => hook(0) },
