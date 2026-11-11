@@ -57,22 +57,18 @@ export type Light = "day" | "golden" | "night";
 /** a shot spans whole segments [s0, s1] (inclusive) */
 export type ShotDef = { id: number; s0: number; s1: number; light: Light; a: number; b: number };
 const raw: Omit<ShotDef, "a" | "b">[] = [
-  { id: 1, s0: 0, s1: 0, light: "day" },      // hook: the pig between two armies, a warship behind; punch in on "pig"
-  { id: 2, s0: 1, s1: 1, light: "day" },      // the island: two flags on one hill, glide between them
-  { id: 3, s0: 2, s1: 2, light: "day" },      // pig in the potato patch, the farmer with his rifle; BANG on "shot"
-  { id: 4, s0: 3, s1: 3, light: "day" },      // British officer with an ARREST ORDER board, nervous farmer
-  { id: 5, s0: 4, s1: 4, light: "day" },      // US soldiers march past with the flag
-  { id: 6, s0: 5, s1: 5, light: "day" },      // low over the water: a British warship sails in
-  { id: 7, s0: 6, s1: 6, light: "day" },      // the "461" board pops up beside the US line and cannons
-  { id: 8, s0: 7, s1: 7, light: "day" },      // the "2,140" board pops up beside the redcoats
-  { id: 9, s0: 8, s1: 8, light: "day" },   // the governor points at the island, the ship behind him
-  { id: 10, s0: 9, s1: 9, light: "day" },  // the admiral shakes his head; "NO" board
-  { id: 11, s0: 10, s1: 10, light: "day" }, // the pig with a "WAR? OVER A PIG?" board
-  { id: 12, s0: 11, s1: 11, light: "day" },   // two camps on one meadow; the year counter runs 1860 -> 1871
-  { id: 13, s0: 12, s1: 12, light: "day" },   // the Kaiser in the hall under the ARBITRATION board
-  { id: 14, s0: 13, s1: 13, light: "day" },   // the flag on the hill: Britain's comes down, America's goes up on "America"
-  { id: 15, s0: 14, s1: 14, light: "day" }, // crane over the empty field toward a little grave
-  { id: 16, s0: 15, s1: 15, light: "day" }, // "The pig.": the grave, punch in
+  { id: 1, s0: 0, s1: 1, light: "day" },    // hook: the spinning red, white and blue pole on the street; punch in + shake on "blood"
+  { id: 2, s0: 2, s1: 2, light: "day" },    // the barber in his shop; BARBER = SURGEON board on "surgeon"
+  { id: 3, s0: 3, s1: 3, light: "day" },    // customer in the chair; HAIR / TEETH / BLOOD icons light up word by word
+  { id: 4, s0: 4, s1: 4, light: "day" },    // close: the customer squeezes the wooden staff
+  { id: 5, s0: 5, s1: 6, light: "day" },    // the brass bowl on the table: drops on "cut", it fills on "ran"
+  { id: 6, s0: 7, s1: 8, light: "day" },    // street: bowls of blood in the shop window, a passer-by recoils; BANNED stamp
+  { id: 7, s0: 9, s1: 9, light: "day" },    // the staff outside, bowl on top, washed bandages hanging to dry
+  { id: 8, s0: 10, s1: 10, light: "day" },  // the bandages twist round the staff into a spiral
+  { id: 9, s0: 11, s1: 11, light: "day" },  // dissolve: the staff becomes the red and white pole
+  { id: 10, s0: 12, s1: 12, light: "day" }, // close on the stripes
+  { id: 11, s0: 13, s1: 14, light: "day" }, // up to the ball on top; on "bowl" it turns back into the bowl
+  { id: 12, s0: 15, s1: 16, light: "day" }, // the blue stripe arrives, the flag beside it; ends on the hook framing (loop)
 ];
 export const SHOTS: ShotDef[] = raw.map((s, i) => ({
   ...s,
@@ -80,8 +76,8 @@ export const SHOTS: ShotDef[] = raw.map((s, i) => ({
   b: i === raw.length - 1 ? TOTAL : Math.round(SEG_TIMES[raw[i + 1].s0][0] * FPS) - 2,
 }));
 export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? SHOTS[SHOTS.length - 1];
-/** crossfades (frames): hard cuts everywhere except the time jump into the long wait and the ending */
-export const XFADE: Record<number, number> = { 12: 6, 15: 8 };
+/** crossfades (frames): hard cuts everywhere except the staff turning into the pole */
+export const XFADE: Record<number, number> = { 9: 10 };
 export const layersAt = (f: number): { id: number; alpha: number }[] => {
   for (const s of SHOTS) {
     const x = XFADE[s.id];
