@@ -176,7 +176,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
 
   // ---------------- chapter 2 ----------------
   smith: card("Edward Smith", "Captain, R.M.S. Titanic", "person", { col: SEA, m: 0 }),
-  senior: say([{ s: "White Star's", size: 100 }, { s: "most senior captain", col: SEA, size: 130, cue: [43, "senior"] }], { m: 3 }),
+  senior: say([{ s: "White Star's", size: 100 }, { s: "most senior captain", col: SEA, size: 108, cue: [43, "senior"] }], { m: 3 }),
   problem: say([{ s: "Here's the", size: 110, col: "#fff" }, { s: "problem", col: C.red, size: 250, cue: [46, "problem"] }], { dark: true, m: 4 }),
   warn6: ({ t, d, v, c }) => (
     <Paper><Mv t={t} d={d} m={v ? 1 : 0}>
@@ -230,10 +230,10 @@ export const BOARDS: Record<string, React.FC<G>> = {
       <At x={960} y={760} s={pop(t, Math.max(12, c(68, "way") + 4))}><T size={44} w={800} col={C.gold} up={false}>Frederick Fleet, U.S. Senate inquiry, 1912</T></At>
     </Mv></Bg>
   ),
-  experts: say([{ s: "Some experts:", size: 100 }, { s: "it wouldn't have helped", col: C.red, size: 116, cue: [70, "wouldn't"] }], { m: 2 }),
+  experts: say([{ s: "Some experts:", size: 100 }, { s: "it wouldn't have helped", col: C.red, size: 98, cue: [70, "wouldn't"] }], { m: 2 }),
 
   // ---------------- chapter 4 ----------------
-  bestshot: say([{ s: "Your", size: 130, col: "#fff" }, { s: "best shot", col: C.yellow, size: 250, cue: [77, "best"] }], { dark: true, m: 4 }),
+  bestshot: say([{ s: "Your", size: 130, col: "#fff" }, { s: "best shot", col: C.yellow, size: 205, cue: [77, "best"] }], { dark: true, m: 4 }),
   broke: ({ t, d, c }) => (
     <Paper><Mv t={t} d={d} m={0}>
       <Banner text="The day before" t={t} at={0} col={INK} />
@@ -246,7 +246,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
     <Bg dark tone={NIGHT}><Mv t={t} d={d} m={v ? 0 : 4}>
       <Telegram t={v ? 99 : t} from="S.S. Mesaba" time="9:40 PM" y={420}
         lines={v ? [{ s: "Heavy pack ice", at: 0 }, { s: "Large icebergs", at: Math.max(4, c(85, "Large") - 2) }, { s: "In your path", at: Math.max(8, c(85, "Right") - 2) }].map((l) => ({ ...l, at: l.at + 99 - t }))
-          : [{ s: "Ice report", at: Math.max(6, c(84, "warning") - 2) }]} />
+          : [{ s: "Ice report", at: 6 }]} />
     </Mv></Bg>
   ),
   neverbridge: ({ t, d, c }) => {
@@ -307,7 +307,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
       </Mv></Bg>
     );
   },
-  notturning: say([{ s: "What might have saved her:", size: 76, col: "#fff" }, { s: "not turning", col: C.yellow, size: 230, cue: [115, "not"] }], { dark: true, m: 5 }),
+  notturning: say([{ s: "What might have saved her:", size: 76, col: "#fff" }, { s: "not turning", col: C.yellow, size: 185, cue: [115, "not"] }], { dark: true, m: 5 }),
   andrews: card("Thomas Andrews", "Her designer · on board", "person", { col: C.red, m: 3 }),
   hours: ({ t, d, c }) => (
     <Bg dark tone="#2a1418"><Mv t={t} d={d} m={4}>
@@ -325,7 +325,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
       <At x={960} y={720} s={pop(t, Math.max(30, c(122, "nothing") - 2))}><Pill text="Changed: nothing" col={C.red} fg="#fff" size={84} /></At>
     </Mv></Paper>
   ),
-  wrong: say([{ s: "You've been thinking", size: 96, col: "#fff" }, { s: "about this wrong", col: C.yellow, size: 150, cue: [123, "wrong"] }], { dark: true, m: 5 }),
+  wrong: say([{ s: "You've been thinking", size: 96, col: "#fff" }, { s: "about this wrong", col: C.yellow, size: 118, cue: [123, "wrong"] }], { dark: true, m: 5 }),
   next2: say([{ s: "The next", size: 120 }, { s: "2 hours", col: C.red, size: 280, cue: [127, "2"] }], { m: 4 }),
   n1178: num("1,178", "lifeboat seats", { m: 4, col: SEA, size: 330, top: "20 lifeboats" }),
   vs2200: ({ t, d, c }) => {
@@ -386,27 +386,27 @@ export const BOARDS: Record<string, React.FC<G>> = {
     );
   },
   phillipsdead: card("Jack Phillips", "1887 – 1912", "person", { col: C.red, m: 0 }),
-  morning: say([{ s: "Nobody wakes him", size: 120, col: "#fff" }, { s: "until morning", col: C.yellow, size: 190, cue: [164, "until"] }], { dark: true, m: 0 }),
+  morning: say([{ s: "Nobody wakes him", size: 120, col: "#fff" }, { s: "until morning", col: C.yellow, size: 160, cue: [164, "until"] }], { dark: true, m: 0 }),
 
   // ---------------- ending ----------------
   t220: TimeCard("2:20", "AM", "April 15, 1912", { tone: "#2a1418" }),
   n700b: num("700", "survivors, about", { m: 4, col: SEA, size: 400 }),
   fewmore: ({ t, d, c }) => (
     <Bg dark tone={NIGHT}><Mv t={t} d={d} m={0}>
-      <At x={760} y={400} s={pop(t, 0)}><T size={330} col="#fff" style={{ textShadow: "0 14px 0 #000" }}>700</T></At>
-      <At x={1330} y={400} s={pop(t, Math.max(10, c(170, "few") - 4))}><T size={150} col={C.yellow} style={{ textShadow: "0 10px 0 #000" }}>+ a few</T></At>
+      <At x={690} y={400} s={pop(t, 0)}><T size={330} col="#fff" style={{ textShadow: "0 14px 0 #000" }}>700</T></At>
+      <At x={1400} y={400} s={pop(t, Math.max(10, c(170, "few") - 4))}><T size={128} col={C.yellow} style={{ textShadow: "0 10px 0 #000" }}>+ a few</T></At>
       <At x={960} y={680} s={pop(t, 4)}><T size={64} col={C.gold}>The real night · your night</T></At>
     </Mv></Bg>
   ),
   notship: say([{ s: "Not the ship", size: 170 }, { s: "Not everyone", col: C.red, size: 170, cue: [171, "everyone"] }], { m: 5 }),
-  ruleschange: say([{ s: "Afterward", size: 110 }, { s: "the rules change", col: SEA, size: 170, cue: [173, "rules"] }], { m: 0 }),
+  ruleschange: say([{ s: "Afterward", size: 110 }, { s: "the rules change", col: SEA, size: 138, cue: [173, "rules"] }], { m: 0 }),
   rule: ({ t, d, v }) => {
     const [g, top, label] = [["boat", "Rule 1", "A lifeboat seat for everyone"], ["clock24", "Rule 2", "Radio watch around the clock"], ["berg", "Since 1914", "The International Ice Patrol"]][v] ?? ["boat", "", ""];
     return (
       <Paper><Mv t={t} d={d} m={v === 1 ? 3 : 2}>
         <Banner text={top} t={t} at={0} col={v === 2 ? SEA : INK} />
         <At x={960} y={400} s={pop(t, 0)}><Gl kind={g} s={320} /></At>
-        <At x={960} y={690} s={pop(t, 5)}><T size={Math.min(96, 1640 / (label.length * 0.66))}>{label}</T></At>
+        <At x={960} y={690} s={pop(t, 5)}><T size={Math.min(84, 1640 / (label.length * 0.8))}>{label}</T></At>
       </Mv></Paper>
     );
   },
@@ -417,11 +417,11 @@ export const BOARDS: Record<string, React.FC<G>> = {
       <At x={960} y={610} s={pop(t, Math.max(12, c(177, "knew") - 2))}><T size={150} col="#fff" style={{ textShadow: "0 10px 0 #000" }}>who knew?</T></At>
     </Mv></Dark>
   ),
-  knowing: say([{ s: "Knowing was never", size: 110, col: "#fff" }, { s: "the problem", col: C.yellow, size: 220, cue: [179, "problem"] }], { dark: true, m: 4 }),
+  knowing: say([{ s: "Knowing was never", size: 110, col: "#fff" }, { s: "the problem", col: C.yellow, size: 185, cue: [179, "problem"] }], { dark: true, m: 4 }),
   comments: ({ t, d, c }) => (
     <Paper><Mv t={t} d={d} m={0}>
       <At x={960} y={300} s={pop(t, 0)}><Gl kind="bubble" s={300} /></At>
-      <At x={960} y={560} s={pop(t, 3)}><T size={110}>What would you have tried?</T></At>
+      <At x={960} y={560} s={pop(t, 3)}><T size={84}>What would you have tried?</T></At>
       <At x={960} y={720} s={pop(t, Math.max(10, c(182, "Tell") - 2))}><Pill text="Tell me in the comments" col={C.red} fg="#fff" size={70} /></At>
     </Mv></Paper>
   ),
@@ -452,7 +452,7 @@ const NearMap: React.FC<G & { step: number }> = ({ t, d, c, step }) => (
     </Svg>
     <At x={SOTON[0] + 70} y={SOTON[1] - 78} s={pop(t, step ? 0 : 6)}><Pill text="Southampton" size={50} /></At>
     {step ? <><At x={CHER[0] + 210} y={CHER[1] + 60} s={pop(t, Math.max(6, c(38, "France") - 2))}><Pill text="Cherbourg" size={46} /></At><At x={QUEEN[0] - 60} y={QUEEN[1] + 86} s={pop(t, Math.max(12, c(38, "Ireland") - 2))}><Pill text="Queenstown" size={46} /></At></>
-      : <At x={400} y={250} s={pop(t, 0)}><div style={{ background: C.red, border: `8px solid ${INK}`, borderRadius: 14, padding: "14px 40px", boxShadow: `0 10px 0 ${INK}` }}><T size={110} col="#fff">April 10</T><T size={60} col="#fff">1912</T></div></At>}
+      : <At x={420} y={350} s={pop(t, 0)}><div style={{ background: C.red, border: `8px solid ${INK}`, borderRadius: 14, padding: "14px 40px", boxShadow: `0 10px 0 ${INK}` }}><T size={110} col="#fff">April 10</T><T size={60} col="#fff">1912</T></div></At>}
   </Mv></AbsoluteFill>
 );
 /** the North Atlantic, wide */

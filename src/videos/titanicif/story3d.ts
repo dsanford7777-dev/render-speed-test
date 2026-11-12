@@ -148,7 +148,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     cam: move({ pos: Qy(-8, 1.5, -31), look: Qy(-6, 2.2, -22), fov: 46, roll: 0.08 }, { pos: S(-70, 34, -190), look: S(4, 17, 0), fov: 56, roll: -0.03 }, f, s.a + 3, s.b - 2, smooth, 0),
     people: [P("you", Qy(-6, 0, -24), "shock", 0)] }),
   "ship-length": (s, f) => { const u = smooth(U(s, f)); return { light: "day", dock: true, flow: 0.2, dof: 0,
-    cam: full({ pos: S(150 - 280 * u, 9, -44), look: S(120 - 270 * u, 11, 0), fov: 44, roll: 0.06 - 0.1 * u }) }; },
+    cam: full({ pos: S(128 - 190 * u, 9, -44), look: S(104 - 185 * u, 11, 0), fov: 44, roll: 0.06 - 0.1 * u }) }; },
   funnels: (s, f) => ({ light: "day", dock: true, flow: 0.2, dof: 0,
     cam: orbit(s, f, S(1, 31, 0), [-44, 26], [84, 60], [-14, -6], 50, [0.1, -0.07]) }),
   boarding: (s, f) => {
@@ -293,7 +293,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: [P("phillips", Rm(0.5, 0, 1.75), "shock", 0)] };
   },
   "set-aside": (s, f) => {
-    const u = smooth((f - s.a - 6) / 24), p = L3(Rm(0.3, 1.04, 0.5), Rm(1.52, 1.5, 0.48), u);
+    const u = smooth((f - s.a - 6) / 24), p = L3(Rm(0.3, 1.04, 0.5), Rm(1.5, 1.4, 0.78), u);
     return { light: "day", dof: 9, closeup: true, room: { sign: MARCONI, radio: true, papers: [0.64, 0.5, 0.41, 0.32] },
       cam: snap(Rm(1.5, 1.7, -1.8), Rm(1.0, 1.25, 0.55), f, s.a, { fov: 40, roll: -0.08 }),
       cards: [{ kind: "paper", p, spin: -0.2 + 0.25 * u, s: 0.8 }],
@@ -321,11 +321,11 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["the paper pile", Rm(2.0, 1.3, 0.45), 0.25]] }),
   note: (s, f) => {
     const cards: Card[] = [], land = (f0: number, x: number, y: number, sp: number) => { const u = clamp01((f - f0) / 9); if (u > 0) cards.push({ kind: "paper", p: Rm(x, y + 1.6 * (1 - u) * (1 - u), 0.45), spin: sp, s: 0.62 }); };
-    land(s.a + 4, 1.5, 1.52, 0.1);
-    for (let k = 0; k < 5; k++) land(s.a + 26 + k * 9, 1.5 + (k % 2 ? 0.05 : -0.04), 1.58 + k * 0.05, (k % 2 ? -1 : 1) * 0.16);
+    land(s.a + 4, 1.5, 1.28, 0.1);
+    for (let k = 0; k < 5; k++) land(s.a + 26 + k * 9, 1.5 + (k % 2 ? 0.05 : -0.04), 1.33 + k * 0.045, (k % 2 ? -1 : 1) * 0.16);
     return { light: "day", dof: 8, closeup: true, room: { sign: MARCONI, radio: true, papers: [0.64, 0.5, 0.41, 0.32] }, cards,
-      cam: orbit(s, f, Rm(1.6, 1.4, 0.5), [26, -12], [3.4, 2.9], [0.5, 0.3], 40, [0.08, -0.05]),
-      subjects: [["the note", Rm(1.5, 1.52, 0.45), 0.3]] };
+      cam: orbit(s, f, Rm(1.6, 1.25, 0.5), [26, -12], [3.4, 2.9], [0.5, 0.3], 40, [0.08, -0.05]),
+      subjects: [["the note", Rm(1.5, 1.3, 0.45), 0.3]] };
   },
 
   // ---------------- chapter 5: 11:39 ----------------
@@ -462,7 +462,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     const on = Math.floor(f / 3) % 3 !== 0;
     return { light: "day", dof: 7, room: { sign: MARCONI, radio: true, papers: [0.2, 0.1, 0.05, 0], num: { text: "SOS", bg: RED, fg: WHITE, k: pop(f, s.a + 6) || 0.001 } },
       cam: kick(move({ pos: Rm(2.4, 1.2, -3.4), look: Rm(0.5, 1.6, 1.6), fov: 50, roll: -0.1 }, { pos: Rm(1.6, 1.45, -2.6), look: Rm(0.5, 1.7, 1.75), fov: 46, roll: -0.03 }, f, s.a, s.a + 18, expo, 0.001), f, s.a + 7, 1),
-      cards: on ? [{ kind: "spark", p: Rm(0.9, 1.22, 0.38), spin: f * 0.8, s: 0.3 + 0.08 * Math.sin(f * 2.1) }] : [],
+      cards: on ? [{ kind: "spark", p: Rm(1.22, 1.08, 0.38), spin: f * 0.8, s: 0.22 + 0.06 * Math.sin(f * 2.1) }] : [],
       people: [P("phillips", Rm(0.5, 0, 1.75), "stern", 0)],
       subjects: f > s.a + 16 ? [["SOS", Rm(0.5, 2.15, 3.3), 0.3]] : [] };
   },
@@ -504,8 +504,9 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     people: [YOUG("stern"), P("gent", Dk(16.9, 0, -10.2), "nervous", 1), P("lady", Dk(15.7, 0, -10.5), "nervous", 1), ...inBoat(["lady3", "mother", "kid", "lady2", "wife"], 0, "nervous").map((q, k) => ({ ...q, p: [BOAT7_X - 3 + k * 1.5, q.p[1], q.p[2]] as V3 }))] }),
 
   // the thumbnail still: the viewer in his red cap at the rail, the iceberg dead ahead of the bow
-  thumb: () => ({ ...SEA, dof: 0, berg: { p: S(190, 0, -62), s: 1.5, yaw: 0.6 },
-    cam: full({ pos: S(96, DECK + 3.2, -9.5), look: S(180, 14, -52), fov: 54, roll: 0 }) }),
+  thumb: () => ({ ...SEA, dof: 0, berg: { p: S(172, 0, 9), s: 1.7, yaw: 0.6 },
+    cam: full({ pos: S(112.4, 12.5, -7.3), look: S(160, 16.5, -15), fov: 50, roll: 0 }),
+    people: [P("you", S(113.85, 11.06, -8.2), "shock", 0)] }),
 };
 
 /** handheld sway on every 3D shot */
