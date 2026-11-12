@@ -48,6 +48,9 @@ const OUT: Record<string, Who> = {
 };
 
 /** drawing size by distance: [canvas w, h, scale from the 600 x 1000 design] */
+const UNLIT = new Map<string, THREE.MeshBasicMaterial>();
+/** an unlit face for the number boards: the digits stay white whichever side the sun is on */
+const unlit = (key: string, tex: () => THREE.Texture) => { let m = UNLIT.get(key); if (!m) { m = new THREE.MeshBasicMaterial({ map: tex(), color: new THREE.Color(0.9, 0.9, 0.9) }); UNLIT.set(key, m); } return m; };
 const tier = (d: number): [number, number, number] => d < 3.2 ? [1800, 3000, 3.0] : d < 6.5 ? [1080, 1800, 1.8] : d < 16 ? [480, 800, 0.8] : [240, 400, 0.4];
 type Pose = { expr: Expr; look?: number; headTilt?: number; facing?: -1 | 0 | 1; blink?: number; wave?: number; side?: { phase: number; mirror: boolean; stride?: number } };
 
@@ -226,7 +229,7 @@ export class HWorld {
     this.lamps.forEach((l, i) => l.set((lk[i] ?? lk[0]) * (st.flicker ? tw(i, st.flicker) : 1)));
     this.gen.wheel.rotation.z = -(st.gen ?? t * 5);
     const sg = st.sign;
-    if (sg) this.sign.setFace(`num_${sg.text}_${sg.bg ?? "#f6efdc"}_${sg.fg ?? "#c9373a"}_1024`, () => numTex(sg.text, sg.bg, sg.fg));
+    if (sg) this.sign.face.material = unlit(`num_${sg.text}_${sg.bg ?? ""}_${sg.fg ?? ""}`, () => numTex(sg.text, sg.bg, sg.fg));
     setPop(this.sign.group, sg ? sg.k ?? 1 : 0);
     const rm = st.room;
     if (rm) {
@@ -244,7 +247,7 @@ export class HWorld {
     this.bulb.group.visible = rm?.bulb !== undefined; this.bulb.set((rm?.bulb ?? 0) * (rm?.flicker ? tw(0, rm.flicker) : 1));
     this.bulb2.group.visible = rm?.bulb2 !== undefined; this.bulb2.set((rm?.bulb2 ?? 0) * (rm?.flicker2 ? tw(1, rm.flicker2) : 1));
     const rn = rm?.num;
-    if (rn) this.rnum.setFace(`num_${rn.text}_${rn.bg ?? "#f6efdc"}_${rn.fg ?? "#c9373a"}_1024`, () => numTex(rn.text, rn.bg, rn.fg));
+    if (rn) this.rnum.face.material = unlit(`num_${rn.text}_${rn.bg ?? ""}_${rn.fg ?? ""}`, () => numTex(rn.text, rn.bg, rn.fg));
     setPop(this.rnum.group, rn ? rn.k ?? 1 : 0);
     this.tclocks.forEach((c, i) => { c.group.visible = i < (rm?.clocks ?? 0); c.setTime(10.17 + (rm?.clockRate ?? 0) * t * (1 + i * 0.07)); });
     this.pclock.setTime(st.clock ?? 10.17);

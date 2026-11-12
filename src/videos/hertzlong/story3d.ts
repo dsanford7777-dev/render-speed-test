@@ -161,8 +161,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   }),
   "gen-lamps": (s, f) => ({
     light: "day", dof: 3, lamps: [1.1, 1.1, 1.1], gen: t(f) * 6,
-    cam: move({ pos: Lm(-8.4, 1.5, -4.6), look: Lm(-6.6, 1.2, 0.6), fov: 52, roll: -0.08 }, { pos: Lm(2.6, 2.2, -8.2), look: Lm(2.4, 2.2, 0), fov: 52, roll: 0.05 }, f, s.a, s.b - 4, smooth, 0),
-    people: [P("worker", Lm(-4.9, 0, -0.5), "smile_closed", 1), P("la1", Lm(4.4, 0, -1.6), "smile", -1)],
+    cam: move({ pos: Lm(-9.5, 2.0, -9), look: Lm(-3, 1.6, 0), fov: 60, roll: -0.08 }, { pos: Lm(2.4, 2.0, -7.6), look: Lm(2.6, 2.3, 0), fov: 50, roll: 0.05 }, f, s.a, s.b - 4, smooth, 0),
+    people: [P("la1", Lm(4.4, 0, -1.6), "smile", -1)],
   }),
   "lamps-steady": (s, f) => ({
     light: "day", dof: 3, lamps: [1.2, 1.2, 1.2], sign: { text: "133", k: 1 },
@@ -283,8 +283,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   },
   depot: (s, f) => ({
     light: "day", dof: 4, room: { sign: DEPOT, clocks: 5, clockRate: 1.2 },
-    cam: move({ pos: Rm(0.5, 1.15, -1.5), look: Rm(0.5, 1.2, 0.6), fov: 56, roll: -0.07 }, { pos: Rm(0.2, 2.2, -5.2), look: Rm(0.4, 1.8, 1.75), fov: 58, roll: 0.03 }, f, s.a, s.b - 4, smooth, 0),
-    people: [P("worker", Rm(0.5, 0, 1.75), "stern", 0), P("la0", Rm(-3.1, 0, 1.2), "nervous", 1), P("la2", Rm(4.2, 0, 1.2), "neutral", -1)],
+    cam: move({ pos: Rm(0.5, 1.3, -2.7), look: Rm(0.5, 1.25, 0.6), fov: 56, roll: -0.07 }, { pos: Rm(0.2, 2.2, -5.6), look: Rm(0.4, 1.8, 1.75), fov: 58, roll: 0.03 }, f, s.a, s.b - 4, smooth, 0),
+    people: [P("worker", Rm(0.5, 0, 1.75), "stern", 0), P("la0", Rm(-3.6, 0, 2.2), "nervous", 1), P("la2", Rm(4.4, 0, 2.2), "neutral", -1)],
   }),
   "clocks-fly": (s, f) => {
     const cards: { p: V3; spin: number; s: number }[] = [];
