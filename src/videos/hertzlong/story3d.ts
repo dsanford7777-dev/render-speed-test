@@ -88,12 +88,12 @@ const TABLE: V3 = Rm(0.5, 1.2, 0.9);
 // ---------------- the hook (and the loop back to it) ----------------
 const humCam = (f: number, f0: number, dir = 1): Cam => {
   const u = expo((f - f0) / 46);
-  return full(orb(Lm(0.75, 3.0, 0.3), dir * (30 - 22 * u), 5.4 - 1.3 * u, -1.5 + 0.5 * u, { fov: 60, roll: dir * 0.07 * (1 - u) }));
+  return full(orb(Lm(0.75, 2.9, -0.2), dir * (30 - 22 * u), 5.4 - 1.3 * u, -1.5 + 0.5 * u, { fov: 60, roll: dir * 0.07 * (1 - u) }));
 };
 const hum = (f: number, f0: number, n: Num, dir = 1, hit?: number): St3 => ({
   light: "day", dof: 5, lamps: [1.2, 1.2, 1.2], sign: { ...n, k: 1 },
   cam: hit === undefined ? humCam(f, f0, dir) : kick(humCam(f, f0, dir), f, hit, 1.1),
-  subjects: [["number board", Lm(1.55, 2.1, 0.5), 0.4]],
+  subjects: [["number board", Lm(1.55, 2.1, -0.8), 0.4]],
 });
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
@@ -101,15 +101,15 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   hum50: (s, f) => {
     const hit = W(1, "50");
     return { light: "day", dof: 5, lamps: [1.2, 1.2, 1.2], sign: { ...N50, k: 1 },
-      cam: kick(move({ pos: Lm(7.5, 7.5, -9), look: Lm(1.55, 2.3, 0.5), fov: 62, roll: -0.16 }, { pos: Lm(3.4, 1.5, -3.6), look: Lm(1.55, 2.3, 0.5), fov: 52, roll: 0.05 }, f, s.a, s.a + 22, expo, 0.0015), f, hit, 1.1),
-      subjects: [["number board", Lm(1.55, 2.1, 0.5), 0.4]] };
+      cam: kick(move({ pos: Lm(7.5, 7.5, -9), look: Lm(1.55, 2.3, -0.7), fov: 62, roll: -0.16 }, { pos: Lm(3.4, 1.5, -3.6), look: Lm(1.55, 2.3, -0.7), fov: 52, roll: 0.05 }, f, s.a, s.a + 22, expo, 0.0015), f, hit, 1.1),
+      subjects: [["number board", Lm(1.55, 2.1, -0.8), 0.4]] };
   },
   hum60b: (s, f) => hum(f, s.a, N60, -1, W(176, "60")),
   hum50b: (s, f) => {
     const hit = W(177, "50");
     return { light: "day", dof: 5, lamps: [1.2, 1.2, 1.2], sign: { ...N50, k: 1 },
       cam: kick(orbit(s, f, Lm(1.2, 2.6, 0.3), [-34, -8], [6.2, 4.4], [1.6, -0.6], 56, [-0.1, 0.03], expo), f, hit, 1.1),
-      subjects: [["number board", Lm(1.55, 2.1, 0.5), 0.4]] };
+      subjects: [["number board", Lm(1.55, 2.1, -0.8), 0.4]] };
   },
   loop: (s, f) => {
     const cut = s.b - 26;
@@ -138,13 +138,13 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   }),
   "dark-half": (s, f) => ({
     light: "golden", dof: 3, pyl: { west: 1.2, east: 0, hut: true },
-    cam: move({ pos: Py(15, 7.5, -15), look: Py(6.2, 1.8, -2.6), fov: 58, roll: 0.12 }, { pos: Py(8.6, 1.5, -8.4), look: Py(6.2, 1.9, -2.6), fov: 50, roll: -0.04 }, f, s.a, s.b - 6, smooth, 0),
-    people: [P("la1", Py(6.2, 0, -4.4), "nervous", -1, { headTilt: 0.06 })],
+    cam: move({ pos: Py(-15, 7.5, -15), look: Py(-6.2, 1.8, -2.6), fov: 58, roll: 0.12 }, { pos: Py(-8.6, 1.5, -8.4), look: Py(-6.2, 1.9, -2.6), fov: 50, roll: -0.04 }, f, s.a, s.b - 6, smooth, 0),
+    people: [P("la1", Py(-6.2, 0, -4.4), "nervous", -1, { headTilt: 0.06 })],
   }),
   "west-lit0": (s, f) => ({
     light: "golden", dof: 3, pyl: { west: 1.3, east: 0, hut: true },
-    cam: orbit(s, f, Py(-6.2, 1.9, -2.8), [26, -18], [6.4, 5.0], [0.4, 0.1], 52, [-0.08, 0.05]),
-    people: [P("la3", Py(-6.2, 0, -4.4), "smile", 1)],
+    cam: orbit(s, f, Py(6.2, 1.9, -2.8), [26, -18], [6.4, 5.0], [0.4, 0.1], 52, [-0.08, 0.05]),
+    people: [P("la3", Py(6.2, 0, -4.4), "smile", 1)],
   }),
 
   // ---------------- chapter 1: the hum ----------------
@@ -161,13 +161,13 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   }),
   "gen-lamps": (s, f) => ({
     light: "day", dof: 3, lamps: [1.1, 1.1, 1.1], gen: t(f) * 6,
-    cam: move({ pos: Lm(-8.4, 1.5, -4.6), look: Lm(-6.6, 1.2, 0.6), fov: 52, roll: -0.08 }, { pos: Lm(3.2, 2.2, -6.6), look: Lm(2.2, 2.2, 0), fov: 52, roll: 0.05 }, f, s.a, s.b - 4, smooth, 0),
-    people: [P("worker", Lm(-4.9, 0, -0.5), "smile_closed", 1), P("la1", Lm(4.7, 0, -0.9), "smile", -1)],
+    cam: move({ pos: Lm(-8.4, 1.5, -4.6), look: Lm(-6.6, 1.2, 0.6), fov: 52, roll: -0.08 }, { pos: Lm(2.6, 2.2, -8.2), look: Lm(2.4, 2.2, 0), fov: 52, roll: 0.05 }, f, s.a, s.b - 4, smooth, 0),
+    people: [P("worker", Lm(-4.9, 0, -0.5), "smile_closed", 1), P("la1", Lm(4.4, 0, -1.6), "smile", -1)],
   }),
   "lamps-steady": (s, f) => ({
     light: "day", dof: 3, lamps: [1.2, 1.2, 1.2], sign: { text: "133", k: 1 },
     cam: orbit(s, f, Lm(0.6, 2.8, 0.2), [-30, 14], [6.2, 5.2], [-2.0, -1.5], 62, [-0.09, 0.05]),
-    subjects: [["number board", Lm(1.55, 2.1, 0.5), 0.4]],
+    subjects: [["number board", Lm(1.55, 2.1, -0.8), 0.4]],
   }),
   "lamp-small": (s, f) => ({
     light: "day", dof: 9, closeup: true, lamps: [1.25, 1.25, 1.25],
@@ -204,7 +204,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     light: "day", dof: 4, lamps: [1.2, 1.2, 1.2], flicker: 5, sign: { text: "25", k: 1 },
     cam: orbit(s, f, Lm(0.2, 2.2, -0.6), [20, -24], [6.4, 5.4], [-1.3, -0.9], 58, [0.12, -0.1]),
     people: [P("eng1", Lm(-1.6, 0, -1.4), "nervous", 1, { headTilt: 0.07 }), P("eng2", Lm(-0.4, 0, -1.7), "pained", 1)],
-    subjects: [["number board", Lm(1.55, 2.1, 0.5), 0.4]],
+    subjects: [["number board", Lm(1.55, 2.1, -0.8), 0.4]],
   }),
   "eng-search": (s, f) => {
     const seq = ["133", "100", "80", "70", "40", "50", "60"], k = Math.min(seq.length - 1, Math.floor((f - s.a) / Math.max(1, (s.b - s.a) / seq.length)));
@@ -223,7 +223,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     light: "day", dof: 4, lamps: [1.3, 1.3, 1.3], sign: { ...N60, k: 1 },
     cam: move({ pos: Lm(4.4, 0.9, -4.6), look: Lm(2.2, 2.4, 0), fov: 56, roll: 0.1 }, { pos: Lm(5.2, 4.6, -5.8), look: Lm(1.6, 2.8, 0), fov: 50, roll: -0.03 }, f, s.a, s.b - 4, smooth, 0),
     people: [P("eng0", Lm(-0.9, 0, -1.2), "smile", 1), P("eng1", Lm(-2.0, 0, -1.6), "smile_closed", 1)],
-    subjects: [["number board", Lm(1.55, 2.1, 0.5), 0.4]],
+    subjects: [["number board", Lm(1.55, 2.1, -0.8), 0.4]],
   }),
   "room-liked": (s, f) => ({
     light: "day", dof: 3, room: { sign: PITTS, tgen: t(f) * 7, bulb: 1.25, num: { ...N60, k: 1 } },
@@ -245,11 +245,11 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   },
   flicker40: (s, f) => {
     const cut = W(70, "see") - 2;
-    return { light: "day", dof: 6, lamps: [1.25, 1.25, 1.25], flicker: 4, sign: { text: "40", k: 1 },
+    return { light: "day", dof: 6, closeup: f >= cut, lamps: [1.25, 1.25, 1.25], flicker: 4, sign: { text: "40", k: 1 },
       cam: f < cut ? orbit(s, f, Lm(0.8, 2.8, 0.2), [18, -6], [5.6, 5.0], [-1.6, -1.3], 60, [0.1, 0.04])
         : snap(Lm(-0.5, 1.72, -4.4), Lm(-0.9, 1.6, -1.4), f, cut, { fov: 34, roll: -0.12 }),
       people: [P("ger0", Lm(-1.6, 0, -1.3), "pained", 0), P("ger2", Lm(-0.3, 0, -1.6), "nervous", 0, { headTilt: 0.08 })],
-      subjects: f < cut ? [["number board", Lm(1.55, 2.1, 0.5), 0.4]] : [] };
+      subjects: f < cut ? [["number board", Lm(1.55, 2.1, -0.8), 0.4]] : [] };
   },
   neither: (s, f) => ({
     light: "day", dof: 5, room: { sign: LAB, bulb: 1.2, bulb2: 1.2, num: { text: "60 ≈ 50", fg: "#241726", k: 1 } },
@@ -339,23 +339,23 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ---------------- chapter 6: 2011 ----------------
   "tokyo-dark": (s, f) => ({
     light: "golden", dof: 4, pyl: { west: 1.3, east: 0, hut: true },
-    cam: move({ pos: Py(11, 6.5, -12), look: Py(6.2, 1.7, -3.4), fov: 56, roll: -0.1 }, { pos: Py(7.6, 1.6, -8.2), look: Py(6.2, 1.7, -3.4), fov: 42, roll: 0.05 }, f, s.a, s.a + 26, expo, 0.001),
-    people: [P("tokyo", Py(6.2, 0, -4.4), "nervous", -1, { headTilt: 0.08 })],
+    cam: move({ pos: Py(-11, 6.5, -12), look: Py(-6.2, 1.7, -3.4), fov: 56, roll: -0.1 }, { pos: Py(-7.6, 1.6, -8.2), look: Py(-6.2, 1.7, -3.4), fov: 42, roll: 0.05 }, f, s.a, s.a + 26, expo, 0.001),
+    people: [P("tokyo", Py(-6.2, 0, -4.4), "nervous", -1, { headTilt: 0.08 })],
   }),
   "west-lit": (s, f) => ({
     light: "golden", dof: 4, pyl: { west: 1.35, east: 0, hut: true },
-    cam: orbit(s, f, Py(-6.2, 1.8, -3.2), [-24, 18], [6.0, 4.8], [0.2, 0.5], 50, [0.08, -0.05]),
-    people: [P("osaka", Py(-6.2, 0, -4.4), "smile", 1)],
+    cam: orbit(s, f, Py(6.2, 1.8, -3.2), [-24, 18], [6.0, 4.8], [0.2, 0.5], 50, [0.08, -0.05]),
+    people: [P("osaka", Py(6.2, 0, -4.4), "smile", 1)],
   }),
   "line-stood": (s, f) => {
     const u = smooth((f - s.a) / Math.max(1, s.b - s.a));
     return { light: "golden", dof: 2, pyl: { west: 1.3, east: 0, hut: true },
-      cam: full({ pos: Py(-5.5 + 9 * u, 0.9, -8.5), look: Py(-1.5 + 3 * u, 2.6, 0), fov: 60, roll: 0.1 - 0.2 * u }),
+      cam: full({ pos: Py(5.5 - 9 * u, 0.9, -8.5), look: Py(1.5 - 3 * u, 2.6, 0), fov: 60, roll: -0.1 + 0.2 * u }),
       subjects: [["converter station", Py(0.55, 1.5, -1.4), 0.3]] };
   },
   "turns-dark": (s, f) => ({
     light: "golden", dof: 3, pyl: { west: 1.3, east: 1.1, eturn: (f - s.a) / 13, hut: true },
-    cam: orbit(s, f, Py(6.2, 2.0, -2.6), [-20, 22], [6.6, 5.2], [0.8, -0.4], 54, [-0.09, 0.06]),
+    cam: orbit(s, f, Py(-6.2, 2.0, -2.6), [-20, 22], [6.6, 5.2], [0.8, -0.4], 54, [-0.09, 0.06]),
   }),
 
   // ---------------- ending ----------------

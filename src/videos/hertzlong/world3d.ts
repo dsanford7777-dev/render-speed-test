@@ -136,7 +136,7 @@ export class HWorld {
     for (let k = 0; k < 2; k++) R.add(wire(V(...Lm(-3 + k * 3, 3.25, 0)), V(...Lm(k * 3, 3.25, 0)), 0.35));
     this.gen = generator(1.9); this.gen.g.position.set(...Lm(-6.8, 0, 0.6)); R.add(this.gen.g);
     R.add(wire(V(...Lm(-6.4, 1.5, 0.6)), V(...Lm(-3, 3.25, 0)), 0.5));
-    this.sign = new Board(1.9, 1.2, "num_60", () => numTex("60"), 1.5); this.sign.group.position.set(...Lm(1.55, 2.1, 0.6)); R.add(this.sign.group);
+    this.sign = new Board(1.9, 1.2, "num_60", () => numTex("60"), 1.5); this.sign.group.position.set(...Lm(1.55, 2.1, -0.7)); R.add(this.sign.group);
     this.socket = new Board(0.8, 1.0, "wallSocket", socketTex, 1.0); this.socket.group.position.set(...Lm(9, 1.5, 0)); R.add(this.socket.group);
     // ---- the room (Lustig's salon; the wall sign is swapped per shot) ----
     this.salon = buildSalon(R, ROOM_O[0], ROOM_O[1], ROOM_O[2]);
@@ -149,7 +149,8 @@ export class HWorld {
     for (let k = 0; k < 5; k++) { const c = new Clock(0.24, ["#b5462f", "#2f5fb5", "#3f7d4a", "#d9a441", "#7a5236"][k]); c.group.position.set(...Rm(-1.4 + k * 0.95, 0.8 + 0.27, 0.6)); R.add(c.group); this.tclocks.push(c); }
     // ---- the post clock ----
     const pc = postClock(0.95, 2.5); pc.g.position.set(...Ck(0, 0, 0)); R.add(pc.g); this.pclock = pc.clock;
-    // ---- the two lines that never meet: west (60) and east (50), the converter station between them ----
+    // ---- the two lines that never meet: west (60) on +x and east (50) on -x, so that with the cameras on the -z side
+    //      west is screen left and east is screen right, as on the maps; the converter station between them ----
     for (const s of [-1, 1]) {
       for (const x of [9, 27]) { const p = pylon(9); p.position.set(...Py(s * x, 0, 0)); R.add(p); }
       for (const [y, dx] of [[7.82, 2.07], [6.56, 2.55]] as const) {
@@ -157,10 +158,10 @@ export class HWorld {
         R.add(wire(V(...Py(s * (9 + dx), y, 0)), V(...Py(s * (27 - dx), y, 0)), 1.1));
         R.add(wire(V(...Py(s * (27 + dx), y, 0)), V(...Py(s * 60, y + 1, 0)), 1.4));
       }
-      for (const x of [4.6, 6.2, 7.8]) { const l = new Lamp(2.3, 0.26); l.group.position.set(...Py(s * x, 0, -2.6)); R.add(l.group); (s < 0 ? this.west : this.east).push(l); }
+      for (const x of [4.6, 6.2, 7.8]) { const l = new Lamp(2.3, 0.26); l.group.position.set(...Py(s * x, 0, -2.6)); R.add(l.group); (s > 0 ? this.west : this.east).push(l); }
     }
-    this.b60 = new Board(1.5, 0.95, "num_60_#2f5fb5_#ffffff", () => numTex("60", "#2f5fb5", "#ffffff"), 1.0); this.b60.group.position.set(...Py(-3.4, 1.5, 1.6)); R.add(this.b60.group);
-    this.b50 = new Board(1.5, 0.95, "num_50_#c9373a_#ffffff", () => numTex("50", "#c9373a", "#ffffff"), 1.0); this.b50.group.position.set(...Py(3.4, 1.5, 1.6)); R.add(this.b50.group);
+    this.b60 = new Board(1.5, 0.95, "num_60_#2f5fb5_#ffffff", () => numTex("60", "#2f5fb5", "#ffffff"), 1.0); this.b60.group.position.set(...Py(3.4, 1.5, 1.6)); R.add(this.b60.group);
+    this.b50 = new Board(1.5, 0.95, "num_50_#c9373a_#ffffff", () => numTex("50", "#c9373a", "#ffffff"), 1.0); this.b50.group.position.set(...Py(-3.4, 1.5, 1.6)); R.add(this.b50.group);
     this.hutG = hut(); this.hutG.position.set(...Py(0, 0, 0)); R.add(this.hutG);
     this.cards = new Cards(R, clockCardTex(), 14, 0.7);
     this.sparks = new Cards(R, sparkTex(), 3, 1.0);

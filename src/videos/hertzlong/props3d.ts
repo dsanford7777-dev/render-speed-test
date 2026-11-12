@@ -74,7 +74,7 @@ export class Lamp {
   set(k: number) {
     const a = Math.max(0, Math.min(1.4, k));
     this.mat.color.setRGB(0.2 + 3.4 * a, 0.2 + 2.7 * a, 0.22 + 1.3 * a);
-    this.halo.visible = a > 0.02; this.halo.scale.setScalar(this.r * (3 + 5 * a)); (this.halo.material as THREE.SpriteMaterial).opacity = 0.75 * a;
+    this.halo.visible = a > 0.02; this.halo.scale.setScalar(this.r * (2.6 + 2.6 * a)); (this.halo.material as THREE.SpriteMaterial).opacity = 0.5 * a;
   }
   top() { this.group.updateWorldMatrix(true, false); return this.group.localToWorld(new THREE.Vector3(0, this.h + this.r * 0.85, 0)); }
 }
