@@ -139,6 +139,9 @@ const iceTex = () => ctex("ttIceChunk", 256, 256, (g) => {
   g.beginPath(); [[40, 150], [70, 60], [150, 34], [220, 100], [200, 196], [110, 226]].forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); g.fill(); g.stroke();
   g.strokeStyle = "#9fc3e0"; g.lineWidth = 8; g.beginPath(); g.moveTo(80, 90); g.lineTo(140, 120); g.lineTo(120, 190); g.stroke();
 });
+const stackTex = () => ctex("ttPaperStack", 64, 256, (g) => {
+  g.fillStyle = "#fff6dc"; g.fillRect(0, 0, 64, 256); g.fillStyle = "#b9ab8a"; for (let y = 4; y < 256; y += 8) g.fillRect(0, y, 64, 2);
+});
 const discTex = () => ctex("sunDisc", 128, 128, (g) => {
   const gr = g.createRadialGradient(64, 64, 58, 64, 64, 64); gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(1, "rgba(255,255,255,0)");
   g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
@@ -324,7 +327,7 @@ export class TWorld {
     const key = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.04, 0.08), gold); key.position.set(0.2, 0.2, -0.2); key.rotation.z = 0.12;
     const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.05, 12), dark); knob.position.set(0.4, 0.25, -0.2);
     this.radio.add(base, coil(-0.3), coil(0.02), key, knob); this.radio.traverse((o) => { o.castShadow = true; }); this.radio.position.set(...Rm(0.5, 0.8, 0.6)); R.add(this.radio);
-    for (let k = 0; k < 4; k++) { const st = new THREE.Mesh(new THREE.BoxGeometry(0.42, 1, 0.3), M("ttPaper", "#fff6dc")); st.position.set(...Rm(1.5 + k * 0.5, 0.8, 0.6)); st.castShadow = true; this.stacks.push(st); R.add(st); }
+    for (let k = 0; k < 4; k++) { const st = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1, 0.22), lam("ttPaperStack", () => ({ map: stackTex() }))); st.position.set(...Rm(1.5 + k * 0.5, 0.8, 0.6)); st.castShadow = true; this.stacks.push(st); R.add(st); }
     this.rnum = new Board(1.9, 1.2, "num_SOS", () => numTex("SOS")); this.rnum.group.position.set(...Rm(0.5, 2.15, 3.38)); R.add(this.rnum.group);
     this.papers = new Cards(R, paperTex(), 16, 0.6); this.ices = new Cards(R, iceTex(), 10, 0.5); this.sparks = new Cards(R, sparkTex(), 6, 1.0);
   }
@@ -411,7 +414,7 @@ export class TWorld {
     }
     this.wheel.visible = rm?.wheel !== undefined; this.wheelRim.rotation.z = rm?.wheel ?? 0;
     this.radio.visible = !!rm?.radio;
-    this.stacks.forEach((s2, i) => { const n = rm?.papers?.[i] ?? 0; s2.visible = n > 0.01; s2.scale.y = Math.max(0.01, n); s2.position.y = ROOM_O[1] + 0.8 + n / 2; });
+    this.stacks.forEach((s2, i) => { const n = 0.55 * (rm?.papers?.[i] ?? 0); s2.visible = n > 0.01; s2.scale.y = Math.max(0.01, n); s2.position.y = ROOM_O[1] + 0.8 + n / 2; });
     const rn = rm?.num;
     if (rn) this.rnum.face.material = unlit(`num_${rn.text}_${rn.bg ?? ""}_${rn.fg ?? ""}`, () => numTex(rn.text, rn.bg, rn.fg));
     this.rnum.group.visible = !!rn && (rn.k ?? 1) > 0.001; this.rnum.group.scale.setScalar(Math.max(0.001, rn ? rn.k ?? 1 : 1));

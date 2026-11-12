@@ -106,7 +106,7 @@ const NESTC: V3 = Nt(0, 1.45, 0);
 // the story's lifeboat when swung out: its middle, and seats along it
 const B7 = (drop: number): V3 => [BOAT7_X, DECK + 0.75 - drop, -15.3];
 const inBoat = (names: string[], drop: number, expr: Expr | Expr[] = "nervous", o: V3 = B7(drop)): Person3[] =>
-  names.map((n, k) => P(n, [o[0] - 3.0 + (k % 6) * 1.2 + (k >= 6 ? 0.6 : 0), o[1] - 0.45, o[2] + (k >= 6 ? 0.55 : k % 2 ? 0.25 : -0.3)], Array.isArray(expr) ? expr[k % expr.length] : expr, 0, { low: true }));
+  names.map((n, k) => P(n, [o[0] - 3.0 + (k % 6) * 1.2 + (k >= 6 ? 0.6 : 0), o[1] + 0.55, o[2] + (k >= 6 ? 0.55 : k % 2 ? 0.25 : -0.3)], Array.isArray(expr) ? expr[k % expr.length] : expr, 0, { low: true }));
 // by the lifeboat: the bit of open deck just aft of it, seen from outside the rail
 const GATE: V3 = Dk(17.6, 1.4, -10.5);
 const gateCam = (s: ShotDef, f: number, a: [number, number] = [-16, 14], r: [number, number] = [9.2, 8.0], roll: [number, number] = [0.05, -0.04]) => orbit(s, f, GATE, a, r, [0.5, 0.25], 40, roll);
@@ -121,7 +121,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     people: [P("you", YOU0, "nervous", 0)] }),
   "berg-ahead": (s, f) => {
     const u = U(s, f), bx = 430 - 150 * u, hit = W(3, "iceberg");
-    return { ...SEA, flow: 11, dof: 0, berg: { p: S(bx, 0, -5), s: 1.25 },
+    return { ...SEA, flow: 11, dof: 0, berg: { p: S(bx, 0, -5), s: 2.0 },
       cam: kick(move({ pos: S(129, 17.5, 2), look: S(260, 10, -4), fov: 58, roll: -0.08 }, { pos: S(133, 14.5, 0.5), look: S(260, 9, -5), fov: 44, roll: 0.03 }, f, s.a, s.b - 2, smooth, 0), f, hit, 1.2),
       subjects: [["iceberg", S(bx, 10, -5), 12]] };
   },
@@ -176,7 +176,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   stranger: (s, f) => {
     const tt = (f - s.a) / FPS;
     return { light: "day", dock: true, flow: 0.2, dof: 0,
-      cam: move({ pos: Qy(-3, 3, -31), look: Qy(-6, 1.2, -24), fov: 46, roll: 0.1 }, { pos: Qy(4, 17, -56), look: Qy(-6, 0.5, -23), fov: 50, roll: -0.04 }, f, s.a, s.b - 2, smooth, 0),
+      cam: move({ pos: Qy(-3, 3, -31), look: Qy(-6, 1.2, -24), fov: 46, roll: 0.1 }, { pos: Qy(1, 9.5, -43), look: Qy(-6, 0.8, -23), fov: 50, roll: -0.04 }, f, s.a, s.b - 2, smooth, 0),
       people: [P("you", Qy(-6, 0, -24), "shock", 0, { wave: 0.95 }), walker("gent", -16, QUAY, -21.6, 1.2, tt, "neutral", 1), walker("lady", -17.4, QUAY, -21.2, 1.2, tt, "neutral", 2), walker("worker", 6, QUAY, -26.8, -1.1, tt, "neutral", 3), walker("lady3", -22, QUAY, -27.6, 1.3, tt, "neutral", 4)] };
   },
   "ten-more": (s, f) => {
@@ -194,7 +194,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   "get-on": (s, f) => {
     const tt = (f - s.a) / FPS, x = 2 + 1.5 * tt;
     return { light: "day", dock: true, flow: 0.2, dof: 3,
-      cam: full({ pos: Qy(x + 3.4, 0.9, -30.5), look: Qy(x + 0.6, 2.6, -21), fov: 54, roll: 0.08 }),
+      cam: full({ pos: Qy(x + 2.6, 0.9, -27.6), look: Qy(x + 0.5, 2.2, -21), fov: 52, roll: 0.08 }),
       people: [walker("you", 2, QUAY, -21.4, 1.5, tt, "stern", 0)] };
   },
   "ship-leave": (s, f) => ({ light: "golden", dock: true, flow: 0.3, dof: 0,
@@ -204,7 +204,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ---------------- chapter 2: the captain ----------------
   "smith-bridge": (s, f) => ({ light: "day", dof: 5, room: { sign: BRIDGE, wheel: 0.25 * Math.sin(t(f) * 0.9) },
     cam: orbit(s, f, Rm(-0.6, 1.45, 1.4), [-30, 10], [6.6, 5.2], [0.8, 0.4], 48, [0.07, -0.03], expo),
-    people: [P("helm", Rm(WHEEL_X, 0, 1.75), "neutral", 1), P("smith", Rm(0.4, 0, 1.75), "stern", 0)] }),
+    people: [P("helm", Rm(WHEEL_X - 0.95, 0, 1.75), "neutral", 1), P("smith", Rm(0.4, 0, 1.75), "stern", 0)] }),
   "days-near": (s, f) => {
     const tt = (f - s.a) / FPS, x = -10 + 1.2 * tt;
     return { light: "day", flow: 9, dof: 4,
@@ -249,7 +249,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   search: (s, f) => {
     const tt = (f - s.a) / FPS, x = -8 + 2.6 * tt;
     return { ...SEA, dof: 4,
-      cam: full({ pos: Dk(x + 3.0, 1.3, -19.4), look: Dk(x + 0.8, 1.4, -10.4), fov: 46, roll: 0.07 }),
+      cam: full({ pos: Dk(x + 2.2, 1.5, -17.2), look: Dk(x + 0.6, 1.4, -10.4), fov: 38, roll: 0.07 }),
       people: [walker("you", -8, DECK, -10.4, 2.6, tt, "nervous", 0)] };
   },
   "no-moon": (s, f) => { const u = smooth(U(s, f)); return { ...SEA, dof: 0,
@@ -340,21 +340,21 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: LOOKOUTS("shock"), subjects: [["the bell", Nt(0.85, 2.5, 0), 0.5]] };
   },
   "iceberg-ahead": (s, f) => {
-    const u = U(s, f), bx = 262 - 40 * u;
-    return { ...SEA, flow: 11, dof: 0, berg: { p: S(bx, 0, -5), s: 1.3 },
+    const u = U(s, f), bx = 232 - 50 * u;
+    return { ...SEA, flow: 11, dof: 0, berg: { p: S(bx, 0, -5), s: 1.9 },
       cam: kick(snap(Nt(1.6, 2.6, 0.4), S(bx, 9, -5), f, s.a, { fov: 40, roll: 0.1 }, 1.02, 6), f, s.a + 4, 1.4),
       subjects: [["iceberg", S(bx, 10, -5), 14]] };
   },
   "officer-bridge": (s, f) => ({ light: "day", dof: 6, room: { sign: BRIDGE, wheel: 0 },
     cam: kick(snap(Rm(-1.0, 1.55, -2.6), Rm(-1.4, 1.5, 1.75), f, s.a, { fov: 46, roll: 0.09 }, 1.6, 6), f, s.a + 5, 1),
-    people: [P("helm", Rm(WHEEL_X, 0, 1.75), "shock", 1), P("murdoch", Rm(0.4, 0, 1.75), "shock", 0)] }),
+    people: [P("helm", Rm(WHEEL_X - 0.95, 0, 1.75), "shock", 1), P("murdoch", Rm(0.4, 0, 1.75), "shock", 0)] }),
   turn: (s, f) => ({ light: "day", dof: 9, closeup: true, room: { sign: BRIDGE, wheel: -7 * expo((f - s.a) / 26) },
     cam: kick(snap(Rm(WHEEL_X + 1.0, 1.35, -1.5), Rm(WHEEL_X, 1.2, 0.63), f, s.a, { fov: 40, roll: -0.12 }), f, s.a + 3, 1.2),
     subjects: [["the wheel", Rm(WHEEL_X, 1.2, 0.6), 0.2]] }),
   swing: (s, f) => {
     const u = smooth(U(s, f));
     return { ...SEA, flow: 11, dof: 0, ship: { yaw: -0.13 * u }, berg: { p: S(246 - 78 * u, 0, -12 - 14 * u), s: 1.2 },
-      cam: full({ pos: S(176 - 20 * u, 250 - 40 * u, -70), look: S(150 - 10 * u, 0, -8), fov: 40, roll: -0.12 + 0.2 * u }) };
+      cam: full({ pos: S(176 - 20 * u, 250 - 40 * u, -70), look: S(150 - 10 * u, 0, -8), fov: 52, roll: -0.12 + 0.2 * u }) };
   },
   almost: (s, f) => {
     const u = smooth(U(s, f));
@@ -379,7 +379,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   },
   "wheel-man": (s, f) => ({ light: "day", dof: 6, room: { sign: BRIDGE, wheel: -7 },
     cam: orbit(s, f, Rm(WHEEL_X + 0.9, 1.45, 1.4), [20, -16], [5.0, 4.2], [0.3, 0.5], 44, [-0.07, 0.05]),
-    people: [P("helm", Rm(WHEEL_X, 0, 1.75), "dazed", 1), P("you", Rm(WHEEL_X + 1.9, 0, 1.75), "nervous", -1, { wave: 0.85 })] }),
+    people: [P("helm", Rm(WHEEL_X - 0.95, 0, 1.75), "dazed", 1), P("you", Rm(WHEEL_X + 1.9, 0, 1.75), "nervous", -1, { wave: 0.85 })] }),
   truth: (s, f) => ({ light: "day", dof: 6, room: { sign: BRIDGE },
     cam: orbit(s, f, Rm(0.5, 1.5, 1.6), [-26, 14], [5.2, 4.2], [0.5, 0.2], 44, [0.06, -0.05]),
     people: [P("andrews", Rm(-0.3, 0, 1.75), "stern", 1), P("smith", Rm(1.3, 0, 1.75), "nervous", -1)] }),
@@ -390,8 +390,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     people: [P("you", YOU0, "pained", 0, { headTilt: 0.08 })] }),
   "save-ship": (s, f) => ({ light: "night", flow: 0.3, dof: 0, ship: { pitch: -0.014, sink: 0.4 },
     cam: orbit(s, f, S(20, 12, 0), [-52, -22], [290, 230], [46, 22], 46, [0.06, -0.04]) }),
-  finished: (s, f) => { const u = smooth(U(s, f)); return { light: "night", flow: 0.3, dof: 0, ship: { pitch: -0.03 - 0.02 * u, sink: 1.0 + 1.6 * u },
-    cam: move({ pos: S(176, 2.4, -54), look: S(128, 6, -2), fov: 58, roll: 0.14 }, { pos: S(162, 4.5, -44), look: S(126, 5, -2), fov: 50, roll: 0.05 }, f, s.a, s.b - 2, smooth, 0) }; },
+  finished: (s, f) => { const u = smooth(U(s, f)); return { light: "night", flow: 0.3, dof: 0, ship: { pitch: -0.045 - 0.03 * u, sink: 1.5 + 2.0 * u },
+    cam: move({ pos: S(160, 2.2, -36), look: S(124, 6, 0), fov: 58, roll: 0.14 }, { pos: S(148, 4.5, -27), look: S(120, 5, 0), fov: 52, roll: 0.05 }, f, s.a, s.b - 2, smooth, 0) }; },
   people: (s, f) => ({ light: "night", flow: 0.3, dof: 3,
     cam: orbit(s, f, Dk(0, 1.4, -10), [26, -20], [12.5, 9.5], [1.6, 0.4], 46, [-0.07, 0.05]),
     people: [P("gent", Dk(-5.2, 0, -9.6), "nervous", 1), P("lady", Dk(-3.9, 0, -9.9), "nervous", 1), P("mother", Dk(-2.2, 0, -9.5), "nervous", 0), P("kid", Dk(-1.3, 0, -10.4), "neutral", 0), P("husband", Dk(0.6, 0, -9.7), "stern", -1), P("wife", Dk(1.6, 0, -9.9), "nervous", -1), P("lady3", Dk(3.3, 0, -9.5), "neutral", -1), P("gent2", Dk(4.6, 0, -10.0), "stern", -1)] }),
@@ -452,7 +452,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     const names = ["lady3", "mother", "kid", "lady2", "wife", "husband", "lady", "gent2", "gent3", "worker2"], n = Math.min(names.length, 3 + Math.floor(U(s, f) * 8.5));
     return { light: "night", flow: 0.3, dof: 3, boat: { out: 1, drop: 0 },
       cam: orbit(s, f, Dk(22.5, 0.9, -13.4), [18, -10], [13.5, 11], [6.6, 4.6], 44, [-0.06, 0.04]),
-      people: [YOUG("smile", 0.7), ...names.slice(0, n).map((nm, k) => P(nm, [BOAT7_X - 3.3 + (k % 5) * 1.6 + (k >= 5 ? 0.8 : 0), DECK + 0.3, -15.3 + (k >= 5 ? 0.55 : -0.3)], k % 3 === 0 ? "smile_closed" : "nervous", 0, { low: true }))],
+      people: [YOUG("smile", 0.7), ...names.slice(0, n).map((nm, k) => P(nm, [BOAT7_X - 3.3 + (k % 5) * 1.6 + (k >= 5 ? 0.8 : 0), DECK + 1.3, -15.3 + (k >= 5 ? 0.55 : -0.3)], k % 3 === 0 ? "smile_closed" : "nervous", 0, { low: true }))],
       subjects: [["the lifeboat", B7(0), 2]] };
   },
   "wireless-again": (s, f) => ({ light: "day", dof: 5, room: { sign: MARCONI, radio: true, papers: [0.2, 0.1, 0.05, 0] },
@@ -483,7 +483,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     const u = smooth(U(s, f));
     return { light: "night", flow: 0.2, dof: 0, ship: { pitch: -0.2 - 0.26 * u, sink: 9 + 16 * u, lights: u < 0.45 ? 0.8 : 0.05 },
       seaBoats: [S(-60, 0, -120), S(-110, 0, -96), S(10, 0, -140), S(-150, 0, -150)],
-      cam: orbit(s, f, S(-60, 24, 0), [-30, -4], [250, 210], [20, 8], 48, [0.08, -0.05]) };
+      cam: orbit(s, f, S(-60, 24, 0), [-30, -4], [190, 160], [16, 7], 48, [0.08, -0.05]) };
   },
   freezing: (s, f) => ({ light: "night", flow: 0.2, dof: 0, ship: { hide: true },
     seaBoats: [S(0, 0, 0), S(24, 0, 14), S(-30, 0, 22), S(52, 0, -10)], floes: S(120, 0, 160),

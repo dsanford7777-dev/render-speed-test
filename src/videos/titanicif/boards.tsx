@@ -101,7 +101,7 @@ const Compartments: React.FC<{ t: number; n: number; from: number; col: string }
 const Seats: React.FC<{ t: number; total: number; full: number; cols: number; x: number; y: number; r: number; gap: number; at: number; fillAt: number }> = ({ t, total, full, cols, x, y, r, gap, at, fillAt }) => (
   <Svg>
     {Array.from({ length: total }, (_, i) => {
-      const cx = x + (i % cols) * gap, cy = y + Math.floor(i / cols) * gap, a = clamp01((t - at - i * 0.25) / 5), f = i < full ? clamp01((t - fillAt - i * 0.9) / 5) : 0;
+      const cx = x + (i % cols) * gap, cy = y + Math.floor(i / cols) * gap, a = clamp01((t - at - i * (total > 100 ? 0.05 : 0.2)) / 5), f = i < full ? clamp01((t - fillAt - i * 0.4) / 5) : 0;
       return <g key={i} opacity={a}><circle cx={cx} cy={cy} r={r} fill="#fffaf0" stroke={INK} strokeWidth={r > 12 ? 6 : 3} /><circle cx={cx} cy={cy} r={r * 0.62 * f} fill={SEA} /></g>;
     })}
   </Svg>
@@ -127,7 +127,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
       </div>
     </Mv></Paper>
   ),
-  warned: say([{ s: "The Titanic", size: 120, col: "#fff" }, { s: "was warned", col: C.yellow, size: 210, cue: [13, "warned"] }], { dark: true, m: 0 }),
+  warned: say([{ s: "The Titanic", size: 120, col: "#fff" }, { s: "was warned", col: C.yellow, size: 180, cue: [13, "warned"] }], { dark: true, m: 0 }),
   six: num("6", "times in one day", { dark: true, m: 4, col: C.yellow, size: 420 }),
 
   // ---------------- chapter 1 ----------------
@@ -138,7 +138,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
           <path d="M250 20 L60 110 L250 200 Z M480 20 L290 110 L480 200 Z" fill={C.yellow} stroke={INK} strokeWidth={14} strokeLinejoin="round" />
         </svg>
       </At>
-      <At x={960} y={560} s={pop(t, 4)}><T size={190} col="#fff" style={{ textShadow: "0 12px 0 #000" }}>4 days earlier</T></At>
+      <At x={960} y={560} s={pop(t, 4)}><T size={150} col="#fff" style={{ textShadow: "0 12px 0 #000" }}>4 days earlier</T></At>
     </Mv></Dark>
   ),
   ticket: ({ t, d }) => (
@@ -146,7 +146,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
       <At x={960} y={420} s={pop(t, 0)} r={-4}>
         <div style={{ width: 1240, background: "#fff6dc", border: `10px solid ${INK}`, borderRadius: 22, boxShadow: `0 16px 0 ${INK}`, padding: "34px 54px", position: "relative" }}>
           <T size={56} col={C.red}>White Star Line</T>
-          <T size={150} style={{ marginTop: 10 }}>R.M.S. Titanic</T>
+          <T size={128} style={{ marginTop: 10 }}>R.M.S. Titanic</T>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 26, borderTop: `8px dashed ${INK}`, paddingTop: 24 }}>
             <div><T size={40} w={800} col={C.grey}>Class</T><T size={92} col={SEA}>Third</T></div>
             <div><T size={40} w={800} col={C.grey}>Sailing</T><T size={92}>10 April 1912</T></div>
@@ -156,7 +156,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
       <Stamp text="Admit one" t={t} at={10} x={1420} y={640} size={74} r={-12} />
     </Mv></Paper>
   ),
-  getoff: say([{ s: "You know how many", size: 96, col: "#fff" }, { s: "are getting off", col: C.yellow, size: 160, cue: [24, "getting"] }], { dark: true, m: 1 }),
+  getoff: say([{ s: "You know how many", size: 96, col: "#fff" }, { s: "are getting off", col: C.yellow, size: 136, cue: [24, "getting"] }], { dark: true, m: 1 }),
   n700: num("700", "about that many", { dark: true, m: 4, col: C.red, size: 400 }),
   attempt: (g) => <Attempt {...g} />,
   fail: (g) => <Attempt {...g} failed />,
@@ -167,7 +167,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
           <div style={{ borderBottom: `10px double ${INK}`, paddingBottom: 14, textAlign: "center" }}><T size={96}>The Shipbuilder</T><T size={34} w={800} col={C.grey} style={{ marginTop: 6 }}>Special number · 1911</T></div>
           <div style={{ marginTop: 34, textAlign: "center" }}>
             <T size={54} w={800} up={false}>the new liners are</T>
-            <div style={{ transform: `scale(${pop(t, Math.max(6, c(31, "practically") - 2))})`, marginTop: 10 }}><T size={128} col={C.red}>“Practically unsinkable”</T></div>
+            <div style={{ transform: `scale(${pop(t, Math.max(6, c(31, "practically") - 2))})`, marginTop: 10 }}><T size={86} col={C.red}>“Practically unsinkable”</T></div>
           </div>
         </div>
       </At>
@@ -182,11 +182,11 @@ export const BOARDS: Record<string, React.FC<G>> = {
     <Paper><Mv t={t} d={d} m={v ? 1 : 0}>
       <Banner text={v ? "6 warnings" : "Ice warnings · April 14"} t={t} at={0} col={C.red} />
       {WARN_SHIPS.map((n, i) => {
-        const at = v ? i * 3 : Math.max(i * 4, Math.min(c(49, "6") - 2 + i * 4, d - 30 + i * 3));
+        const at = v ? i * 3 : Math.round(i * Math.min(9, d * 0.09));
         return <At key={i} x={420 + (i % 3) * 540} y={350 + Math.floor(i / 3) * 250} s={pop(t, at)} r={(i % 2 ? 1 : -1) * 2.5}>
           <div style={{ width: 470, background: "#fff6dc", border: `7px solid ${INK}`, borderRadius: 8, boxShadow: `0 10px 0 ${INK}`, overflow: "hidden" }}>
             <div style={{ background: C.red, padding: "6px 18px", borderBottom: `7px solid ${INK}` }}><T size={30} col="#fff">Ice report</T></div>
-            <div style={{ padding: "14px 18px 18px", display: "flex", alignItems: "center", gap: 14 }}><Gl kind="berg" s={86} /><T size={Math.min(58, 400 / (n.length * 0.66))}>{n}</T></div>
+            <div style={{ padding: "14px 18px 18px", display: "flex", alignItems: "center", gap: 14 }}><Gl kind="berg" s={86} /><T size={Math.min(56, 340 / (n.length * 0.7))}>{n}</T></div>
           </div>
         </At>;
       })}
@@ -225,8 +225,8 @@ export const BOARDS: Record<string, React.FC<G>> = {
   quote: ({ t, d, c }) => (
     <Bg dark tone={NIGHT}><Mv t={t} d={d} m={0}>
       <At x={960} y={170} s={pop(t, 0)}><T size={54} col={C.gold}>With binoculars, how much sooner?</T></At>
-      <At x={960} y={430} s={pop(t, Math.max(4, c(68, "Enough") - 2))}><T size={150} col="#fff" style={{ textShadow: "0 10px 0 #000" }}>“Enough to get</T></At>
-      <At x={960} y={600} s={pop(t, Math.max(8, c(68, "out") - 2))}><T size={150} col={C.yellow} style={{ textShadow: "0 10px 0 #000" }}>out of the way.”</T></At>
+      <At x={960} y={430} s={pop(t, Math.max(4, c(68, "Enough") - 2))}><T size={128} col="#fff" style={{ textShadow: "0 10px 0 #000" }}>“Enough to get</T></At>
+      <At x={960} y={600} s={pop(t, Math.max(8, c(68, "out") - 2))}><T size={128} col={C.yellow} style={{ textShadow: "0 10px 0 #000" }}>out of the way.”</T></At>
       <At x={960} y={760} s={pop(t, Math.max(12, c(68, "way") + 4))}><T size={44} w={800} col={C.gold} up={false}>Frederick Fleet, U.S. Senate inquiry, 1912</T></At>
     </Mv></Bg>
   ),
@@ -293,7 +293,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
     return (
       <Bg dark tone="#16304f"><Mv t={t} d={d} m={v === 0 ? 2 : v === 1 ? 4 : 0}>
         <Banner text={v === 0 ? "If she had hit it head-on" : v === 1 ? "The bow: crushed" : "The ship: survives"} t={t} at={0} col={v === 1 ? C.red : v === 2 ? C.green : INK} />
-        <Svg>
+        <Svg><g transform="translate(960 440) scale(1.45) translate(-900 -430)">
           <g transform="translate(1160 430)"><path d="M-150 60 L-60 -120 L20 -40 L80 -150 L170 30 L120 130 L-90 140 Z" fill="#eaf4fb" {...st} /><path d="M-60 -120 L-20 40 M80 -150 L70 60" {...sto} strokeWidth={5} stroke="#9fc3e0" /></g>
           <g transform={`translate(${bx} 430)`}>
             <path d={`M-560 -70 L${110 - 90 * cr} -70 L${220 - 150 * cr} 0 L${110 - 90 * cr} 70 L-560 70 Q-620 0 -560 -70 Z`} fill="#3a3a48" {...st} />
@@ -301,7 +301,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
             {[0, 1, 2, 3].map((i) => <circle key={i} cx={-400 + i * 120} cy={0} r={26} fill="#e2a04e" {...st} />)}
             {cr > 0 ? <path d={`M${120 - 90 * cr} -70 L${225 - 150 * cr} 0 L${120 - 90 * cr} 70`} fill="none" stroke={C.red} strokeWidth={20} strokeLinejoin="round" opacity={cr} /> : null}
           </g>
-        </Svg>
+        </g></Svg>
         {v === 2 ? <Stamp text="Afloat" t={t} at={Math.max(6, c(114, "survived") - 4)} x={720} y={660} size={170} col={C.green} r={-8} /> : null}
         {v === 1 ? <At x={960} y={720} s={pop(t, Math.max(8, c(113, "People") - 2))}><T size={76} col="#fff">People would have died</T></At> : null}
       </Mv></Bg>
@@ -319,8 +319,8 @@ export const BOARDS: Record<string, React.FC<G>> = {
   // ---------------- chapter 6 ----------------
   nothing: ({ t, d, c }) => (
     <Paper><Mv t={t} d={d} m={1}>
-      <div style={{ position: "absolute", left: 420, top: 110 }}>
-        {ATTEMPTS.slice(0, 4).map((a, i) => <Row key={i} text={a} t={t} at={i * 5} mark="x" markAt={8 + i * 6} size={82} strike />)}
+      <div style={{ position: "absolute", left: 480, top: 170 }}>
+        {ATTEMPTS.slice(0, 4).map((a, i) => <Row key={i} text={a} t={t} at={i * 5} mark="x" markAt={8 + i * 6} size={70} strike />)}
       </div>
       <At x={960} y={720} s={pop(t, Math.max(30, c(122, "nothing") - 2))}><Pill text="Changed: nothing" col={C.red} fg="#fff" size={84} /></At>
     </Mv></Paper>
@@ -339,7 +339,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
       </Mv></Paper>
     );
   },
-  notenough: say([{ s: "Not enough", col: C.red, size: 240 }, { s: "everybody knows that part", size: 80, cue: [131, "Everybody"] }], { m: 0 }),
+  notenough: say([{ s: "Not enough", col: C.red, size: 200 }, { s: "everybody knows that part", size: 80, cue: [131, "Everybody"] }], { m: 0 }),
   dontknow: say([{ s: "Here's the part", size: 110, col: "#fff" }, { s: "they don't", col: C.yellow, size: 250, cue: [132, "they"] }], { dark: true, m: 4 }),
   t1240: TimeCard("12:40", "AM", "The first lifeboat leaves"),
   seats: ({ t, d, v, c }) => {
@@ -370,8 +370,8 @@ export const BOARDS: Record<string, React.FC<G>> = {
       <At x={960} y={420} s={pop(t, 0)} r={-2}>
         <div style={{ width: 1240, background: "#fffaf0", border: `10px solid ${INK}`, boxShadow: `0 16px 0 ${INK}`, padding: "36px 54px", textAlign: "center" }}>
           <T size={50} w={800} col={C.grey}>Notice</T>
-          <T size={150} style={{ marginTop: 8 }}>Lifeboat drill</T>
-          <T size={76} col={SEA} style={{ marginTop: 14 }}>Sunday morning, April 14</T>
+          <T size={128} style={{ marginTop: 8 }}>Lifeboat drill</T>
+          <T size={62} col={SEA} style={{ marginTop: 14 }}>Sunday morning, April 14</T>
         </div>
       </At>
       <Stamp text="Cancelled" t={t} at={Math.max(8, c(143, "cancelled") - 2)} x={960} y={440} size={190} r={-10} />
@@ -452,7 +452,7 @@ const NearMap: React.FC<G & { step: number }> = ({ t, d, c, step }) => (
     </Svg>
     <At x={SOTON[0] + 70} y={SOTON[1] - 78} s={pop(t, step ? 0 : 6)}><Pill text="Southampton" size={50} /></At>
     {step ? <><At x={CHER[0] + 210} y={CHER[1] + 60} s={pop(t, Math.max(6, c(38, "France") - 2))}><Pill text="Cherbourg" size={46} /></At><At x={QUEEN[0] - 60} y={QUEEN[1] + 86} s={pop(t, Math.max(12, c(38, "Ireland") - 2))}><Pill text="Queenstown" size={46} /></At></>
-      : <At x={560} y={330} s={pop(t, 0)}><div style={{ background: C.red, border: `8px solid ${INK}`, borderRadius: 14, padding: "14px 40px", boxShadow: `0 10px 0 ${INK}` }}><T size={110} col="#fff">April 10</T><T size={60} col="#fff">1912</T></div></At>}
+      : <At x={400} y={250} s={pop(t, 0)}><div style={{ background: C.red, border: `8px solid ${INK}`, borderRadius: 14, padding: "14px 40px", boxShadow: `0 10px 0 ${INK}` }}><T size={110} col="#fff">April 10</T><T size={60} col="#fff">1912</T></div></At>}
   </Mv></AbsoluteFill>
 );
 /** the North Atlantic, wide */
@@ -473,9 +473,9 @@ const FarMap: React.FC<G & { step: number }> = ({ t, d, c, step }) => {
       </Svg>
       <At x={330} y={530} s={pop(t, 6)}><Pill text="New York" size={44} /></At>
       {step === 1 ? <>
-        <At x={1600} y={90} s={pop(t, Math.max(4, c(64, "key") - 2))} r={-14}><div style={{ background: "#fffaf0", border: `8px solid ${INK}`, borderRadius: "50%", padding: 22, boxShadow: `0 10px 0 ${INK}` }}><Gl kind="key" s={170} /></div></At>
-        <Svg><path d={`M1500 150 Q1240 120 ${sx + 60} ${sy - 60}`} stroke={C.red} strokeWidth={12} strokeDasharray="22 22" strokeLinecap="round" fill="none" opacity={clamp01((t - 10) / 8)} /></Svg>
-        <At x={1150} y={110} s={pop(t, 12)}><Pill text="hundreds of miles apart" col={C.yellow} size={48} /></At>
+        <At x={1720} y={470} s={pop(t, Math.max(4, c(64, "key") - 2))} r={-14}><div style={{ background: "#fffaf0", border: `8px solid ${INK}`, borderRadius: "50%", padding: 22, boxShadow: `0 10px 0 ${INK}` }}><Gl kind="key" s={170} /></div></At>
+        <Svg><path d={`M1600 470 Q1300 560 ${sx + 60} ${sy + 20}`} stroke={C.red} strokeWidth={12} strokeDasharray="22 22" strokeLinecap="round" fill="none" opacity={clamp01((t - 10) / 8)} /></Svg>
+        <At x={1240} y={640} s={pop(t, 12)}><Pill text="hundreds of miles apart" col={C.yellow} size={48} /></At>
       </> : null}
     </Mv></AbsoluteFill>
   );
