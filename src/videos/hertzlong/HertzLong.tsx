@@ -99,3 +99,11 @@ export const HertzLong: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+/** the thumbnail background (1920 x 1080 still; numbers and words are added by scripts/thumb_hertzlong.py) */
+export const HertzThumb: React.FC = () => {
+  const kit = useKit();
+  if (!kit) return null;
+  const shot = { id: 9001, s: 0, k: "3d", g: "thumb", a: 0, b: 10 } as unknown as (typeof SHOTS)[number];
+  return <AbsoluteFill style={{ background: "#000" }}><View3D kit={kit} shot={shot} f={4} visible /></AbsoluteFill>;
+};

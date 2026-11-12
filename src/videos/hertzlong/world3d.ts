@@ -255,6 +255,7 @@ export class HWorld {
     this.west.forEach((l, i) => l.set(py.west * (py.wturn !== undefined ? (Math.floor(py.wturn) % 3 === i ? 0 : 1) : 1)));
     this.east.forEach((l, i) => l.set(py.east * (py.eturn !== undefined ? (Math.floor(py.eturn) % 3 === i ? 0.0 : 1) : 1)));
     this.hutG.visible = !!py.hut;
+    this.b60.group.visible = this.b50.group.visible = py.boards !== false;
     this.sparks.hide();
     if (py.spark) { const sc = py.spark * (1 + 0.25 * Math.sin(f * 2.4)); this.sparks.put(0, V(...Py(0, 4.0, 0)), cam, f * 0.7, sc); }
     if (st.spark) this.sparks.put(1, V(...st.spark.p), cam, f * 0.9, st.spark.s);

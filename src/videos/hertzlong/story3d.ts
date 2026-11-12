@@ -26,7 +26,7 @@ export type St3 = {
   /** post clock time in hours (10.17 = ten past ten) */
   clock?: number;
   /** pylons: lamp brightness on each side, the converter hut, a spark in the gap, lamps taking turns going dark */
-  pyl?: { west: number; east: number; hut?: boolean; spark?: number; wturn?: number; eturn?: number };
+  pyl?: { west: number; east: number; hut?: boolean; spark?: number; wturn?: number; eturn?: number; boards?: boolean };
   spark?: { p: V3; s: number }; cards?: { p: V3; spin: number; s: number }[];
 };
 
@@ -334,6 +334,13 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     light: "day", dof: 2, pyl: { west: 1.1, east: 1.1, hut: true },
     cam: orbit(s, f, Py(0, 1.9, -0.4), [-36, 26], [10.5, 8.0], [3.4, 0.8], 54, [-0.07, 0.05]),
     subjects: [["converter station", Py(0.55, 1.5, -1.4), 0.3]],
+  }),
+
+  // the thumbnail still (HertzThumb): the gap from low down, spark big, one worker staring up at it
+  thumb: () => ({
+    light: "day", dof: 0, pyl: { west: 1.25, east: 1.25, spark: 2.2, boards: false },
+    cam: full({ pos: Py(0, 1.6, -8.2), look: Py(0, 2.6, 0), fov: 60, roll: 0 }),
+    people: [P("worker", Py(0, 0, -6.75), "shock", 0)],
   }),
 
   // ---------------- chapter 6: 2011 ----------------
