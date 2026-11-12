@@ -166,7 +166,7 @@ export class CWorld {
     // ---- the old generator and the number somebody picked ----
     this.gen = generator(1.9); this.gen.g.position.set(...GEN); R0.add(this.gen.g);
     this.g50 = new Board(1.9, 1.2, "num_50_red", () => numTex("50", RED, "#ffffff"), 1.7); this.g50.group.position.set(...G50); R0.add(this.g50.group);
-    this.g60 = new Board(1.15, 0.72, "num_60_blue", () => numTex("60", BLUE, "#ffffff")); this.g60.group.position.set(...G(0.95, 1.45, 0.1)); R0.add(this.g60.group);
+    this.g60 = new Board(1.15, 0.72, "num_60_blue", () => numTex("60", BLUE, "#ffffff")); this.g60.group.position.set(...G(0.75, 1.55, 0.1)); R0.add(this.g60.group);
     void GOLD; void ctex; void cobbleHD;
   }
 
@@ -280,7 +280,7 @@ export class CWorld {
     this.drumP.sticks.forEach((s, i) => { s.rotation.x = -0.5 - 0.7 * Math.max(0, Math.sin(t * Math.PI * 2 * hz + i * Math.PI)); s.rotation.z = (i ? -1 : 1) * 0.25; });
     // the field of clocks pops up row by row; the refrigerators rock on their feet
     if (id === 14 || id === 15) for (let j = 0; j < 9; j++) for (let i = 0; i < 16; i++) {
-      const k = j * 16 + i, born = id === 14 ? A(14) + 6 + j * 3 + (i % 4) : -1e9, u = clamp01((f - born) / 5);
+      const k = j * 16 + i, born = id === 14 ? A(14) - 4 + j + (i % 4) : -1e9, u = clamp01((f - born) / 5);
       if (u <= 0) continue;
       this.field.put(k, V(...F(-12 + 1.6 * i + (j % 2) * 0.5, 0.62, j * 1.75)), cam, 0.12 * Math.sin(k * 1.3), 0.4 + 0.6 * u);
     }
@@ -337,7 +337,8 @@ export class CWorld {
         break;
       case 17:
         if (f < m.third - 2) add(BOSS_, BOSS, { expr: f >= m.n34 ? "shock" : "stern", blink: blink(29) });
-        else if (f >= m.made - 2) add(BOSS_, BOSS, { expr: "pained", blink: 0, sweat: true });
+        else if (f < m.made - 2) add(BOSS_, BOSS, { expr: "shock", blink: 0, sweat: true, pass: true });
+        else add(BOSS_, BOSS, { expr: "pained", blink: 0, sweat: true });
         break;
       case 18:
         if (f < m.someone - 2) add(ENG_, ENGINEER, { expr: "smile", blink: blink(31), pass: true });
@@ -407,7 +408,7 @@ export class CWorld {
       case 9: return [["post clock", V(...CLOCK), 0.3, s.a + 6, m.counts - 4]];
       case 11: return [["post clock", V(...CLOCK), 0.3, m.theClock + 6, s.b]];
       case 16: return [["refrigerator", V(...Fr(0, 1.0, -0.4)), 0.2, m.fridges + 6, s.b, this.fridges[7]]];
-      case 17: return [["cash", V(...S(cashX(m.third + 10), 0.95, 0.55)), 0.2, m.third + 10, m.third + 10, this.cash]];
+      case 17: return [["cash", V(...S(cashX(m.third + 8), 0.95, 0.55)), 0.2, m.third + 8, m.third + 8, this.cash]];
       case 18: return [["50 board", this.g50.pos(), 0.2, m.p50 + 6, LOOP_F() - 1, this.g50.group]];
       default: return [];
     }

@@ -25,7 +25,7 @@ export const DRUMMER = R(0, 0, 0.35), DRUM = R(0, 0, -0.3);
 export const DAM60 = Dm(0, 4.2, -10.3);
 export const TOASTER = S(-0.6, 0.8, 0.55), BULB = S(1.6, 0.8, 0.6), TCLOCK = S(0.5, 1.07, 0.6);
 export const WORKER = S(0.98, 0, 1.75), BOSS = S(1.4, 0, 1.75);
-export const GEN = G(-1.6, 0, 0.6), G50 = G(1.8, 2.3, 0.6), ENGINEER = G(0.3, 0, -0.2);
+export const GEN = G(-1.6, 0, 0.6), G50 = G(1.15, 2.45, 0.6), ENGINEER = G(0.3, 0, -0.2);
 
 export const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 export const smooth = (x: number) => { const u = clamp01(x); return u * u * (3 - 2 * u); };
@@ -82,7 +82,7 @@ const marks = () => ({
   toastMind: W(8, "mind"), light: W(9, "Light"), bulbMind: W(9, "mind"),
   minded: W(10, "minded"),
   electric: W(11, "electric"), keep: W(11, "keep"), counts: W(12, "counts"), inWall: W(12, "wall"),
-  drummer: W(13, "drummer"), following: W(13, "following"),
+  drummer: W(13, "drummer"), following: W(13, "band"),
   speed: W(14, "Speed"), band: W(14, "band"), theClock: W(15, "clock"), twelve: W(15, "12"), every: W(15, "every"),
   carried: W(16, "carried"), depots: W(16, "depots"),
   rebuilt: W(17, "rebuilt"), sent: W(17, "sent"), within: W(17, "within"),
@@ -107,7 +107,7 @@ export const frontZ = (f: number) => { const f0 = M().depots - 2; return 109 - (
 /** shot 16: the camera's x sliding along the refrigerators */
 export const fridgeX = (f: number) => -8 + 9 * smooth((f - A(16)) / Math.max(1, M().fridges - 2 - A(16)));
 /** shot 17: x of the cash on the table (room coordinates): it slides away from the boss on "third" */
-export const cashX = (f: number) => 1.4 - 3.0 * smooth((f - M().third) / 26);
+export const cashX = (f: number) => 1.4 - 3.6 * smooth((f - (M().third + 2)) / 64);
 
 // ---------------- the cameras ----------------
 /** the opening frame (the ending cuts back to it): the man and his clock, clock just above the middle of the frame */
@@ -128,11 +128,11 @@ const keys = (): Record<number, Key[]> => {
   const sk: V3 = [SOCKET[0], SOCKET[1] - 0.45, SOCKET[2]], b60: V3 = [B60[0], B60[1] - 0.75, B60[2]], b50: V3 = [B50[0], B50[1] - 0.6, B50[2]];
   c[2] = [
     { f: A(2), s: (f) => snap([SOCKET[0] + 0.45, SOCKET[1] - 0.1, SOCKET[2] - 2.9], sk, f, A(2), { fov: 38, roll: -0.1 }) },
-    { f: m.wall - 2, cut: true, s: (f) => { const u = smooth((f - (m.wall - 2)) / Math.max(1, B(2) - (m.wall - 2))); return orb(sk, 30 - 46 * u, 3.6 - 0.5 * u, 0.25, { fov: 46, roll: 0.1 - 0.16 * u }); } },
+    { f: m.wall - 2, cut: true, s: (f) => { const u = smooth((f - (m.wall - 2)) / Math.max(1, B(2) - (m.wall - 2))); return orb(sk, 44 - 80 * u, 4.4 - 1.6 * u, 1.3 - 1.2 * u, { fov: 50, roll: 0.16 - 0.28 * u }); } },
   ];
   // 3 crane up to the blue 60 board; whip across to Los Angeles; snap to the red 50
   c[3] = [
-    { f: A(3), s: (f) => move({ pos: Yd(2.0, 0.8, -5.6), look: b60, fov: 58, roll: 0.13 }, { pos: Yd(4.9, 2.6, -4.4), look: b60, fov: 50, roll: -0.04 }, f, A(3), m.sixty + 8, expo, 0.001) },
+    { f: A(3), s: (f) => move({ pos: Yd(-1.5, 0.5, -9.5), look: b60, fov: 66, roll: 0.2 }, { pos: Yd(4.9, 2.6, -4.4), look: b60, fov: 50, roll: -0.04 }, f, A(3), m.sixty + 8, expo, 0.001) },
     { f: m.los - 4, dur: 6, s: (f) => { const u = f - (m.los - 4); return { pos: L(1.7 - 0.006 * u, 1.35, -5.4 + 0.006 * u), look: L(0, 1.75, 0.4), fov: 52, roll: -0.07 }; } },
     { f: m.fifty - 2, cut: true, s: (f) => snap(L(1.6, 1.9, -4.2), b50, f, m.fifty - 2, { fov: 40, roll: 0.1 }) },
   ];
@@ -144,7 +144,7 @@ const keys = (): Record<number, Key[]> => {
   ];
   // 5 Hoover Dam from its foot; from high above; snap to the 60 on the powerhouse
   c[5] = [
-    { f: A(5), s: (f) => move({ pos: Dm(11, 1.4, -46), look: Dm(0, 23, 2), fov: 74, roll: 0.15 }, { pos: Dm(-3, 2.4, -31), look: Dm(0, 27, 2), fov: 70, roll: -0.03 }, f, A(5), m.allNew - 4, smooth, 0) },
+    { f: A(5), s: (f) => move({ pos: Dm(22, 1.2, -66), look: Dm(0, 20, 2), fov: 76, roll: 0.22 }, { pos: Dm(-3, 2.4, -31), look: Dm(0, 27, 2), fov: 70, roll: -0.03 }, f, A(5), m.allNew - 4, smooth, 0) },
     { f: m.allNew - 2, cut: true, s: (f) => move({ pos: Dm(-26, 66, -40), look: Dm(0, 20, 0), fov: 60, roll: -0.12 }, { pos: Dm(-12, 50, -46), look: Dm(0, 16, -2), fov: 60, roll: 0.02 }, f, m.allNew - 2, m.dam60 - 4, smooth, 0) },
     { f: m.dam60 - 3, cut: true, s: (f) => snap(Dm(2.0, 3.0, -22), Dm(0, 2.6, -10.3), f, m.dam60 - 3, { fov: 42, roll: 0.08 }, 1.6, 6) },
   ];
@@ -191,7 +191,7 @@ const keys = (): Record<number, Key[]> => {
     { f: m.within - 2, cut: true, s: (f) => move({ pos: S(-0.4, 1.7, -1.6), look: S(0.3, 1.7, 1.75), fov: 52, roll: 0 }, { pos: S(-0.4, 3.8, -6.2), look: S(0.3, 1.8, 1.75), fov: 66, roll: 0.03 }, f, m.within - 2, B(13) - 2, expo, 0) },
   ];
   // 14 dive from high over the meadow down to the field of clocks
-  c[14] = [{ f: A(14), s: (f) => move({ pos: F(-34, 62, -95), look: F(0, 0, 7), fov: 70, roll: 0.2 }, { pos: F(0, 3.2, -15), look: F(0, 0.6, 7), fov: 60, roll: 0 }, f, A(14), B(14) - 2, smooth, 0) }];
+  c[14] = [{ f: A(14), s: (f) => move({ pos: F(-9, 15, -27), look: F(0, 0, 7), fov: 72, roll: 0.24 }, { pos: F(0, 3.2, -15), look: F(0, 0.6, 7), fov: 60, roll: 0 }, f, A(14), B(14) - 2, smooth, 0) }];
   // 15 rising orbit over the field; low skim across the clocks
   const fc: V3 = F(0, 0.5, 7);
   c[15] = [
@@ -207,15 +207,15 @@ const keys = (): Record<number, Key[]> => {
   const bs = head(BOSS);
   c[17] = [
     { f: A(17), s: (f) => move({ pos: S(2.0, 0.95, -1.2), look: bs, fov: 40, roll: -0.1 }, { pos: S(1.7, 1.12, -0.55), look: bs, fov: 40, roll: -0.1 }, f, A(17), A(17) + 14, expo, 0.001) },
-    { f: m.third - 2, cut: true, s: (f) => { const x = cashX(f); return { pos: S(x + 0.25, 1.08, -1.0), look: S(x, 0.92, 0.55), fov: 50, roll: 0.06 }; } },
+    { f: m.third - 2, cut: true, s: (f) => move({ pos: S(1.2, 1.7, -3.6), look: S(0.7, 1.15, 0.9), fov: 52, roll: 0.09 }, { pos: S(0.3, 1.4, -3.0), look: S(0.6, 1.15, 0.9), fov: 52, roll: -0.04 }, f, m.third - 2, m.made - 4, smooth, 0) },
     { f: m.made - 2, cut: true, s: (f) => snap(S(1.6, 1.6, -0.6), bs, f, m.made - 2, { fov: 33, roll: 0.11 }) },
   ];
   // 18 the old generator and its 50 board: orbit; the engineer; the two numbers; back to the hook frame
-  const gc: V3 = G(0.5, 1.4, 0.4);
+  const gc: V3 = G(0.2, 1.5, 0.4);
   c[18] = [
     { f: A(18), s: (f) => { const u = smooth((f - A(18)) / Math.max(1, m.someone - 4 - A(18))); return orb(gc, 28 - 40 * u, 6.4 - 1.0 * u, 0.2, { fov: 52, roll: 0.08 - 0.13 * u }); } },
     { f: m.someone - 2, cut: true, s: (f) => snap(G(0.8, 1.62, -2.55), head(ENGINEER), f, m.someone - 2, { fov: 34, roll: -0.11 }) },
-    { f: m.p50 - 2, cut: true, s: (f) => snap(G(2.4, 1.9, -4.0), [G50[0], G50[1] - 0.6, G50[2]], f, m.p50 - 2, { fov: 42, roll: 0.1 }) },
+    { f: m.p50 - 2, cut: true, s: (f) => snap(G(1.8, 2.0, -4.0), [G50[0], G50[1] - 0.6, G50[2]], f, m.p50 - 2, { fov: 42, roll: 0.1 }) },
     { f: LOOP_F(), cut: true, s: () => hook(0) },
   ];
   return c;
