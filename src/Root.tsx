@@ -12,6 +12,7 @@ import { BarberShort, BARBER_FRAMES } from "./videos/barber/Barber";
 import { LustigShort, LUSTIG_FRAMES } from "./videos/lustig/Lustig";
 import { ClocksShort, CLOCKS_FRAMES } from "./videos/clocks/Clocks";
 import { HertzLong, HertzThumb, HERTZLONG_FRAMES } from "./videos/hertzlong/HertzLong";
+import { TitanicIf, TitanicThumb, TITANICIF_FRAMES } from "./videos/titanicif/TitanicIf";
 
 // Render-farm padding: on software GL (GitHub runners) the first frame each render tab draws comes out blank.
 // "<Id>Padded" plays the real video delayed by PAD frames (frames 0..PAD-1 repeat frame 0), so every chunk can
@@ -38,6 +39,8 @@ const LustigPadded = padded(LustigShort);
 const ClocksPadded = padded(ClocksShort);
 const HertzLongPadded = padded(HertzLong);
 const HertzThumbPadded = padded(HertzThumb);
+const TitanicIfPadded = padded(TitanicIf);
+const TitanicThumbPadded = padded(TitanicThumb);
 
 export const Root: React.FC = () => (<>
   <Composition id="BridgeShort" component={BridgeShort} durationInFrames={BRIDGE_FRAMES} fps={30} width={1080} height={1920} />
@@ -65,5 +68,9 @@ export const Root: React.FC = () => (<>
   <Composition id="HertzThumb" component={HertzThumb} durationInFrames={3} fps={30} width={1920} height={1080} />
   <Composition id="HertzThumbPadded" component={HertzThumbPadded} durationInFrames={3 + PAD} fps={30} width={1920} height={1080} />
   <Composition id="HertzLongPadded" component={HertzLongPadded} durationInFrames={HERTZLONG_FRAMES + PAD} fps={30} width={1920} height={1080} />
+  <Composition id="TitanicIf" component={TitanicIf} durationInFrames={TITANICIF_FRAMES} fps={30} width={1920} height={1080} />
+  <Composition id="TitanicIfPadded" component={TitanicIfPadded} durationInFrames={TITANICIF_FRAMES + PAD} fps={30} width={1920} height={1080} />
+  <Composition id="TitanicThumb" component={TitanicThumb} durationInFrames={3} fps={30} width={1920} height={1080} />
+  <Composition id="TitanicThumbPadded" component={TitanicThumbPadded} durationInFrames={3 + PAD} fps={30} width={1920} height={1080} />
   <Composition id="PigWarLongPadded" component={PigWarLongPadded} durationInFrames={PIGWARLONG_FRAMES + PAD} fps={30} width={1920} height={1080} />
 </>);

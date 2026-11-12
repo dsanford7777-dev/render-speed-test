@@ -445,3 +445,8 @@ export const BOARDS: Record<string, React.FC<G>> = {
   planet: say([{ s: "They weren't setting", size: 90, col: "#fff" }, { s: "a standard for the planet", col: C.yellow, size: 96, cue: [174, "standard"] }], { dark: true, m: 2 }),
 };
 void Big; void lerp;
+
+// the board factories and helpers, shared with later long-forms (titanicif/boards.tsx)
+export { say, num, card, icons, Mv, Bg, Dark, Svg, Pill, Glyph };
+export type { Cue };
+export const cueAt = at;
