@@ -10,6 +10,7 @@ import { PigWarShort, PIGWAR_FRAMES } from "./videos/pigwar/PigWar";
 import { PigWarLong, PIGWARLONG_FRAMES } from "./videos/pigwarlong/PigWarLong";
 import { BarberShort, BARBER_FRAMES } from "./videos/barber/Barber";
 import { LustigShort, LUSTIG_FRAMES } from "./videos/lustig/Lustig";
+import { ClocksShort, CLOCKS_FRAMES } from "./videos/clocks/Clocks";
 import { HertzLong, HertzThumb, HERTZLONG_FRAMES } from "./videos/hertzlong/HertzLong";
 
 // Render-farm padding: on software GL (GitHub runners) the first frame each render tab draws comes out blank.
@@ -34,6 +35,7 @@ const PigWarPadded = padded(PigWarShort);
 const PigWarLongPadded = padded(PigWarLong);
 const BarberPadded = padded(BarberShort);
 const LustigPadded = padded(LustigShort);
+const ClocksPadded = padded(ClocksShort);
 const HertzLongPadded = padded(HertzLong);
 const HertzThumbPadded = padded(HertzThumb);
 
@@ -57,6 +59,8 @@ export const Root: React.FC = () => (<>
   <Composition id="BarberPadded" component={BarberPadded} durationInFrames={BARBER_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="Lustig" component={LustigShort} durationInFrames={LUSTIG_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="LustigPadded" component={LustigPadded} durationInFrames={LUSTIG_FRAMES + PAD} fps={30} width={1080} height={1920} />
+  <Composition id="Clocks" component={ClocksShort} durationInFrames={CLOCKS_FRAMES} fps={30} width={1080} height={1920} />
+  <Composition id="ClocksPadded" component={ClocksPadded} durationInFrames={CLOCKS_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="HertzLong" component={HertzLong} durationInFrames={HERTZLONG_FRAMES} fps={30} width={1920} height={1080} />
   <Composition id="HertzThumb" component={HertzThumb} durationInFrames={3} fps={30} width={1920} height={1080} />
   <Composition id="HertzThumbPadded" component={HertzThumbPadded} durationInFrames={3 + PAD} fps={30} width={1920} height={1080} />
