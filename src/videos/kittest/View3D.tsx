@@ -44,7 +44,7 @@ const Inner: React.FC<{ kit: Kit; shot: ShotDef | null; f: number }> = ({ kit, s
   const { camera, scene } = useThree();
   const world = useMemo(() => new KWorld(kit), [kit]);
   const fx = useMemo(() => ({
-    ink: new InkPass(scene, camera as THREE.PerspectiveCamera),
+    ink: Object.assign(new InkPass(scene, camera as THREE.PerspectiveCamera), { afterInk: true }),
     lens: new LensBlur({ maxCoC: 24, nearScale: 1.2 }),
     bloom: makeBloom(),
     tone: new ToneMappingEffect({ mode: ToneMappingMode.NEUTRAL }),

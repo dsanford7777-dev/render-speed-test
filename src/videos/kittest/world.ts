@@ -10,7 +10,7 @@ import { ctex, cobbleHD, planksHD, cloudHD, stoneHD, grassHD, rep } from "../bri
 import { Pen, bodyFront, bodySide, fxContact, Outfit, Expr, SKIN } from "../bridge/toon";
 import { LIGHTS, LOOK, LightPreset, WorldLook } from "../bridge/lights";
 import { TONE, CHAR, untone } from "../bridge/shade";
-import { NOINK } from "../bridge/ink";
+import { NOINK, AFTERINK } from "../bridge/ink";
 import { Pool, Actor, Fx } from "../bridge/cast";
 import { cardShade } from "../bridge/cardshade";
 import { Board, INK, paintText } from "../dst/props";
@@ -152,8 +152,8 @@ export class KWorld {
   private crowd: { mesh: THREE.InstancedMesh; at: V3[]; ph: number[] }[] = []; private flags: THREE.Group[] = [];
   private cells: { body: THREE.InstancedMesh; top: THREE.InstancedMesh; d: number[] };
   private lid: THREE.Mesh;
-  private rain: THREE.LineSegments; private rainSeed: number[] = [];
-  private lamps: { bulb: THREE.Mesh; halo: THREE.Sprite; pool: THREE.Mesh }[] = [];
+  private rain: THREE.Mesh; private rainSeed: number[] = [];
+  private lamps: { bulb: THREE.Mesh; halo: THREE.Sprite; pool: THREE.Mesh; light: THREE.PointLight }[] = [];
   private fuse: THREE.Mesh; private fuseBurnt: THREE.Mesh; private fusePath: THREE.CatmullRomCurve3; private sparkLight: THREE.Sprite;
   private hammer = new THREE.Group(); private torch = new THREE.Group(); private flame: THREE.Sprite;
   private puffs: THREE.Sprite[] = []; private sparks: Cards; private chips: Cards;
@@ -216,13 +216,20 @@ export class KWorld {
         d.push(ring === 0 ? 0 : ring === 1 ? -1.25 - 0.4 * r2() : ring === 2 ? (r2() > 0.5 ? -0.55 : 0.4) * (0.6 + 0.6 * r2()) : (r2() - 0.5) * 0.3); }
       this.cells = { body, top, d };
       this.lid = new THREE.Mesh(new THREE.BoxGeometry(PN * PC, 0.12, PN * PC), turf); this.lid.position.set(PATCH[0], -0.06, PATCH[1]); this.lid.receiveShadow = true; R.add(this.lid); }
-    // grass in blades over the yard (two greens), never outlined
-    { const blade = new THREE.BufferGeometry(); blade.setAttribute("position", new THREE.Float32BufferAttribute([-0.035, 0, 0, 0.035, 0, 0, 0.012, 0.36, 0.03, -0.035, 0, 0, 0.012, 0.36, 0.03, -0.02, 0.2, 0.01], 3)); blade.computeVertexNormals();
+    // grass: tufts of curved blades in the lawn's own greens (dark at the root, light at the tip), never outlined
+    { const P3: number[] = [], C3: number[] = [], N3: number[] = []; let sg = 91; const rg3 = () => (sg = (sg * 16807) % 2147483647) / 2147483647;
+      for (let b = 0; b < 5; b++) { const a = b * 1.257 + rg3(), ox = Math.cos(a) * 0.07 * (b ? 1 : 0), oz = Math.sin(a) * 0.07 * (b ? 1 : 0), h = 0.2 + 0.2 * rg3(), wd = 0.026 + 0.012 * rg3(), ln = 0.05 + 0.1 * rg3();
+        const cx = Math.cos(a + 1.57), cz = Math.sin(a + 1.57), lx = Math.cos(a) * ln, lz = Math.sin(a) * ln;
+        const pt = (u: number, sgn: number, wk: number): [number, number, number] => [ox + lx * u * u + cx * wd * wk * sgn, h * u, oz + lz * u * u + cz * wd * wk * sgn];
+        const A = pt(0, -1, 1), B = pt(0, 1, 1), Cc = pt(0.55, -1, 0.7), D = pt(0.55, 1, 0.7), T = pt(1, 0, 0);
+        const tri = (p: [number, number, number][], c: number[]) => p.forEach((q, n) => { P3.push(...q); C3.push(c[n], c[n], c[n]); N3.push(0, 1, 0); });
+        tri([A, B, D], [0.62, 0.62, 0.98]); tri([A, D, Cc], [0.62, 0.98, 0.98]); tri([Cc, D, T], [0.98, 0.98, 1.22]); }
+      const tuft = new THREE.BufferGeometry(); tuft.setAttribute("position", new THREE.Float32BufferAttribute(P3, 3)); tuft.setAttribute("color", new THREE.Float32BufferAttribute(C3, 3)); tuft.setAttribute("normal", new THREE.Float32BufferAttribute(N3, 3));
       let s3 = 77; const r3 = () => (s3 = (s3 * 16807) % 2147483647) / 2147483647;
-      for (const [col, n] of [["#5f9e33", 7000], ["#86c24a", 5000], ["#4b8a2c", 4000]] as [string, number][]) {
-        const im = new THREE.InstancedMesh(blade, M("k2Blade" + col, col, { side: THREE.DoubleSide }), n); im.layers.set(NOINK); im.receiveShadow = true; im.frustumCulled = false;
-        for (let i = 0; i < n; i++) { let x = 0, z = 0; do { x = -30 + 60 * r3(); z = -13.6 + 44 * r3(); } while ((Math.abs(x) < 2.3) || (x > hx0 && x < hx1 && z > hz0 && z < hz1));
-          this.e5.set((r3() - 0.5) * 0.5, r3() * 6.3, (r3() - 0.5) * 0.5); this.m5.compose(this.v.set(x, 0, z), this.q5.setFromEuler(this.e5), this.s5.set(1, 0.6 + 0.9 * r3(), 1)); im.setMatrixAt(i, this.m5); }
+      for (const [col, n] of [["#6fae3c", 6500], ["#7cba42", 5000], ["#62a236", 4000]] as [string, number][]) {
+        const im = new THREE.InstancedMesh(tuft, M("k2Tuft" + col, col, { side: THREE.DoubleSide, vertexColors: true }), n); im.layers.set(NOINK); im.receiveShadow = true; im.frustumCulled = false;
+        for (let i = 0; i < n; i++) { let x = 0, z = 0; do { x = -30 + 60 * r3(); z = -13.6 + 44 * r3(); } while ((Math.abs(x) < 2.3) || (x > hx0 - 0.15 && x < hx1 + 0.15 && z > hz0 - 0.15 && z < hz1 + 0.15));
+          const sc = 0.8 + 0.7 * r3(); this.e5.set(0, r3() * 6.3, 0); this.m5.compose(this.v.set(x, 0, z), this.q5.setFromEuler(this.e5), this.s5.set(sc, sc * (0.8 + 0.5 * r3()), sc)); im.setMatrixAt(i, this.m5); }
         R.add(im); } this.s5.set(1, 1, 1); }
     // far mountains
     const mb = new Batch(), rockM = M("k2Rock", "#7f93a8"), rockM2 = M("k2Rock2", "#6b8f6a");
@@ -246,15 +253,16 @@ export class KWorld {
     wb2.build(R);
     for (const x of [-9, 9]) { const bn = new Board(1.6, 3.4, "k2_banner", () => bannerTex("#2f4f9a")); bn.group.position.set(x, 4.9, -13.9); bn.group.rotation.y = Math.PI; R.add(bn.group); }
     // lanterns: two on the wall, one on a post in the yard
-    const haloT = glowTex(), poolT = glowTex();
+    const haloT = glowTex2(), poolT = glowTex2();
     for (const p of LAMPS) {
       const bulb = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.34, 0.26), new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false })); bulb.position.set(...p); bulb.layers.set(NOINK);
       const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloT, color: new THREE.Color(1.6, 1.0, 0.4), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false })); halo.position.set(...p); halo.scale.setScalar(2.6); halo.layers.set(NOINK);
-      const pl = new THREE.Mesh(new THREE.PlaneGeometry(9, 9), new THREE.MeshBasicMaterial({ map: poolT, color: new THREE.Color(1.3, 0.8, 0.3), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, polygonOffset: true, polygonOffsetFactor: -3 }));
+      const pt2 = new THREE.PointLight("#ffc46a", 0, 11, 1.6); pt2.position.set(p[0], p[1] - 0.1, p[2] + (p[2] < -12 ? 0.5 : 0)); R.add(pt2);
+      const pl = new THREE.Mesh(new THREE.PlaneGeometry(6, 6), new THREE.MeshBasicMaterial({ map: poolT, color: new THREE.Color(1.0, 0.62, 0.22), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, polygonOffset: true, polygonOffsetFactor: -3 }));
       pl.rotation.x = -Math.PI / 2; pl.position.set(p[0], 0.05, p[2] + (p[2] < -12 ? 2.4 : 0)); pl.layers.set(NOINK);
       const cap = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.08, 0.36), dark); cap.position.set(p[0], p[1] + 0.22, p[2]);
       if (p[2] > -12) { const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, p[1], 8), wood2); post.position.set(p[0] + 0.3, p[1] / 2, p[2]); const arm = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.05, 0.05), wood2); arm.position.set(p[0] + 0.15, p[1] + 0.3, p[2]); R.add(post, arm); }
-      R.add(bulb, halo, pl, cap); this.lamps.push({ bulb, halo, pool: pl });
+      R.add(bulb, halo, pl, cap); this.lamps.push({ bulb, halo, pool: pl, light: pt2 });
     }
     // the fuse: a rope on the grass from the gate path round to the cannon
     this.fusePath = new THREE.CatmullRomCurve3(FUSE.map((p) => V(...p)));
@@ -263,18 +271,18 @@ export class KWorld {
     this.fuseBurnt = new THREE.Mesh(new THREE.TubeGeometry(this.fusePath, 160, 0.047, 8), M("k2Burnt", "#2a2428")); R.add(this.fuse, this.fuseBurnt);
     this.sparkLight = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloT, color: new THREE.Color(3.0, 2.2, 1.0), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false })); this.sparkLight.layers.set(NOINK); R.add(this.sparkLight);
     // tools
-    { const hd = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.14, 0.14), iron); hd.position.y = 0.36; const hl = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.42, 8), wood); hl.position.y = 0.16; this.hammer.add(hd, hl);
-      const st2 = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.035, 0.7, 8), wood2); st2.position.y = 0.25; const wr = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.05, 0.2, 10), M("k2Wrap", "#d9a441")); wr.position.y = 0.64;
-      this.flame = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex(), color: new THREE.Color(2.4, 1.6, 0.7), transparent: true, depthWrite: false, fog: false })); this.flame.position.y = 0.98; this.flame.scale.set(0.42, 0.62, 1); this.flame.layers.set(NOINK);
+    { const hd = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.14, 0.14), iron); hd.position.y = 0.34; const hl = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.46, 8), wood); hl.position.y = 0.13; this.hammer.add(hd, hl);
+      const st2 = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.035, 0.7, 8), wood2); st2.position.y = 0.2; const wr = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.05, 0.2, 10), M("k2Wrap", "#d9a441")); wr.position.y = 0.59;
+      this.flame = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex(), color: new THREE.Color(2.4, 1.6, 0.7), transparent: true, depthWrite: false, fog: false })); this.flame.position.y = 0.93; this.flame.scale.set(0.42, 0.62, 1); this.flame.layers.set(NOINK);
       this.torch.add(st2, wr, this.flame);
       for (const g of [this.hammer, this.torch]) { g.traverse((o) => { o.castShadow = true; }); g.visible = false; R.add(g); } }
-    // rain
-    { const n = 1400, pos = new Float32Array(n * 6); for (let i = 0; i < n; i++) this.rainSeed.push(rnd(), rnd(), rnd());
+    // rain: streaks with real width (two triangles a drop), brighter near the camera
+    { const n = 2400, pos = new Float32Array(n * 18); for (let i = 0; i < n; i++) this.rainSeed.push(rnd(), rnd(), rnd());
       const rg = new THREE.BufferGeometry(); rg.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-      this.rain = new THREE.LineSegments(rg, new THREE.LineBasicMaterial({ color: new THREE.Color(0.75, 0.82, 1.1), transparent: true, opacity: 0.55, fog: false, depthWrite: false })); this.rain.frustumCulled = false; this.rain.layers.set(NOINK); R.add(this.rain); }
+      this.rain = new THREE.Mesh(rg, new THREE.MeshBasicMaterial({ color: new THREE.Color(0.8, 0.88, 1.15), transparent: true, opacity: 0.5, fog: false, depthWrite: false, side: THREE.DoubleSide })); this.rain.frustumCulled = false; this.rain.layers.set(NOINK); R.add(this.rain); }
     // puffs (smoke, dust, fire), sparks, wood chips
     const puffT = puffTex();
-    for (let i = 0; i < 260; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: puffT, transparent: true, depthWrite: false, fog: false })); s.visible = false; s.layers.set(NOINK); R.add(s); this.puffs.push(s); }
+    for (let i = 0; i < 260; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: puffT, transparent: true, depthWrite: false, fog: false })); s.visible = false; s.layers.set(AFTERINK); R.add(s); this.puffs.push(s); }
     this.sparks = new Cards(R, sparkTex(), 14, 0.5); this.chips = new Cards(R, chipTex(), 16, 0.16);
     // ---------------- the army: six soldier cards, hundreds of instances ----------------
     const reqs = SOLDIERS.map(([o, ex, ph], i) => this.crowdPool.req(`sold${i}`, 300, 500, 0.5, (p: Pen) => bodyFront(p, o, { mode: "march", phase: ph, expr: ex, look: 0, light: -0.8, seed: 200 + i })));
@@ -285,10 +293,12 @@ export class KWorld {
       const mat = cardShade(new THREE.MeshLambertMaterial({ map: rq.tex!, alphaTest: 0.5, side: THREE.DoubleSide })); mat.alphaToCoverage = false;
       const mesh = new THREE.InstancedMesh(cardG, mat, per); mesh.layers.set(NOINK); mesh.frustumCulled = false; mesh.receiveShadow = true; R.add(mesh);
       const at: V3[] = [], ph: number[] = [];
-      for (let k = 0; k < per; k++) { const idx = k * reqs.length + vi, col = idx % 34, row = Math.floor(idx / 34), x = (col - 16.5) * 2.1 + (ra() - 0.5) * 1.1 + (row % 2) * 1.0, z = ARMY_Z + row * 2.3 + (ra() - 0.5) * 0.9; at.push([x, 0, z]); ph.push(ra() * 6.3); }
+      for (let k = 0; k < per; k++) { const idx = k * reqs.length + vi, col = idx % 34, row = Math.floor(idx / 34), x = (col - 16.5) * 2.1 + (ra() - 0.5) * 1.1 + (row % 2) * 1.0, z = ARMY_Z + row * 2.3 + (ra() - 0.5) * 0.9; at.push([x, 0.86 + 0.3 * ra(), z]); ph.push(ra() * 6.3); }
       this.crowd.push({ mesh, at, ph });
     });
-    for (let i = 0; i < 9; i++) { const g = new THREE.Group(), pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 5.2, 6), wood2); pole.position.y = 2.6; const bn = new Board(1.5, 2.0, "k2_flag", () => bannerTex("#a8312f")); bn.group.position.set(0.8, 4.1, 0); bn.group.rotation.y = Math.PI; g.add(pole, bn.group); g.userData.x = (i - 4) * 8 + (i % 2) * 3; g.userData.z = ARMY_Z + 4 + (i % 3) * 9; R.add(g); this.flags.push(g); }
+    { const fm = lam("k2FlagM", () => ({ map: bannerTex("#b3302c"), side: THREE.DoubleSide }));
+      for (let i = 0; i < 8; i++) { const g = new THREE.Group(), pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 5.4, 6), wood2); pole.position.y = 2.7; const bn = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 2.3), fm); bn.position.set(0.7, 4.15, 0); bn.castShadow = true; g.add(pole, bn);
+        g.userData.x = [-30, -21, -13, -4.6, 5.4, 13, 21, 30][i]; g.userData.z = ARMY_Z + 5 + (i % 3) * 9; R.add(g); this.flags.push(g); } }
   }
 
   private shotSun(id: number, L: LightPreset, sample: (f: number) => { pos: V3; look: V3 }, a: number, b: number) {
@@ -347,17 +357,21 @@ export class KWorld {
     const ar = st.army;
     for (const c2 of this.crowd) { c2.mesh.visible = !!ar; if (!ar) continue;
       for (let i = 0; i < c2.at.length; i++) { const a2 = c2.at[i], z = a2[2] - ar.adv, y = groundH(a2[0], z, false) + (ar.march ? 0.07 * Math.abs(Math.sin(t * 5.5 + c2.ph[i])) : 0);
-        this.e5.set(0, Math.atan2(cam.position.x - a2[0], cam.position.z - z), 0); this.m5.compose(this.v.set(a2[0], y, z), this.q5.setFromEuler(this.e5), this.s5); c2.mesh.setMatrixAt(i, this.m5); }
+        this.e5.set(0, Math.atan2(cam.position.x - a2[0], cam.position.z - z), 0); this.m5.compose(this.v.set(a2[0], y, z), this.q5.setFromEuler(this.e5), this.s5.setScalar(a2[1])); c2.mesh.setMatrixAt(i, this.m5); }
+      this.s5.set(1, 1, 1);
       c2.mesh.instanceMatrix.needsUpdate = true; }
     this.flags.forEach((g) => { g.visible = !!ar; if (ar) { const z = (g.userData.z as number) - ar.adv; g.position.set(g.userData.x as number, groundH(g.userData.x as number, z, false), z); g.rotation.z = 0.04 * Math.sin(t * 2 + (g.userData.x as number)); } });
     const rn = st.rain ?? 0; this.rain.visible = rn > 0;
-    if (rn > 0) { const pa = this.rain.geometry.attributes.position as THREE.BufferAttribute, n = this.rainSeed.length / 3, cx = cam.position.x, cz = cam.position.z;
-      for (let i = 0; i < n; i++) { const x = cx - 14 + 28 * this.rainSeed[i * 3], z = cz - 14 + 28 * this.rainSeed[i * 3 + 2], y = 13 - ((this.rainSeed[i * 3 + 1] * 13 + t * 17) % 13);
-        pa.setXYZ(i * 2, x, y, z); pa.setXYZ(i * 2 + 1, x + 0.05, y - 0.42, z); }
-      pa.needsUpdate = true; (this.rain.material as THREE.LineBasicMaterial).opacity = 0.85 * rn; }
+    if (rn > 0) { const pa = (this.rain.geometry.attributes.position as THREE.BufferAttribute).array as Float32Array, n = this.rainSeed.length / 3, cx = cam.position.x, cz = cam.position.z;
+      const rr = this.v.setFromMatrixColumn(cam.matrixWorld, 0), rx = rr.x, rz = rr.z;
+      for (let i = 0; i < n; i++) { const x = cx - 9 + 18 * this.rainSeed[i * 3], z = cz - 9 + 18 * this.rainSeed[i * 3 + 2], y = 11 - ((this.rainSeed[i * 3 + 1] * 11 + t * 15) % 11), d = Math.hypot(x - cx, z - cz), wd = 0.0035 + 0.0009 * d, ln = 0.5, sl = 0.07, o = i * 18;
+        const ax = x - rx * wd, az = z - rz * wd, bx = x + rx * wd, bz = z + rz * wd;
+        pa[o] = ax; pa[o + 1] = y; pa[o + 2] = az; pa[o + 3] = bx; pa[o + 4] = y; pa[o + 5] = bz; pa[o + 6] = bx + sl; pa[o + 7] = y - ln; pa[o + 8] = bz;
+        pa[o + 9] = ax; pa[o + 10] = y; pa[o + 11] = az; pa[o + 12] = bx + sl; pa[o + 13] = y - ln; pa[o + 14] = bz; pa[o + 15] = ax + sl; pa[o + 16] = y - ln; pa[o + 17] = az; }
+      (this.rain.geometry.attributes.position as THREE.BufferAttribute).needsUpdate = true; (this.rain.material as THREE.MeshBasicMaterial).opacity = 0.38 * rn; }
     const lk = st.lamps ?? 0;
     for (const lp of this.lamps) { lp.halo.visible = lp.pool.visible = lk > 0.01; (lp.bulb.material as THREE.MeshBasicMaterial).color.setRGB(0.5 + 3.4 * lk, 0.45 + 2.3 * lk, 0.35 + 0.8 * lk);
-      const fl = 1 + 0.06 * Math.sin(t * 11 + lp.bulb.position.x); lp.halo.scale.setScalar(1.7 * fl); (lp.halo.material as THREE.SpriteMaterial).opacity = 0.55 * lk; (lp.pool.material as THREE.MeshBasicMaterial).opacity = 0.75 * lk * fl; }
+      const fl = 1 + 0.06 * Math.sin(t * 11 + lp.bulb.position.x); lp.halo.scale.setScalar(2.3 * fl); (lp.halo.material as THREE.SpriteMaterial).opacity = 0.5 * lk; (lp.pool.material as THREE.MeshBasicMaterial).opacity = 0.22 * lk * fl; lp.light.intensity = 26 * lk * fl; }
     const fu = st.fuse;
     this.fuse.visible = this.fuseBurnt.visible = fu !== undefined; this.sparkLight.visible = fu !== undefined && fu > 0 && fu < 1;
     if (fu !== undefined) { const seg = 160 * 8 * 6, cut = Math.floor(160 * Math.max(0, Math.min(1, fu))) * 8 * 6; this.fuseBurnt.geometry.setDrawRange(0, cut); this.fuse.geometry.setDrawRange(cut, seg - cut);
@@ -394,7 +408,7 @@ export class KWorld {
       act.mesh.scale.set(mirror ? -1 : 1, 1, 1);
       act.mesh.castShadow = L.actorShadow;
       if (q.hold?.tool && q.hold.r) { const g = q.hold.tool === "hammer" ? this.hammer : this.torch, up = cam.up; void up;
-        g.visible = true; g.position.set(q.p[0], q.p[1] + q.hold.r[1] - 0.12, q.p[2]).addScaledVector(right, q.hold.r[0]); g.position.addScaledVector(this.v.copy(cam.position).sub(g.position).normalize(), 0.06);
+        g.visible = true; g.position.set(q.p[0], q.p[1] + q.hold.r[1], q.p[2]).addScaledVector(right, q.hold.r[0] * (mirror ? -1 : 1)); g.position.addScaledVector(this.v.copy(cam.position).sub(g.position).normalize(), 0.06);
         g.quaternion.copy(cam.quaternion); g.rotateZ(q.hold.swing ?? 0); }
     }
     for (let i = ai; i < this.actors.length; i++) this.actors[i].mesh.visible = false;
@@ -474,7 +488,7 @@ const ropeTex = () => { const t2 = ctex("k2Rope", 64, 64, (g) => { g.fillStyle =
 const bannerTex = (bg: string) => ctex("k2Banner" + bg, 256, 512, (g) => { g.fillStyle = bg; g.fillRect(0, 0, 256, 512); g.lineWidth = 16; g.strokeStyle = "#e8c45a"; g.strokeRect(10, 10, 236, 492);
   g.fillStyle = "#f4f0e6"; g.beginPath(); g.moveTo(128, 90); g.lineTo(196, 200); g.lineTo(168, 200); g.lineTo(168, 330); g.lineTo(88, 330); g.lineTo(88, 200); g.lineTo(60, 200); g.closePath(); g.fill(); g.fillRect(70, 360, 116, 26);
   g.strokeStyle = "#e8c45a"; g.lineWidth = 14; g.beginPath(); g.moveTo(70, 440); g.lineTo(128, 400); g.lineTo(186, 440); g.stroke(); });
-const glowTex = () => ctex("k2Glow", 256, 256, (g) => { const gr = g.createRadialGradient(128, 128, 0, 128, 128, 128); gr.addColorStop(0, "rgba(255,255,255,0.9)"); gr.addColorStop(0.4, "rgba(255,255,255,0.4)"); gr.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = gr; g.fillRect(0, 0, 256, 256); });
+const glowTex2 = () => ctex("k2GlowSoft", 256, 256, (g) => { const gr = g.createRadialGradient(128, 128, 0, 128, 128, 128); gr.addColorStop(0, "rgba(255,255,255,0.85)"); gr.addColorStop(0.18, "rgba(255,255,255,0.42)"); gr.addColorStop(0.45, "rgba(255,255,255,0.13)"); gr.addColorStop(0.75, "rgba(255,255,255,0.03)"); gr.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = gr; g.fillRect(0, 0, 256, 256); });
 const puffTex = () => ctex("k2Puff", 256, 256, (g, r) => { g.clearRect(0, 0, 256, 256); for (let i = 0; i < 9; i++) { const x = 128 + (r() - 0.5) * 110, y = 128 + (r() - 0.5) * 110, rr = 46 + r() * 34; const gr = g.createRadialGradient(x, y, 0, x, y, rr); gr.addColorStop(0, "rgba(255,255,255,0.95)"); gr.addColorStop(0.7, "rgba(255,255,255,0.7)"); gr.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = gr; g.beginPath(); g.arc(x, y, rr, 0, 6.3); g.fill(); } });
 const flameTex = () => ctex("k2Flame", 128, 192, (g) => { g.clearRect(0, 0, 128, 192); const gr = g.createLinearGradient(0, 192, 0, 0); gr.addColorStop(0, "#fff6c8"); gr.addColorStop(0.45, "#ffc24a"); gr.addColorStop(1, "#f0552a"); g.fillStyle = gr; g.beginPath(); g.moveTo(64, 4); g.bezierCurveTo(110, 70, 120, 130, 64, 188); g.bezierCurveTo(8, 130, 30, 80, 64, 4); g.fill(); });
 const chipTex = () => ctex("k2Chip", 64, 64, (g) => { g.clearRect(0, 0, 64, 64); g.fillStyle = "#e8c98a"; g.strokeStyle = "#241726"; g.lineWidth = 5; g.beginPath(); g.moveTo(8, 40); g.lineTo(30, 10); g.lineTo(56, 26); g.lineTo(34, 54); g.closePath(); g.fill(); g.stroke(); });

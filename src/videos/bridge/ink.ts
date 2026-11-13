@@ -27,6 +27,8 @@ import { Pass } from "postprocessing";
 
 /** Layer for things that must never be outlined (camera-facing sprites, sky, clouds, smoke). */
 export const NOINK = 3;
+/** Layer drawn AFTER the outlines, straight into the frame: soft smoke / dust / fire that must cover the lines behind it. Off unless InkPass.afterInk is set. */
+export const AFTERINK = 4;
 
 export type InkOptions = {
   color?: THREE.ColorRepresentation; // sRGB hex of the ink
@@ -221,6 +223,8 @@ void main() {
 export class InkPass extends Pass {
   /** 0 = normal, 1 = show the ink mask, 2 = show the world normal buffer */
   debug = 0;
+  /** draw layer AFTERINK on top of the inked frame (depth-tested against the main render) */
+  afterInk = false;
   private world: THREE.Scene;
   private cam: THREE.PerspectiveCamera;
   private rt: THREE.WebGLRenderTarget;
@@ -364,6 +368,12 @@ export class InkPass extends Pass {
     renderer.setRenderTarget(this.renderToScreen ? null : inputBuffer);
     renderer.render(this.fsScene, this.fsCam);
 
+    if (this.afterInk && !this.renderToScreen) {
+      cam.layers.set(AFTERINK); scene.background = null; renderer.shadowMap.autoUpdate = false;
+      renderer.setRenderTarget(inputBuffer); renderer.render(scene, cam);
+      cam.layers.mask = mask; scene.background = background; renderer.shadowMap.autoUpdate = shadowAuto;
+    }
+
     renderer.autoClear = autoClear;
   }
 
@@ -383,7 +393,7 @@ export function noInkFallback(root: THREE.Object3D) {
   root.traverse((o) => {
     const m = o as THREE.Mesh;
     if (!(m.isMesh || (o as THREE.Sprite).isSprite || (o as THREE.Points).isPoints || (o as THREE.Line).isLine)) return;
-    if (o.layers.mask === 1 << NOINK) return;
+    if (o.layers.mask === 1 << NOINK || o.layers.mask === 1 << AFTERINK) return;
     const mats = (Array.isArray(m.material) ? m.material : [m.material]) as THREE.Material[];
     const card = !!m.customDepthMaterial || (o as THREE.Sprite).isSprite || (o as THREE.Points).isPoints || (o as THREE.Line).isLine;
     const noDepth = mats.some((x) => x && x.depthWrite === false);
