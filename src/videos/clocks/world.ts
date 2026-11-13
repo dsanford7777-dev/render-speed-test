@@ -346,7 +346,7 @@ export class CWorld {
       }
       case 3: if (f >= m.los - 4 && f < m.fifty - 2) add(ANG_, ANGELENO, { expr: "smile", blink: blink(21), pass: true }); break;
       case 4: add(ANG_, ANGELENO, { expr: f >= m.cared - 2 ? "whistle" : "smile_closed", blink: 0, headTilt: f >= m.cared - 2 ? 0.1 : 0 }); break;
-      case 6: add(ANG_, [LEVER[0] - 0.85, D0, LEVER[2] + 0.05], { expr: f >= m.switched ? "grin" : "stern", blink: 0, pass: true, hands: [levGrip] }); break;
+      case 6: if (f < m.switched - 1) add(ANG_, [LEVER[0] - 0.85, D0, LEVER[2] + 0.05], { expr: f >= m.switched ? "grin" : "stern", blink: 0, pass: true, hands: [levGrip] }); break;
       case 10: add(DRUM_, DRUMMER, { expr: f >= m.following - 2 ? "smile_closed" : "smile", blink: blink(24), pass: true, hands: grips }); break;
       case 11: if (f < m.theClock - 2) add(DRUM_, DRUMMER, { expr: "pained", blink: 0, sweat: true, pass: true, hands: grips }); break;
       case 12:
