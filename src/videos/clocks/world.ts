@@ -10,6 +10,8 @@ import { LIGHTS, LOOK, LightPreset, WorldLook } from "../bridge/lights";
 import { TONE, CHAR, LFB, untone } from "../bridge/shade";
 import { NOINK } from "../bridge/ink";
 import { Grass, GROUND } from "../bridge/grass";
+import { caMap, socalSpots, plug, MAP_TOP } from "./props";
+import { MAPO, Mp } from "./story";
 import { Pool, Actor, Fx } from "../bridge/cast";
 import { FPS, SHOTS, Light } from "./timeline";
 import { D0, V3, HUG, QUEUE, Yd, L, C, R, Dm, SALON, S, F, Fr, G, SOCKET, B60, B50, ANGELENO, LEVER, CLOCK, SOCKET2, DRUMMER, DRUM, DAM60, TOASTER, BULB, TCLOCK, WORKER, BOSS, GEN, G50, ENGINEER,
@@ -21,7 +23,7 @@ import { generator, Lamp, wire, numTex, socketTex, clockCardTex, sparkTex, Cards
 
 /** metres per canvas unit of a character card */
 const SUc = 0.00216;
-const FIELD_NX = 26, FIELD_NZ = 16, STICK_L = 0.5;
+const FIELD_N = 475, STICK_L = 0.5;
 /** shots whose big face close-up is the point */
 const CLOSEUP_OK = new Set<number>([1, 3, 4, 10, 11, 12, 13, 17, 18]);
 const LP: Record<Light, LightPreset> = { day: LIGHTS.day, golden: LIGHTS.golden, night: LIGHTS.day };
@@ -71,7 +73,7 @@ export class CWorld {
   private hugClock: Clock; private cards: Cards; private field: Cards; private sparks: Cards; private pulses: Cards; private toastCard: Cards;
   private fridges: THREE.Group[] = []; private gen: { g: THREE.Group; wheel: THREE.Group }; private g50: Board; private g60: Board;
   private bills: Flyers; private cash: THREE.Group; private fixed: Board;
-  private grass: Grass; private fieldI: THREE.InstancedMesh; private sticks2: THREE.Mesh[] = [];
+  private grass: Grass; private fieldI: THREE.InstancedMesh; private mapG: THREE.Group; private mapPin: THREE.Group; private clockAt: [number, number][] = []; private fridgeAt: [number, number][] = []; private sticks2: THREE.Mesh[] = [];
   private lastPeople: { name: string; p: V3; walking: boolean; sit?: boolean }[] = [];
   private ray = new THREE.Raycaster();
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private sph = new THREE.Sphere(); private v = new THREE.Vector3();
@@ -140,7 +142,8 @@ export class CWorld {
     // ---- the pulse yard: wall socket, the blue 60 board ----
     this.socket = new Board(0.8, 1.0, "wallSocket", socketTex); this.socket.group.position.set(...SOCKET); this.socket.group.scale.setScalar(0.62); R0.add(this.socket.group);
     // a lamp cord plugged into it, running down the wall and off along the floor
-    R0.add(wire(V(SOCKET[0] + 0.02, SOCKET[1] - 0.12, SOCKET[2] - 0.05), V(SOCKET[0] + 1.3, D0 + 0.05, SOCKET[2] - 0.5), -0.25));
+    { const pl = plug(2.4); pl.g.position.set(SOCKET[0], SOCKET[1] - 0.155, SOCKET[2] - 0.03); R0.add(pl.g);
+      R0.add(wire(V(SOCKET[0], SOCKET[1] - 0.155, SOCKET[2] - 0.03 + pl.tail[2]), V(SOCKET[0] + 1.3, D0 + 0.05, SOCKET[2] - 0.6), -0.35)); }
     this.b60 = new Board(2.4, 1.5, "num_60_blue", () => numTex("60", BLUE, "#ffffff"), 1.85); this.b60.group.position.set(...B60); R0.add(this.b60.group);
     // ---- the Los Angeles corner: the red 50 board (flips to 60), the knife switch, a palm ----
     this.b50 = new Board(1.9, 1.2, "num_50_red", () => numTex("50", RED, "#ffffff"), 1.7); this.b50.group.position.set(...B50); R0.add(this.b50.group);
@@ -151,7 +154,8 @@ export class CWorld {
     this.socket2 = new Board(0.8, 1.0, "wallSocket", socketTex); this.socket2.group.position.set(...SOCKET2); R0.add(this.socket2.group);
     { // the piece of house wall the socket is in
       const wb = new Batch(); wb.add(boxGeo(V(...C(-5.0, 0, 0.04)), V(...C(-1.8, 2.3, 0.34)), 2), wall); wb.add(boxGeo(V(...C(-5.1, 2.3, 0)), V(...C(-1.7, 2.42, 0.38)), 2), cope); wb.add(boxGeo(V(...C(-5.0, 0, 0)), V(...C(-1.8, 0.18, 0.05))), lam("skirting", () => ({ color: "#7a5236" }))); wb.build(R0); }
-    R0.add(wire(V(...C(-3.4, 1.72, 0.02)), V(...C(-0.1, 2.69, 0.16)), 0.25));
+    { const pl = plug(2.2); pl.g.position.set(SOCKET2[0], SOCKET2[1] - 0.25, SOCKET2[2] - 0.03); R0.add(pl.g);
+      R0.add(wire(V(SOCKET2[0], SOCKET2[1] - 0.25, SOCKET2[2] - 0.03 + pl.tail[2]), V(...C(-0.1, 2.69, 0.16)), 0.45)); }
     // ---- the drummer's drum ----
     this.drumP = drum(); this.drumP.g.position.set(...DRUM); R0.add(this.drumP.g);
     // ---- Hoover Dam ----
@@ -169,9 +173,13 @@ export class CWorld {
     this.hugClock = new Clock(0.27, "#b5462f"); R0.add(this.hugClock.group);
     this.cards = new Cards(R0, clockCardTex(), 14, 0.7);
     this.field = new Cards(R0, clockCardTex(), 1, 1.15);
-    { const g = new THREE.PlaneGeometry(1.15, 1.15); g.translate(0, 0.575, 0); g.rotateY(Math.PI); g.rotateX(0.3);
-      this.fieldI = new THREE.InstancedMesh(g, new THREE.MeshBasicMaterial({ map: clockCardTex(), alphaTest: 0.5, side: THREE.DoubleSide }), FIELD_NX * FIELD_NZ);
-      this.fieldI.layers.set(NOINK); this.fieldI.frustumCulled = false; this.fieldI.visible = false; R0.add(this.fieldI); }
+    { const mp = caMap(); mp.g.position.set(...MAPO); R0.add(mp.g); this.mapG = mp.g;
+      this.clockAt = socalSpots(FIELD_N, 0.7, 5); this.fridgeAt = socalSpots(58, 2.7, 11);
+      { const la: [number, number] = [-(-118.25 + 119) * 8.1, (34.05 - 34) * 10]; this.fridgeAt[0] = la; this.clockAt = this.clockAt.filter((c) => Math.hypot(c[0] - la[0], c[1] - la[1]) > 0.75); }
+      // put one refrigerator exactly on Los Angeles (the pin hides for that shot)
+      const g = new THREE.PlaneGeometry(0.62, 0.62); g.translate(0, 0.31, 0); g.rotateY(Math.PI); g.rotateX(0.85);
+      this.fieldI = new THREE.InstancedMesh(g, new THREE.MeshBasicMaterial({ map: clockCardTex(), alphaTest: 0.5, side: THREE.DoubleSide }), FIELD_N);
+      this.fieldI.layers.set(NOINK); this.fieldI.frustumCulled = false; this.fieldI.visible = false; R0.add(this.fieldI); this.mapPin = mp.pin; }
     // the drummer's sticks: held at one end, the other end on the drum
     for (let k = 0; k < 2; k++) { const g = new THREE.CylinderGeometry(0.013, 0.02, STICK_L, 8); g.rotateX(Math.PI / 2); g.translate(0, 0, STICK_L / 2 - 0.06);
       const st = new THREE.Mesh(g, lam("drumStick", () => ({ color: "#e9d3a2" }))); st.castShadow = true; st.visible = false; R0.add(st); this.sticks2.push(st); }
@@ -179,12 +187,12 @@ export class CWorld {
     this.cash.traverse((o) => { o.castShadow = false; });
     // grass on all the open ground: not the river and town, not the room's floor, not the dam's canyon
     this.grass = new Grass(R0, (x, z) => Math.abs(z) < 40 || (Math.abs(x) < 178 && Math.abs(z) < 188) || (x > SALON[0] - 8.8 && x < SALON[0] + 8.8 && z > SALON[2] - 13.3 && z < SALON[2] + 4.8)
-      || (x > 448 && x < 752 && z > 98 && z < 382) || (x > C(-5.1, 0, 0)[0] && x < C(-1.7, 0, 0)[0] && Math.abs(z - C(0, 0, 0.2)[2]) < 0.3) ? null : D0);
+      || (x > 448 && x < 752 && z > 98 && z < 382) || (x > MAPO[0] - 270 && x < MAPO[0] + 270 && z > MAPO[2] - 190 && z < MAPO[2] + 250) || (x > C(-5.1, 0, 0)[0] && x < C(-1.7, 0, 0)[0] && Math.abs(z - C(0, 0, 0.2)[2]) < 0.3) ? null : D0);
     this.sparks = new Cards(R0, sparkTex(), 2, 1.0);
     this.pulses = new Cards(R0, pulseTex(), 6, 0.22);
     this.toastCard = new Cards(R0, toastTex(), 1, 0.3);
     // ---- the refrigerators ----
-    for (let k = 0; k < 16; k++) { const fr = fridge(); fr.position.set(...Fr(-10.5 + k * 1.5, 0, (k % 2) * 0.12)); R0.add(fr); this.fridges.push(fr); }
+    for (let k = 0; k < 58; k++) { const fr = fridge(), p = this.fridgeAt[k] ?? [0, 0]; fr.position.set(...Mp(p[0], MAP_TOP, p[1])); fr.scale.setScalar(1); fr.visible = false; R0.add(fr); this.fridges.push(fr); }
     // ---- the old generator and the number somebody picked ----
     this.gen = generator(1.9); this.gen.g.position.set(...GEN); R0.add(this.gen.g);
     this.g50 = new Board(1.9, 1.2, "num_50_red", () => numTex("50", RED, "#ffffff"), 1.7); this.g50.group.position.set(...G50); R0.add(this.g50.group);
@@ -305,14 +313,14 @@ export class CWorld {
       const sx = i ? 1 : -1, up = Math.max(0, Math.sin(t * Math.PI * 2 * hz + i * Math.PI)), g: V3 = [DRUM[0] + sx * 0.3, DRUM[1] + 1.03 + 0.07 * up, DRUM[2] + 0.5];
       grips.push(g); st.position.set(...g); st.lookAt(DRUM[0] + sx * 0.1, DRUM[1] + 0.975 + 0.3 * up, DRUM[2] + 0.12); });
     // the field of clocks pops up row by row; the refrigerators rock on their feet
-    this.fieldI.visible = id === 14 || id === 15;
-    if (this.fieldI.visible) { const mm = new THREE.Matrix4(), qq = new THREE.Quaternion(), ss = new THREE.Vector3(), pp = new THREE.Vector3();
-      for (let j = 0; j < FIELD_NZ; j++) for (let i = 0; i < FIELD_NX; i++) {
-        const k = j * FIELD_NX + i, born = id === 14 ? A(14) - 4 + j * 0.8 + (i % 4) : -1e9, u = clamp01((f - born) / 5), sc = u <= 0 ? 0.0001 : 0.4 + 0.6 * u + 0.15 * Math.sin(Math.PI * u);
-        const p = F((i - (FIELD_NX - 1) / 2) * 1.55 + (j % 2) * 0.5, 0.02, j * 2.0);
-        this.fieldI.setMatrixAt(k, mm.compose(pp.set(p[0], p[1], p[2]), qq, ss.setScalar(sc))); }
+    this.fieldI.visible = id === 14 || id === 15; this.mapG.visible = id >= 14 && id <= 16; this.mapPin.visible = id !== 16;
+    if (this.fieldI.visible) { const mm = new THREE.Matrix4(), qq = new THREE.Quaternion(), ss = new THREE.Vector3(), pp = new THREE.Vector3(), span = Math.max(1, B(14) - 8 - A(14));
+      for (let k = 0; k < FIELD_N; k++) { const born = id === 14 ? A(14) + 6 + (k / FIELD_N) * (span - 14) : -1e9, u = clamp01((f - born) / 5), sc = u <= 0 ? 0.0001 : 0.4 + 0.6 * u + 0.15 * Math.sin(Math.PI * u);
+        const p = this.clockAt[k] ?? [0, 0], q = Mp(p[0], MAP_TOP + 0.03, p[1]);
+        this.fieldI.setMatrixAt(k, mm.compose(pp.set(q[0], q[1], q[2]), qq, ss.setScalar(sc))); }
       this.fieldI.instanceMatrix.needsUpdate = true; }
-    this.fridges.forEach((fr, k) => { fr.visible = id === 16; fr.rotation.z = id === 16 ? 0.05 * Math.sin(t * 9 + k * 0.9) : 0; });
+    this.fridges.forEach((fr, k) => { const born = A(16) + 1 + k * 0.14, u = clamp01((f - born) / 5); fr.visible = id === 16 && u > 0;
+      fr.scale.setScalar(1.0 * (0.4 + 0.6 * u + 0.18 * Math.sin(Math.PI * u))); fr.rotation.z = id === 16 ? 0.04 * Math.sin(t * 9 + k * 0.9) : 0; });
     // the bill: notes fly at the lens on "34"; the cash slides away from the boss on "third"
     this.cash.visible = id === 17;
     if (id === 17) { this.cash.position.set(...S(cashX(f), 0.8, 0.55)); this.cash.scale.set(0.6, 0.6, 0.6); }
@@ -445,7 +453,7 @@ export class CWorld {
       case 8: return [["table clock", this.tclocks[2].facePos(), 0.05, s.a + 8, m.minded - 1, this.tclocks[2].group]];
       case 9: return [["post clock", V(...CLOCK), 0.3, s.a + 6, m.counts - 4]];
       case 11: return [["post clock", V(...CLOCK), 0.3, m.theClock + 6, s.b]];
-      case 16: return [["refrigerator", V(...Fr(0, 1.0, -0.4)), 0.2, m.fridges + 6, s.b, this.fridges[7]]];
+      case 16: return [["refrigerator", V(this.fridges[0].position.x, this.fridges[0].position.y + 0.9, this.fridges[0].position.z - 0.4), 0.2, m.fridges + 16, s.b, this.fridges[0]]];
       case 17: return [["cash", V(...S(cashX(m.third + 8), 0.95, 0.55)), 0.2, m.third + 8, m.third + 8, this.cash]];
       case 18: return [["50 board", this.g50.pos(), 0.2, m.p50 + 6, LOOP_F() - 1, this.g50.group]];
       default: return [];

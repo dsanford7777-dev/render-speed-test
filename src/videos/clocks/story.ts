@@ -18,6 +18,8 @@ export const Yd = at(YARD), L = at([-340, D0, 300]), C = at([-260, D0, 300]), R 
 export const Dm = at([600, D0, 300]);
 export const S = at(SALON);
 export const F = at([-300, D0, 600]), Fr = at([-300, D0, 800]), G = at([-600, D0, 300]);
+/** the map of California: its origin (34 N, 119 W) in the world */
+export const MAPO: V3 = [-900, D0, -700]; export const Mp = at(MAPO);
 /** fixed places */
 export const SOCKET: V3 = [SALON[0] - 3.9, D0 + 1.6, SALON[2] + 3.46], B60 = Yd(4.2, 2.6, 1.0), B50 = L(0.9, 2.3, 0.8), ANGELENO = L(-1.1, 0, 0), LEVER = L(2.9, 0, 0.2);
 export const CLOCK = C(0, 2.69, -0.1), SOCKET2 = C(-3.4, 1.2, 0);
@@ -190,18 +192,18 @@ const keys = (): Record<number, Key[]> => {
     { f: m.sent - 2, cut: true, s: () => ({ pos: S(0.5, 1.15, -4.4), look: S(0.5, 1.5, 0.6), fov: 60, roll: 0.06 }) },
     { f: m.within - 2, cut: true, s: (f) => move({ pos: S(-0.4, 1.7, -1.6), look: S(0.3, 1.7, 1.75), fov: 52, roll: 0 }, { pos: S(-0.4, 3.8, -6.2), look: S(0.3, 1.8, 1.75), fov: 66, roll: 0.03 }, f, m.within - 2, B(13) - 2, expo, 0) },
   ];
-  // 14 dive from high over the meadow down to the field of clocks
-  c[14] = [{ f: A(14), s: (f) => move({ pos: F(-9, 15, -27), look: F(0, 0, 7), fov: 72, roll: 0.24 }, { pos: F(0, 6.0, -13), look: F(0, 0.6, 9), fov: 60, roll: 0 }, f, A(14), B(14) - 2, smooth, 0) }];
-  // 15 rising orbit over the field; low skim across the clocks
-  const fc: V3 = F(0, 0.5, 7);
+  // 14 the whole state from the air; dive toward Southern California as the clocks spread out from Los Angeles
+  c[14] = [{ f: A(14), s: (f) => move({ pos: Mp(2, 96, -66), look: Mp(2, 0, 26), fov: 58, roll: 0.14 }, { pos: Mp(-10, 30, -36), look: Mp(-10, 0, -1), fov: 54, roll: 0 }, f, A(14) + 6, B(14) - 2, smooth, 0) }];
+  // 15 orbit over Southern California; then low across the clocks toward the coast
+  const fc: V3 = Mp(-10, 0.5, -1);
   c[15] = [
-    { f: A(15), s: (f) => { const u = smooth((f - A(15)) / Math.max(1, m.fieldClocks - 4 - A(15))); return orb(fc, -22 + 30 * u, 17 + 6 * u, 3 + 8 * u, { fov: 58, roll: 0.09 - 0.12 * u }); } },
-    { f: m.fieldClocks - 2, cut: true, s: (f) => move({ pos: F(-10, 0.95, -2.2), look: F(0, 0.6, 6), fov: 66, roll: -0.13 }, { pos: F(-4, 0.95, -2.6), look: F(1, 0.6, 6), fov: 66, roll: -0.04 }, f, m.fieldClocks - 2, B(15), smooth, 0) },
+    { f: A(15), s: (f) => { const u = smooth((f - A(15)) / Math.max(1, m.fieldClocks - 4 - A(15))); return orb(fc, -20 + 30 * u, 26 - 3 * u, 17 + 3 * u, { fov: 54, roll: 0.08 - 0.12 * u }); } },
+    { f: m.fieldClocks - 2, cut: true, s: (f) => move({ pos: Mp(-3, 10, -12), look: Mp(-7, 0.5, 0), fov: 56, roll: -0.11 }, { pos: Mp(-6, 8, -10.5), look: Mp(-9, 0.5, 0.5), fov: 56, roll: -0.04 }, f, m.fieldClocks - 2, B(15), smooth, 0) },
   ];
-  // 16 low wide slide along the refrigerators; snap to one of them
+  // 16 the same country from the air, now dotted with refrigerators; snap to the one on Los Angeles
   c[16] = [
-    { f: A(16), s: (f) => { const x = fridgeX(f); return { pos: Fr(x, 0.7, -3.3), look: Fr(x + 2.6, 1.05, 0), fov: 66, roll: 0.09 }; } },
-    { f: m.fridges - 2, cut: true, s: (f) => snap(Fr(0.7, 1.45, -2.9), Fr(0, 1.0, 0), f, m.fridges - 2, { fov: 46, roll: -0.1 }) },
+    { f: A(16), s: (f) => move({ pos: Mp(-12, 32, -38), look: Mp(-11, 0, -1), fov: 54, roll: 0.09 }, { pos: Mp(-9, 20, -27), look: Mp(-10, 0, -1), fov: 54, roll: 0.02 }, f, A(16), m.fridges + 10, smooth, 0) },
+    { f: m.fridges + 10, cut: true, s: (f) => snap(Mp(-4.6, 2.6, -4.4), Mp(-6.08, 1.4, 0.5), f, m.fridges + 10, { fov: 46, roll: -0.1 }) },
   ];
   // 17 the power company boss, low; ride with the cash as it slides away; snap to his face
   const bs = head(BOSS);
@@ -225,7 +227,7 @@ let CAMS: Record<number, Key[]> | null = null;
 const SHAKES = (): [number, number, number][] => {
   const m = M();
   return [[1, m.clocks - 2, 0.6], [2, A(2) + 4, 0.8], [3, m.fifty - 2, 0.6], [5, m.dam60 + 2, 1.1], [6, m.switched, 1.3], [7, m.toastMind + 6, 1.1],
-    [8, m.minded + 5, 1.3], [11, m.twelve, 1.0], [12, B(12) - 5, 1.0], [13, m.sent + 12, 1.0], [15, m.n475, 1.0], [16, m.fridges - 2, 0.6], [17, m.n34 + 2, 1.3], [18, m.p50 - 2, 0.6]];
+    [8, m.minded + 5, 1.3], [11, m.twelve, 1.0], [12, B(12) - 5, 1.0], [13, m.sent + 12, 1.0], [15, m.n475, 1.0], [16, m.fridges + 10, 0.6], [17, m.n34 + 2, 1.3], [18, m.p50 - 2, 0.6]];
 };
 let SH: [number, number, number][] | null = null;
 /** handheld sway per shot (1 = normal) */
@@ -252,4 +254,4 @@ export const WHIPS = (): [number, number][] => {
 export const whipAt = (f: number) => { let k = 0; for (const [c, s] of WHIPS()) k = Math.max(k, s * Math.max(0, 1 - Math.abs(f - c) / 4)); return k; };
 
 /** lens blur per shot (px at 1080 x 1920 at infinity); 0 = all sharp */
-export const DOF: Record<number, number> = { 1: 5, 2: 8, 3: 5, 4: 9, 5: 0, 6: 7, 7: 8, 8: 9, 9: 4, 10: 6, 11: 5, 12: 3, 13: 5, 14: 0, 15: 0, 16: 3, 17: 8, 18: 5 };
+export const DOF: Record<number, number> = { 1: 5, 2: 8, 3: 5, 4: 9, 5: 0, 6: 7, 7: 8, 8: 9, 9: 4, 10: 6, 11: 5, 12: 3, 13: 5, 14: 0, 15: 0, 16: 0, 17: 8, 18: 5 };

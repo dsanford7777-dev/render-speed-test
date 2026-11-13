@@ -102,26 +102,81 @@ export const toastTex = () => ctex("toastCard", 256, 256, (g) => {
   g.fillStyle = "#e9b56a"; g.beginPath(); g.roundRect(50, 62, 156, 150, 22); g.fill();
 });
 
-/** a 1930s refrigerator, 1.75 m tall, door toward -z: enamel cabinet on legs, a door with a raised panel, chrome
- *  latch handle and hinges, a maker's badge, and the round cooling unit on top */
+const rrect = (w: number, h: number, rt: number, rb: number) => { const s = new THREE.Shape(), x = w / 2;
+  s.moveTo(-x + rb, 0); s.lineTo(x - rb, 0); s.quadraticCurveTo(x, 0, x, rb); s.lineTo(x, h - rt); s.quadraticCurveTo(x, h, x - rt, h);
+  s.lineTo(-x + rt, h); s.quadraticCurveTo(-x, h, -x, h - rt); s.lineTo(-x, rb); s.quadraticCurveTo(-x, 0, -x + rb, 0); return s; };
+/** a rounded retro refrigerator, 1.72 m tall, doors toward -z: a turquoise enamel cabinet with rounded shoulders, a
+ *  small freezer door over a tall main door (each with a raised panel and a chrome bar handle), and a chrome strip
+ *  between them */
 export const fridge = () => {
-  const G = new THREE.Group(), W = "#f4f1e6", CH = "#9aa0aa";
-  const body = box(0.84, 1.3, 0.66, "fridgeWhite", W); body.position.y = 0.95;
-  const plinth = box(0.88, 0.08, 0.7, "fridgeTrim", "#d9d4c4"); plinth.position.y = 0.28;
-  const crown = box(0.9, 0.07, 0.72, "fridgeTrim", "#d9d4c4"); crown.position.y = 1.63;
-  const door = box(0.74, 1.16, 0.05, "fridgeDoor", "#fbf9f0"); door.position.set(0, 0.95, -0.35);
-  const panel = box(0.56, 0.9, 0.03, "fridgeWhite", W); panel.position.set(0, 0.95, -0.385);
-  const handle = box(0.05, 0.26, 0.06, "fridgeChrome", CH); handle.position.set(-0.29, 1.0, -0.4);
-  const latch = box(0.12, 0.05, 0.05, "fridgeChrome", CH); latch.position.set(-0.33, 1.0, -0.39);
-  const badge = box(0.2, 0.06, 0.02, "fridgeBadge", RED); badge.position.set(0, 1.42, -0.405);
-  for (const y of [0.55, 1.35]) { const h = box(0.05, 0.12, 0.05, "fridgeChrome", CH); h.position.set(0.39, y, -0.37); G.add(h); }
-  // the cooling unit on top: a drum of fins with a cap
-  const unit = cyl(0.27, 0.27, 0.3, "fridgeUnit", "#e6e2d4", 22); unit.position.y = 1.82;
-  for (let k = 0; k < 4; k++) { const fin = cyl(0.29, 0.29, 0.025, "fridgeTrim", "#c9c4b4", 22); fin.position.y = 1.71 + k * 0.07; G.add(fin); }
-  const cap = cyl(0.2, 0.25, 0.06, "fridgeTrim", "#d9d4c4", 22); cap.position.y = 2.0;
-  for (const sx of [-1, 1]) for (const sz of [-1, 1]) { const ft = box(0.06, 0.26, 0.06, "fridgeTrim", "#d9d4c4"); ft.position.set(sx * 0.36, 0.13, sz * 0.27); ft.rotation.z = -sx * 0.08; G.add(ft); }
-  G.add(body, plinth, crown, door, panel, handle, latch, badge, unit, cap);
+  const G = new THREE.Group(), B = new THREE.Group(); B.rotation.y = Math.PI; G.add(B);
+  const en = lam("fridgeEnamel", () => ({ color: "#7fd8c6", emissive: "#2c6058" })), en2 = lam("fridgeEnamel2", () => ({ color: "#9be4d4", emissive: "#2c6058" })), ch = lam("fridgeChrome2", () => ({ color: "#d4d8de" }));
+  const ex = (s: THREE.Shape, d: number, m: THREE.Material, y: number, z: number, bev = 0.015) => { const g = new THREE.ExtrudeGeometry(s, { depth: d, bevelEnabled: true, bevelSize: bev, bevelThickness: bev, bevelSegments: 2, curveSegments: 8 }); const o = new THREE.Mesh(g, m); o.position.set(0, y, z); B.add(o); return o; };
+  ex(rrect(0.8, 1.66, 0.17, 0.05), 0.6, en, 0.06, -0.3, 0.02);                       // cabinet
+  ex(rrect(0.74, 0.5, 0.14, 0.03), 0.05, en, 1.19, 0.32);                           // freezer door
+  ex(rrect(0.74, 1.02, 0.03, 0.04), 0.05, en, 0.1, 0.32);                           // main door
+  ex(rrect(0.4, 0.3, 0.05, 0.05), 0.02, en2, 1.26, 0.385, 0.012).position.x = 0.1;  // raised panels
+  ex(rrect(0.42, 0.78, 0.05, 0.05), 0.02, en2, 0.2, 0.385, 0.012).position.x = 0.1;
+  const strip = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.035, 0.07), ch); strip.position.set(0, 1.155, 0.35); B.add(strip);
+  for (const y of [1.4, 0.95]) { const bar = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.035, 0.035), ch); bar.position.set(0.17, y, 0.44); const post = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.07), ch); post.position.set(0.28, y, 0.41); B.add(bar, post); }
+  const kick = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.06, 0.5), lam("fridgeKick", () => ({ color: "#3a4a48" }))); kick.position.set(0, 0.03, 0); B.add(kick);
   return shadowAll(G);
+};
+
+/** a two-prong plug pushed into a wall outlet that faces -z: blades into the wall, ribbed body sticking out.
+ *  The cord leaves from the point `tail` (in the plug's own space). */
+export const plug = (s = 1) => {
+  const G = new THREE.Group(), blk = lam("plugBlack", () => ({ color: "#2b2b31" })), met = lam("plugBlade", () => ({ color: "#c9ccd2" }));
+  const face = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.06, 0.014), blk); face.position.z = -0.012;
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.045, 0.06), blk); body.position.z = -0.048;
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.02, 0.05, 10), blk); neck.rotation.x = Math.PI / 2; neck.position.z = -0.1;
+  for (const k of [0, 1, 2]) { const rib = new THREE.Mesh(new THREE.BoxGeometry(0.064, 0.049, 0.007), blk); rib.position.z = -0.03 - k * 0.014; G.add(rib); }
+  for (const sx of [-1, 1]) { const bl = new THREE.Mesh(new THREE.BoxGeometry(0.006, 0.022, 0.02), met); bl.position.set(sx * 0.022, 0, 0.002); G.add(bl); }
+  G.add(face, body, neck); G.scale.setScalar(s);
+  return { g: shadowAll(G), tail: [0, 0, -0.125 * s] as [number, number, number] };
+};
+
+// ---------------- the map of California ----------------
+/** California's outline as [latitude, longitude] */
+const CA: [number, number][] = [[42, -124.2], [42, -120], [39, -120], [35, -114.6], [34.3, -114.1], [32.7, -114.7], [32.5, -117.1], [32.7, -117.2], [33.2, -117.4], [33.5, -117.7], [33.75, -118.2], [33.75, -118.4], [34, -118.5], [34.03, -118.8], [34.15, -119.2], [34.4, -119.7], [34.45, -120.47], [34.9, -120.65], [35.4, -120.9], [36.2, -121.7], [36.6, -121.9], [36.95, -122.05], [37.8, -122.5], [38, -123], [38.9, -123.7], [40.4, -124.4], [41, -124.15]];
+/** map metres from [lat, lon]: north is +z, east is -x (so east is on the right for a camera looking north) */
+export const mapXZ = (lat: number, lon: number): [number, number] => [-(lon + 119) * 8.1, (lat - 34) * 10];
+export const LA_LL: [number, number] = [34.05, -118.25];
+export const MAP_TOP = 0.5;
+const inCA = (lat: number, lon: number) => { let c = false; for (let i = 0, j = CA.length - 1; i < CA.length; j = i++) { const [a, b] = CA[i], [d, e] = CA[j]; if ((a > lat) !== (d > lat) && lon < ((e - b) * (lat - a)) / (d - a) + b) c = !c; } return c; };
+/** n spots on land in Southern California (south of 35.4 N), thickest round Los Angeles, never closer than `gap`
+ *  metres to each other; sorted outward from Los Angeles. Returned as map [x, z]. */
+export const socalSpots = (n: number, gap: number, seed: number): [number, number][] => {
+  let s = seed; const r = () => (s = (s * 16807) % 2147483647) / 2147483647, out: [number, number][] = [], la = mapXZ(...LA_LL);
+  for (let tries = 0; out.length < n && tries < 200000; tries++) {
+    const near = r() < 0.55, g = () => (r() + r() + r() - 1.5) / 1.5;
+    const lat = near ? LA_LL[0] + g() * 0.9 : 32.6 + r() * 2.8, lon = near ? LA_LL[1] + g() * 1.5 : -120.6 + r() * 6.4;
+    if (lat > 35.4 || !inCA(lat, lon) || !inCA(lat + 0.07, lon) || !inCA(lat - 0.07, lon) || !inCA(lat, lon - 0.09) || !inCA(lat, lon + 0.09)) continue;
+    const p = mapXZ(lat, lon); if (out.some((q) => Math.hypot(q[0] - p[0], q[1] - p[1]) < gap)) continue; out.push(p); }
+  return out.sort((a, b) => Math.hypot(a[0] - la[0], a[1] - la[1]) - Math.hypot(b[0] - la[0], b[1] - la[1]));
+};
+/** California from the air: the state raised half a metre above its neighbours, the Pacific to the west, the Central
+ *  Valley, the Mojave, the Sierra Nevada, and a pin on Los Angeles. Origin at 34 N 119 W, ground level. */
+export const caMap = () => {
+  const G = new THREE.Group();
+  const poly = (pts: [number, number][], depth: number, m: THREE.Material, y: number) => { const sh = new THREE.Shape(pts.map(([la, lo]) => { const [x, z] = mapXZ(la, lo); return new THREE.Vector2(x, -z); }));
+    const g = new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: false }); g.rotateX(-Math.PI / 2); const o = new THREE.Mesh(g, m); o.position.y = y; G.add(o); return o; };
+  const base = new THREE.Mesh(new THREE.BoxGeometry(520, 0.04, 420), lam("mapNeighbour", () => ({ color: "#d8c79f" }))); base.position.set(0, 0.02, 30); G.add(base);
+  // the Pacific: everything west of the coast, from Baja up past Oregon
+  const coast = CA.slice(6).reverse();
+  poly([[46, -124], ...[[42, -124.2] as [number, number]], ...coast, [30, -115.8], [26, -114], [26, -150], [46, -150]], 0.05, lam("mapSea", () => ({ color: "#3f86c9" })), 0.03);
+  poly(CA, MAP_TOP, lam("mapLand", () => ({ color: "#7fae4e" })), 0);
+  poly([[40.2, -122.2], [38.5, -121.4], [36.5, -119.7], [35.2, -118.9], [35.4, -119.7], [37.5, -121.2], [39.5, -122.3]], 0.02, lam("mapValley", () => ({ color: "#a5c860" })), MAP_TOP);
+  poly([[35.6, -117.7], [35.75, -115.75], [34.95, -114.75], [33.1, -114.75], [32.8, -115.5], [33.4, -116.3], [34.3, -116.5], [34.8, -117.5]], 0.02, lam("mapDesert", () => ({ color: "#d9bd84" })), MAP_TOP);
+  // the Sierra Nevada
+  const rockM = lam("mapPeak", () => ({ color: "#8e9a8a" })), snow = lam("mapSnow", () => ({ color: "#f4f6fa" }));
+  for (let k = 0; k < 13; k++) { const u = k / 12, [x, z] = mapXZ(36 + 3.6 * u, -118.35 - 2.0 * u + (k % 2) * 0.22), h = 2.2 + (k % 3) * 0.7;
+    const c = new THREE.Mesh(new THREE.ConeGeometry(2.1, h, 7), rockM); c.position.set(x, MAP_TOP + h / 2, z); const cap = new THREE.Mesh(new THREE.ConeGeometry(0.75, h * 0.36, 7), snow); cap.position.set(x, MAP_TOP + h * 0.83, z); G.add(c, cap); }
+  // Los Angeles
+  const [lx, lz] = mapXZ(...LA_LL), pin = new THREE.Group();
+  const st = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.6, 8), lam("mapPinStem", () => ({ color: "#3a3a44" }))); st.position.y = 1.3;
+  const hd = new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 12), lam("mapPinHead", () => ({ color: "#e23b2e", emissive: "#40100c" }))); hd.position.y = 2.8; pin.add(st, hd); pin.position.set(lx, MAP_TOP, lz); G.add(pin);
+  return { g: shadowAll(G), pin };
 };
 
 /** a marching drum on a stand, skin on top at y = 0.95 */
