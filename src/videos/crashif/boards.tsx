@@ -43,7 +43,7 @@ const Chart: React.FC<{ t: number; pts: Pt[]; lo: number; hi: number; u: number;
     const n = pts.length - 1, uu = clamp01(u) * n, k0 = Math.min(n - 1, Math.floor(uu)), fr = uu - k0;
     const shown = pts.slice(0, k0 + 1).map(px);
     const a = px(pts[k0]), b = px(pts[Math.min(n, k0 + 1)]), tip: [number, number] = [lerp(a[0], b[0], fr), lerp(a[1], b[1], fr)];
-    if (u < 1) shown.push(tip);
+    shown.push(tip);
     const dpath = (q: [number, number][]) => q.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" ");
     return (
       <>
@@ -61,7 +61,7 @@ const Chart: React.FC<{ t: number; pts: Pt[]; lo: number; hi: number; u: number;
           const p = px(pts[lb.i]), on = lb.cue !== undefined ? t >= lb.cue : uu >= lb.i - 0.02, since = lb.cue !== undefined ? t - lb.cue : (uu - lb.i) * 6;
           if (!on) return null;
           return <At key={j} x={p[0] + (lb.dx ?? 0)} y={p[1] + (lb.dy ?? -84)} s={lb.cue !== undefined ? pop(t, lb.cue) : Math.min(1, 0.6 + Math.max(0, since) * 0.2)}>
-            <div style={{ textAlign: "center" }}><Pill text={lb.text} col={lb.col ?? "#fffaf0"} fg={lb.col ? "#fff" : INK} size={54} />{lb.sub ? <T size={34} w={800} col={fg} up={false} style={{ marginTop: 8 }}>{lb.sub}</T> : null}</div>
+            <div style={{ textAlign: "center" }}><Pill text={lb.text} col={lb.col ?? "#fffaf0"} fg={lb.col ? "#fff" : INK} size={78} />{lb.sub ? <T size={46} w={800} col={fg} up={false} style={{ marginTop: 10 }}>{lb.sub}</T> : null}</div>
           </At>;
         })}
       </>
@@ -85,7 +85,7 @@ const ChartBoard: React.FC<G> = ({ t, d, v, c }) => {
     <Bg dark={dark} tone={dark ? NIGHT : undefined}><Mv t={t} d={d} m={m}><Banner text={top} t={t} at={0} col={col} y={110} />{node}</Mv></Bg>
   );
   switch (v) {
-    case 0: return bd("The Dow Jones", INK, <Chart t={t} pts={BULL} lo={0} hi={420} u={U(0.6)} labels={[{ i: 7, text: "381", sub: "September 3, 1929", dx: -150, dy: -20 }]} left="1921" right="1929" />);
+    case 0: return bd("The Dow Jones", INK, <Chart t={t} pts={BULL} lo={0} hi={420} u={U(0.6)} labels={[{ i: 7, text: "381", sub: "September 3, 1929", dx: -290, dy: -10 }]} left="1921" right="1929" />);
     case 1: return bd("Back to 381", C.red, <Chart t={t} pts={LONG} lo={0} hi={420} u={U(0.7)} col={C.red} labels={[{ i: 0, text: "1929", dx: 70, dy: -70 }, { i: 10, text: "1954", sub: "25 years later", dx: -110, dy: -40 }]} />, true, 1);
     case 2: return bd("September 1929", C.red, <Chart t={t} pts={SEPT.slice(0, 5)} lo={355} hi={388} u={U(0.6)} col={C.red} ghost={SEPT} labels={[{ i: 2, text: "Babson speaks", dx: 30, dy: -86 }, { i: 4, text: "about −3%", col: C.red, dx: 60, dy: 96 }]} />, false, 4);
     case 3: return bd("September 1929", GREEN, <Chart t={t} pts={SEPT} lo={355} hi={388} u={0.57 + 0.43 * U(0.6)} labels={[{ i: 2, text: "Babson speaks", dx: 30, dy: -86 }, { i: 7, text: "back up", col: GREEN, dx: -60, dy: -92 }]} />, false, 0);
@@ -117,7 +117,7 @@ const Attempt: React.FC<G & { end?: "failed" | "draw" }> = ({ t, d, v, c, end })
         <div style={{ background: "#fffaf0", border: `8px solid ${INK}`, borderRadius: 18, padding: "18px 56px", boxShadow: "0 12px 0 #000" }}><T size={tw}>{title}</T></div>
       </At>
       {end === "failed" ? <Stamp text="Failed" t={t} at={Math.max(3, c(END_SEG[n - 1], "failed") - 2)} x={960} y={420} size={230} r={-9} /> : null}
-      {end === "draw" ? <Stamp text="A draw" t={t} at={Math.max(3, c(END_SEG[n - 1], "draw") - 2)} x={960} y={420} size={200} r={-9} col="#b8860b" /> : null}
+      {end === "draw" ? <Stamp text="A draw" t={t} at={Math.max(3, c(END_SEG[n - 1], "draw") - 2)} x={960} y={420} size={200} r={-9} col="#f2c94c" /> : null}
     </Mv></Bg>
   );
 };
@@ -126,7 +126,7 @@ const Attempt: React.FC<G & { end?: "failed" | "draw" }> = ({ t, d, v, c, end })
 const DateCard = (big: string, sub: string, o: { tone?: string; col?: string; m?: number; top?: string } = {}): React.FC<G> => ({ t, d }) => (
   <Bg dark tone={o.tone ?? NIGHT}><Mv t={t} d={d} m={o.m ?? 4}>
     {o.top ? <Banner text={o.top} t={t} at={0} col={C.red} y={140} /> : null}
-    <At x={960} y={o.top ? 430 : 390} s={pop(t, 0)}><T size={Math.min(280, 1500 / (big.length * 0.62))} col={o.col ?? C.yellow} style={{ textShadow: "0 16px 0 #000", letterSpacing: 4 }}>{big}</T></At>
+    <At x={960} y={o.top ? 430 : 390} s={pop(t, 0)}><T size={Math.min(250, 1240 / (big.length * 0.62))} col={o.col ?? C.yellow} style={{ textShadow: "0 16px 0 #000", letterSpacing: 4 }}>{big}</T></At>
     <At x={960} y={o.top ? 660 : 640} s={pop(t, 6)}><Pill text={sub} col={C.red} fg="#fff" size={62} /></At>
   </Mv></Bg>
 );
@@ -135,10 +135,11 @@ const Quote = (lines: string[], who: string, o: { cue?: [number, string]; hi?: n
   <Dark tone={NIGHT}><Mv t={t} d={d} m={0}>
     {o.top ? <At x={960} y={150} s={pop(t, 0)}><T size={46} w={800} col={C.gold}>{o.top}</T></At> : null}
     {lines.map((ln, i) => {
-      const size = Math.min(120, 1600 / (ln.length * 0.64)), at = i === 0 ? 0 : Math.max(i * 6, o.cue && i === (o.hi ?? lines.length - 1) ? c(o.cue[0], o.cue[1]) - 2 : i * 9);
-      return <At key={i} x={960} y={330 + i * 140 - (lines.length - 2) * 60} s={pop(t, at)}><T size={size} col={i === (o.hi ?? lines.length - 1) ? C.yellow : "#fff"} style={{ textShadow: "0 8px 0 #000" }}>{ln}</T></At>;
+      const hi = o.hi ?? lines.length - 1, hiAt = o.cue ? Math.max(hi * 6, c(o.cue[0], o.cue[1]) - 2) : hi * 9;
+      const size = Math.min(112, 1600 / (ln.length * 0.64)), at = i === 0 ? 0 : i < hi ? i * 7 : hiAt + (i - hi) * 8;
+      return <At key={i} x={960} y={(o.top ? 270 : 215) + i * 128 + (3 - lines.length) * 60} s={pop(t, at)}><T size={size} col={i === (o.hi ?? lines.length - 1) ? C.yellow : "#fff"} style={{ textShadow: "0 8px 0 #000" }}>{ln}</T></At>;
     })}
-    <At x={960} y={690} s={pop(t, 12)}><T size={42} w={800} col="#f6efdc" up={false}>{who}</T></At>
+    <At x={960} y={(o.top ? 270 : 215) + lines.length * 128 + (3 - lines.length) * 60 - 6} s={pop(t, 12)}><T size={42} w={800} col="#f6efdc" up={false}>{who}</T></At>
   </Mv></Dark>
 );
 /** dollar bills in a row; the first `cut` get crossed out at `cutAt` */
@@ -239,10 +240,10 @@ export const BOARDS: Record<string, React.FC<G>> = {
   weekbefore: ({ t, d, c }) => (
     <Paper><Mv t={t} d={d} m={3}>
       <Banner text="October 1929" t={t} at={0} col={INK} />
-      <Svg><path d="M420 430 L1500 430" {...sto} strokeWidth={12} strokeDasharray={`${1080 * ease(k(t, 6, Math.max(10, c(42, "crash") - 6)))} 1200`} /></Svg>
-      <At x={420} y={430} s={pop(t, 0)}><div style={{ textAlign: "center" }}><Pill text="Mid-October" col={GREEN} fg="#fff" size={58} /><T size={44} w={800} up={false} style={{ marginTop: 14 }}>“permanently high”</T></div></At>
-      <At x={1500} y={430} s={pop(t, Math.max(8, c(42, "crash") - 2))}><div style={{ textAlign: "center" }}><Pill text="October 24" col={C.red} fg="#fff" size={58} /><T size={44} w={800} up={false} style={{ marginTop: 14 }}>the crash begins</T></div></At>
-      <At x={960} y={350} s={pop(t, Math.max(6, c(42, "week") - 2))}><T size={64} col={C.red}>About a week</T></At>
+      <Svg><path d="M420 380 L1500 380" {...sto} strokeWidth={12} strokeDasharray={`${1080 * ease(k(t, 4, Math.max(10, c(42, "week"))))} 1200`} /></Svg>
+      <At x={420} y={500} s={pop(t, 0)}><div style={{ textAlign: "center" }}><Pill text="Mid-October" col={GREEN} fg="#fff" size={58} /><T size={44} w={800} up={false} style={{ marginTop: 14 }}>“permanently high”</T></div></At>
+      <At x={1500} y={500} s={pop(t, 5)}><div style={{ textAlign: "center" }}><Pill text="October 24" col={C.red} fg="#fff" size={58} /><T size={44} w={800} up={false} style={{ marginTop: 14 }}>the crash begins</T></div></At>
+      <At x={960} y={300} s={pop(t, Math.max(6, c(42, "week") - 2))}><T size={84} col={C.red}>About a week</T></At>
     </Mv></Paper>
   ),
 
@@ -252,31 +253,31 @@ export const BOARDS: Record<string, React.FC<G>> = {
   doct24: DateCard("October 24", "Black Thursday", { tone: "#2a1418" }),
   open11: num("−11%", "at the opening bell", { dark: true, m: 4, col: C.red, size: 380 }),
   t130: DateCard("1:30 PM", "Black Thursday", { m: 4 }),
-  whitney: card("Richard Whitney", "Vice president, New York Stock Exchange", "person", { col: INK, m: 0 }),
+  whitney: card("Richard Whitney", "Vice president of the Exchange", "person", { col: INK, m: 0 }),
   above: ({ t, d, c }) => {
     const at2 = Math.max(6, c(60, "above") - 3);
     return (
       <Paper><Mv t={t} d={d} m={0}>
         <Banner text="U.S. Steel, per share" t={t} at={0} col={INK} />
         <Svg>
-          <rect x={520} y={640 - 300 * ease(k(t, 0, 12))} width={300} height={300 * ease(k(t, 0, 12))} fill={C.grey} {...st} />
-          <rect x={1100} y={640 - 400 * ease(k(t, at2, 12))} width={300} height={400 * ease(k(t, at2, 12))} fill={GREEN} {...st} />
+          <rect x={520} y={640 - 250 * ease(k(t, 0, 12))} width={300} height={250 * ease(k(t, 0, 12))} fill={C.grey} {...st} />
+          <rect x={1100} y={640 - 310 * ease(k(t, at2, 12))} width={300} height={310 * ease(k(t, at2, 12))} fill={GREEN} {...st} />
           <path d="M400 640 L1520 640" {...sto} strokeWidth={10} />
         </Svg>
         <At x={670} y={700} s={pop(t, 2)}><T size={50} w={800} up={false}>the going price</T></At>
         <At x={1250} y={700} s={pop(t, at2)}><T size={50} w={800} up={false}>his bid</T></At>
-        <At x={1250} y={185} s={pop(t, at2 + 6)}><T size={110} col={GREEN}>$205</T></At>
+        <At x={1250} y={262} s={pop(t, at2 + 6)}><T size={100} col={GREEN}>$205</T></At>
       </Mv></Paper>
     );
   },
-  y1907: num("1907", "the last time bankers stopped a panic this way", { m: 4, col: INK, size: 330 }),
+  y1907: num("1907", "it worked then", { m: 4, col: INK, size: 360 }),
   hquote: Quote(["“On a sound", "and prosperous", "basis.”"], "President Herbert Hoover, October 25, 1929", { cue: [64, "prosperous"], hi: 1 }),
   weekend: ({ t, d }) => (
     <Paper><Mv t={t} d={d} m={2}>
       <Banner text="It holds" t={t} at={0} col={GREEN} />
       {["Friday", "Saturday"].map((day, i) => (
         <At key={day} x={640 + i * 640} y={450} s={pop(t, i * Math.min(10, Math.round(d * 0.25)))}>
-          <div style={{ width: 480, background: "#fffaf0", border: `8px solid ${INK}`, borderRadius: 18, boxShadow: `0 12px 0 ${INK}`, padding: "26px 0 34px", textAlign: "center" }}><T size={84}>{day}</T><T size={170} col={GREEN} style={{ marginTop: 6 }}>✓</T></div>
+          <div style={{ width: 540, background: "#fffaf0", border: `8px solid ${INK}`, borderRadius: 18, boxShadow: `0 12px 0 ${INK}`, padding: "26px 0 34px", textAlign: "center" }}><T size={74}>{day}</T><T size={170} col={GREEN} style={{ marginTop: 6 }}>✓</T></div>
         </At>
       ))}
     </Mv></Paper>
@@ -295,8 +296,8 @@ export const BOARDS: Record<string, React.FC<G>> = {
         {steps.map(([n, s, cue], i) => (
           <At key={n} x={360 + i * 400} y={450} s={pop(t, cue ? Math.max(i * 5, c(cue[0], cue[1]) - 2) : 0)}>
             <div style={{ width: 350, textAlign: "center" }}>
-              <div style={{ width: 150, height: 150, borderRadius: "50%", background: i === 3 ? GREEN : INK, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "center", border: `8px solid ${INK}` }}><T size={100} col="#fff">{n}</T></div>
-              <T size={40} style={{ marginTop: 22, whiteSpace: "normal" }}>{s}</T>
+              <div style={{ width: 190, height: 190, borderRadius: "50%", background: i === 3 ? GREEN : INK, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "center", border: `8px solid ${INK}` }}><T size={124} col="#fff">{n}</T></div>
+              <T size={48} style={{ marginTop: 22, whiteSpace: "normal" }}>{s}</T>
             </div>
           </At>
         ))}
@@ -333,15 +334,15 @@ export const BOARDS: Record<string, React.FC<G>> = {
   },
   onethird: num("1 in 3", "and then some", { dark: true, m: 4, col: C.red, size: 340 }),
   andliv: card("Jesse Livermore", "Speculator", "person", { col: GREEN, m: 1 }),
-  livbroke: card("Jesse Livermore", "Speculator", "person", { col: C.grey, m: 0, stamp: "Bankrupt · 1934", stampCue: [89, "bankrupt"] }),
+  livbroke: card("Jesse Livermore", "Bankrupt by 1934", "person", { col: C.grey, m: 1, stamp: "Bankrupt", stampCue: [89, "bankrupt"] }),
   easy: say([{ s: "Getting rich was", size: 110, col: "#fff" }, { s: "the easy part", col: C.yellow, size: 190, cue: [90, "easy"] }], { dark: true, m: 0 }),
   order: ({ t, d, c }) => (
     <Paper tone={C.paper2}><Mv t={t} d={d} m={0}>
       <At x={960} y={420} s={pop(t, 0)} r={-2}>
-        <div style={{ width: 1280, background: "#fffaf0", border: `10px solid ${INK}`, boxShadow: `0 16px 0 ${INK}`, padding: "30px 50px", textAlign: "center" }}>
-          <T size={50} col={C.grey}>The White House · April 5, 1933</T>
-          <T size={104} style={{ marginTop: 14 }}>Executive Order 6102</T>
-          <div style={{ borderTop: `8px double ${INK}`, marginTop: 20, paddingTop: 22, transform: `scale(${pop(t, Math.max(8, c(92, "hand") - 2))})` }}><T size={54} col={C.red} style={{ whiteSpace: "normal" }}>Forbidding the hoarding of gold coin, gold bullion and gold certificates</T></div>
+        <div style={{ width: 1160, background: "#fffaf0", border: `10px solid ${INK}`, boxShadow: `0 16px 0 ${INK}`, padding: "30px 40px", textAlign: "center" }}>
+          <T size={46} col={C.grey}>The White House · April 5, 1933</T>
+          <T size={70} style={{ marginTop: 14 }}>Executive Order 6102</T>
+          <div style={{ borderTop: `8px double ${INK}`, marginTop: 20, paddingTop: 22, transform: `scale(${pop(t, Math.max(8, c(92, "hand") - 2))})` }}><T size={48} col={C.red} style={{ whiteSpace: "normal" }}>Forbidding the hoarding of gold coin, gold bullion and gold certificates</T></div>
         </div>
       </At>
     </Mv></Paper>
@@ -452,8 +453,8 @@ export const BOARDS: Record<string, React.FC<G>> = {
     return (
       <Paper><Mv t={t} d={d} m={v === 2 ? 0 : 2}>
         <Banner text="The whole secret" t={t} at={0} col={GREEN} />
-        <div style={{ position: "absolute", left: 330, top: 250 }}>
-          {rows.slice(0, v + 1).map(([s, cue], i) => <Row key={s} text={s} t={i < v ? 99 : t} at={i < v ? 0 : v === 2 ? 0 : Math.max(0, c(cue[0], cue[1]) - 4)} mark="check" markAt={i < v ? 0 : v === 2 ? 5 : Math.max(5, c(cue[0], cue[1]) + 3)} size={78} />)}
+        <div style={{ position: "absolute", left: 300, top: 250 }}>
+          {rows.slice(0, v + 1).map(([s, cue], i) => <Row key={s} text={s} t={i < v ? 99 : t} at={i < v ? 0 : v === 2 ? 0 : Math.max(0, c(cue[0], cue[1]) - 4)} mark="check" markAt={i < v ? 0 : v === 2 ? 5 : Math.max(5, c(cue[0], cue[1]) + 3)} size={66} />)}
         </div>
       </Mv></Paper>
     );

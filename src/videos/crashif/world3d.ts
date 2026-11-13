@@ -210,17 +210,17 @@ export class CWorld {
       b.add(tri(B, A, C), limeFlat); b.add(quad(A, A2, C2, C), limeFlat); b.add(quad(B2, B, C, C2), limeFlat); }
     for (let i = 0; i < 5; i++) win(wb, this.winMat, -10 + i * 5, 7.6, 12.57, 2.6, 9.4, -1);
     b.add(boxGeo(V(-1.7, 0.9, 12.3), V(1.7, 5.4, 12.62)), dark);
-    const exSign = new Board(22, 1.5, "cr_nyse", () => signTex("cr_nyse", "NEW YORK STOCK EXCHANGE", "#2f2a3a", "#e8c45a")); exSign.group.position.set(0, 14.65, 9.84); R.add(exSign.group);
+    const exSign = new Board(9.4, 2.05, "cr_nyse", () => signTex("cr_nyse", "NEW YORK STOCK EXCHANGE", "#2f2a3a", "#e8c45a")); exSign.group.position.set(0, 14.65, 9.84); R.add(exSign.group);
     // the bank: a stone front with four columns, double doors, a sign that is repainted per shot
     b.add(boxGeo(V(34, 0, 12), V(58, 14, 40), 3), lime); b.add(boxGeo(V(33.7, 14, 11.7), V(58.3, 14.8, 40.3)), trim);
     b.add(boxGeo(V(38, 0, 10.2), V(54, 0.32, 12), 3), lime);
     for (const x of [39.5, 43.2, 48.8, 52.5]) { cylAt(b, limeFlat, 0.5, 0.56, 7.2, x, 0.32, 11.0, 18); b.add(boxGeo(V(x - 0.7, 7.5, 10.3), V(x + 0.7, 7.8, 11.7)), trim); }
-    b.add(boxGeo(V(38.4, 7.8, 10.2), V(53.6, 9.0, 12.0)), lime);
+    b.add(boxGeo(V(38.4, 7.8, 10.2), V(53.6, 10.1, 12.0)), lime);
     b.add(boxGeo(V(44.5, 0.32, 11.86), V(47.5, 4.1, 12.3)), dark); b.add(boxGeo(V(44.3, 4.1, 11.7), V(47.7, 4.4, 12.1)), trim);
     for (const x of [36.4, 41.4, 50.6, 55.6]) win(wb, this.winMat, x, 3.4, 11.97, 2.0, 3.6, -1);
-    for (const x of [36.4, 41.4, 46, 50.6, 55.6]) win(wb, this.winMat, x, 11.5, 11.97, 2.0, 2.4, -1);
+    for (const x of [36.4, 41.4, 46, 50.6, 55.6]) win(wb, this.winMat, x, 12.1, 11.97, 2.0, 2.0, -1);
     for (const s of [-1, 1]) { const d = new THREE.Mesh(new THREE.BoxGeometry(1.5, 3.78, 0.12), wood); d.castShadow = true; d.userData.s = s; this.doors.push(d); R.add(d); const kn = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), gold); kn.position.set(-s * 0.55, -0.1, -0.09); d.add(kn); }
-    this.bankSign = new Board(14.4, 1.0, "cr_bank0", () => signTex("cr_bank0", "CORNER SAVINGS BANK", "#2f2a3a", "#e8c45a")); this.bankSign.group.position.set(46, 8.4, 10.13); R.add(this.bankSign.group);
+    this.bankSign = new Board(9.6, 2.1, "cr_bank0", () => signTex("cr_bank0", "CORNER SAVINGS BANK", "#2f2a3a", "#e8c45a")); this.bankSign.group.position.set(46, 8.95, 10.13); R.add(this.bankSign.group);
     this.notice = new Board(1.9, 1.1, "cr_notice0", () => noticeTex("CLOSED", "#fff6dc", "#c9373a")); this.notice.group.position.set(46, 2.45, 11.72); R.add(this.notice.group);
     // the rest of the canyon
     let wi = 0;
@@ -236,7 +236,7 @@ export class CWorld {
     b.add(boxGeo(V(-168, 0, -9), V(-150, 34, 9), 0), brown); b.add(boxGeo(V(-190, 0, -14), V(-168, 20, 14), 0), brown);
     { const sp2 = new THREE.ConeGeometry(9, 44, 4); sp2.rotateY(Math.PI / 4); sp2.translate(-159, 56, 0); b.add(sp2, brown); }
     // lamp posts
-    for (let x = -100; x <= 100; x += 20) for (const z of [6.5, -6.5]) { if (z < 0 && Math.abs(x) < 14) continue; cylAt(b, iron, 0.09, 0.12, 4.2, x, SW, z, 8); const gl = new THREE.SphereGeometry(0.3, 10, 8); gl.translate(x, SW + 4.4, z); wb.add(gl, this.winMat); }
+    for (let x = -100; x <= 100; x += 20) for (const z of [6.5, -6.5]) { if (z < 0 && (Math.abs(x) < 14 || x === -20)) continue; if (z > 0 && x >= 0 && x <= 40) continue; cylAt(b, iron, 0.09, 0.12, 4.2, x, SW, z, 8); const gl = new THREE.SphereGeometry(0.3, 10, 8); gl.translate(x, SW + 4.4, z); wb.add(gl, this.winMat); }
     // the newsstand on the south-west corner (it faces the road), with its headline board
     b.add(boxGeo(V(-27.2, SW, -9.8), V(-24.4, SW + 2.3, -8.6)), M("crKiosk", "#3f6f5a")); b.add(boxGeo(V(-27.5, SW + 2.3, -10.0), V(-24.1, SW + 2.5, -7.7)), M("crAwning", "#c9373a"));
     b.add(boxGeo(V(-27.1, SW + 0.9, -8.6), V(-24.5, SW + 1.0, -8.1)), wood);
@@ -268,9 +268,9 @@ export class CWorld {
     this.postBoard = new Board(2.1, 1.1, "num_POST", () => numTex("U.S. STEEL")); this.postBoard.group.position.set(0, 3.5, 1.1); this.post.add(this.postBoard.group);
     // the ticker: a pedestal, the works, a glass dome, and the tape it spits out (down to the floor, then away from the wall)
     part(this.ticker, new THREE.CylinderGeometry(0.2, 0.26, 1.0, 12), wood, 0, 0.5, 0); part(this.ticker, new THREE.CylinderGeometry(0.2, 0.2, 0.2, 14), gold, 0, 1.1, 0);
-    part(this.ticker, new THREE.SphereGeometry(0.3, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), M("crGlass", "#cfe6f0"), 0, 1.02, 0);
+    part(this.ticker, new THREE.SphereGeometry(0.26, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), M("crGlass", "#cfe6f0"), 0, 1.2, 0); part(this.ticker, new THREE.BoxGeometry(0.6, 0.06, 0.6), wood, 0, 1.0, 0);
     const tapeM = M("crTape", "#fffaf0");
-    this.tapeA = part(this.ticker, new THREE.BoxGeometry(0.05, 1, 0.012), tapeM, 0.24, 0.6, -0.1); this.tapeB = part(this.ticker, new THREE.BoxGeometry(0.05, 0.012, 1), tapeM, 0.24, 0.012, -0.1);
+    this.tapeA = part(this.ticker, new THREE.BoxGeometry(0.11, 1, 0.012), tapeM, 0.27, 0.6, -0.1); this.tapeB = part(this.ticker, new THREE.BoxGeometry(0.11, 0.014, 1), tapeM, 0.27, 0.014, -0.1);
     // the bed: frame, striped mattress, pillow, blanket
     part(this.bed, new THREE.BoxGeometry(2.3, 0.3, 1.2), wood, 0, 0.3, 1.5); part(this.bed, new THREE.BoxGeometry(2.2, 0.28, 1.1), lam("crMattress", () => ({ map: mattressTex() })), 0, 0.59, 1.5);
     part(this.bed, new THREE.BoxGeometry(0.12, 1.2, 1.3), wood, 1.2, 0.6, 1.5); part(this.bed, new THREE.BoxGeometry(0.5, 0.14, 0.8), M("crPillow", "#fffaf0"), 0.75, 0.8, 1.5);
@@ -362,7 +362,7 @@ export class CWorld {
     this.ticker.visible = rm?.ticker !== undefined;
     if (rm?.ticker !== undefined) {
       const k = Math.max(0.001, rm.ticker), drop = Math.min(1, k * 4) * 1.05, runL = Math.max(0.001, (k - 0.25) / 0.75) * 7;
-      this.tapeA.scale.y = drop; this.tapeA.position.y = 1.1 - drop / 2; this.tapeA.position.x = 0.24 + 0.01 * Math.sin(t * 9);
+      this.tapeA.scale.y = drop; this.tapeA.position.y = 1.1 - drop / 2; this.tapeA.position.x = 0.27 + 0.01 * Math.sin(t * 9);
       this.tapeB.visible = k > 0.25; this.tapeB.scale.z = runL; this.tapeB.position.z = -0.1 - runL / 2;
     }
     this.cash.forEach((cp, i) => { const p = rm?.cash?.[i] ?? st.cash?.[i]; cp.visible = !!p; if (p) cp.position.set(...p); });
