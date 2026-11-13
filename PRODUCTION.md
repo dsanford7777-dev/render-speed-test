@@ -23,3 +23,27 @@
 - When a close-up would push past a half-framed person, cut instead of gliding.
 - Every narrated number or prop gets a subject entry with the words it belongs to.
 - Night grade turns yellow grey: highlight with size and a red bar, not yellow.
+
+## Uploading (YouTube API, `upload.yml`)
+- Google Cloud project `paradox-town-uploads` (account axonlearning.appreview@gmail.com), YouTube Data API v3, OAuth app "Paradox Town Uploader".
+- Repo secrets: `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_SHORTS` (Paradox Town), `YT_REFRESH_EXPLAINED` (Paradox Town Explained). Never print them.
+- **Until the project passes YouTube's API audit, every API upload is locked private and can't be made public, not even in Studio.** Don't upload a real video through it before the audit passes; test with a throwaway clip and delete it.
+- Push `upload.json` to main:
+  ```json
+  {
+    "release": "Clocks-20261113-2228",
+    "channel": "shorts",
+    "title": "Why Los Angeles Took Everyone's Clocks #history #shorts",
+    "description": "...",
+    "tags": ["history", "shorts"],
+    "publishAt": "2026-11-14T16:00:00-06:00",
+    "thumbnail": "TitanicIf-thumbnail.jpg",
+    "channelId": "UC..."
+  }
+  ```
+  - `channel`: `shorts` or `explained`. `asset` defaults to `<Composition>.mp4` from the release.
+  - `publishAt` needs a time zone and must be in the future; without it the video stays private.
+  - `thumbnail`: a repo path or a release asset name (long-forms). Optional fields: `categoryId` (default 27 Education), `madeForKids` (default false), `containsSyntheticMedia`, `language` (default en), `force` (re-upload a release already in `uploads.log`), `channelId` (fails the run loudly if the token belongs to another channel).
+- Every upload is logged in `uploads.log`; the same release can't go to the same channel twice without `"force": true`.
+- Can't be done by the API: pinning a comment, end screens, Test & Compare. Do those in Studio.
+- Privacy policy / home page for the audit: `docs/` on GitHub Pages.
