@@ -58,7 +58,11 @@ export const dam = () => {
       const cap = cyl(2.9, 2.9, 1.2, "damLip", "#a89f8b", 12); cap.position.set(s * (9 + k * 12), DAM_H + 12.6, 20 + k * 5); G.add(cap);
     }
   }
-  const lake = new THREE.Mesh(scaleUV(new THREE.BoxGeometry(72, 0.2, 124), 4, 4), lam("damLake", () => ({ map: riverTex(), color: "#bcd2ea" }))); lake.position.set(0, DAM_H - 4, 64); G.add(lake);
+  // the lake: its front edge follows the curve of the wall (and sits inside the wall's thickness), its sides stop at the cliffs
+  { const sh = new THREE.Shape(); sh.moveTo(-31, -126); for (let x = -31; x <= 31; x += 2) sh.lineTo(x, -(0.03 * x * x + 0.4)); sh.lineTo(31, -126); sh.closePath();
+    const g = new THREE.ExtrudeGeometry(sh, { depth: 0.2, bevelEnabled: false }); g.rotateX(-Math.PI / 2);
+    const uv = g.getAttribute("uv"), pos = g.getAttribute("position"); for (let k = 0; k < uv.count; k++) uv.setXY(k, pos.getX(k) / 18, pos.getZ(k) / 30);
+    const lake = new THREE.Mesh(g, lam("damLake", () => ({ map: riverTex(), color: "#bcd2ea" }))); lake.position.y = DAM_H - 4; G.add(lake); }
   const river = new THREE.Mesh(scaleUV(new THREE.BoxGeometry(16, 0.12, 186), 1, 9), lam("damRiver", () => ({ map: riverTex() }))); river.position.set(0, 0.09, -92); G.add(river);
   const house = box(34, 7, 7, "damHouse", "#e4dbc8"); house.position.set(0, 3.5, -6.5); G.add(house);
   const roof = box(35, 0.8, 8, "damLip", "#a89f8b"); roof.position.set(0, 7.4, -6.5); G.add(roof);
