@@ -17,7 +17,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
-SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+# Token scopes: youtube.upload (upload, thumbnail) + youtube.force-ssl (comments, status checks).
 
 
 def summary(line: str) -> None:
@@ -63,7 +63,6 @@ def main() -> None:
         client_id=os.environ["YT_CLIENT_ID"],
         client_secret=os.environ["YT_CLIENT_SECRET"],
         token_uri="https://oauth2.googleapis.com/token",
-        scopes=SCOPES,
     )
     yt = build("youtube", "v3", credentials=creds, cache_discovery=False)
 
@@ -132,6 +131,16 @@ def main() -> None:
     if expect and snip.get("channelId") != expect:
         fail(f"uploaded to channel {snip.get('channelId')}, but upload.json expected {expect}. "
              f"Delete https://studio.youtube.com/video/{vid}/edit and check the channel's token.")
+
+    # YouTube refuses comments on private videos, so the comment waits in pending-comments.json
+    # and comment.yml posts it once the video is public.
+    if cfg.get("comment"):
+        pending = json.load(open("pending-comments.json", encoding="utf-8")) if os.path.exists("pending-comments.json") else []
+        pending.append({"channel": cfg["channel"], "videoId": vid, "release": cfg.get("release"),
+                        "publishAt": st.get("publishAt"), "comment": cfg["comment"]})
+        with open("pending-comments.json", "w", encoding="utf-8") as f:
+            json.dump(pending, f, indent=2, ensure_ascii=False)
+        summary("- Comment queued; it posts within about an hour of the video going public")
 
 
 if __name__ == "__main__":

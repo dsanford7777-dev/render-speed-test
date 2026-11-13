@@ -45,5 +45,6 @@
   - `publishAt` needs a time zone and must be in the future; without it the video stays private.
   - `thumbnail`: a repo path or a release asset name (long-forms). Optional fields: `categoryId` (default 27 Education), `madeForKids` (default false), `containsSyntheticMedia`, `language` (default en), `force` (re-upload a release already in `uploads.log`), `channelId` (fails the run loudly if the token belongs to another channel).
 - Every upload is logged in `uploads.log`; the same release can't go to the same channel twice without `"force": true`.
-- Can't be done by the API: pinning a comment, end screens, Test & Compare. Do those in Studio.
+- **Comment:** add `"comment": "..."` to `upload.json`. YouTube refuses comments on private videos, so it is queued in `pending-comments.json` and `comment.yml` (hourly, minute 17, or run by hand) posts it once the video is public. The refresh tokens need both scopes: `youtube.upload` and `youtube.force-ssl`.
+- Can't be done by the API: **pinning** the comment, end screens, Test & Compare. Do those in Studio.
 - Privacy policy / home page for the audit: `docs/` on GitHub Pages.
