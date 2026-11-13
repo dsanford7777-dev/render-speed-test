@@ -147,7 +147,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       if (land < 0.8) for (let i = 0; i < 12; i++) { const a = i * 0.55, w = land / 0.8; cards.push({ kind: "chip", p: S(T[0] + Math.cos(a) * 5 * w, T[1] + 7 * w - 7 * w * w + 0.3, T[2] + Math.sin(a) * 3 * w), spin: tt * 10 + i, s: 0.45 }); } }
     return { light: "day", dof: 0, army: { adv: 14, march: false }, ball: u < 1 ? at(u) : undefined, blast: land > 0 ? { at: T, t: land } : undefined,
       cam: kick(move({ pos: S(5.6, 1.5, 15.5), look: S(5.0, 9, 30), fov: 56, roll: 0.09 }, { pos: S(5.9, 2.2, 16.2), look: S(3.6, 2.6, 40), fov: 50, roll: -0.03 }, f, s.a, s.a + 50, smooth, 0), f, s.a + Math.round(dur * FPS), 2.2),
-      people: [P("carp", S(5.0, 0, 20.4), "smile_closed", 0)], puffs, cards }; },
+      people: [P("carp", S(5.0, 0, 20.4), "smile_closed", 0, { extra: f < s.a + 16 })], puffs, cards }; },
 };
 
 /** every shot is hand-held: a slow sway on top of its move */
