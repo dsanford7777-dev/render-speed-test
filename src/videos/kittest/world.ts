@@ -149,8 +149,10 @@ export class KWorld {
   private sunCache = new Map<number, THREE.Vector3>();
   private clouds: THREE.Mesh[] = []; private cloudMaps: Record<Light, THREE.Texture[]>;
   private winMat = new THREE.MeshBasicMaterial({ color: 0xffffff, fog: true, side: THREE.DoubleSide });
-  private crowd: { mesh: THREE.InstancedMesh; at: V3[]; ph: number[] }[] = []; private flags: THREE.Group[] = [];
-  private cells: { body: THREE.InstancedMesh; top: THREE.InstancedMesh; d: number[] };
+  private crowd: { mesh: THREE.InstancedMesh; at: V3[]; ph: number[]; mat: THREE.MeshLambertMaterial; texA: THREE.Texture; texB: THREE.Texture; off: number }[] = []; private flags: THREE.Group[] = [];
+  private moat: { a: number[]; rin: number[]; rout: number[]; chunks: { mesh: THREE.Mesh; c: [number, number]; er: [number, number]; axis: THREE.Vector3; d: number; tilt: number; yaw: number }[] } = { a: [], rin: [], rout: [], chunks: [] };
+  private grass: { mesh: THREE.InstancedMesh; cell: number; R: number; f0: number; sc: number; cap: number }[] = []; private fusePts: number[] = []; private col5 = new THREE.Color();
+  private pegHit: THREE.Mesh; private ball: THREE.Mesh;
   private lid: THREE.Mesh;
   private rain: THREE.Mesh; private rainSeed: number[] = [];
   private lamps: { bulb: THREE.Mesh; halo: THREE.Sprite; pool: THREE.Mesh; light: THREE.PointLight }[] = [];
@@ -201,36 +203,44 @@ export class KWorld {
     { const p = tg.attributes.position as THREE.BufferAttribute; for (let i = 0; i < p.count; i++) p.setY(i, groundH(p.getX(i), p.getZ(i), true)); tg.computeVertexNormals(); }
     const land = new THREE.Mesh(tg, lam("k2Fields", () => ({ map: fieldsTex() }))); land.receiveShadow = true; R.add(land);
     // the yard: a slab with a square hole where the ground can break
-    const yb = new Batch(), turf = lam("k2Turf", () => ({ map: rep(grassHD(), 1, 1) })), dirt = M("k2Dirt", "#7a5a3c"), path = lam("k2Path", () => ({ map: pathTex() }));
+    const yb = new Batch(), turf = M("k2TurfDark", GROUND), dirt = M("k2Dirt", "#5e4632"), path = lam("k2Path", () => ({ map: pathTex() }));
     const [hx0, hx1, hz0, hz1] = [PATCH[0] - PN * PC / 2, PATCH[0] + PN * PC / 2, PATCH[1] - PN * PC / 2, PATCH[1] + PN * PC / 2];
     for (const [x0, x1, z0, z1] of [[-36, 36, -14, hz0], [-36, 36, hz1, 36], [-36, hx0, hz0, hz1], [hx1, 36, hz0, hz1]]) yb.add(boxGeo(V(x0, -3.4, z0), V(x1, 0, z1), 3), turf);
     yb.add(boxGeo(V(-2.2, 0, -14), V(2.2, 0.025, 36), 2), path);
     yb.add(boxGeo(V(hx0, -3.4, hz0), V(hx1, -1.9, hz1)), dirt);
     yb.build(R);
-    // the ground that breaks: PN x PN blocks, grass on top, earth below
-    { const n = PN * PN, bg = new THREE.BoxGeometry(PC - 0.02, 2.6, PC - 0.02), tgm = new THREE.BoxGeometry(PC - 0.02, 0.1, PC - 0.02);
-      const body = new THREE.InstancedMesh(bg, dirt, n), top = new THREE.InstancedMesh(tgm, M("k2TurfFlat", "#6fae3c"), n);
-      body.receiveShadow = top.receiveShadow = true; body.castShadow = true; R.add(body, top);
-      const d: number[] = []; let s2 = 31; const r2 = () => (s2 = (s2 * 16807) % 2147483647) / 2147483647;
-      for (let i = 0; i < n; i++) { const cx = (i % PN) - (PN - 1) / 2, cz = Math.floor(i / PN) - (PN - 1) / 2, ring = Math.max(Math.abs(cx), Math.abs(cz));
-        d.push(ring === 0 ? 0 : ring === 1 ? -1.25 - 0.4 * r2() : ring === 2 ? (r2() > 0.5 ? -0.55 : 0.4) * (0.6 + 0.6 * r2()) : (r2() - 0.5) * 0.3); }
-      this.cells = { body, top, d };
-      this.lid = new THREE.Mesh(new THREE.BoxGeometry(PN * PC, 0.12, PN * PC), turf); this.lid.position.set(PATCH[0], -0.06, PATCH[1]); this.lid.receiveShadow = true; R.add(this.lid); }
-    // grass: tufts of curved blades in the lawn's own greens (dark at the root, light at the tip), never outlined
+    // the ground that gives way: a ring of irregular chunks of earth round an island; they drop and tilt (a moat)
+    { let s2 = 31; const r2 = () => (s2 = (s2 * 16807) % 2147483647) / 2147483647; const N = MOAT_N, half = PN * PC / 2;
+      for (let k = 0; k < N; k++) { const a = (k + 0.5 * (r2() - 0.5)) * (Math.PI * 2 / N); this.moat.a.push(a); this.moat.rin.push(1.25 + 0.3 * r2(), 1.2 + 0.35 * r2()); this.moat.rout.push(3.3 + 0.5 * r2(), 3.4 + 0.5 * r2()); }
+      const A = (k: number) => this.moat.a[k % N] + (k >= N ? Math.PI * 2 : 0), pt = (a: number, r: number) => new THREE.Vector2(Math.cos(a) * r, Math.sin(a) * r);
+      const mats = [turf, dirt];
+      const solid = (pts: THREE.Vector2[], hole: THREE.Vector2[] | null, depth: number) => { const sh = new THREE.Shape(pts); if (hole) sh.holes.push(new THREE.Path(hole)); const g = new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: false }); g.rotateX(Math.PI / 2); return g; };
+      const outer: THREE.Vector2[] = [], inner: THREE.Vector2[] = [];
+      for (let k = 0; k < N; k++) { const a0 = A(k), a1 = A(k + 1), am = (a0 + a1) / 2, k1 = (k + 1) % N;
+        const pin = [pt(a0, this.moat.rin[k * 2]), pt(am, this.moat.rin[k * 2 + 1]), pt(a1, this.moat.rin[k1 * 2])], pout = [pt(a0, this.moat.rout[k * 2]), pt(am, this.moat.rout[k * 2 + 1]), pt(a1, this.moat.rout[k1 * 2])];
+        inner.push(pin[0], pin[1]); outer.push(pout[0], pout[1]);
+        const poly = [...pin, pout[2], pout[1], pout[0]], c = poly.reduce((s, p) => s.add(p), new THREE.Vector2()).multiplyScalar(1 / 6);
+        const g = solid(poly.map((p) => p.clone().sub(c).multiplyScalar(0.985)), null, 3.4), m = new THREE.Mesh(g, mats); m.castShadow = m.receiveShadow = true; m.position.set(PATCH[0] + c.x, 0, PATCH[1] + c.y); R.add(m);
+        const ac = Math.atan2(c.y, c.x);
+        this.moat.chunks.push({ mesh: m, c: [c.x, c.y], er: [Math.cos(ac), Math.sin(ac)], axis: new THREE.Vector3(-Math.sin(ac), 0, Math.cos(ac)), d: -(0.55 + 1.25 * r2()), tilt: (r2() - 0.5) * 0.55, yaw: (r2() - 0.5) * 0.12 }); }
+      const isl = new THREE.Mesh(solid(inner.map((p) => p.clone().multiplyScalar(0.93)), null, 3.4), mats); isl.castShadow = isl.receiveShadow = true; isl.position.set(PATCH[0], 0, PATCH[1]); R.add(isl);
+      const sq = [new THREE.Vector2(-half, -half), new THREE.Vector2(half, -half), new THREE.Vector2(half, half), new THREE.Vector2(-half, half)];
+      const fill = new THREE.Mesh(solid(sq, outer.map((p) => p.clone().multiplyScalar(1.02)).reverse(), 3.4), mats); fill.receiveShadow = true; fill.position.set(PATCH[0], 0, PATCH[1]); R.add(fill);
+      this.lid = new THREE.Mesh(new THREE.BoxGeometry(PN * PC, 0.12, PN * PC), turf); this.lid.position.set(PATCH[0], -0.055, PATCH[1]); this.lid.receiveShadow = true; R.add(this.lid); }
+    // grass: dense, fine blades over ALL the open ground. Tufts sit on a fixed world pattern (so nothing swims) but only
+    // the ones near the camera are drawn: three nested layers, each fading out before it ends.
     { const P3: number[] = [], C3: number[] = [], N3: number[] = []; let sg = 91; const rg3 = () => (sg = (sg * 16807) % 2147483647) / 2147483647;
-      for (let b = 0; b < 5; b++) { const a = b * 1.257 + rg3(), ox = Math.cos(a) * 0.07 * (b ? 1 : 0), oz = Math.sin(a) * 0.07 * (b ? 1 : 0), h = 0.2 + 0.2 * rg3(), wd = 0.026 + 0.012 * rg3(), ln = 0.05 + 0.1 * rg3();
+      for (let b = 0; b < 9; b++) { const a = b * 0.698 + rg3(), rr = b ? 0.03 + 0.07 * rg3() : 0, ox = Math.cos(a * 2.3) * rr, oz = Math.sin(a * 2.3) * rr, h = 0.14 + 0.15 * rg3(), wd = 0.008 + 0.005 * rg3(), ln = 0.03 + 0.11 * rg3();
         const cx = Math.cos(a + 1.57), cz = Math.sin(a + 1.57), lx = Math.cos(a) * ln, lz = Math.sin(a) * ln;
         const pt = (u: number, sgn: number, wk: number): [number, number, number] => [ox + lx * u * u + cx * wd * wk * sgn, h * u, oz + lz * u * u + cz * wd * wk * sgn];
-        const A = pt(0, -1, 1), B = pt(0, 1, 1), Cc = pt(0.55, -1, 0.7), D = pt(0.55, 1, 0.7), T = pt(1, 0, 0);
+        const A = pt(0, -1, 1), B = pt(0, 1, 1), Cc = pt(0.55, -1, 0.75), D = pt(0.55, 1, 0.75), T = pt(1, 0, 0);
         const tri = (p: [number, number, number][], c: number[]) => p.forEach((q, n) => { P3.push(...q); C3.push(c[n], c[n], c[n]); N3.push(0, 1, 0); });
-        tri([A, B, D], [0.62, 0.62, 0.98]); tri([A, D, Cc], [0.62, 0.98, 0.98]); tri([Cc, D, T], [0.98, 0.98, 1.22]); }
+        tri([A, B, D], [0.55, 0.55, 0.95]); tri([A, D, Cc], [0.55, 0.95, 0.95]); tri([Cc, D, T], [0.95, 0.95, 1.12]); }
       const tuft = new THREE.BufferGeometry(); tuft.setAttribute("position", new THREE.Float32BufferAttribute(P3, 3)); tuft.setAttribute("color", new THREE.Float32BufferAttribute(C3, 3)); tuft.setAttribute("normal", new THREE.Float32BufferAttribute(N3, 3));
-      let s3 = 77; const r3 = () => (s3 = (s3 * 16807) % 2147483647) / 2147483647;
-      for (const [col, n] of [["#6fae3c", 6500], ["#7cba42", 5000], ["#62a236", 4000]] as [string, number][]) {
-        const im = new THREE.InstancedMesh(tuft, M("k2Tuft" + col, col, { side: THREE.DoubleSide, vertexColors: true }), n); im.layers.set(NOINK); im.receiveShadow = true; im.frustumCulled = false;
-        for (let i = 0; i < n; i++) { let x = 0, z = 0; do { x = -30 + 60 * r3(); z = -13.6 + 44 * r3(); } while ((Math.abs(x) < 2.3) || (x > hx0 - 0.15 && x < hx1 + 0.15 && z > hz0 - 0.15 && z < hz1 + 0.15));
-          const sc = 0.8 + 0.7 * r3(); this.e5.set(0, r3() * 6.3, 0); this.m5.compose(this.v.set(x, 0, z), this.q5.setFromEuler(this.e5), this.s5.set(sc, sc * (0.8 + 0.5 * r3()), sc)); im.setMatrixAt(i, this.m5); }
-        R.add(im); } this.s5.set(1, 1, 1); }
+      const gm = M("k2Blade", "#ffffff", { side: THREE.DoubleSide, vertexColors: true });
+      for (const [cell, Rr, f0, sc, cap] of [[0.115, 11, 8, 1, 15000], [0.3, 30, 23, 1.5, 13000], [0.8, 80, 62, 2.7, 13000]]) {
+        const im = new THREE.InstancedMesh(tuft, gm, cap); im.layers.set(NOINK); im.receiveShadow = true; im.frustumCulled = false; im.count = 0; im.setColorAt(0, this.col5.set("#ffffff")); R.add(im);
+        this.grass.push({ mesh: im, cell, R: Rr, f0, sc, cap }); } }
     // far mountains
     const mb = new Batch(), rockM = M("k2Rock", "#7f93a8"), rockM2 = M("k2Rock2", "#6b8f6a");
     for (let i = 0; i < 16; i++) { const a = (i / 16) * Math.PI * 2 + 0.2, d = 380 + (i % 3) * 40, hh = 70 + ((i * 37) % 60); const g = new THREE.ConeGeometry(60 + (i % 4) * 22, hh, 7); g.translate(Math.cos(a) * d, hh / 2 - 6, Math.sin(a) * d); mb.add(g, i % 2 ? rockM : rockM2); }
@@ -245,7 +255,9 @@ export class KWorld {
     // a workbench frame the carpenter hammers on, and a crate
     wb2.add(boxGeo(V(WORK[0] - 0.9, 0, WORK[2] - 0.25), V(WORK[0] - 0.75, 1.05, WORK[2] + 0.25)), wood); wb2.add(boxGeo(V(WORK[0] + 0.75, 0, WORK[2] - 0.25), V(WORK[0] + 0.9, 1.05, WORK[2] + 0.25)), wood);
     wb2.add(boxGeo(V(WORK[0] - 1.0, 1.05, WORK[2] - 0.32), V(WORK[0] + 1.0, 1.2, WORK[2] + 0.32)), wood2);
-    for (let k = 0; k < 5; k++) { const pg = new THREE.CylinderGeometry(0.035, 0.035, 0.22, 8); pg.translate(WORK[0] - 0.6 + k * 0.3, 1.31, WORK[2]); wb2.add(pg, gold); }
+    for (let k = 0; k < 4; k++) { const pg = new THREE.CylinderGeometry(0.04, 0.04, 0.2 - 0.04 * k, 10); pg.translate(WORK[0] - 0.6 + k * 0.3, 1.2 + (0.2 - 0.04 * k) / 2, WORK[2]); wb2.add(pg, gold); }
+    this.pegHit = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.3, 10), gold); this.pegHit.castShadow = true; R.add(this.pegHit);
+    this.ball = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), iron); this.ball.castShadow = true; this.ball.visible = false; R.add(this.ball);
     // the cannon the fuse runs to
     { const bg2 = new THREE.CylinderGeometry(0.2, 0.28, 2.0, 16); bg2.rotateX(Math.PI / 2 - 0.22); bg2.translate(GUN[0], 0.95, GUN[2] + 0.5); wb2.add(bg2, iron);
       wb2.add(boxGeo(V(GUN[0] - 0.4, 0.25, GUN[2] - 0.7), V(GUN[0] + 0.4, 0.6, GUN[2] + 0.9)), wood);
@@ -266,6 +278,7 @@ export class KWorld {
     }
     // the fuse: a rope on the grass from the gate path round to the cannon
     this.fusePath = new THREE.CatmullRomCurve3(FUSE.map((p) => V(...p)));
+    for (let i = 0; i <= 90; i++) { const p = this.fusePath.getPointAt(i / 90); this.fusePts.push(p.x, p.z); }
     const ropeM = lam("k2Rope", () => ({ map: ropeTex() }));
     this.fuse = new THREE.Mesh(new THREE.TubeGeometry(this.fusePath, 160, 0.045, 8), ropeM); this.fuse.castShadow = true;
     this.fuseBurnt = new THREE.Mesh(new THREE.TubeGeometry(this.fusePath, 160, 0.047, 8), M("k2Burnt", "#2a2428")); R.add(this.fuse, this.fuseBurnt);
@@ -285,16 +298,17 @@ export class KWorld {
     for (let i = 0; i < 260; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: puffT, transparent: true, depthWrite: false, fog: false })); s.visible = false; s.layers.set(AFTERINK); R.add(s); this.puffs.push(s); }
     this.sparks = new Cards(R, sparkTex(), 14, 0.5); this.chips = new Cards(R, chipTex(), 16, 0.16);
     // ---------------- the army: six soldier cards, hundreds of instances ----------------
-    const reqs = SOLDIERS.map(([o, ex, ph], i) => this.crowdPool.req(`sold${i}`, 300, 500, 0.5, (p: Pen) => bodyFront(p, o, { mode: "march", phase: ph, expr: ex, look: 0, light: -0.8, seed: 200 + i })));
+    const mk = (d: number) => SOLDIERS.map(([o, ex, ph], i) => this.crowdPool.req(`sold${i}_${d}`, 300, 500, 0.5, (p: Pen) => bodyFront(p, o, { mode: "march", phase: ph + d, expr: ex, look: 0, light: -0.8, seed: 200 + i })));
+    const reqs = mk(0), reqs2 = mk(0.5);
     this.crowdPool.flush();
     const cardG = new THREE.PlaneGeometry(600 * 0.00216, 1000 * 0.00216); cardG.translate(0, (975 - 500) * 0.00216, 0);
     const per = Math.ceil(ARMY / reqs.length); let sa = 5; const ra = () => (sa = (sa * 16807) % 2147483647) / 2147483647;
     reqs.forEach((rq, vi) => {
-      const mat = cardShade(new THREE.MeshLambertMaterial({ map: rq.tex!, alphaTest: 0.5, side: THREE.DoubleSide })); mat.alphaToCoverage = false;
+      const mat = cardShade(new THREE.MeshLambertMaterial({ map: rq.tex!, alphaTest: 0.5, side: THREE.DoubleSide })); mat.alphaToCoverage = false; const texA = rq.tex!, texB = reqs2[vi].tex!;
       const mesh = new THREE.InstancedMesh(cardG, mat, per); mesh.layers.set(NOINK); mesh.frustumCulled = false; mesh.receiveShadow = true; R.add(mesh);
       const at: V3[] = [], ph: number[] = [];
-      for (let k = 0; k < per; k++) { const idx = k * reqs.length + vi, col = idx % 34, row = Math.floor(idx / 34), x = (col - 16.5) * 2.1 + (ra() - 0.5) * 1.1 + (row % 2) * 1.0, z = ARMY_Z + row * 2.3 + (ra() - 0.5) * 0.9; at.push([x, 0.86 + 0.3 * ra(), z]); ph.push(ra() * 6.3); }
-      this.crowd.push({ mesh, at, ph });
+      for (let k = 0; k < per; k++) { const idx = k * reqs.length + vi, col = idx % 30, row = Math.floor(idx / 30), x = (col - 14.5) * 1.75 + (ra() - 0.5) * 0.35 + (row % 2) * 0.87, z = ARMY_Z + row * 2.0 + (ra() - 0.5) * 0.3; at.push([x, 0.9 + 0.2 * ra(), z]); ph.push(ra() * 6.3); }
+      this.crowd.push({ mesh, at, ph, mat, texA, texB, off: SOLDIERS[vi][2] });
     });
     { const fm = lam("k2FlagM", () => ({ map: bannerTex("#b3302c"), side: THREE.DoubleSide }));
       for (let i = 0; i < 8; i++) { const g = new THREE.Group(), pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 5.4, 6), wood2); pole.position.y = 2.7; const bn = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 2.3), fm); bn.position.set(0.7, 4.15, 0); bn.castShadow = true; g.add(pole, bn);
@@ -317,6 +331,39 @@ export class KWorld {
   private fx(i: number) { while (this.fxs.length <= i) this.fxs.push(new Fx(this.root)); return this.fxs[i]; }
 
   /** pose the world for shot `id` (spec st) at frame f; sample(f) gives the shot's camera at any frame (for the sun) */
+  /** height of the open ground, or null where no grass grows (wall, path, road, the gaps of the moat) */
+  private turfY(x: number, z: number, brk: number): number | null {
+    if (z < -13.7 || (Math.abs(x) < 2.5 && z < 113)) return null;
+    const px = x - PATCH[0], pz = z - PATCH[1], half = PN * PC / 2;
+    if (brk > 0 && Math.abs(px) < half && Math.abs(pz) < half) { const mo = this.moat, N = MOAT_N, r = Math.hypot(px, pz); let th = Math.atan2(pz, px); if (th < mo.a[0]) th += Math.PI * 2;
+      let k = N - 1; for (let i = 0; i < N - 1; i++) if (th < mo.a[i + 1]) { k = i; break; }
+      const a0 = mo.a[k], a1 = k === N - 1 ? mo.a[0] + Math.PI * 2 : mo.a[k + 1], u = (th - a0) / (a1 - a0), k1 = (k + 1) % N;
+      const li = (arr: number[]) => (u < 0.5 ? arr[k * 2] + (arr[k * 2 + 1] - arr[k * 2]) * u * 2 : arr[k * 2 + 1] + (arr[k1 * 2] - arr[k * 2 + 1]) * (u * 2 - 1));
+      const ri = li(mo.rin), ro = li(mo.rout);
+      if (r < ri * 0.93 - 0.1) return 0; if (r > ro * 1.02 + 0.1) return 0;
+      if (r < ri + 0.12 || r > ro - 0.12 || u < 0.06 || u > 0.94) return null;
+      const ch = mo.chunks[k]; return (ch.d + ((px - ch.c[0]) * ch.er[0] + (pz - ch.c[1]) * ch.er[1]) * Math.sin(ch.tilt)) * brk; }
+    return Math.abs(x) < 36 && z > -14 && z < 36 ? 0 : groundH(x, z, false);
+  }
+  private growGrass(cam: THREE.PerspectiveCamera, brk: number, fuse: boolean) {
+    const cx = cam.position.x, cz = cam.position.z, e = cam.matrixWorld.elements; let fx = -e[8], fz = -e[10]; const fl = Math.hypot(fx, fz) || 1; fx /= fl; fz /= fl;
+    const PAL = GRASS_PAL, fp = this.fusePts;
+    this.grass.forEach((L, li) => { const { mesh, cell, R, f0, sc, cap } = L; let n = 0;
+      const i0 = Math.floor((cx - R) / cell), i1 = Math.ceil((cx + R) / cell), j0 = Math.floor((cz - R) / cell), j1 = Math.ceil((cz + R) / cell);
+      for (let j = j0; j <= j1 && n < cap; j++) for (let i = i0; i <= i1 && n < cap; i++) {
+        const h1 = hsh(i, j, li * 7 + 1), x = (i + h1) * cell, z = (j + hsh(i, j, li * 7 + 2)) * cell, dx = x - cx, dz = z - cz, d = Math.hypot(dx, dz);
+        if (d > R || d < 0.45 || (d > 3 && dx * fx + dz * fz < 0.5 * d)) continue;
+        const y = this.turfY(x, z, brk); if (y === null) continue;
+        if (fuse && li < 2 && x > 0.4 && x < 11 && z > -11 && z < 9) { let near = false; for (let q = 0; q < fp.length; q += 2) { const ax = fp[q] - x, az = fp[q + 1] - z; if (ax * ax + az * az < 0.2) { near = true; break; } } if (near) continue; }
+        const h3 = hsh(i, j, li * 7 + 3), fade = d > f0 ? 1 - (d - f0) / (R - f0) : 1, s = sc * (0.75 + 0.6 * h3) * fade;
+        this.e5.set(0, h1 * 6.283, 0); this.m5.compose(this.v.set(x, y, z), this.q5.setFromEuler(this.e5), this.s5.set(s, (1 + 0.45 * (s - 1)) * (0.8 + 0.5 * hsh(i, j, li * 7 + 4)) * Math.min(1, fade * 3), s)); mesh.setMatrixAt(n, this.m5);
+        // patches of colour a few metres across, plus blade-to-blade variety
+        const patch = 0.5 + 0.5 * Math.sin(x * 0.31 + 1.7 * Math.sin(z * 0.23)) * Math.cos(z * 0.27 + 0.6);
+        mesh.setColorAt(n, PAL[Math.min(PAL.length - 1, Math.floor((0.55 * patch + 0.45 * h3) * PAL.length))]); n++; }
+      mesh.count = n; mesh.instanceMatrix.needsUpdate = true; if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true; });
+    this.s5.set(1, 1, 1);
+  }
+
   update(id: number, st: St3, f: number, cam: THREE.PerspectiveCamera, scene: THREE.Scene, sample: (f: number) => { pos: V3; look: V3 }, a: number, b: number) {
     const t = f / FPS, light: Light = st.light, L = LP[light], K = LK[light];
     const c = st.cam;
@@ -350,12 +397,12 @@ export class KWorld {
     // ---------------- the land, the army, the weather ----------------
     this.winMat.color.setRGB(1, 1, 1);
     const brk = st.breakK ?? 0;
-    this.lid.visible = brk <= 0; this.cells.body.visible = this.cells.top.visible = brk > 0;
-    { const { body, top, d } = this.cells; for (let i = 0; i < d.length; i++) { const cx = PATCH[0] + ((i % PN) - (PN - 1) / 2) * PC, cz = PATCH[1] + (Math.floor(i / PN) - (PN - 1) / 2) * PC, y = d[i] * brk;
-        this.m5.makeTranslation(cx, y - 1.35, cz); body.setMatrixAt(i, this.m5); this.m5.makeTranslation(cx, y, cz); top.setMatrixAt(i, this.m5); }
-      body.instanceMatrix.needsUpdate = true; top.instanceMatrix.needsUpdate = true; }
+    this.lid.visible = brk <= 0;
+    for (const ch of this.moat.chunks) { ch.mesh.visible = brk > 0; ch.mesh.position.y = ch.d * brk; ch.mesh.quaternion.setFromAxisAngle(ch.axis, ch.tilt * brk); ch.mesh.rotateY(ch.yaw * brk); }
+    this.growGrass(cam, brk, st.fuse !== undefined);
     const ar = st.army;
     for (const c2 of this.crowd) { c2.mesh.visible = !!ar; if (!ar) continue;
+      if (ar.march) { const tx = (t * 1.9 + c2.off) % 1 < 0.5 ? c2.texA : c2.texB; if (c2.mat.map !== tx) { c2.mat.map = tx; c2.mat.needsUpdate = true; } }
       for (let i = 0; i < c2.at.length; i++) { const a2 = c2.at[i], z = a2[2] - ar.adv, y = groundH(a2[0], z, false) + (ar.march ? 0.07 * Math.abs(Math.sin(t * 5.5 + c2.ph[i])) : 0);
         this.e5.set(0, Math.atan2(cam.position.x - a2[0], cam.position.z - z), 0); this.m5.compose(this.v.set(a2[0], y, z), this.q5.setFromEuler(this.e5), this.s5.setScalar(a2[1])); c2.mesh.setMatrixAt(i, this.m5); }
       this.s5.set(1, 1, 1);
@@ -380,6 +427,8 @@ export class KWorld {
     this.sparks.hide(); this.chips.hide(); let nsp = 0, nch = 0;
     for (const cd of st.cards ?? []) { if (cd.kind === "spark") this.sparks.put(nsp++, V(...cd.p), cam, cd.spin, cd.s); else this.chips.put(nch++, V(...cd.p), cam, cd.spin, cd.s); }
     this.hammer.visible = this.torch.visible = false;
+    this.pegHit.position.set(WORK[0] + 0.6, 1.2 + 0.15 - (st.pegDrop ?? 0), WORK[2]);
+    this.ball.visible = !!st.ball; if (st.ball) this.ball.position.set(...st.ball);
 
     // ---- cast ----
     this.frustum.setFromProjectionMatrix(this.m4.multiplyMatrices(cam.projectionMatrix, cam.matrixWorldInverse));
@@ -396,20 +445,29 @@ export class KWorld {
       // side cards are drawn walking toward canvas right; walkers move along world x, so flip by where +x is on screen
       const mirror = !!q.side && (q.side.mirror !== (right.x < 0));
       const lt = mirror ? Math.PI - lightA : lightA;
+      let hr = q.hold?.r, hl = q.hold?.l; let grip: THREE.Vector3 | null = null, ang = q.hold?.swing ?? 0;
+      if (q.hold?.strike || q.hold?.lw) {
+        const cu = V(0, 0, 0).setFromMatrixColumn(cam.matrixWorld, 1), nx = cam.position.x - q.p[0], nz = cam.position.z - q.p[2], nl = Math.hypot(nx, nz), n3 = V(nx / nl, 0, nz / nl), cr = V(n3.z, 0, -n3.x);
+        // where a point in the world falls on this character's card, as seen from the camera
+        const onCard = (wp: THREE.Vector3): [number, number] => { const dir = wp.clone().sub(cam.position), tt = (V(...q.p).sub(cam.position).dot(n3)) / dir.dot(n3), pc = cam.position.clone().addScaledVector(dir, tt); return [pc.clone().sub(V(...q.p)).dot(cr), pc.y - q.p[1]]; };
+        if (q.hold.strike) { const at = V(...q.hold.strike.at), k = q.hold.strike.k, side = at.clone().sub(V(...q.p)).dot(right) >= 0 ? 1 : -1, th1 = 1.5, th = 0.3 + (th1 - 0.3) * k;
+          grip = at.clone().addScaledVector(cu, 0.15 - HAMMER_L * Math.cos(th1)).addScaledVector(right, -side * HAMMER_L * Math.sin(th1)).addScaledVector(cu, 0.24 * (1 - k)).addScaledVector(right, -side * 0.08 * (1 - k));
+          ang = -side * th; const hc = onCard(grip); if (side > 0) hr = hc; else hl = hc; }
+        if (q.hold.lw) hl = onCard(V(...q.hold.lw)); }
       const key = q.side
         ? `S|${w.key}|${q.expr}|${Math.round(q.side.phase * 16)}|${bl}|${lt.toFixed(2)}`
-        : `F|${w.key}|${q.expr}|${q.look ?? 0}|${(q.headTilt ?? 0).toFixed(2)}|${q.facing ?? 0}|${bl}|${q.wave ?? "-"}|${q.hold ? [q.hold.r, q.hold.l].flat().map((n) => (n ?? 9).toFixed(2)).join(",") : ""}|${lt.toFixed(2)}`;
+        : `F|${w.key}|${q.expr}|${q.look ?? 0}|${(q.headTilt ?? 0).toFixed(2)}|${q.facing ?? 0}|${bl}|${q.wave ?? "-"}|${q.hold ? [hr, hl].flat().map((n) => (n ?? 9).toFixed(2)).join(",") : ""}|${q.march === undefined ? "" : Math.round(q.march * 12)}|${lt.toFixed(2)}`;
       act.r = this.pool.req(key, cw, ch, kk, (p: Pen) => q.side
         ? bodySide(p, w.o, { mode: "march", phase: Math.round(q.side.phase * 16) / 16, expr: q.expr, blink: bl, stride: q.side.stride ?? 0.8, stomp: 0.4, light: lt, seed: w.seed })
-        : bodyFront(p, w.o, { mode: "stand", expr: q.expr, look: q.look ?? 0, headTilt: q.headTilt ?? 0, facing: q.facing ?? 0, blink: bl, wave: q.wave, hands: q.hold ? { r: q.hold.r ? [300 + q.hold.r[0] / 0.00216, 975 - q.hold.r[1] / 0.00216] : undefined, l: q.hold.l ? [300 + q.hold.l[0] / 0.00216, 975 - q.hold.l[1] / 0.00216] : undefined } : undefined, light: lt, seed: w.seed }));
+        : bodyFront(p, w.o, { mode: q.march === undefined ? "stand" : "march", phase: q.march === undefined ? undefined : Math.round(q.march * 12) / 12, expr: q.expr, look: q.look ?? 0, headTilt: q.headTilt ?? 0, facing: q.facing ?? 0, blink: bl, wave: q.wave, hands: q.hold ? { r: hr ? [300 + hr[0] / 0.00216, 975 - hr[1] / 0.00216] : undefined, l: hl ? [300 + hl[0] / 0.00216, 975 - hl[1] / 0.00216] : undefined } : undefined, light: lt, seed: w.seed }));
       act.mesh.visible = true;
       act.mesh.position.set(...q.p);
       act.mesh.rotation.set(0, Math.atan2(cam.position.x - q.p[0], cam.position.z - q.p[2]), 0);
       act.mesh.scale.set(mirror ? -1 : 1, 1, 1);
       act.mesh.castShadow = L.actorShadow;
-      if (q.hold?.tool && q.hold.r) { const g = q.hold.tool === "hammer" ? this.hammer : this.torch, up = cam.up; void up;
-        g.visible = true; g.position.set(q.p[0], q.p[1] + q.hold.r[1], q.p[2]).addScaledVector(right, q.hold.r[0] * (mirror ? -1 : 1)); g.position.addScaledVector(this.v.copy(cam.position).sub(g.position).normalize(), 0.06);
-        g.quaternion.copy(cam.quaternion); g.rotateZ(q.hold.swing ?? 0); }
+      if (q.hold?.tool && (grip || q.hold.r)) { const g = q.hold.tool === "hammer" ? this.hammer : this.torch; g.visible = true;
+        if (grip) g.position.copy(grip); else { g.position.set(q.p[0], q.p[1] + q.hold.r![1], q.p[2]).addScaledVector(right, q.hold.r![0] * (mirror ? -1 : 1)); g.position.addScaledVector(this.v.copy(cam.position).sub(g.position).normalize(), 0.06); }
+        g.quaternion.copy(cam.quaternion); g.rotateZ(ang); }
     }
     for (let i = ai; i < this.actors.length; i++) this.actors[i].mesh.visible = false;
     // ---- contact shadows ----
@@ -470,17 +528,23 @@ export class KWorld {
 
 const SOLD = (extra: Partial<Outfit>): Outfit => ({ jacket: "#a8312f", pants: "#3a3038", boots: "#1e1a20", hat: "cap", cap: "#8a8f98", buttons: "#f1ede2", skin: "#f5c9a0", ...extra });
 const SOLDIERS: [Outfit, Expr, number][] = [[SOLD({}), "stern", 0], [SOLD({ moustache: "#3a2a20", skin: "#ecd0b6" }), "grin", 0.25], [SOLD({ skin: SKIN }), "laugh", 0.5], [SOLD({ moustache: "#8a8a92", build: "stout" }), "stern", 0.75], [SOLD({ skin: "#c99067" }), "smile", 0.125], [SOLD({ hair: "#b5462f", skin: "#f0d2b0" }), "stern", 0.625]];
+const GROUND = "#3f7a28";
+/** grip to the middle of the hammer head */
+const HAMMER_L = 0.34;
+const MOAT_N = 8;
+const GRASS_PAL = ["#2f6a22", "#3a7a26", "#44862a", "#4e912e", "#5a9c33", "#68a83a", "#79b344", "#93bd50"].map((c) => new THREE.Color(c));
+const hsh = (i: number, j: number, k: number) => { let n = (Math.imul(i, 374761393) + Math.imul(j, 668265263) + Math.imul(k, 1274126177)) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
 const fieldsTex = () => ctex("k2Fields", 2048, 2048, (g, r) => {
-  g.fillStyle = "#5aa23a"; g.fillRect(0, 0, 2048, 2048);
+  g.fillStyle = GROUND; g.fillRect(0, 0, 2048, 2048);
   const cols = ["#6fb33f", "#d9c35a", "#4f9636", "#c9a94a", "#7dbb4c", "#a8743f", "#5aa23a", "#e0cf78", "#4a8c3a"];
   for (let y = 0; y < 2048; y += 96) for (let x = 0; x < 2048; x += 128) { const w = 128 + Math.floor(r() * 3) * 0, c = cols[Math.floor(r() * cols.length)];
     g.fillStyle = c; g.fillRect(x + 4, y + 4, w - 8, 88);
     g.strokeStyle = "rgba(40,70,30,0.35)"; g.lineWidth = 2; for (let k = 10; k < 88; k += 9) { g.beginPath(); g.moveTo(x + 6, y + 4 + k); g.lineTo(x + w - 6, y + 4 + k); g.stroke(); }
     g.strokeStyle = "#3f7a2e"; g.lineWidth = 6; g.strokeRect(x + 4, y + 4, w - 8, 88); }
   // the middle (the yard, the hillside the army is on) stays open grass, with the road running up it
-  const gr = g.createRadialGradient(1024, 1024, 60, 1024, 1024, 430); gr.addColorStop(0, "rgba(98,170,58,1)"); gr.addColorStop(0.75, "rgba(98,170,58,1)"); gr.addColorStop(1, "rgba(98,170,58,0)");
+  const gr = g.createRadialGradient(1024, 1024, 60, 1024, 1024, 430); gr.addColorStop(0, GROUND); gr.addColorStop(0.75, GROUND); gr.addColorStop(1, "rgba(63,122,40,0)");
   g.fillStyle = gr; g.fillRect(0, 0, 2048, 2048);
-  g.strokeStyle = "#b08a58"; g.lineWidth = 12; g.lineCap = "round"; g.beginPath(); g.moveTo(1024, 1024 - 40); g.bezierCurveTo(1024, 1200, 1100, 1300, 1000, 1500); g.bezierCurveTo(940, 1650, 1080, 1800, 1024, 2048); g.stroke();
+  g.strokeStyle = "#b08a58"; g.lineWidth = 12; g.lineCap = "round"; g.beginPath(); g.moveTo(1024, 1024 - 40); g.lineTo(1024, 1290); g.bezierCurveTo(1024, 1380, 1070, 1420, 1000, 1500); g.bezierCurveTo(940, 1650, 1080, 1800, 1024, 2048); g.stroke();
   g.strokeStyle = "#5f8fd0"; g.lineWidth = 16; g.beginPath(); g.moveTo(0, 520); g.bezierCurveTo(500, 600, 900, 420, 2048, 560); g.stroke();
 });
 const pathTex = () => { const t2 = ctex("k2Path", 512, 512, (g, r) => { g.fillStyle = "#b08a58"; g.fillRect(0, 0, 512, 512); for (let i = 0; i < 260; i++) { g.fillStyle = r() > 0.5 ? "#c9a878" : "#8f6f48"; g.beginPath(); g.ellipse(r() * 512, r() * 512, 5 + r() * 12, 3 + r() * 7, r() * 3, 0, 6.3); g.fill(); } }); return t2; };
