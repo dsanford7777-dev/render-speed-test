@@ -461,6 +461,8 @@ const BUILD: Record<Build, { a: number; torso: number; legs: number; tw: number 
 export type FrontOpts = {
   phase?: number; expr?: Expr; mode?: "march" | "stroll" | "stand" | "sit" | "fall"; look?: number; blink?: boolean | number; lift?: number;
   prop?: Prop; tilt?: number; headTilt?: number; wave?: number;
+  /** hand targets in canvas units (300 = body centre, 975 = feet): the arm reaches to that point and is drawn in front (holding a tool) */
+  hands?: { l?: [number, number]; r?: [number, number] };
   /** canvas angle the key light comes FROM (painted crescent + thick outline side) */
   light?: number; facing?: -1 | 0 | 1; seed?: number;
 };
@@ -471,7 +473,7 @@ const footStroke = (p: Pen, a: P2, b: P2, w: number, col: string) => {
 };
 
 export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
-  const { phase = 0, expr = "neutral", mode = "march", look = 0, blink = false, lift = 60, prop = null, tilt = 0, headTilt = 0, wave,
+  const { phase = 0, expr = "neutral", mode = "march", look = 0, blink = false, lift = 60, prop = null, tilt = 0, headTilt = 0, wave, hands,
     light = DEF_LIGHT, facing = 0, seed = 1 } = opts;
   const Bd = BUILD[o.build ?? "adult"], skin = o.skin ?? SKIN, two = Math.PI * 2, lid = lidOf(blink);
   const H = headBlob(seed, Bd.a, facing), W = 2 * H.a, HH = 2 * H.b, u = W / 100;
@@ -539,8 +541,12 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
   if (mode === "sit") for (const side of [-1, 1]) arms.push({ pts: [sh(side), [tcx + side * (1.1 * T.a + 6 * u), sh(side)[1] + 0.4 * HH], [tcx + side * (1.2 * T.a + 10 * u), torsoBot + 0.04 * HH]], front: false });
   else if (mode === "fall") for (const side of [-1, 1]) arms.push({ pts: [sh(side), [tcx + side * (1.15 * T.a + 12 * u), sh(side)[1] - 0.25 * HH], [tcx + side * (1.3 * T.a + 24 * u), sh(side)[1] - 0.68 * HH]], front: false });
   else {
+    const reach = (side: number, H: P2): Arm => { const S = sh(side), mx = (S[0] + H[0]) / 2, my = (S[1] + H[1]) / 2, d = Math.hypot(H[0] - S[0], H[1] - S[1]), bend = Math.max(0, 0.55 * HH - d * 0.3);
+      return { pts: [S, [mx + side * bend * 0.5, my + bend], H], front: true }; };
+    if (hands?.l) arms.push(reach(-1, hands.l)); else
     arms.push({ pts: prop === "shako" ? hang(-1, 0) : hang(-1, -sw), front: false });
-    if (rifle) {
+    if (hands?.r) arms.push(reach(1, hands.r));
+    else if (rifle) {
       const G = lerp2(R0, R1, 0.1);
       arms.push({ pts: [sh(1), [tcx + 1.12 * T.a + 5 * u, sh(1)[1] + 0.45 * HH], G], front: false });
     } else if (wave !== undefined) {
