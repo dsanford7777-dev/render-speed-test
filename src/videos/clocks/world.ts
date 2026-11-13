@@ -268,13 +268,14 @@ export class CWorld {
     // the socket's pulse: a spark that beats on the plate
     if (id === 2) this.sparks.put(0, V(SOCKET[0], SOCKET[1], SOCKET[2] - 0.1), cam, f * 0.5, 0.14 + 0.2 * beat(3));
     // boards: the Los Angeles 50 flips to 60 when the switch is thrown
-    const flipped = id === 6 && f >= m.switched;
+    const spinU = id === 6 ? clamp01((f - m.switched - 4) / 10) : 0, flipped = id === 6 && spinU >= 0.5;
     this.b50.setFace(flipped ? "num_60_blue" : "num_50_red", () => (flipped ? numTex("60", BLUE, "#ffffff") : numTex("50", RED, "#ffffff")));
-    this.b50.group.scale.setScalar(flipped ? 1 + 0.16 * Math.sin(clamp01((f - m.switched) / 8) * Math.PI) : 1);
-    this.b50.group.rotation.y = id === 6 ? Math.PI * 2 * expo((f - (m.switched - 4)) / 8) : 0;
-    const levA = id === 6 ? 0.25 + 0.5 * expo((f - (m.switched - 6)) / 6) : 0.25; this.lev.arm.rotation.z = levA;
+    this.b50.group.scale.setScalar(spinU >= 1 ? 1 + 0.16 * Math.sin(clamp01((f - m.switched - 14) / 6) * Math.PI) : 1);
+    // the board turns edge-on showing 50 and comes back round showing 60
+    this.b50.group.rotation.y = spinU < 0.5 ? Math.PI * spinU : Math.PI * (spinU - 1);
+    const levA = id === 6 ? 0.25 + 0.5 * expo((f - (m.switched - 15)) / 6) : 0.25; this.lev.arm.rotation.z = levA;
     const levGrip: V3 = [LEVER[0] - Math.sin(levA) * 0.62, LEVER[1] + 0.96 + Math.cos(levA) * 0.62, LEVER[2] - 0.15];
-    if (id === 6 && f >= m.switched - 1 && f < m.switched + 9) this.sparks.put(0, V(LEVER[0] - 0.25, LEVER[1] + 1.4, LEVER[2] - 0.2), cam, f * 0.8, 0.9);
+    if (id === 6 && f >= m.switched - 10 && f < m.switched - 6) this.sparks.put(0, V(LEVER[0] - 0.25, LEVER[1] + 1.4, LEVER[2] - 0.2), cam, f * 0.8, 0.9);
     // the room's wall sign and what's on the table
     const room = id === 7 || id === 8 || id === 2 ? "kitchen" : id === 13 ? "depot" : "power";
     this.salon.sign.material = lam(`sign_c_${room}`, () => ({ map: signTex(`c_${room}`, room === "kitchen" ? "HOME SWEET HOME" : room === "depot" ? "CLOCK DEPOT" : "THE POWER COMPANY", "#2f2a3a", "#e8c45a") }));
@@ -304,7 +305,9 @@ export class CWorld {
     this.pclock.setTime(10.17 + (fast ? 3.2 * (f - (m.theClock - 2)) / FPS : 0.25 * Math.floor(((f - A(id)) / FPS) * 3) / 3));
     if (id === 9 || fast) for (let k = 0; k < 6; k++) {
       const u = ((((f - A(id)) / FPS) * (fast ? 2.6 : 1.1) + k / 6) % 1 + 1) % 1;
-      const a = V(...C(-3.4, 1.72, -0.06)), b = V(...C(-0.1, 2.69, 0.08)), p = a.lerp(b, u); p.y -= 0.25 * 4 * u * (1 - u) * 0.5;
+      // the pulses run along the cord itself: the same curve as the wire from the plug to the clock
+      const a = V(SOCKET2[0], SOCKET2[1] - 0.25, SOCKET2[2] - 0.305), b = V(...C(-0.1, 2.69, 0.16)), mid = a.clone().lerp(b, 0.5); mid.y -= 0.45;
+      const p = a.multiplyScalar((1 - u) * (1 - u)).addScaledVector(mid, 2 * u * (1 - u)).addScaledVector(b, u * u); p.z -= 0.07;
       this.pulses.put(k, p, cam, 0, 1);
     }
     // the drummer's sticks: on the beat, then far too fast. Each is held at its butt end; its tip comes down on the skin.
@@ -354,7 +357,7 @@ export class CWorld {
       }
       case 3: if (f >= m.los - 4 && f < m.fifty - 2) add(ANG_, ANGELENO, { expr: "smile", blink: blink(21), pass: true }); break;
       case 4: add(ANG_, ANGELENO, { expr: f >= m.cared - 2 ? "whistle" : "smile_closed", blink: 0, headTilt: f >= m.cared - 2 ? 0.1 : 0 }); break;
-      case 6: if (f < m.switched - 1) add(ANG_, [LEVER[0] - 0.85, D0, LEVER[2] + 0.05], { expr: f >= m.switched ? "grin" : "stern", blink: 0, pass: true, hands: [levGrip] }); break;
+      case 6: add(ANG_, [LEVER[0] - 0.85, D0, LEVER[2] + 0.05], { expr: f >= m.switched - 9 ? "grin" : "stern", blink: 0, pass: true, hands: [levGrip] }); break;
       case 10: add(DRUM_, DRUMMER, { expr: f >= m.following - 2 ? "smile_closed" : "smile", blink: blink(24), pass: true, hands: grips }); break;
       case 11: if (f < m.theClock - 2) add(DRUM_, DRUMMER, { expr: "pained", blink: 0, sweat: true, pass: true, hands: grips }); break;
       case 12:
@@ -448,7 +451,7 @@ export class CWorld {
       case 2: return [["wall socket", V(SOCKET[0], SOCKET[1], SOCKET[2] - 0.05), 0.1, s.a + 8, s.b, this.socket.group]];
       case 3: return [["60 board", this.b60.pos(), 0.2, s.a + 10, m.los - 6, this.b60.group], ["50 board", this.b50.pos(), 0.2, m.fifty + 6, s.b, this.b50.group]];
       case 5: return [["dam 60 board", this.dam60.pos(), 0.3, m.dam60 + 6, s.b, this.dam60.group]];
-      case 6: return [["knife switch", V(LEVER[0], LEVER[1] + 1.2, LEVER[2] - 0.1), 0.2, s.a + 8, m.switched - 3, this.lev.g], ["flipped board", this.b50.pos(), 0.2, m.switched + 8, s.b, this.b50.group]];
+      case 6: return [["knife switch", V(LEVER[0], LEVER[1] + 1.2, LEVER[2] - 0.1), 0.2, s.a + 8, m.switched - 11, this.lev.g], ["flipped board", this.b50.pos(), 0.2, m.switched + 17, s.b, this.b50.group]];
       case 7: return [["toaster", V(TOASTER[0], TOASTER[1] + 0.15, TOASTER[2] - 0.1), 0.05, s.a + 12, m.toastMind - 2, this.toast.g], ["light bulb", this.bulb.top(), 0.1, m.light + 6, s.b, this.bulb.group]];
       case 8: return [["table clock", this.tclocks[2].facePos(), 0.05, s.a + 8, m.minded - 1, this.tclocks[2].group]];
       case 9: return [["post clock", V(...CLOCK), 0.3, s.a + 6, m.counts - 4]];

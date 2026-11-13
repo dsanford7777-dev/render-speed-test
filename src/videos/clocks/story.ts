@@ -153,7 +153,8 @@ const keys = (): Record<number, Key[]> => {
   // 6 the knife switch; snap to the board as it flips to 60
   c[6] = [
     { f: A(6), s: (f) => move({ pos: L(4.2, 1.0, -3.6), look: L(2.5, 1.3, 0.1), fov: 48, roll: 0.11 }, { pos: L(3.4, 1.25, -2.8), look: L(2.5, 1.35, 0.1), fov: 48, roll: 0.11 }, f, A(6), A(6) + 14, expo, 0.001) },
-    { f: m.switched - 1, cut: true, s: (f) => snap(L(0.2, 1.9, -4.2), b50, f, m.switched - 1, { fov: 40, roll: -0.1 }) },
+    // no cut: the camera swings from the switch to the board, which turns from 50 to 60 in plain view
+    { f: m.switched - 9, s: (f) => move({ pos: L(3.4, 1.25, -2.8), look: L(2.5, 1.35, 0.1), fov: 48, roll: 0.11 }, { pos: L(0.95, 1.8, -6.3), look: L(0.95, 2.0, 0.5), fov: 46, roll: -0.05 }, f, m.switched - 9, m.switched - 3, smooth, 0) },
   ];
   // 7 the kitchen table: the toaster (toast shoots at the lens); snap to the bulb
   const tst: V3 = [TOASTER[0], TOASTER[1] - 0.02, TOASTER[2]], blb: V3 = [BULB[0], BULB[1] + 0.5, BULB[2]];
@@ -226,7 +227,7 @@ let CAMS: Record<number, Key[]> | null = null;
 /** camera shakes: [shot, frame, strength]; 7-frame kicks that flip sign every frame */
 const SHAKES = (): [number, number, number][] => {
   const m = M();
-  return [[1, m.clocks - 2, 0.6], [2, A(2) + 4, 0.8], [3, m.fifty - 2, 0.6], [5, m.dam60 + 2, 1.1], [6, m.switched, 1.3], [7, m.toastMind + 6, 1.1],
+  return [[1, m.clocks - 2, 0.6], [2, A(2) + 4, 0.8], [3, m.fifty - 2, 0.6], [5, m.dam60 + 2, 1.1], [6, m.switched - 9, 1.3], [7, m.toastMind + 6, 1.1],
     [8, m.minded + 5, 1.3], [11, m.twelve, 1.0], [12, B(12) - 5, 1.0], [13, m.sent + 12, 1.0], [15, m.n475, 1.0], [16, m.fridges + 10, 0.6], [17, m.n34 + 2, 1.3], [18, m.p50 - 2, 0.6]];
 };
 let SH: [number, number, number][] | null = null;

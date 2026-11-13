@@ -46,7 +46,7 @@ export const dam = () => {
     seg.position.set(x, DAM_H / 2, z); seg.rotation.y = -Math.atan(0.06 * x);
     G.add(seg);
   }
-  const lip = box(66, 1.2, 8, "damLip", "#a89f8b"); lip.position.set(0, DAM_H + 0.6, 12); G.add(lip);
+  
   // the canyon: stepped cliffs on both sides, running out downstream; desert floor; the river
   const floor = new THREE.Mesh(scaleUV(new THREE.BoxGeometry(300, 0.1, 280), 6, 6), lam("damDesert", () => ({ color: "#c79a6c" }))); floor.position.set(0, 0.03, -60); G.add(floor);
   for (const s of [-1, 1]) {
@@ -58,8 +58,8 @@ export const dam = () => {
       const cap = cyl(2.9, 2.9, 1.2, "damLip", "#a89f8b", 12); cap.position.set(s * (9 + k * 12), DAM_H + 12.6, 20 + k * 5); G.add(cap);
     }
   }
-  const lake = new THREE.Mesh(scaleUV(new THREE.BoxGeometry(62, 0.2, 110), 4, 4), lam("damLake", () => ({ map: riverTex(), color: "#bcd2ea" }))); lake.position.set(0, DAM_H - 4, 68); G.add(lake);
-  const river = new THREE.Mesh(scaleUV(new THREE.BoxGeometry(16, 0.12, 170), 1, 8), lam("damRiver", () => ({ map: riverTex() }))); river.position.set(0, 0.09, -100); G.add(river);
+  const lake = new THREE.Mesh(scaleUV(new THREE.BoxGeometry(72, 0.2, 124), 4, 4), lam("damLake", () => ({ map: riverTex(), color: "#bcd2ea" }))); lake.position.set(0, DAM_H - 4, 64); G.add(lake);
+  const river = new THREE.Mesh(scaleUV(new THREE.BoxGeometry(16, 0.12, 186), 1, 9), lam("damRiver", () => ({ map: riverTex() }))); river.position.set(0, 0.09, -92); G.add(river);
   const house = box(34, 7, 7, "damHouse", "#e4dbc8"); house.position.set(0, 3.5, -6.5); G.add(house);
   const roof = box(35, 0.8, 8, "damLip", "#a89f8b"); roof.position.set(0, 7.4, -6.5); G.add(roof);
   for (let k = -5; k <= 5; k++) { if (Math.abs(k) < 2) continue; const w = box(1.4, 3.2, 0.2, "damWindow", "#3a4660"); w.position.set(k * 2.9, 3.6, -10.05); G.add(w); }
