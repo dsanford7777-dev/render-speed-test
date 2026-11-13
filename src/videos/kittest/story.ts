@@ -98,9 +98,9 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // a stomp, and the lawn drops away in blocks round the carpenter, like a moat. The onlookers stare.
   break: (s, f) => { const hit = s.a + 20, k = f < hit ? 0 : bounce((f - hit) / 26), tt = t(f - hit);
     return { light: "day", dof: 0, breakK: k,
-      cam: kick(move({ pos: S(PATCH[0] - 1.5, 1.9, PATCH[1] + 8.2), look: S(PATCH[0], 1.1, PATCH[1]), fov: 46, roll: -0.07 }, { pos: S(PATCH[0] + 3.6, 7.4, PATCH[1] + 8.4), look: S(PATCH[0], 0.2, PATCH[1] - 0.6), fov: 46, roll: 0.04 }, f, hit - 2, s.b, smooth, 0), f, hit, 1.6),
+      cam: kick(move({ pos: S(PATCH[0] - 1.5, 1.9, PATCH[1] + 8.2), look: S(PATCH[0], 1.1, PATCH[1]), fov: 46, roll: -0.07 }, { pos: S(PATCH[0] + 3.6, 7.0, PATCH[1] + 9.6), look: S(PATCH[0], 0.9, PATCH[1] - 1.6), fov: 46, roll: 0.04 }, f, hit - 2, s.b, smooth, 0), f, hit, 1.6),
       people: [P("carp", S(PATCH[0], 0, PATCH[1]), f < hit ? "neutral" : "nervous", 0),
-        ...["chief", "c3", "c8", "c13", "c21", "c30"].map((n, i) => P(n, S(PATCH[0] - 4.2 + i * 1.7, 0, PATCH[1] - 5.6 - (i % 2) * 0.5), f < hit ? (i === 0 ? "stern" : "neutral") : SHOCK[i], 0, { wave: f >= hit && i % 2 ? 0.8 : undefined }))],
+        ...["chief", "c3", "c8", "c13", "c21", "c30"].map((n, i) => P(n, S(PATCH[0] - 4.2 + i * 1.7, 0, PATCH[1] - 5.6 - (i % 2) * 0.5), f < hit ? (i === 0 ? "stern" : "neutral") : SHOCK[i], 0, { wave: f >= hit && i % 2 ? 0.8 : undefined, extra: true }))],
       puffs: f >= hit ? Array.from({ length: 14 }, (_, i) => { const a = i * 0.45, r = 1.9 + (i % 3) * 0.7; return { p: S(PATCH[0] + Math.cos(a) * r, 0.2 + 1.6 * tt, PATCH[1] + Math.sin(a) * r), s: 1.6 + 2.2 * tt, c: [0.62, 0.5, 0.36] as [number, number, number], a: Math.max(0, 0.5 - 0.3 * tt) }; }) : [] }; },
   // the same yard on a rainy night: lanterns glow and light the ground under them
   rain: (s, f) => ({ light: "night", dof: 3, rain: 1, lamps: 1,
@@ -111,8 +111,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   fuse: (s, f) => { const k = smooth((f - s.a - 14) / (s.b - s.a - 24)), p = fuseAt(k), q = fuseAt(k + 0.07), b = fuseAt(k - 0.05), tt = t(f - s.a), lit = f > s.a + 12;
     const ride: Shot = { pos: S(b[0] + (b[0] - q[0]) * 1.1 + 0.35, p[1] + 0.55, b[2] + (b[2] - q[2]) * 1.1), look: S(q[0], q[1] + 0.1, q[2]), fov: 58, roll: 0.06 * Math.sin(tt * 2.2) };
     return { light: "golden", dof: 4, fuse: lit ? k : 0, focus: p,
-      cam: f < s.a + 14 ? move({ pos: S(3.6, 1.5, 11.4), look: S(1.3, 0.9, 8.1), fov: 42, roll: -0.06 }, ride, f, s.a + 6, s.a + 14, smooth, 0) : full(ride),
-      people: [P("chief", S(0.75, 0, 8.3), lit ? "grin" : "stern", 1, { hold: { r: [0.42, lit ? 0.62 : 1.0], tool: "torch", swing: lit ? -1.9 : -0.5 } })],
+      cam: f < s.a + 14 ? move({ pos: S(4.0, 1.5, 12.0), look: S(0.9, 1.15, 8.2), fov: 46, roll: -0.06 }, ride, f, s.a + 6, s.a + 14, smooth, 0) : full(ride),
+      people: f > s.a + 15 ? [] : [P("chief", S(0.75, 0, 8.3), lit ? "grin" : "stern", 1, { hold: { r: [0.42, lit ? 0.62 : 1.0], tool: "torch", swing: lit ? -1.9 : -0.5 } })],
       cards: lit && k < 1 ? [{ kind: "spark", p: S(p[0], p[1] + 0.1, p[2]), spin: tt * 14, s: 0.36 + 0.08 * Math.sin(tt * 30) }] : [],
       puffs: lit ? Array.from({ length: 10 }, (_, i) => { const kk = k - 0.012 * (i + 1), pp = fuseAt(kk); return { p: S(pp[0], pp[1] + 0.12 + 0.06 * i, pp[2]), s: 0.22 + 0.07 * i, c: [0.8, 0.8, 0.84] as [number, number, number], a: kk > 0 ? 0.5 - 0.045 * i : 0 }; }) : [] }; },
   // everything fires at once: smoke trails fill the sky and land on the army; the carpenter doesn't flinch
@@ -124,7 +124,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     if (boomT > 0) for (let i = 0; i < 26; i++) { const a = i * 2.4, r = (3 + (i % 5) * 2.6) * Math.min(1, boomT * 2.4 + 0.25), up = (i % 4) * 3 * Math.min(1, boomT * 2); puffs.push({ p: S(target[0] + Math.cos(a) * r * 2.1, target[1] + 1.5 + up + Math.sin(a) * 1.2, target[2] + Math.sin(a) * r), s: (4 + (i % 3) * 2) * (0.5 + Math.min(1, boomT * 2)), c: i % 3 === 0 ? [2.6, 2.1, 1.1] : i % 3 === 1 ? [1.9, 0.95, 0.3] : [1.2, 0.5, 0.16], a: Math.max(0, 0.7 - 0.25 * boomT), add: i % 3 === 0 }); }
     return { light: "day", dof: 2, army: { adv: 14, march: false }, fuse: 1, focus: S(9, 1.4, -6.5),
       cam: kick(move({ pos: S(11.6, 1.5, -11.6), look: S(8, 5, 6), fov: 56, roll: 0.09 }, { pos: S(10.2, 1.6, -11.2), look: S(6.5, 3.4, 10), fov: 50, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, s.a + 44, 1.8),
-      people: [P("carp", S(9.3, 0, -8.2), "smile_closed", 0)], puffs }; },
+      people: [P("carp", S(10.0, 0, -7.4), "smile_closed", 0)], puffs }; },
 };
 
 /** every shot is hand-held: a slow sway on top of its move */
