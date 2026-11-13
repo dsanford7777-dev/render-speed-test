@@ -159,7 +159,7 @@ export class KWorld {
   private fuse: THREE.Mesh; private fuseBurnt: THREE.Mesh; private fusePath: THREE.CatmullRomCurve3; private sparkLight: THREE.Sprite;
   private hammer = new THREE.Group(); private torch = new THREE.Group(); private flame: THREE.Sprite;
   private puffs: THREE.Sprite[] = []; private sparks: Cards; private chips: Cards;
-  private m5 = new THREE.Matrix4(); private q5 = new THREE.Quaternion(); private s5 = new THREE.Vector3(1, 1, 1); private e5 = new THREE.Euler();
+  private m5 = new THREE.Matrix4(); private q5 = new THREE.Quaternion(); private q6 = new THREE.Quaternion(); private s5 = new THREE.Vector3(1, 1, 1); private e5 = new THREE.Euler();
   private lastPeople: { name: string; p: V3; walking: boolean; low: boolean; extra: boolean }[] = [];
   private ray = new THREE.Raycaster();
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private sph = new THREE.Sphere(); private v = new THREE.Vector3();
@@ -256,7 +256,7 @@ export class KWorld {
     wb2.add(boxGeo(V(WORK[0] - 0.9, 0, WORK[2] - 0.25), V(WORK[0] - 0.75, 1.05, WORK[2] + 0.25)), wood); wb2.add(boxGeo(V(WORK[0] + 0.75, 0, WORK[2] - 0.25), V(WORK[0] + 0.9, 1.05, WORK[2] + 0.25)), wood);
     wb2.add(boxGeo(V(WORK[0] - 1.0, 1.05, WORK[2] - 0.32), V(WORK[0] + 1.0, 1.2, WORK[2] + 0.32)), wood2);
     for (let k = 0; k < 4; k++) { const pg = new THREE.CylinderGeometry(0.04, 0.04, 0.2 - 0.04 * k, 10); pg.translate(WORK[0] - 0.6 + k * 0.3, 1.2 + (0.2 - 0.04 * k) / 2, WORK[2]); wb2.add(pg, gold); }
-    this.pegHit = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.3, 10), gold); this.pegHit.castShadow = true; R.add(this.pegHit);
+    this.pegHit = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.045, 0.5, 10), M("k2Stake", "#d9b77a")); this.pegHit.castShadow = true; R.add(this.pegHit);
     this.ball = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), iron); this.ball.castShadow = true; this.ball.visible = false; R.add(this.ball);
     // the cannon the fuse runs to
     { const bg2 = new THREE.CylinderGeometry(0.2, 0.28, 2.0, 16); bg2.rotateX(Math.PI / 2 - 0.22); bg2.translate(GUN[0], 0.95, GUN[2] + 0.5); wb2.add(bg2, iron);
@@ -400,11 +400,16 @@ export class KWorld {
     this.lid.visible = brk <= 0;
     for (const ch of this.moat.chunks) { ch.mesh.visible = brk > 0; ch.mesh.position.y = ch.d * brk; ch.mesh.quaternion.setFromAxisAngle(ch.axis, ch.tilt * brk); ch.mesh.rotateY(ch.yaw * brk); }
     this.growGrass(cam, brk, st.fuse !== undefined);
-    const ar = st.army;
+    const ar = st.army, bl2 = st.blast;
     for (const c2 of this.crowd) { c2.mesh.visible = !!ar; if (!ar) continue;
       if (ar.march) { const tx = (t * 1.9 + c2.off) % 1 < 0.5 ? c2.texA : c2.texB; if (c2.mat.map !== tx) { c2.mat.map = tx; c2.mat.needsUpdate = true; } }
       for (let i = 0; i < c2.at.length; i++) { const a2 = c2.at[i], z = a2[2] - ar.adv, y = groundH(a2[0], z, false) + (ar.march ? 0.07 * Math.abs(Math.sin(t * 5.5 + c2.ph[i])) : 0);
-        this.e5.set(0, Math.atan2(cam.position.x - a2[0], cam.position.z - z), 0); this.m5.compose(this.v.set(a2[0], y, z), this.q5.setFromEuler(this.e5), this.s5.setScalar(a2[1])); c2.mesh.setMatrixAt(i, this.m5); }
+        this.e5.set(0, Math.atan2(cam.position.x - a2[0], cam.position.z - z), 0); this.q5.setFromEuler(this.e5); let px = a2[0], py = y, pz = z;
+        if (bl2) { const dx = a2[0] - bl2.at[0], dz = z - bl2.at[2], dist = Math.hypot(dx, dz) || 0.01, tl = bl2.t - dist / 28;
+          if (dist < BLAST_R && tl > 0) { const kk = Math.min(1, tl / 0.32), ek = 1 - (1 - kk) * (1 - kk), near = 1 - dist / BLAST_R, ux = dx / dist, uz = dz / dist;
+            this.q6.setFromAxisAngle(this.v.set(uz, 0, -ux), 1.47 * ek); this.q5.premultiply(this.q6);
+            px += ux * (0.8 + 2.6 * near) * ek; pz += uz * (0.8 + 2.6 * near) * ek; py = groundH(px, pz, false) + 0.22 * ek + 1.4 * near * Math.sin(Math.PI * kk); } }
+        this.m5.compose(this.v.set(px, py, pz), this.q5, this.s5.setScalar(a2[1])); c2.mesh.setMatrixAt(i, this.m5); }
       this.s5.set(1, 1, 1);
       c2.mesh.instanceMatrix.needsUpdate = true; }
     this.flags.forEach((g) => { g.visible = !!ar; if (ar) { const z = (g.userData.z as number) - ar.adv; g.position.set(g.userData.x as number, groundH(g.userData.x as number, z, false), z); g.rotation.z = 0.04 * Math.sin(t * 2 + (g.userData.x as number)); } });
@@ -427,7 +432,7 @@ export class KWorld {
     this.sparks.hide(); this.chips.hide(); let nsp = 0, nch = 0;
     for (const cd of st.cards ?? []) { if (cd.kind === "spark") this.sparks.put(nsp++, V(...cd.p), cam, cd.spin, cd.s); else this.chips.put(nch++, V(...cd.p), cam, cd.spin, cd.s); }
     this.hammer.visible = this.torch.visible = false;
-    this.pegHit.position.set(WORK[0] + 0.6, 1.2 + 0.15 - (st.pegDrop ?? 0), WORK[2]);
+    this.pegHit.position.set(WORK[0] + 0.6, 1.2 + 0.42 - 0.25 - (st.pegDrop ?? 0), WORK[2]);
     this.ball.visible = !!st.ball; if (st.ball) this.ball.position.set(...st.ball);
 
     // ---- cast ----
@@ -532,6 +537,8 @@ const GROUND = "#3f7a28";
 /** grip to the middle of the hammer head */
 const HAMMER_L = 0.34;
 const MOAT_N = 8;
+/** soldiers within this many metres of an impact are knocked down */
+const BLAST_R = 10;
 const GRASS_PAL = ["#2f6a22", "#3a7a26", "#44862a", "#4e912e", "#5a9c33", "#68a83a", "#79b344", "#93bd50"].map((c) => new THREE.Color(c));
 const hsh = (i: number, j: number, k: number) => { let n = (Math.imul(i, 374761393) + Math.imul(j, 668265263) + Math.imul(k, 1274126177)) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
 const fieldsTex = () => ctex("k2Fields", 2048, 2048, (g, r) => {

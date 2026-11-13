@@ -29,6 +29,8 @@ export type St3 = {
   people?: Person3[]; wipe?: { color: string; a: number }; subjects?: [string, V3, number][];
   army?: { adv: number; march: boolean } | null; breakK?: number; rain?: number; lamps?: number; fuse?: number;
   puffs?: Puff[]; cards?: Card[]; pegDrop?: number; ball?: V3;
+  /** an explosion at a point, t seconds ago: soldiers near it fall outward */
+  blast?: { at: V3; t: number };
 };
 
 // ---------------- helpers ----------------
@@ -94,9 +96,9 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       // dust rising behind the last ranks only
       puffs: Array.from({ length: 12 }, (_, k) => { const x = -24 + k * 4.4 + Math.sin(tt * 1.3 + k), z = ARMY_Z - adv + 34 + (k % 3) * 3; return { p: S(x, groundH(x, z, false) + 1.5, z), s: 7 + (k % 3) * 2, c: [0.72, 0.64, 0.48] as [number, number, number], a: 0.3 }; }) }; },
   // the carpenter drives a peg into the frame: the hammer head comes down on the peg, the peg goes in a little each time
-  work: (s, f) => { const tt = t(f - s.a), cyc = (tt * 2.0) % 1, n = Math.floor(tt * 2.0 + 0.3);
+  work: (s, f) => { const tt = t(f - s.a), cyc = (tt * 2.0) % 1, n = Math.floor(tt * 2.0 + 0.3), m = Math.floor(tt * 2.0);
     const k = cyc < 0.42 ? 1 - smooth(cyc / 0.42) : cyc < 0.56 ? 0 : cyc < 0.7 ? Math.pow((cyc - 0.56) / 0.14, 2) : 1, hit = cyc >= 0.7 && cyc < 0.86;
-    const drop = Math.min(0.14, 0.035 * n), peg: V3 = S(WORK[0] + 0.6, 1.5 - drop, WORK[2]);
+    const drop = Math.min(0.4, 0.085 * (cyc < 0.7 ? m : m + Math.min(1, (cyc - 0.7) / 0.07))), peg: V3 = S(WORK[0] + 0.6, 1.62 - drop, WORK[2]);
     return { light: "day", dof: 5, closeup: true, pegDrop: drop,
       cam: kick(move({ pos: S(WORK[0] + 3.2, 2.6, WORK[2] + 5.8), look: S(WORK[0] + 0.25, 1.45, WORK[2] - 0.3), fov: 46, roll: 0.08 }, { pos: S(WORK[0] + 1.5, 2.2, WORK[2] + 3.1), look: S(WORK[0] + 0.3, 1.5, WORK[2] - 0.3), fov: 46, roll: -0.03 }, f, s.a, s.a + 22, expo, 0.0012), f, s.a + 16, 0.6),
       people: [P("carp", S(WORK[0] - 0.5, 0, WORK[2] - 0.62), "stern", 1, { hold: { tool: "hammer", strike: { at: peg, k }, lw: S(WORK[0] - 0.55, 1.22, WORK[2] - 0.25) } }),
@@ -122,7 +124,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     const rideAt = (kk: number): Shot => { const a = fuseAt(kk), q = fuseAt(kk + 0.07), b = fuseAt(kk - 0.05); return { pos: S(b[0] + (b[0] - q[0]) * 1.1 + 0.35, a[1] + 0.6, b[2] + (b[2] - q[2]) * 1.1), look: S(q[0], q[1] + 0.1, q[2]), fov: 58, roll: 0.06 * Math.sin(tt * 2.2) }; };
     const side: Shot = { pos: S(GUN[0] - 6.2, 1.9, GUN[2] + 4.4), look: S(GUN[0], 1.05, GUN[2] + 0.9), fov: 46, roll: -0.05 };
     const ride = rideAt(Math.min(k, 0.8)), boom = clamp01((f - (s.b - 9)) / 9);
-    return { light: "golden", dof: k < 0.8 ? 4 : 1, fuse: lit ? k : 0, focus: k < 0.8 ? p : S(GUN[0], 1, GUN[2] + 0.5),
+    return { light: "day", dof: k < 0.8 ? 4 : 1, fuse: lit ? k : 0, focus: k < 0.8 ? p : S(GUN[0], 1, GUN[2] + 0.5),
       cam: f < s.a + 14 ? move({ pos: S(4.0, 1.5, 12.0), look: S(0.9, 1.15, 8.2), fov: 46, roll: -0.06 }, ride, f, s.a + 6, s.a + 14, smooth, 0)
         : k < 0.8 ? full(ride) : move(rideAt(0.8), side, f, s.b - 34, s.b - 14, smooth, 0),
       people: f > s.a + 15 ? [] : [P("chief", S(0.75, 0, 8.3), lit ? "grin" : "stern", 1, { hold: { r: [0.42, lit ? 0.62 : 1.0], tool: "torch", swing: lit ? -1.9 : -0.5 } })],
@@ -131,21 +133,21 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
         ...(boom > 0 ? Array.from({ length: 8 }, (_, i) => ({ p: S(GUN[0] + Math.sin(i * 2.1) * 0.5 * boom, 1.35 + Math.cos(i * 1.7) * 0.4 * boom, GUN[2] + 1.6 + 1.6 * boom * (0.4 + (i % 4) * 0.2)), s: 0.5 + 1.3 * boom, c: (i % 2 ? [1.5, 0.9, 0.35] : [0.8, 0.8, 0.82]) as [number, number, number], a: 0.7 })) : [])] }; },
   // one cannon, one ball: it arcs over the field on a thin trail of smoke and lands in front of the army; the carpenter doesn't flinch
   volley: (s, f) => { const tt = t(f - s.a), dur = 1.5, u = clamp01(tt / dur), land = tt - dur;
-    const A: V3 = S(GUN[0], 1.45, GUN[2] + 1.6), T: V3 = S(6, groundH(6, 28, false) + 0.3, 28);
+    const A: V3 = S(GUN[0], 1.45, GUN[2] + 1.6), T: V3 = S(3.5, groundH(3.5, ARMY_Z - 10, false) + 0.3, ARMY_Z - 10);
     const at = (v: number): V3 => [A[0] + (T[0] - A[0]) * v, A[1] + (T[1] - A[1]) * v + 46 * v * (1 - v), A[2] + (T[2] - A[2]) * v];
     const puffs: Puff[] = [], cards: Card[] = [];
     // smoke hanging at the muzzle
     for (let i = 0; i < 7; i++) puffs.push({ p: S(GUN[0] + Math.sin(i * 2.1) * 0.5 - 0.3 * tt, 1.5 + 0.25 * i * Math.min(1, tt) + 0.3 * tt, GUN[2] + 1.9 + 0.4 * i), s: 0.6 + 0.25 * i + 0.4 * tt, c: [0.82, 0.82, 0.85], a: Math.max(0, 0.45 - 0.2 * tt) });
     // the ball's trail: thin, close-packed, fading with age
-    if (u > 0.02) for (let j = 0; j < 30; j++) { const v = u - 0.55 * (j / 30) * Math.min(1, u * 2.5); if (v <= 0.02) continue; const age = j / 30; puffs.push({ p: at(v), s: 0.5 + 1.3 * age, c: [0.9, 0.9, 0.93], a: Math.max(0, (0.5 - 0.42 * age) * (land > 0 ? Math.max(0, 1 - land * 2) : 1)) }); }
+    if (u > 0.02) for (let j = 0; j < 70; j++) { const v = u - 0.5 * (j / 70) * Math.min(1, u * 2.5); if (v <= 0.02) continue; const age = j / 70; puffs.push({ p: at(v), s: 0.9 + 1.5 * age, c: [0.9, 0.9, 0.93], a: Math.max(0, (0.5 - 0.42 * age) * (land > 0 ? Math.max(0, 1 - land * 2) : 1)) }); }
     // one explosion where it lands: a flash, flying earth, a rising column of dark smoke
     if (land > 0) { const g = Math.min(1, land * 4);
       puffs.push({ p: S(T[0], T[1] + 1.5, T[2]), s: 9 * g + 3, c: [1.9, 1.1, 0.4], a: Math.max(0, 1 - land * 2.4), add: true });
-      for (let i = 0; i < 16; i++) { const a = i * 0.9, r = (1 + (i % 4) * 1.1) * g; puffs.push({ p: S(T[0] + Math.cos(a) * r * 1.6, T[1] + 0.8 + (i % 5) * 1.1 * g + 2.2 * land, T[2] + Math.sin(a) * r), s: 2.6 + 3 * g + 1.5 * land, c: (i % 3 === 0 ? [1.3, 0.6, 0.15] : i % 3 === 1 ? [0.2, 0.18, 0.18] : [0.36, 0.28, 0.2]) as [number, number, number], a: Math.max(0, (i % 3 === 0 ? 1 - land * 1.4 : 0.92 - land * 0.3)) }); }
+      for (let i = 0; i < 30; i++) { const a = i * 0.9, r = (0.6 + (i % 5) * 0.9) * g; puffs.push({ p: S(T[0] + Math.cos(a) * r * 1.6, T[1] + 0.8 + (i % 5) * 1.1 * g + 2.2 * land, T[2] + Math.sin(a) * r), s: 2.0 + 2.2 * g + 1.2 * land, c: (i % 3 === 0 ? [1.3, 0.6, 0.15] : i % 3 === 1 ? [0.2, 0.18, 0.18] : [0.36, 0.28, 0.2]) as [number, number, number], a: Math.max(0, (i % 3 === 0 ? 1 - land * 1.4 : 1 - land * 0.28)) }); }
       if (land < 0.8) for (let i = 0; i < 12; i++) { const a = i * 0.55, w = land / 0.8; cards.push({ kind: "chip", p: S(T[0] + Math.cos(a) * 5 * w, T[1] + 7 * w - 7 * w * w + 0.3, T[2] + Math.sin(a) * 3 * w), spin: tt * 10 + i, s: 0.45 }); } }
-    return { light: "day", dof: 0, army: { adv: 14, march: false }, fuse: 1, ball: u < 1 ? at(u) : undefined,
-      cam: kick(move({ pos: S(12.4, 1.5, -8.4), look: S(9.6, 6.5, 6), fov: 56, roll: 0.09 }, { pos: S(12.5, 1.8, -8.0), look: S(8.4, 3.2, 12), fov: 50, roll: -0.03 }, f, s.a, s.a + 50, smooth, 0), f, s.a + Math.round(dur * FPS), 2.2),
-      people: [P("carp", S(11.6, 0, -3.2), "smile_closed", 0)], puffs, cards }; },
+    return { light: "day", dof: 0, army: { adv: 14, march: false }, ball: u < 1 ? at(u) : undefined, blast: land > 0 ? { at: T, t: land } : undefined,
+      cam: kick(move({ pos: S(5.6, 1.5, 15.5), look: S(5.0, 9, 30), fov: 56, roll: 0.09 }, { pos: S(5.9, 2.2, 16.2), look: S(3.6, 2.6, 40), fov: 50, roll: -0.03 }, f, s.a, s.a + 50, smooth, 0), f, s.a + Math.round(dur * FPS), 2.2),
+      people: [P("carp", S(5.0, 0, 20.4), "smile_closed", 0)], puffs, cards }; },
 };
 
 /** every shot is hand-held: a slow sway on top of its move */
