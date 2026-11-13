@@ -13,7 +13,6 @@ type Item = { key: string; kind: Kind; text: string; sub?: string; f0: number; f
 const items = (): Item[] => {
   const m = M();
   return [
-    { key: "pulse", kind: "call", text: "PULSE!", f0: m.pulses, f1: A(3), y: 17, fg: "#ffd84d", size: 150 },
     { key: "sixty", kind: "call", text: "60 × A SECOND", f0: m.sixty, f1: m.los - 4, y: 12, fg: "#8fb8ff", size: 104 },
     { key: "la", kind: "pill", text: "LOS ANGELES", sub: "ran on 50", f0: m.los + 2, f1: m.fifty - 2, y: 14 },
     { key: "shrug", kind: "call", text: "SO WHAT?", f0: m.cared, f1: A(5), y: 16, fg: "#ffffff", size: 130 },

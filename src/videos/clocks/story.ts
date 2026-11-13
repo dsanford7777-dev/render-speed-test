@@ -12,14 +12,14 @@ const at = (o: V3) => (x: number, y: number, z: number): V3 => [o[0] + x, o[1] +
 export const HUG: V3 = [0.5, D0, 104];
 /** the queue behind him */
 export const QUEUE: V3[] = [0, 1, 2, 3, 4, 5].map((k) => [0.5 + (k % 2 ? 0.6 : -0.5), D0, 105.9 + 1.45 * k]);
+export const SALON: V3 = [300, D0, 300];
 export const YARD: V3 = [-300, D0, 300];
 export const Yd = at(YARD), L = at([-340, D0, 300]), C = at([-260, D0, 300]), R = at([-220, D0, 300]);
 export const Dm = at([600, D0, 300]);
-export const SALON: V3 = [300, D0, 300];
 export const S = at(SALON);
 export const F = at([-300, D0, 600]), Fr = at([-300, D0, 800]), G = at([-600, D0, 300]);
 /** fixed places */
-export const SOCKET = Yd(0, 1.55, 0), B60 = Yd(4.2, 2.6, 1.0), B50 = L(0.9, 2.3, 0.8), ANGELENO = L(-1.1, 0, 0), LEVER = L(2.9, 0, 0.2);
+export const SOCKET: V3 = [SALON[0] - 3.9, D0 + 1.6, SALON[2] + 3.46], B60 = Yd(4.2, 2.6, 1.0), B50 = L(0.9, 2.3, 0.8), ANGELENO = L(-1.1, 0, 0), LEVER = L(2.9, 0, 0.2);
 export const CLOCK = C(0, 2.69, -0.1), SOCKET2 = C(-3.4, 1.2, 0);
 export const DRUMMER = R(0, 0, 0.35), DRUM = R(0, 0, -0.3);
 export const DAM60 = Dm(0, 4.2, -10.3);
@@ -107,7 +107,7 @@ export const frontZ = (f: number) => { const f0 = M().depots - 2; return 109 - (
 /** shot 16: the camera's x sliding along the refrigerators */
 export const fridgeX = (f: number) => -8 + 9 * smooth((f - A(16)) / Math.max(1, M().fridges - 2 - A(16)));
 /** shot 17: x of the cash on the table (room coordinates): it slides away from the boss on "third" */
-export const cashX = (f: number) => 1.4 - 3.6 * smooth((f - (M().third + 2)) / 64);
+export const cashX = (f: number) => 1.4 - 2.9 * smooth((f - (M().third + 2)) / 64);
 
 // ---------------- the cameras ----------------
 /** the opening frame (the ending cuts back to it): the man and his clock, clock just above the middle of the frame */
@@ -128,7 +128,7 @@ const keys = (): Record<number, Key[]> => {
   const sk: V3 = [SOCKET[0], SOCKET[1] - 0.45, SOCKET[2]], b60: V3 = [B60[0], B60[1] - 0.75, B60[2]], b50: V3 = [B50[0], B50[1] - 0.6, B50[2]];
   c[2] = [
     { f: A(2), s: (f) => snap([SOCKET[0] + 0.45, SOCKET[1] - 0.1, SOCKET[2] - 2.9], sk, f, A(2), { fov: 38, roll: -0.1 }) },
-    { f: m.wall - 2, cut: true, s: (f) => { const u = smooth((f - (m.wall - 2)) / Math.max(1, B(2) - (m.wall - 2))); return orb(sk, 44 - 80 * u, 4.4 - 1.6 * u, 1.3 - 1.2 * u, { fov: 50, roll: 0.16 - 0.28 * u }); } },
+    { f: m.wall - 2, cut: true, s: (f) => { const u = smooth((f - (m.wall - 2)) / Math.max(1, B(2) - (m.wall - 2))); return orb(sk, 40 - 62 * u, 4.2 - 1.5 * u, 1.2 - 1.0 * u, { fov: 50, roll: 0.16 - 0.28 * u }); } },
   ];
   // 3 crane up to the blue 60 board; whip across to Los Angeles; snap to the red 50
   c[3] = [
@@ -150,7 +150,7 @@ const keys = (): Record<number, Key[]> => {
   ];
   // 6 the knife switch; snap to the board as it flips to 60
   c[6] = [
-    { f: A(6), s: (f) => move({ pos: L(4.6, 1.1, -3.4), look: L(2.9, 1.55, 0.1), fov: 48, roll: 0.11 }, { pos: L(3.7, 1.4, -2.5), look: L(2.9, 1.6, 0.1), fov: 48, roll: 0.11 }, f, A(6), A(6) + 14, expo, 0.001) },
+    { f: A(6), s: (f) => move({ pos: L(4.2, 1.0, -3.6), look: L(2.5, 1.3, 0.1), fov: 48, roll: 0.11 }, { pos: L(3.4, 1.25, -2.8), look: L(2.5, 1.35, 0.1), fov: 48, roll: 0.11 }, f, A(6), A(6) + 14, expo, 0.001) },
     { f: m.switched - 1, cut: true, s: (f) => snap(L(0.2, 1.9, -4.2), b50, f, m.switched - 1, { fov: 40, roll: -0.1 }) },
   ];
   // 7 the kitchen table: the toaster (toast shoots at the lens); snap to the bulb
@@ -191,7 +191,7 @@ const keys = (): Record<number, Key[]> => {
     { f: m.within - 2, cut: true, s: (f) => move({ pos: S(-0.4, 1.7, -1.6), look: S(0.3, 1.7, 1.75), fov: 52, roll: 0 }, { pos: S(-0.4, 3.8, -6.2), look: S(0.3, 1.8, 1.75), fov: 66, roll: 0.03 }, f, m.within - 2, B(13) - 2, expo, 0) },
   ];
   // 14 dive from high over the meadow down to the field of clocks
-  c[14] = [{ f: A(14), s: (f) => move({ pos: F(-9, 15, -27), look: F(0, 0, 7), fov: 72, roll: 0.24 }, { pos: F(0, 3.2, -15), look: F(0, 0.6, 7), fov: 60, roll: 0 }, f, A(14), B(14) - 2, smooth, 0) }];
+  c[14] = [{ f: A(14), s: (f) => move({ pos: F(-9, 15, -27), look: F(0, 0, 7), fov: 72, roll: 0.24 }, { pos: F(0, 6.0, -13), look: F(0, 0.6, 9), fov: 60, roll: 0 }, f, A(14), B(14) - 2, smooth, 0) }];
   // 15 rising orbit over the field; low skim across the clocks
   const fc: V3 = F(0, 0.5, 7);
   c[15] = [

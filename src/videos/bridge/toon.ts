@@ -642,6 +642,8 @@ export type SideOpts = {
   stride?: number; light?: number; seed?: number;
   /** push mode: where the hands land at pose 1, in final canvas units (e.g. the swing kid's back) */
   hand?: [number, number];
+  /** both arms held out in front, hands at this point (final canvas units): carrying something */
+  carry?: [number, number];
 };
 
 /** two-bone leg, knee bending forward (+x) */
@@ -732,6 +734,9 @@ export const bodySide = (p: Pen, o: Outfit, opts: SideOpts) => {
     }
     near = [S, [(S[0] + hN[0]) / 2, (S[1] + hN[1]) / 2 + 0.06 * HH], hN];
     far = [S, [(S[0] + hN[0]) / 2 - 4 * u, (S[1] + hN[1]) / 2 - 0.02 * HH], [hN[0] - 6 * u, hN[1] - 0.08 * HH]];
+  } else if (opts.carry) { const hN: P2 = opts.carry;
+    near = [S, [(S[0] + hN[0]) / 2 - 2 * u, (S[1] + hN[1]) / 2 + 0.16 * HH], hN];
+    far = [S, [(S[0] + hN[0]) / 2 + 4 * u, (S[1] + hN[1]) / 2 + 0.05 * HH], [hN[0] + 10 * u, hN[1] - 0.2 * HH]];
   } else if (rifle) { near = [S, [S[0] - 4 * u, S[1] + 0.42 * HH], B0]; far = mode === "march" ? swingArm(rad(30) * nearFwd) : swingArm(0); }
   else { near = swingArm(rad(-30) * nearFwd); far = mode === "march" ? swingArm(rad(30) * nearFwd) : null; }
   if (far) { p.stroke(curve(far[0], far[1], far[2]), 5.2 * u, farArm); p.dot(far[2][0], far[2][1], 5.5 * u); }

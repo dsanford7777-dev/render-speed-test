@@ -7,6 +7,8 @@ import { FPS, words, Word } from "./timeline";
 
 const { fontFamily } = loadFont("normal", { weights: ["900"], subsets: ["latin"] });
 
+/** segments whose words are already on screen as a callout (475,000 clocks; 58,000 refrigerators) */
+const NO_CAPTION = new Set([19, 20]);
 type Group = { ws: Word[]; s: number; e: number };
 const groupWords = (all: Word[]): Group[] => {
   const out: Group[] = [];
@@ -26,7 +28,8 @@ const groupWords = (all: Word[]): Group[] => {
 
 export const Captions: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS;
-  const groups = useMemo(() => groupWords(words()), []);
+  // the big number callouts say the same words: no caption under them
+  const groups = useMemo(() => groupWords(words().filter((w) => !NO_CAPTION.has(w.seg))), []);
   const g = groups.find((x) => t >= x.s && t < x.e);
   if (!g) return null;
   const k = Math.min(1, (t - g.s) * FPS / 4), pop = 1 + 0.12 * (1 - k) * (1 - k);

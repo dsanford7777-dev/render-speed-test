@@ -9,6 +9,7 @@ import { Pen, bodyFront, bodySide, fxContact, Outfit, Expr, SKIN } from "../brid
 import { LIGHTS, LOOK, LightPreset, WorldLook } from "../bridge/lights";
 import { TONE, CHAR, LFB, untone } from "../bridge/shade";
 import { NOINK } from "../bridge/ink";
+import { Grass, GROUND } from "../bridge/grass";
 import { Pool, Actor, Fx } from "../bridge/cast";
 import { FPS, SHOTS, Light } from "./timeline";
 import { D0, V3, HUG, QUEUE, Yd, L, C, R, Dm, SALON, S, F, Fr, G, SOCKET, B60, B50, ANGELENO, LEVER, CLOCK, SOCKET2, DRUMMER, DRUM, DAM60, TOASTER, BULB, TCLOCK, WORKER, BOSS, GEN, G50, ENGINEER,
@@ -18,6 +19,9 @@ import { Clock, postClock, Board } from "../dst/props";
 import { buildSalon, Salon, signTex, Flyers, cashPile } from "../lustig/props";
 import { generator, Lamp, wire, numTex, socketTex, clockCardTex, sparkTex, Cards } from "../hertzlong/props3d";
 
+/** metres per canvas unit of a character card */
+const SUc = 0.00216;
+const FIELD_NX = 26, FIELD_NZ = 16, STICK_L = 0.5;
 /** shots whose big face close-up is the point */
 const CLOSEUP_OK = new Set<number>([1, 3, 4, 10, 11, 12, 13, 17, 18]);
 const LP: Record<Light, LightPreset> = { day: LIGHTS.day, golden: LIGHTS.golden, night: LIGHTS.day };
@@ -39,13 +43,15 @@ const Q_ = [
 const ANG_ = who(SUIT("#e0a03a", { hat: "fedora", cap: "#f1e6c8", skin: "#c99067", hair: "#2a201a" }), 21, "angeleno");
 const DRUM_ = who(SUIT("#c9373a", { hat: "shako", buttons: "#e8c45a", belt: "#f1efe6", skin: "#f5c9a0" }), 24, "drummer");
 const WORK_ = who(SUIT("#4a6a9a", { hat: "cap", cap: "#2b2f3d", moustache: "#2a201a", skin: "#c99067", buttons: "#e8c45a" }), 14, "worker");
-const BOSS_ = who(SUIT("#2b2f3d", { hat: "tophat", moustache: "#8a8a92", hair: "#8a8a92", build: "stout", buttons: "#e8c45a" }), 29, "boss");
+const BOSS_ = who(SUIT("#2b2f3d", { hat: "tophat", moustache: "#3d3d48", hair: "#8a8a92", build: "stout", buttons: "#e8c45a" }), 29, "boss");
 const ENG_ = who(SUIT("#5a4a6a", { hair: "#d9d4c8", moustache: "#d9d4c8", skin: "#ecd0b6" }), 31, "engineer");
 
 /** drawing size by distance: [canvas w, h, scale from the 600 x 1000 design] */
 const tier = (d: number): [number, number, number] => d < 3.2 ? [1800, 3000, 3.0] : d < 6.5 ? [1080, 1800, 1.8] : d < 16 ? [480, 800, 0.8] : [240, 400, 0.4];
 /** march = front-view walk/run phase; side = side-view run (dir = the way they move, so the card faces it); pass = may cross the frame edges */
-type Pose = { expr: Expr; look?: number; headTilt?: number; facing?: -1 | 0 | 1; blink?: number; sit?: boolean; sweat?: boolean; march?: number; pass?: boolean; side?: { phase: number; dir: V3; stride?: number } };
+type Pose = { expr: Expr; look?: number; headTilt?: number; facing?: -1 | 0 | 1; blink?: number; sit?: boolean; sweat?: boolean; march?: number; pass?: boolean; side?: { phase: number; dir: V3; stride?: number; carry?: [number, number] };
+  /** points in the world the hands are on (a clock's rim, a drumstick, a lever): the arms reach to them */
+  hands?: V3[] };
 
 // ---------------- world ----------------
 export class CWorld {
@@ -65,6 +71,7 @@ export class CWorld {
   private hugClock: Clock; private cards: Cards; private field: Cards; private sparks: Cards; private pulses: Cards; private toastCard: Cards;
   private fridges: THREE.Group[] = []; private gen: { g: THREE.Group; wheel: THREE.Group }; private g50: Board; private g60: Board;
   private bills: Flyers; private cash: THREE.Group; private fixed: Board;
+  private grass: Grass; private fieldI: THREE.InstancedMesh; private sticks2: THREE.Mesh[] = [];
   private lastPeople: { name: string; p: V3; walking: boolean; sit?: boolean }[] = [];
   private ray = new THREE.Raycaster();
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private sph = new THREE.Sphere(); private v = new THREE.Vector3();
@@ -97,7 +104,7 @@ export class CWorld {
     }
     // ---- ground, river, quays, main street ----
     const b = new Batch();
-    const grass = lam("grassHD", () => ({ map: grassHD() })), cobble = lam("cobbleHD", () => ({ map: cobbleHD() }));
+    const grass = lam("turfDark", () => ({ color: GROUND })), cobble = lam("cobbleHD", () => ({ map: cobbleHD() }));
     const wall = lam("wallHD", () => ({ map: stoneHD("wallHD", ["#c9bcaa", "#bfb19f", "#d1c5b4", "#b8aa97"], "#958776") }));
     const cope = lam("copeHD", () => ({ map: stoneHD("copeHD", ["#e6dccd", "#ddd3c3", "#ece4d6", "#d6cbba"], "#aea293") }));
     for (const s of [-1, 1]) {
@@ -131,15 +138,19 @@ export class CWorld {
     waterM.customProgramCacheKey = () => "fahrRiver1";
     const wm = new THREE.Mesh(quadUp(-900, 900, -30, 30, 1, 1, -D0), waterM); wm.receiveShadow = true; R0.add(wm);
     // ---- the pulse yard: wall socket, the blue 60 board ----
-    this.socket = new Board(0.8, 1.0, "wallSocket", socketTex, 1.05); this.socket.group.position.set(...SOCKET); R0.add(this.socket.group);
+    this.socket = new Board(0.8, 1.0, "wallSocket", socketTex); this.socket.group.position.set(...SOCKET); this.socket.group.scale.setScalar(0.62); R0.add(this.socket.group);
+    // a lamp cord plugged into it, running down the wall and off along the floor
+    R0.add(wire(V(SOCKET[0] + 0.02, SOCKET[1] - 0.12, SOCKET[2] - 0.05), V(SOCKET[0] + 1.3, D0 + 0.05, SOCKET[2] - 0.5), -0.25));
     this.b60 = new Board(2.4, 1.5, "num_60_blue", () => numTex("60", BLUE, "#ffffff"), 1.85); this.b60.group.position.set(...B60); R0.add(this.b60.group);
     // ---- the Los Angeles corner: the red 50 board (flips to 60), the knife switch, a palm ----
     this.b50 = new Board(1.9, 1.2, "num_50_red", () => numTex("50", RED, "#ffffff"), 1.7); this.b50.group.position.set(...B50); R0.add(this.b50.group);
-    this.lev = lever(); this.lev.g.position.set(...LEVER); R0.add(this.lev.g);
+    this.lev = lever(); this.lev.g.position.set(...LEVER); this.lev.g.scale.setScalar(0.8); R0.add(this.lev.g);
     R0.add(palm(L(-3.4, 0, 2.6), 6.5), palm(L(5.6, 0, 3.4), 5.2));
     // ---- the post clock, wired to a socket ----
     const pc = postClock(0.95, 2.5); pc.g.position.set(...C(0, 0, 0)); R0.add(pc.g); this.pclock = pc.clock;
-    this.socket2 = new Board(0.8, 1.0, "wallSocket", socketTex, 0.7); this.socket2.group.position.set(...SOCKET2); R0.add(this.socket2.group);
+    this.socket2 = new Board(0.8, 1.0, "wallSocket", socketTex); this.socket2.group.position.set(...SOCKET2); R0.add(this.socket2.group);
+    { // the piece of house wall the socket is in
+      const wb = new Batch(); wb.add(boxGeo(V(...C(-5.0, 0, 0.04)), V(...C(-1.8, 2.3, 0.34)), 2), wall); wb.add(boxGeo(V(...C(-5.1, 2.3, 0)), V(...C(-1.7, 2.42, 0.38)), 2), cope); wb.add(boxGeo(V(...C(-5.0, 0, 0)), V(...C(-1.8, 0.18, 0.05))), lam("skirting", () => ({ color: "#7a5236" }))); wb.build(R0); }
     R0.add(wire(V(...C(-3.4, 1.72, 0.02)), V(...C(-0.1, 2.69, 0.16)), 0.25));
     // ---- the drummer's drum ----
     this.drumP = drum(); this.drumP.g.position.set(...DRUM); R0.add(this.drumP.g);
@@ -157,7 +168,18 @@ export class CWorld {
     // ---- clocks: the one he hugs, cut-out cards for the ones carried, thrown and laid out in the field ----
     this.hugClock = new Clock(0.27, "#b5462f"); R0.add(this.hugClock.group);
     this.cards = new Cards(R0, clockCardTex(), 14, 0.7);
-    this.field = new Cards(R0, clockCardTex(), 16 * 9, 1.15);
+    this.field = new Cards(R0, clockCardTex(), 1, 1.15);
+    { const g = new THREE.PlaneGeometry(1.15, 1.15); g.translate(0, 0.575, 0); g.rotateY(Math.PI); g.rotateX(0.3);
+      this.fieldI = new THREE.InstancedMesh(g, new THREE.MeshBasicMaterial({ map: clockCardTex(), alphaTest: 0.5, side: THREE.DoubleSide }), FIELD_NX * FIELD_NZ);
+      this.fieldI.layers.set(NOINK); this.fieldI.frustumCulled = false; this.fieldI.visible = false; R0.add(this.fieldI); }
+    // the drummer's sticks: held at one end, the other end on the drum
+    for (let k = 0; k < 2; k++) { const g = new THREE.CylinderGeometry(0.013, 0.02, STICK_L, 8); g.rotateX(Math.PI / 2); g.translate(0, 0, STICK_L / 2 - 0.06);
+      const st = new THREE.Mesh(g, lam("drumStick", () => ({ color: "#e9d3a2" }))); st.castShadow = true; st.visible = false; R0.add(st); this.sticks2.push(st); }
+    this.drumP.sticks.forEach((s) => { s.visible = false; });
+    this.cash.traverse((o) => { o.castShadow = false; });
+    // grass on all the open ground: not the river and town, not the room's floor, not the dam's canyon
+    this.grass = new Grass(R0, (x, z) => Math.abs(z) < 40 || (Math.abs(x) < 178 && Math.abs(z) < 188) || (x > SALON[0] - 8.8 && x < SALON[0] + 8.8 && z > SALON[2] - 13.3 && z < SALON[2] + 4.8)
+      || (x > 448 && x < 752 && z > 98 && z < 382) || (x > C(-5.1, 0, 0)[0] && x < C(-1.7, 0, 0)[0] && Math.abs(z - C(0, 0, 0.2)[2]) < 0.3) ? null : D0);
     this.sparks = new Cards(R0, sparkTex(), 2, 1.0);
     this.pulses = new Cards(R0, pulseTex(), 6, 0.22);
     this.toastCard = new Cards(R0, toastTex(), 1, 0.3);
@@ -234,6 +256,7 @@ export class CWorld {
     if (hookish) { const ff = loop ? 0 : f; this.hugClock.group.position.set(HUG[0], D0 + 0.98, HUG[2] - 0.3); this.hugClock.setTime(10.17 + (ff >= m.clocks - 2 ? (ff - (m.clocks - 2)) / FPS * 2.5 : ff / FPS * 0.2)); }
     // the rest of the queue hold cut-out clocks in front of them
     if (hookish) QUEUE.forEach((q, k) => this.cards.put(k, V(q[0], q[1] + 0.98, q[2] - 0.28), cam, 0, 0.8));
+    this.grass.update(cam);
     // the socket's pulse: a spark that beats on the plate
     if (id === 2) this.sparks.put(0, V(SOCKET[0], SOCKET[1], SOCKET[2] - 0.1), cam, f * 0.5, 0.14 + 0.2 * beat(3));
     // boards: the Los Angeles 50 flips to 60 when the switch is thrown
@@ -241,10 +264,11 @@ export class CWorld {
     this.b50.setFace(flipped ? "num_60_blue" : "num_50_red", () => (flipped ? numTex("60", BLUE, "#ffffff") : numTex("50", RED, "#ffffff")));
     this.b50.group.scale.setScalar(flipped ? 1 + 0.16 * Math.sin(clamp01((f - m.switched) / 8) * Math.PI) : 1);
     this.b50.group.rotation.y = id === 6 ? Math.PI * 2 * expo((f - (m.switched - 4)) / 8) : 0;
-    this.lev.arm.rotation.z = id === 6 ? 0.75 - 1.5 * expo((f - (m.switched - 6)) / 6) : 0.75;
-    if (id === 6 && f >= m.switched - 1 && f < m.switched + 9) this.sparks.put(0, V(LEVER[0], LEVER[1] + 1.75, LEVER[2] - 0.2), cam, f * 0.8, 0.9);
+    const levA = id === 6 ? 0.25 + 0.5 * expo((f - (m.switched - 6)) / 6) : 0.25; this.lev.arm.rotation.z = levA;
+    const levGrip: V3 = [LEVER[0] - Math.sin(levA) * 0.62, LEVER[1] + 0.96 + Math.cos(levA) * 0.62, LEVER[2] - 0.15];
+    if (id === 6 && f >= m.switched - 1 && f < m.switched + 9) this.sparks.put(0, V(LEVER[0] - 0.25, LEVER[1] + 1.4, LEVER[2] - 0.2), cam, f * 0.8, 0.9);
     // the room's wall sign and what's on the table
-    const room = id === 7 || id === 8 ? "kitchen" : id === 13 ? "depot" : "power";
+    const room = id === 7 || id === 8 || id === 2 ? "kitchen" : id === 13 ? "depot" : "power";
     this.salon.sign.material = lam(`sign_c_${room}`, () => ({ map: signTex(`c_${room}`, room === "kitchen" ? "HOME SWEET HOME" : room === "depot" ? "CLOCK DEPOT" : "THE POWER COMPANY", "#2f2a3a", "#e8c45a") }));
     this.toast.g.visible = id === 7;
     const pop = id === 7 ? expo((f - (m.toastMind - 3)) / 5) : 0;
@@ -275,16 +299,20 @@ export class CWorld {
       const a = V(...C(-3.4, 1.72, -0.06)), b = V(...C(-0.1, 2.69, 0.08)), p = a.lerp(b, u); p.y -= 0.25 * 4 * u * (1 - u) * 0.5;
       this.pulses.put(k, p, cam, 0, 1);
     }
-    // the drummer's sticks: on the beat, then far too fast
-    const hz = id === 11 ? 7 : 2.2;
-    this.drumP.sticks.forEach((s, i) => { s.rotation.x = -0.5 - 0.7 * Math.max(0, Math.sin(t * Math.PI * 2 * hz + i * Math.PI)); s.rotation.z = (i ? -1 : 1) * 0.25; });
+    // the drummer's sticks: on the beat, then far too fast. Each is held at its butt end; its tip comes down on the skin.
+    const hz = id === 11 ? 7 : 2.2, grips: V3[] = [];
+    this.sticks2.forEach((st, i) => { st.visible = id === 10 || (id === 11 && f < m.theClock - 2); if (!st.visible) return;
+      const sx = i ? 1 : -1, up = Math.max(0, Math.sin(t * Math.PI * 2 * hz + i * Math.PI)), g: V3 = [DRUM[0] + sx * 0.3, DRUM[1] + 1.03 + 0.07 * up, DRUM[2] + 0.5];
+      grips.push(g); st.position.set(...g); st.lookAt(DRUM[0] + sx * 0.1, DRUM[1] + 0.975 + 0.3 * up, DRUM[2] + 0.12); });
     // the field of clocks pops up row by row; the refrigerators rock on their feet
-    if (id === 14 || id === 15) for (let j = 0; j < 9; j++) for (let i = 0; i < 16; i++) {
-      const k = j * 16 + i, born = id === 14 ? A(14) - 4 + j + (i % 4) : -1e9, u = clamp01((f - born) / 5);
-      if (u <= 0) continue;
-      this.field.put(k, V(...F(-12 + 1.6 * i + (j % 2) * 0.5, 0.62, j * 1.75)), cam, 0.12 * Math.sin(k * 1.3), 0.4 + 0.6 * u);
-    }
-    this.fridges.forEach((fr, k) => { fr.rotation.z = id === 16 ? 0.05 * Math.sin(t * 9 + k * 0.9) : 0; });
+    this.fieldI.visible = id === 14 || id === 15;
+    if (this.fieldI.visible) { const mm = new THREE.Matrix4(), qq = new THREE.Quaternion(), ss = new THREE.Vector3(), pp = new THREE.Vector3();
+      for (let j = 0; j < FIELD_NZ; j++) for (let i = 0; i < FIELD_NX; i++) {
+        const k = j * FIELD_NX + i, born = id === 14 ? A(14) - 4 + j * 0.8 + (i % 4) : -1e9, u = clamp01((f - born) / 5), sc = u <= 0 ? 0.0001 : 0.4 + 0.6 * u + 0.15 * Math.sin(Math.PI * u);
+        const p = F((i - (FIELD_NX - 1) / 2) * 1.55 + (j % 2) * 0.5, 0.02, j * 2.0);
+        this.fieldI.setMatrixAt(k, mm.compose(pp.set(p[0], p[1], p[2]), qq, ss.setScalar(sc))); }
+      this.fieldI.instanceMatrix.needsUpdate = true; }
+    this.fridges.forEach((fr, k) => { fr.visible = id === 16; fr.rotation.z = id === 16 ? 0.05 * Math.sin(t * 9 + k * 0.9) : 0; });
     // the bill: notes fly at the lens on "34"; the cash slides away from the boss on "third"
     this.cash.visible = id === 17;
     if (id === 17) { this.cash.position.set(...S(cashX(f), 0.8, 0.55)); this.cash.scale.set(0.6, 0.6, 0.6); }
@@ -306,29 +334,32 @@ export class CWorld {
     const people: { w: Who; p: V3; pose: Pose }[] = [];
     const blink = (seed: number) => { const n = Math.floor((t + seed * 0.37) / 2.3), ph = (t + seed * 0.37) - n * 2.3; return ph < 0.13 ? 1 : 0; };
     const add = (w: Who, p: V3, pose: Pose) => people.push({ w, p, pose });
-    const queue = () => QUEUE.forEach((q, k) => add(Q_[k], q, { expr: (["stern", "nervous", "neutral", "stern", "pained", "neutral"] as Expr[])[k], blink: blink(Q_[k].seed), pass: true }));
+    /** both hands on the rim of a clock held at the chest (centre c, radius r) */
+    const rim = (c: V3, r: number): V3[] => [[c[0] - rightV.x * r, c[1] - 0.03, c[2] - rightV.z * r], [c[0] + rightV.x * r, c[1] - 0.03, c[2] + rightV.z * r]];
+    const queue = () => QUEUE.forEach((q, k) => add(Q_[k], q, { expr: (["stern", "nervous", "neutral", "stern", "pained", "neutral"] as Expr[])[k], blink: blink(Q_[k].seed), pass: true, hands: rim([q[0], q[1] + 0.98, q[2] - 0.28], 0.27) }));
     switch (loop ? 1 : id) {
       case 1: {
         const ff = loop ? 0 : f, wide = ff >= m.hand - 2 && ff < m.clocks - 2;
-        add(HUG_, HUG, { expr: ff >= m.clocks - 2 ? "pained" : "nervous", blink: loop || ff < 3 ? 0 : blink(3), sweat: !wide, pass: wide });
+        add(HUG_, HUG, { expr: ff >= m.clocks - 2 ? "pained" : "nervous", blink: loop || ff < 3 ? 0 : blink(3), sweat: !wide, pass: wide, hands: rim([HUG[0], D0 + 0.98, HUG[2] - 0.3], 0.265) });
         if (ff < m.clocks - 2) queue();
         break;
       }
       case 3: if (f >= m.los - 4 && f < m.fifty - 2) add(ANG_, ANGELENO, { expr: "smile", blink: blink(21), pass: true }); break;
       case 4: add(ANG_, ANGELENO, { expr: f >= m.cared - 2 ? "whistle" : "smile_closed", blink: 0, headTilt: f >= m.cared - 2 ? 0.1 : 0 }); break;
-      case 6: break;
-      case 10: add(DRUM_, DRUMMER, { expr: f >= m.following - 2 ? "smile_closed" : "smile", blink: blink(24), pass: true }); break;
-      case 11: if (f < m.theClock - 2) add(DRUM_, DRUMMER, { expr: "pained", blink: 0, sweat: true, pass: true }); break;
+      case 6: add(ANG_, [LEVER[0] - 0.85, D0, LEVER[2] + 0.05], { expr: f >= m.switched ? "grin" : "stern", blink: 0, pass: true, hands: [levGrip] }); break;
+      case 10: add(DRUM_, DRUMMER, { expr: f >= m.following - 2 ? "smile_closed" : "smile", blink: blink(24), pass: true, hands: grips }); break;
+      case 11: if (f < m.theClock - 2) add(DRUM_, DRUMMER, { expr: "pained", blink: 0, sweat: true, pass: true, hands: grips }); break;
       case 12:
         if (f < m.depots - 2) [0, 1, 2].forEach((k) => {
           const z = walkZ(f) + 1.5 * k, ph = ((((140 - z) / 1.6) % 1) + 1) % 1;
-          add(Q_[k], [0.8 + (k % 2) * 0.3, D0, z], { expr: k === 1 ? "nervous" : "stern", blink: 0, side: { phase: ph, dir: [0, 0, -1], stride: 0.8 } });
-          this.cards.put(k, V(1.0 + (k % 2) * 0.3, D0 + 1.1 + 0.03 * Math.sin(z * 3.9), z - 0.42), cam, 0, 0.62);
+          add(Q_[k], [0.8 + (k % 2) * 0.3, D0, z], { expr: k === 1 ? "nervous" : "stern", blink: 0, side: { phase: ph, dir: [0, 0, -1], stride: 0.8, carry: [300 + 0.4 / SUc, 975 - 0.93 / SUc] } });
+          // the clock rides just behind the walker's card, so both arms come round the front of it
+          this.cards.put(k, V(0.68 + (k % 2) * 0.3, D0 + 1.08, z - 0.36), cam, 0, 0.62);
         });
         else [0, 1, 2].forEach((k) => {
           const z = frontZ(f) + 1.6 * k, x = 0.6 + [0, -0.9, 0.9][k];
-          add(([HUG_, Q_[0], Q_[1]])[k], [x, D0, z], { expr: k ? "stern" : "pained", blink: 0, march: (t * 2.2 + k * 0.33) % 1, pass: true });
-          this.cards.put(k, V(x, D0 + 0.98, z - 0.28), cam, 0.06 * Math.sin(t * 13 + k), 0.8);
+          add(([HUG_, Q_[0], Q_[1]])[k], [x, D0, z], { expr: k ? "stern" : "pained", blink: 0, march: (t * 2.2 + k * 0.33) % 1, pass: true, hands: rim([x, D0 + 0.98, z - 0.28], 0.27) });
+          this.cards.put(k, V(x, D0 + 0.98, z - 0.28), cam, 0, 0.8);
         });
         break;
       case 13:
@@ -354,12 +385,19 @@ export class CWorld {
       // side cards are drawn facing canvas right: flip them when they move toward screen left
       const mirror = !!Pz.side && Pz.side.dir[0] * right.x + Pz.side.dir[2] * right.z < 0;
       const light = mirror ? Math.PI - lightA : lightA;
+      // hands: where each point in the world falls on this card as seen from the camera; the arm reaches there
+      let hands: { l?: [number, number]; r?: [number, number] } | undefined;
+      if (Pz.hands?.length) { hands = {}; const nx = cam.position.x - q.p[0], nz = cam.position.z - q.p[2], nl = Math.hypot(nx, nz) || 1, n3 = V(nx / nl, 0, nz / nl), cr = V(n3.z, 0, -n3.x), o = V(...q.p);
+        for (const hw of Pz.hands) { const dir = V(...hw).sub(cam.position), tt = o.clone().sub(cam.position).dot(n3) / dir.dot(n3), pc = cam.position.clone().addScaledVector(dir, tt);
+          const hx = pc.clone().sub(o).dot(cr), hc: [number, number] = [300 + hx / SUc, 975 - (pc.y - q.p[1]) / SUc];
+          if ((hx >= 0 && !hands.r) || hands.l) hands.r = hc; else hands.l = hc; } }
+      const hk = hands ? [hands.l, hands.r].flat().map((n) => Math.round((n ?? 0) / 4)).join(",") : "";
       const key = Pz.side
-        ? `S|${q.w.key}|${Pz.expr}|${Math.round(Pz.side.phase * 16)}|${Pz.blink ?? 0}|${light.toFixed(2)}`
-        : `F|${q.w.key}|${Pz.expr}|${Pz.look ?? 0}|${(Pz.headTilt ?? 0).toFixed(2)}|${Pz.facing ?? 0}|${Pz.blink ?? 0}|${Pz.sit ? 1 : 0}|${Pz.march === undefined ? -1 : Math.round(Pz.march * 16)}|${light.toFixed(2)}`;
+        ? `S|${q.w.key}|${Pz.expr}|${Math.round(Pz.side.phase * 16)}|${Pz.blink ?? 0}|${Pz.side.carry ? 1 : 0}|${light.toFixed(2)}`
+        : `F|${q.w.key}|${Pz.expr}|${Pz.look ?? 0}|${(Pz.headTilt ?? 0).toFixed(2)}|${Pz.facing ?? 0}|${Pz.blink ?? 0}|${Pz.sit ? 1 : 0}|${Pz.march === undefined ? -1 : Math.round(Pz.march * 16)}|${hk}|${light.toFixed(2)}`;
       a.r = this.pool.req(key, cw, chh, k, (p: Pen) => Pz.side
-        ? bodySide(p, q.w.o, { mode: "march", phase: Math.round(Pz.side!.phase * 16) / 16, expr: Pz.expr, blink: Pz.blink, stride: Pz.side!.stride ?? 0.8, stomp: 0.6, light, seed: q.w.seed })
-        : bodyFront(p, q.w.o, { mode: Pz.sit ? "sit" : Pz.march !== undefined ? "march" : "stand", phase: Pz.march === undefined ? 0 : Math.round(Pz.march * 16) / 16, expr: Pz.expr, look: Pz.look ?? 0, headTilt: Pz.headTilt ?? 0, facing: Pz.facing ?? 0, blink: Pz.blink, light, seed: q.w.seed }));
+        ? bodySide(p, q.w.o, { mode: "march", phase: Math.round(Pz.side!.phase * 16) / 16, expr: Pz.expr, blink: Pz.blink, stride: Pz.side!.stride ?? 0.8, stomp: 0.6, carry: Pz.side!.carry, light, seed: q.w.seed })
+        : bodyFront(p, q.w.o, { mode: Pz.sit ? "sit" : Pz.march !== undefined ? "march" : "stand", phase: Pz.march === undefined ? 0 : Math.round(Pz.march * 16) / 16, expr: Pz.expr, look: Pz.look ?? 0, headTilt: Pz.headTilt ?? 0, facing: Pz.facing ?? 0, blink: Pz.blink, hands, light, seed: q.w.seed }));
       a.mesh.visible = true;
       a.mesh.position.set(...q.p);
       a.mesh.rotation.set(0, Math.atan2(cam.position.x - q.p[0], cam.position.z - q.p[2]), 0);
@@ -402,7 +440,7 @@ export class CWorld {
       case 2: return [["wall socket", V(SOCKET[0], SOCKET[1], SOCKET[2] - 0.05), 0.1, s.a + 8, s.b, this.socket.group]];
       case 3: return [["60 board", this.b60.pos(), 0.2, s.a + 10, m.los - 6, this.b60.group], ["50 board", this.b50.pos(), 0.2, m.fifty + 6, s.b, this.b50.group]];
       case 5: return [["dam 60 board", this.dam60.pos(), 0.3, m.dam60 + 6, s.b, this.dam60.group]];
-      case 6: return [["knife switch", V(LEVER[0], LEVER[1] + 1.5, LEVER[2] - 0.1), 0.2, s.a + 8, m.switched - 3, this.lev.g], ["flipped board", this.b50.pos(), 0.2, m.switched + 8, s.b, this.b50.group]];
+      case 6: return [["knife switch", V(LEVER[0], LEVER[1] + 1.2, LEVER[2] - 0.1), 0.2, s.a + 8, m.switched - 3, this.lev.g], ["flipped board", this.b50.pos(), 0.2, m.switched + 8, s.b, this.b50.group]];
       case 7: return [["toaster", V(TOASTER[0], TOASTER[1] + 0.15, TOASTER[2] - 0.1), 0.05, s.a + 12, m.toastMind - 2, this.toast.g], ["light bulb", this.bulb.top(), 0.1, m.light + 6, s.b, this.bulb.group]];
       case 8: return [["table clock", this.tclocks[2].facePos(), 0.05, s.a + 8, m.minded - 1, this.tclocks[2].group]];
       case 9: return [["post clock", V(...CLOCK), 0.3, s.a + 6, m.counts - 4]];

@@ -6,39 +6,60 @@ import { ctex } from "../bridge/paint";
 import { INK, paintText } from "../dst/props";
 
 const shadowAll = <T extends THREE.Object3D>(g: T): T => { g.traverse((o) => { o.castShadow = true; o.receiveShadow = true; }); return g; };
-const box = (w: number, h: number, d: number, key: string, col: string) => new THREE.Mesh(new THREE.BoxGeometry(w, h, d), lam(key, () => ({ color: col })));
+const box = (w: number, h: number, d: number, key: string, col: string) => new THREE.Mesh(new THREE.BoxGeometry(w, h, d), lam(key, () => ({ color: col, ...(key === "fridgeWhite" || key === "fridgeDoor" ? { emissive: "#4a4840" } : {}) })));
 const cyl = (r0: number, r1: number, h: number, key: string, col: string, seg = 24) => new THREE.Mesh(new THREE.CylinderGeometry(r0, r1, h, seg), lam(key, () => ({ color: col })));
 export const BLUE = "#2f5fb5", RED = "#c9373a", CREAM = "#f6efdc", GOLD = "#e8c45a";
 
-const concreteTex = () => ctex("damConcrete", 512, 512, (g) => {
-  g.fillStyle = "#d6cdb9"; g.fillRect(0, 0, 512, 512);
-  g.strokeStyle = "#b3a993"; g.lineWidth = 6;
-  for (let y = 0; y <= 512; y += 64) { g.beginPath(); g.moveTo(0, y); g.lineTo(512, y); g.stroke(); }
-  for (let y = 0; y < 512; y += 64) for (let x = (y / 64) % 2 ? 128 : 0; x <= 512; x += 256) { g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + 64); g.stroke(); }
+const concreteTex = () => ctex("damConcrete2", 512, 1024, (g, r) => {
+  const gr = g.createLinearGradient(0, 0, 0, 1024); gr.addColorStop(0, "#e2d8c2"); gr.addColorStop(1, "#c4b89e"); g.fillStyle = gr; g.fillRect(0, 0, 512, 1024);
+  // water stains running down the face
+  for (let i = 0; i < 46; i++) { const x = r() * 512, w = 6 + r() * 26, h = 200 + r() * 700; const s = g.createLinearGradient(0, 0, 0, h); s.addColorStop(0, "rgba(120,104,84,0.34)"); s.addColorStop(1, "rgba(120,104,84,0)"); g.fillStyle = s; g.fillRect(x, 0, w, h); }
+  // the pour lines of the concrete blocks
+  g.strokeStyle = "#8f846e"; g.lineWidth = 7;
+  for (let y = 0; y <= 1024; y += 64) { g.beginPath(); g.moveTo(0, y); g.lineTo(512, y); g.stroke(); }
+  for (let y = 0; y < 1024; y += 64) for (let x = (y / 64) % 2 ? 128 : 0; x <= 512; x += 256) { g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + 64); g.stroke(); }
+});
+const rockTex = () => ctex("damRockTex", 512, 512, (g, r) => {
+  g.fillStyle = "#a8704a"; g.fillRect(0, 0, 512, 512);
+  // strata: bands of red and tan rock, broken by cracks
+  let y = 0; while (y < 512) { const h = 14 + r() * 46; g.fillStyle = ["#b57a50", "#9a6240", "#c08a5c", "#8f5a3a", "#a86e48", "#c79a6c"][Math.floor(r() * 6)]; g.fillRect(0, y, 512, h); y += h; }
+  g.strokeStyle = "rgba(70,40,26,0.7)"; g.lineWidth = 5; g.lineCap = "round";
+  for (let i = 0; i < 26; i++) { let x = r() * 512, yy = r() * 512; g.beginPath(); g.moveTo(x, yy); for (let k = 0; k < 5; k++) { x += (r() - 0.5) * 40; yy += 20 + r() * 40; g.lineTo(x, yy); } g.stroke(); }
+});
+const riverTex = () => ctex("damRiver", 256, 512, (g, r) => {
+  g.fillStyle = "#3f86c9"; g.fillRect(0, 0, 256, 512);
+  g.strokeStyle = "rgba(210,236,255,0.75)"; g.lineWidth = 5; g.lineCap = "round";
+  for (let i = 0; i < 70; i++) { const x = r() * 256, y = r() * 512, l = 20 + r() * 50; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + 6, y + l / 2, x, y + l); g.stroke(); }
 });
 export const DAM_H = 46;
-/** Hoover Dam: a curved concrete wall DAM_H tall between two canyon walls, four intake towers behind it, the powerhouse
- *  at its foot. The downstream face looks toward -z; the group's origin is on the ground at the middle of the wall. */
+/** Hoover Dam: a curved concrete wall DAM_H tall wedged in a red-rock canyon, four intake towers and the lake behind
+ *  it, the powerhouse and the river at its foot. The downstream face looks toward -z; the group's origin is on the
+ *  ground at the middle of the wall. No grass here: bare rock and desert. */
 export const dam = () => {
   const G = new THREE.Group();
-  const conc = lam("damConcrete", () => ({ map: concreteTex() }));
+  const conc = lam("damConcrete2", () => ({ map: concreteTex() })), rock = lam("damRockT", () => ({ map: rockTex() })), rock2 = lam("damRockT2", () => ({ map: rockTex(), color: "#d8c8b8" }));
+  const scaleUV = (geo: THREE.BufferGeometry, su: number, sv: number) => { const uv = geo.getAttribute("uv"); for (let k = 0; k < uv.count; k++) uv.setXY(k, uv.getX(k) * su, uv.getY(k) * sv); return geo; };
+  for (const tx of [rockTex(), concreteTex(), riverTex()]) { tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.needsUpdate = true; }
   for (let i = -4; i <= 4; i++) {
     const x = i * 7, z = 0.03 * x * x;
-    const geo = new THREE.BoxGeometry(7.6, DAM_H, 6);
-    const uv = geo.getAttribute("uv"); for (let k = 0; k < uv.count; k++) uv.setXY(k, uv.getX(k) * 2, uv.getY(k) * 10);
-    const seg = new THREE.Mesh(geo, conc);
+    const seg = new THREE.Mesh(scaleUV(new THREE.BoxGeometry(7.6, DAM_H, 6), 1.5, 4), conc);
     seg.position.set(x, DAM_H / 2, z); seg.rotation.y = -Math.atan(0.06 * x);
     G.add(seg);
   }
   const lip = box(66, 1.2, 8, "damLip", "#a89f8b"); lip.position.set(0, DAM_H + 0.6, 12); G.add(lip);
+  // the canyon: stepped cliffs on both sides, running out downstream; desert floor; the river
+  const floor = new THREE.Mesh(scaleUV(new THREE.BoxGeometry(300, 0.1, 280), 6, 6), lam("damDesert", () => ({ color: "#c79a6c" }))); floor.position.set(0, 0.03, -60); G.add(floor);
   for (const s of [-1, 1]) {
-    const cliff = box(40, 66, 60, "damRock", "#a8704a"); cliff.position.set(s * 50, 33, 14); G.add(cliff);
-    const ledge = box(44, 10, 64, "damRock2", "#8f5c3c"); ledge.position.set(s * 52, 5, 12); G.add(ledge);
+    const mk = (w: number, h: number, d: number, x: number, z: number, m: THREE.Material) => { const c = new THREE.Mesh(scaleUV(new THREE.BoxGeometry(w, h, d), w / 30, h / 30), m); c.position.set(s * x, h / 2, z); G.add(c); };
+    mk(40, 66, 60, 50, 14, rock); mk(44, 12, 64, 52, 12, rock2);
+    mk(46, 54, 50, 55, -40, rock2); mk(52, 40, 54, 62, -92, rock); mk(60, 26, 60, 72, -150, rock2); mk(30, 18, 40, 44, -58, rock);
     for (const k of [0, 1]) {
       const tw = cyl(2.2, 2.6, 16, "damTower", "#cfc6b4", 12); tw.position.set(s * (9 + k * 12), DAM_H + 4, 20 + k * 5); G.add(tw);
       const cap = cyl(2.9, 2.9, 1.2, "damLip", "#a89f8b", 12); cap.position.set(s * (9 + k * 12), DAM_H + 12.6, 20 + k * 5); G.add(cap);
     }
   }
+  const lake = new THREE.Mesh(scaleUV(new THREE.BoxGeometry(62, 0.2, 110), 4, 4), lam("damLake", () => ({ map: riverTex(), color: "#bcd2ea" }))); lake.position.set(0, DAM_H - 4, 68); G.add(lake);
+  const river = new THREE.Mesh(scaleUV(new THREE.BoxGeometry(16, 0.12, 170), 1, 8), lam("damRiver", () => ({ map: riverTex() }))); river.position.set(0, 0.09, -100); G.add(river);
   const house = box(34, 7, 7, "damHouse", "#e4dbc8"); house.position.set(0, 3.5, -6.5); G.add(house);
   const roof = box(35, 0.8, 8, "damLip", "#a89f8b"); roof.position.set(0, 7.4, -6.5); G.add(roof);
   for (let k = -5; k <= 5; k++) { if (Math.abs(k) < 2) continue; const w = box(1.4, 3.2, 0.2, "damWindow", "#3a4660"); w.position.set(k * 2.9, 3.6, -10.05); G.add(w); }
@@ -81,16 +102,25 @@ export const toastTex = () => ctex("toastCard", 256, 256, (g) => {
   g.fillStyle = "#e9b56a"; g.beginPath(); g.roundRect(50, 62, 156, 150, 22); g.fill();
 });
 
-/** a 1940s refrigerator, 1.7 m tall, door toward -z */
+/** a 1930s refrigerator, 1.75 m tall, door toward -z: enamel cabinet on legs, a door with a raised panel, chrome
+ *  latch handle and hinges, a maker's badge, and the round cooling unit on top */
 export const fridge = () => {
-  const G = new THREE.Group();
-  const body = box(0.8, 1.55, 0.7, "fridgeWhite", "#f1efe6"); body.position.y = 0.9;
-  const top = cyl(0.4, 0.4, 0.7, "fridgeWhite", "#f1efe6", 20); top.rotation.x = Math.PI / 2; top.scale.set(1, 1, 0.35); top.position.y = 1.66;
-  const seam = box(0.82, 0.02, 0.02, "fridgeSeam", "#8c8a84"); seam.position.set(0, 1.25, -0.36);
-  const handle = box(0.05, 0.34, 0.05, "fridgeHandle", "#8c8a84"); handle.position.set(-0.3, 0.95, -0.39);
-  const badge = box(0.16, 0.05, 0.02, "fridgeBadge", RED); badge.position.set(0, 1.45, -0.36);
-  for (const sx of [-1, 1]) for (const sz of [-1, 1]) { const ft = box(0.07, 0.13, 0.07, "fridgeHandle", "#8c8a84"); ft.position.set(sx * 0.33, 0.065, sz * 0.28); G.add(ft); }
-  G.add(body, top, seam, handle, badge);
+  const G = new THREE.Group(), W = "#f4f1e6", CH = "#9aa0aa";
+  const body = box(0.84, 1.3, 0.66, "fridgeWhite", W); body.position.y = 0.95;
+  const plinth = box(0.88, 0.08, 0.7, "fridgeTrim", "#d9d4c4"); plinth.position.y = 0.28;
+  const crown = box(0.9, 0.07, 0.72, "fridgeTrim", "#d9d4c4"); crown.position.y = 1.63;
+  const door = box(0.74, 1.16, 0.05, "fridgeDoor", "#fbf9f0"); door.position.set(0, 0.95, -0.35);
+  const panel = box(0.56, 0.9, 0.03, "fridgeWhite", W); panel.position.set(0, 0.95, -0.385);
+  const handle = box(0.05, 0.26, 0.06, "fridgeChrome", CH); handle.position.set(-0.29, 1.0, -0.4);
+  const latch = box(0.12, 0.05, 0.05, "fridgeChrome", CH); latch.position.set(-0.33, 1.0, -0.39);
+  const badge = box(0.2, 0.06, 0.02, "fridgeBadge", RED); badge.position.set(0, 1.42, -0.405);
+  for (const y of [0.55, 1.35]) { const h = box(0.05, 0.12, 0.05, "fridgeChrome", CH); h.position.set(0.39, y, -0.37); G.add(h); }
+  // the cooling unit on top: a drum of fins with a cap
+  const unit = cyl(0.27, 0.27, 0.3, "fridgeUnit", "#e6e2d4", 22); unit.position.y = 1.82;
+  for (let k = 0; k < 4; k++) { const fin = cyl(0.29, 0.29, 0.025, "fridgeTrim", "#c9c4b4", 22); fin.position.y = 1.71 + k * 0.07; G.add(fin); }
+  const cap = cyl(0.2, 0.25, 0.06, "fridgeTrim", "#d9d4c4", 22); cap.position.y = 2.0;
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) { const ft = box(0.06, 0.26, 0.06, "fridgeTrim", "#d9d4c4"); ft.position.set(sx * 0.36, 0.13, sz * 0.27); ft.rotation.z = -sx * 0.08; G.add(ft); }
+  G.add(body, plinth, crown, door, panel, handle, latch, badge, unit, cap);
   return shadowAll(G);
 };
 
