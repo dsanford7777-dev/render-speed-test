@@ -13,16 +13,16 @@ export const DITCH = { x0: -10.3, x1: 10.3, z0: -17.3, z1: -0.7, d: 1.1 };
 export const STAKE = { x0: -11.3, x1: 11.3, z0: -18.3, z1: 0.3, gap: 1.9 };
 export const PATH_W = 1.3;
 /** where the log cannon ends up, and which way it points (at the door) */
-export const GUNF: V3 = [-3.2, 0, 6.0];
-export const GUN_YAW = -0.283;
+export const GUNF: V3 = [-5.5, 0, 5.6];
+export const GUN_YAW = -0.479;
 /** the pine that gets cut down, and where the log is worked on */
 export const TREE: V3 = [17, 0, 4];
 export const BENCH: V3 = [12.6, 0, 10];
 /** the British general's camp table, far from the fort */
 export const CAMP: V3 = [-24, 0, 27];
-/** Washington's 80 men: two blocks of 5 x 8 either side of the path */
+/** Washington's 80 men: two blocks of 4 x 10 either side of the path */
 export const TROOP = 80;
-export const troopAt = (i: number): V3 => { const side = i % 2 ? 1 : -1, k = Math.floor(i / 2), col = k % 5, row = Math.floor(k / 5); return [side * (4.6 + col * 1.5), 0, 9 + row * 1.7]; };
+export const troopAt = (i: number): V3 => { const side = i % 2 ? 1 : -1, k = Math.floor(i / 2), col = k % 4, row = Math.floor(k / 4); return [side * (3.6 + col * 1.2), 0, 9 + row * 1.5]; };
 /** the men who walk out: two abreast down the path */
 export const COLN = 104, COL_GAP = 1.3;
 export const colAt = (i: number, adv: number): V3 => [i % 2 ? 0.55 : -0.55, 0, BARN.z1 - 0.9 + adv - Math.floor(i / 2) * COL_GAP];

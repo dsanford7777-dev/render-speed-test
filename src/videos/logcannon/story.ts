@@ -94,8 +94,8 @@ export const gp = (g: Gun, lx: number, ly: number, lz: number): V3 => { const c 
 
 /** the finished gun where it ends up, aimed at the door */
 const GF: Gun = { p: GUNF, yaw: GUN_YAW, black: 1, wheels: true };
-const washAtGun = (expr: Expr, look = 0): Person3 => P("wash", gp(GF, 0.62, 0, 1.2), expr, look, { hw: [gp(GF, 0.12, 1.15, 0.85)] });
-const rugAtGun = (expr: Expr): Person3 => P("rug", gp(GF, 1.6, 0, 0.9), expr, -1, { headTilt: -0.06 });
+const washAtGun = (expr: Expr, look = 0): Person3 => P("wash", gp(GF, -0.62, 0, 1.2), expr, look, { hw: [gp(GF, -0.12, 1.15, 0.85)] });
+const rugAtGun = (expr: Expr): Person3 => P("rug", gp(GF, -1.5, 0, 1.9), expr, 1, { headTilt: 0.06 });
 const WP: V3 = [1.7, 0, 6.6], WP2: V3 = [13.4, 0, 7.2];
 /** the men inside the barn */
 const INSIDE: [string, number, number, Expr, number][] = [
@@ -105,18 +105,18 @@ const INSIDE: [string, number, number, Expr, number][] = [
 ];
 /** after the surrender: the door stands open and the men are lined up down the path */
 const AFTER = { door: 1, col: { adv: 40, march: false }, fell: 1 };
-const HOOK_C = gp(GF, 0, 0.5, -0.2);
-const hookCam = (a: number, r: number, h: number, roll: number): Cam => full(orb(HOOK_C, a, r, h, { fov: 46, roll }));
+const HOOK_C = gp(GF, 0, 0.15, -0.2);
+const hookCam = (a: number, r: number, h: number, roll: number): Cam => full(orb(HOOK_C, a, r, h, { fov: 52, roll }));
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // hook: the black muzzle and the man with his hand on it; the camera swings round behind the log to face the fort
   hook: (s, f) => { const u = smooth((f - s.a) / (s.b - s.a));
     return { light: "day", dof: 2, gun: GF, ...AFTER, focus: gp(GF, 0, 0.9, 0),
-      cam: hookCam(32 + 128 * u, 3.9 + 0.8 * u, 0.75 + 0.75 * u, 0.06 - 0.1 * u),
+      cam: hookCam(28 + 122 * u, 3.6, 1.0 + 0.6 * u, 0.06 - 0.1 * u),
       people: [washAtGun("grin"), rugAtGun("pained")], subjects: [["the log cannon", gp(GF, 0, 0.92, -0.6), 0.5]] }; },
   // the fort from the air: barn, ditch and the ring of stakes, Washington's men drawn up outside
   aerial: (s, f) => ({ light: "day", dof: 0, gun: null,
-    cam: orbit(s, f, S(0, 1.5, -8), [212, 172], [34, 25], [15, 8], 44, [0.05, -0.03]),
+    cam: orbit(s, f, S(0, 0, -7), [212, 172], [36, 28], [30, 22], 56, [0.05, -0.03]),
     people: [P("wash", WP, "stern", 0, { extra: true })] }),
   // inside: the loyalists packed in the dark
   inside: (s, f) => ({ light: "barn", dof: 2, gun: null, focus: S(0, 1.4, -8.6),
@@ -125,10 +125,10 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // low under the wall, looking up at it over the stakes
   fortress: (s, f) => ({ light: "day", dof: 0, gun: null,
     cam: move({ pos: S(9.4, 0.5, 4.4), look: S(1.5, 2.3, -6), fov: 52, roll: 0.07 }, { pos: S(8.2, 1.0, 3.4), look: S(0.8, 2.9, -7), fov: 48, roll: 0.02 }, f, s.a, s.b, smooth, 0) }),
-  walls: (s, f) => ({ light: "day", dof: 3, gun: null, focus: S(-1, 1.7, -5),
-    cam: move({ pos: S(-4.6, 1.4, -3.2), look: S(-2.2, 1.7, -5), fov: 48, roll: -0.06 }, { pos: S(-1.4, 1.9, -3.3), look: S(1.4, 2.0, -5), fov: 48, roll: 0.02 }, f, s.a, s.b, smooth, 0) }),
+  walls: (s, f) => ({ light: "day", dof: 3, gun: null, focus: S(-4, 1.7, -5),
+    cam: move({ pos: S(-8.0, 1.0, -3.1), look: S(-3, 1.7, -5.1), fov: 48, roll: -0.06 }, { pos: S(-7.2, 1.7, -3.4), look: S(-1, 2.0, -5.1), fov: 48, roll: 0.02 }, f, s.a, s.b, smooth, 0) }),
   ditch: (s, f) => ({ light: "day", dof: 1, gun: null,
-    cam: move({ pos: S(-9.4, 1.0, -1.6), look: S(3, -1.3, -1.6), fov: 56, roll: 0.06 }, { pos: S(-7.6, 0.2, -1.6), look: S(6, -0.9, -1.6), fov: 56, roll: -0.03 }, f, s.a, s.b, smooth, 0) }),
+    cam: move({ pos: S(-10.6, 2.7, 1.8), look: S(-4, -0.9, -1.7), fov: 52, roll: 0.06 }, { pos: S(-7.5, 2.1, 1.3), look: S(-1, -0.9, -1.8), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0) }),
   stakes: (s, f) => ({ light: "day", dof: 3, gun: null, focus: S(4.9, 0.9, 1.2),
     cam: snap(S(4.3, 0.8, 3.3), S(4.9, 0.85, 0.7), f, s.a, { fov: 46, roll: -0.07 }, 1.9, 6) }),
   // Washington, the fort behind him
@@ -137,7 +137,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     people: [P("wash", WP, "stern", 0)] }),
   // his eighty men: the camera climbs off him to take in both blocks
   eighty: (s, f) => ({ light: "day", dof: 0, gun: null,
-    cam: move({ pos: S(0.6, 1.7, 3.4), look: S(1.2, 1.3, 9), fov: 50, roll: -0.05 }, { pos: S(-0.4, 8.6, 0.6), look: S(0, 0.4, 14), fov: 50, roll: 0.02 }, f, s.a, s.b, smooth, 0),
+    cam: move({ pos: S(1.3, 1.6, 2.8), look: S(1.6, 1.2, 7), fov: 50, roll: -0.05 }, { pos: S(0, 13, -6.5), look: S(0, 0, 14), fov: 60, roll: 0.02 }, f, s.a, s.b, smooth, 0),
     people: [P("wash", WP, "stern", 0)] }),
   nocannon: (s, f) => ({ light: "day", dof: 4, gun: null, closeup: true, focus: S(WP[0], 1.6, WP[2]),
     cam: snap(S(2.5, 1.55, 9.2), S(1.72, 1.56, 6.6), f, s.a, { fov: 32, roll: -0.05 }, 1.5),
@@ -145,30 +145,30 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // a soldier and his musket in front of walls that don't care
   musket: (s, f) => { const tt = t(f - s.a);
     return { light: "day", dof: 2, gun: null, focus: S(-1.8, 1.4, 4.6),
-      cam: move({ pos: S(-0.7, 1.0, 7.6), look: S(-1.7, 1.2, 4.6), fov: 44, roll: 0.06 }, { pos: S(-0.9, 0.75, 7.3), look: S(-1.3, 2.1, 0), fov: 46, roll: -0.02 }, f, s.a + 8, s.b, smooth, 0),
+      cam: move({ pos: S(-0.9, 1.0, 7.7), look: S(-1.7, 1.2, 4.6), fov: 44, roll: 0.06 }, { pos: S(-1.5, 0.7, 7.7), look: S(-1.65, 1.9, 2.0), fov: 46, roll: -0.02 }, f, s.a + 8, s.b, smooth, 0),
       people: [P("b1", S(-1.8, 0, 4.6), tt > 0.9 ? "pained" : "stern", 0, { headTilt: tt > 0.9 ? 0.08 : 0 })] }; },
   // "that one": he points, the camera whips up the pine
   point: (s, f) => { const pan = W(5, "pine") - 5;
     return { light: "day", dof: 1, gun: null, focus: S(WP2[0], 1.5, WP2[2]),
-      cam: move({ pos: S(12.3, 1.25, 10.9), look: S(13.9, 1.5, 7.0), fov: 44, roll: -0.05 }, { pos: S(11.9, 1.0, 12.2), look: S(16.0, 5.6, 4.6), fov: 54, roll: 0.05 }, f, pan, pan + 12, expo, 0.0006),
+      cam: move({ pos: S(12.3, 1.25, 10.9), look: S(13.9, 1.5, 7.0), fov: 44, roll: -0.05 }, { pos: S(11.4, 1.2, 13.4), look: S(15.6, 3.9, 5.0), fov: 56, roll: 0.05 }, f, pan, pan + 12, expo, 0.0006),
       people: [P("wash", WP2, f < pan ? "stern" : "grin", 1, { hold: { r: [0.52, 1.45] } })],
       subjects: [["the pine", S(TREE[0], 4, TREE[2]), 1.5]] }; },
   // the axe goes in; the pine goes over, away from the axe
   chop: (s, f) => { const tt = t(f - s.a), per = 0.42, cyc = (tt / per) % 1, n = Math.floor(tt / per), fall = s.b - 16;
     const k = f >= fall ? 1 : cyc < 0.42 ? 1 - smooth(cyc / 0.42) : cyc < 0.56 ? 0 : cyc < 0.7 ? Math.pow((cyc - 0.56) / 0.14, 2) : 1, hit = f < fall + 3 && cyc >= 0.7 && cyc < 0.9;
-    const at: V3 = S(TREE[0] - 0.24, 0.72, TREE[2] + 0.06), fk = f < fall ? 0 : Math.pow((f - fall) / 26, 2);
-    let c = move({ pos: S(14.4, 1.3, 8.8), look: S(16.6, 1.3, 4.1), fov: 44, roll: 0.06 }, { pos: S(15.0, 0.9, 8.4), look: S(18.2, 3.2, 4.1), fov: 52, roll: -0.04 }, f, fall - 2, s.b, smooth, 0);
+    const at: V3 = S(TREE[0] - 0.26, 0.72, TREE[2] + 0.05), fk = f < fall ? 0 : Math.pow((f - fall) / 26, 2);
+    let c = move({ pos: S(15.2, 1.1, 9.2), look: S(16.5, 0.45, 4.1), fov: 44, roll: 0.06 }, { pos: S(14.2, 1.3, 12.6), look: S(19.5, 3.0, 4.1), fov: 54, roll: -0.04 }, f, fall - 6, s.b - 4, smooth, 0);
     for (let q = 0; q <= n; q++) c = kick(c, f, s.a + Math.round((q + 0.7) * per * FPS), 0.8);
     return { light: "day", dof: 1, gun: null, fell: fk, cam: c, focus: S(TREE[0], 1.2, TREE[2]),
-      people: [P("ax", S(TREE[0] - 0.95, 0, TREE[2] + 0.3), "stern", 1, { tool: { kind: "axe", at, k } })],
+      people: [P("ax", S(TREE[0] - 1.15, 0, TREE[2] + 0.3), "stern", 1, { tool: { kind: "axe", at, k } })],
       cards: cyc >= 0.7 && f < fall + 8 ? Array.from({ length: 6 }, (_, q) => { const u = (cyc - 0.7) / 0.3, a = q * 1.05 + n; return { kind: "chip" as const, p: S(at[0] - 0.1 - Math.abs(Math.cos(a)) * 0.7 * u, at[1] + 0.9 * u - 1.6 * u * u, at[2] + 0.3 + Math.sin(a) * 0.3 * u), spin: tt * 9 + q, s: 0.13 }; }) : [],
       puffs: hit ? [] : [] }; },
   // the log on blocks: one end goes black under the brush
   blacken: (s, f) => { const g: Gun = { p: S(BENCH[0], -0.38, BENCH[2]), yaw: Math.PI / 2, black: smooth((f - s.a - 3) / Math.max(1, s.b - s.a - 8)), wheels: false };
     const dab = 0.05 * Math.sin(t(f - s.a) * 14);
     return { light: "day", dof: 3, gun: g, fell: 1, focus: gp(g, 0, 0.92, -1.6),
-      cam: orbit(s, f, gp(g, 0, 0.85, -1.2), [212, 232], [3.3, 2.9], [0.45, 0.6], 44, [0.05, -0.03]),
-      people: [P("br", S(BENCH[0] - 1.85, 0, BENCH[2] - 0.62), "stern", 1, { tool: { kind: "brush", at: gp(g, dab, 1.15, -1.55) } })],
+      cam: orbit(s, f, gp(g, 0, 0.75, -1.3), [205, 225], [4.5, 4.0], [0.7, 0.9], 44, [0.05, -0.03]),
+      people: [P("br", S(BENCH[0] - 1.75, 0, BENCH[2] - 0.75), "stern", 1, { tool: { kind: "brush", at: gp(g, dab, 1.15, -1.55) } })],
       subjects: [["the black end", gp(g, 0, 0.92, -1.7), 0.3]] }; },
   // set down on its wheels
   wheels: (s, f) => { const u = (f - s.a) / 13, lift = 0.5 * (1 - bounce(u)), g: Gun = { p: S(BENCH[0], lift, BENCH[2]), yaw: Math.PI / 2, black: 1, wheels: true }, land = t(f - s.a - 5);
@@ -179,25 +179,25 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // rolled out like the real thing: the camera backs away in front of the muzzle
   roll: (s, f) => { const tt = t(f - s.a), d = 1.7 * tt, g = rollGun(d);
     return { light: "day", dof: 1, gun: g, fell: 1, focus: gp(g, 0, 0.92, -1.7),
-      cam: move({ pos: S(g.p[0] + 1.0, 0.5, g.p[2] - 4.7), look: gp(g, 0, 0.9, -1.0), fov: 50, roll: 0.07 }, { pos: S(g.p[0] + 0.5, 0.8, g.p[2] - 4.3), look: gp(g, 0, 1.0, -1.0), fov: 46, roll: -0.02 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: S(g.p[0] + 0.7, 0.5, g.p[2] - 3.9), look: gp(g, 0, 0.9, -1.0), fov: 50, roll: 0.07 }, { pos: S(g.p[0] + 0.4, 0.75, g.p[2] - 3.5), look: gp(g, 0, 1.0, -1.0), fov: 48, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       people: pushers(g, tt), subjects: [["the muzzle", gp(g, 0, 0.92, -1.7), 0.3]] }; },
   // and aimed: it swings onto the door
-  aim: (s, f) => { const k = smooth((f - s.a) / 20), g0 = rollGun(1.7 * t(SHOTS.find((x) => x.g === "aim")!.a - SHOTS.find((x) => x.g === "roll")!.a));
-    const g: Gun = { p: L3(g0.p, GUNF, k), yaw: GUN_YAW * k, spin: (g0.spin ?? 0) + 2.2 * k, black: 1, wheels: true };
+  aim: (s, f) => { const k = smooth((f - s.a) / Math.max(20, s.b - s.a - 12)), g0 = rollGun(1.7 * t(SHOTS.find((x) => x.g === "aim")!.a - SHOTS.find((x) => x.g === "roll")!.a));
+    const g: Gun = { p: L3(g0.p, GUNF, k), yaw: GUN_YAW * k, spin: (g0.spin ?? 0) + 9 * k, black: 1, wheels: true };
     return { light: "day", dof: 1, gun: g, fell: 1, focus: gp(g, 0, 0.9, 0),
-      cam: move({ pos: S(-8.4, 1.5, 8.3), look: S(-2.4, 0.9, 4.5), fov: 46, roll: -0.06 }, { pos: S(-7.2, 1.2, 8.1), look: S(-0.9, 1.3, -1.5), fov: 46, roll: 0.03 }, f, s.a, s.b, smooth, 0),
-      people: pushers(g, k < 1 ? t(f - s.a) : -1) }; },
+      cam: move({ pos: S(-5.6, 2.6, 8.7), look: S(0.2, 0.6, 5.0), fov: 54, roll: -0.06 }, { pos: S(-6.6, 2.4, 8.6), look: S(-0.8, 0.5, -4), fov: 50, roll: 0.03 }, f, s.a, s.b, smooth, 0),
+      people: [P("b2", gp(g, -0.9, 0, -0.95), "stern", 0, { hw: [gp(g, -0.2, 0.98, -0.95)] }), P("b3", gp(g, 0.9, 0, -0.95), "grin", 0, { hw: [gp(g, 0.2, 0.98, -0.95)] })] }; },
   // "surrender": low in front of the muzzle, the man beside it
   surrender: (s, f) => { const b = W(8, "blown") - 3;
-    return { light: "day", dof: 3, gun: GF, fell: 1, focus: gp(GF, 0.3, 1.3, 0.4),
-      cam: f < b ? snap(gp(GF, -1.1, 0.6, -3.4), gp(GF, 0.3, 1.2, 0.5), f, s.a, { fov: 46, roll: 0.07 }, 1.3)
-        : kick(snap(gp(GF, -0.7, 0.75, -2.9), gp(GF, 0.25, 1.15, 0.2), f, b, { fov: 38, roll: -0.05 }, 1.25), f, b, 1.4),
-      people: [washAtGun("stern")] }; },
+    return { light: "day", dof: 3, gun: GF, fell: 1, focus: gp(GF, -0.5, 1.3, -1.1),
+      cam: f < b ? snap(gp(GF, 0.9, 0.6, -3.3), gp(GF, -0.35, 1.15, -1.0), f, s.a, { fov: 46, roll: 0.07 }, 1.3)
+        : kick(snap(gp(GF, 0.5, 0.8, -3.1), gp(GF, -0.45, 1.3, -1.0), f, b, { fov: 36, roll: -0.05 }, 1.25), f, b, 1.4),
+      people: [P("wash", gp(GF, -0.78, 0, -1.1), "stern", 0, { hw: [gp(GF, -0.16, 1.1, -1.05)] })] }; },
   // from inside, through a gap in the logs: a black circle on wheels
   slit: (s, f) => { const u = smooth((f - s.a) / (s.b - s.a));
     return { light: "day", dof: 0, gun: GF, fell: 1,
       cam: full({ pos: S(0.5 - 0.25 * u, 1.5, -4.35), look: gp(GF, 0, -0.4 + 0.75 * u, -0.9), fov: 44 - 18 * u, roll: 0 }),
-      people: [P("wash", gp(GF, 0.75, 0, 1.3), "stern", 0, { extra: true })] }; },
+      people: [P("wash", gp(GF, -0.75, 0, 1.3), "stern", 0, { extra: true })] }; },
   // nobody wants to be the one who checks
   checks: (s, f) => { const c = W(10, "checks") - 3, tt = t(f - s.a), sw = Math.sin(tt * 5) > 0 ? 1 : -1;
     return { light: "barn", dof: 3, gun: GF, fell: 1, closeup: f >= c, focus: S(0, 1.5, -8.5),
@@ -206,8 +206,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: INSIDE.map(([n, x, z, e, l], i) => n === "rug" ? P(n, S(x, 0, z), f < c ? "nervous" : "shock", f < c ? sw : 0)
         : P(n, S(x, 0, z), i < 5 && f >= c ? "grin" : e, i < 5 ? (x < 0 ? 1 : -1) : l, { extra: i !== 1 && i !== 3 })) }; },
   // the door opens
-  door: (s, f) => { const tt = t(f - s.a), adv = 1.5 * Math.max(0, tt - 0.45);
-    return { light: "day", dof: 1, gun: GF, fell: 1, door: smooth((f - s.a - 3) / 16), col: { adv, march: true }, focus: S(0, 1.4, BARN.z1),
+  door: (s, f) => { const tt = t(f - s.a), adv = 1.3 + 1.5 * tt;
+    return { light: "day", dof: 1, gun: GF, fell: 1, door: smooth((f - s.a - 1) / 12), col: { adv, march: true }, focus: S(0, 1.4, BARN.z1),
       cam: move({ pos: S(0.95, 0.7, 4.2), look: S(0, 1.5, -5), fov: 38, roll: -0.05 }, { pos: S(1.2, 0.95, 5.0), look: S(0, 1.25, -4.5), fov: 38, roll: 0.02 }, f, s.a, s.b, smooth, 0) }; },
   // more than a hundred men walk out, down the path between Washington's lines
   column: (s, f) => { const tt = t(f - s.a);
@@ -216,7 +216,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: [washAtGun("grin")] }; },
   // not one shot fired: round to the back of the "cannon", where it is plainly a tree
   noshot: (s, f) => ({ light: "day", dof: 2, gun: GF, ...AFTER, focus: gp(GF, 0, 0.9, 0.4),
-    cam: orbit(s, f, gp(GF, 0, 0.8, 0.1), [-38, -128], [3.7, 3.1], [0.35, 0.75], 46, [-0.05, 0.04]),
+    cam: orbit(s, f, gp(GF, 0, 0.6, 0.1), [45, 185], [4.2, 3.0], [0.6, 0.9], 50, [-0.05, 0.04]),
     people: [washAtGun("grin")], subjects: [["the log", gp(GF, 0, 0.92, 0.6), 0.4]] }),
   // the British general hears, and writes one line
   general: (s, f) => { const u = (f - s.a) / (s.b - s.a);
@@ -224,12 +224,12 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: move({ pos: S(CAMP[0] - 2.2, 1.6, CAMP[2] - 3.9), look: S(CAMP[0], 1.1, CAMP[2] + 0.6), fov: 44, roll: 0.05 }, { pos: S(CAMP[0] - 0.9, 1.45, CAMP[2] - 2.9), look: S(CAMP[0], 1.15, CAMP[2] + 0.6), fov: 42, roll: -0.03 }, f, s.a, s.b, smooth, 0),
       people: [P("corn", S(CAMP[0], 0, CAMP[2] + 0.75), u > 0.55 ? "grin" : "stern", 0, { headTilt: 0.05, tool: { kind: "quill", at: S(CAMP[0] - 0.12 + 0.3 * ((u * 3) % 1), 0.83, CAMP[2] + 0.12) } })] }; },
   // Rugeley, glum, beside the log that beat him; the camera comes back round to where the film began
-  end: (s, f) => { const u = smooth((f - s.a) / (s.b - s.a - 4));
-    return { light: "day", dof: 2, gun: GF, ...AFTER, focus: gp(GF, 0.8, 1.3, 0.9),
-      cam: hookCam(118 - 86 * u, 4.4 - 0.5 * u, 1.2 - 0.45 * u, -0.03 + 0.09 * u),
+  end: (s, f) => { const mid = W(14, "made") - 2, u = smooth((f - mid) / (s.b - mid - 4)), rp = gp(GF, -1.5, 1.45, 1.9);
+    return { light: "day", dof: 2, gun: GF, ...AFTER, focus: f < mid ? rp : gp(GF, -0.8, 1.3, 0.9), closeup: f < mid,
+      cam: f < mid ? snap(gp(GF, -0.4, 1.5, -1.6), rp, f, s.a, { fov: 40, roll: -0.05 }, 1.3) : hookCam(84 - 56 * u, 3.9 - 0.3 * u, 1.4 - 0.4 * u, -0.03 + 0.09 * u),
       people: [washAtGun("grin", 1), rugAtGun("pained")] }; },
 };
-function rollGun(d: number): Gun { return { p: [-3.0, 0, 11.4 - d], yaw: 0, spin: d / 0.62, black: 1, wheels: true }; }
+function rollGun(d: number): Gun { return { p: [0, 0, 12.4 - d], yaw: 0, spin: d / 0.62, black: 1, wheels: true }; }
 function pushers(g: Gun, tt: number): Person3[] {
   const m = tt < 0 ? undefined : (tt * 1.9) % 1;
   return [P("b2", gp(g, -0.5, 0, 2.2), "stern", 0, { march: m, hw: [gp(g, -0.16, 1.05, 1.0)] }), P("b3", gp(g, 0.5, 0, 2.2), "grin", 0, { march: m === undefined ? undefined : (m + 0.5) % 1, hw: [gp(g, 0.16, 1.05, 1.0)] })];
@@ -245,7 +245,7 @@ export const specAt = (s: ShotDef, f: number): St3 => {
 const WHIP = new Set(["fortress", "eighty", "roll", "column", "end"]);
 export const whipAt = (s: ShotDef, f: number) => (WHIP.has(s.g) ? Math.max(0, 1 - Math.abs(f - (s.a + 2)) / 4) : 0);
 /** the view through the gap in the logs (fractions of the frame height) */
-export const slitAt = (f: number): { y: number; h: number } | null => { const s = shotAt(f); return s.g === "slit" ? { y: 0.36 + 0.004 * Math.sin(f * 0.19), h: 0.17 } : null; };
+export const slitAt = (f: number): { y: number; h: number } | null => { const s = shotAt(f); return s.g === "slit" ? { y: 0.36 + 0.004 * Math.sin(f * 0.19), h: 0.2 } : null; };
 
 // ---------------- name tags and stamps ----------------
 export type Item = { key: string; kind: "stamp" | "pill" | "call"; text: string; sub?: string; f0: number; f1: number; y: number; rot?: number; bg?: string; fg?: string; size?: number };

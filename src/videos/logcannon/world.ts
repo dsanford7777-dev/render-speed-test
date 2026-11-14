@@ -3,7 +3,7 @@
 // instanced), a stand of pines (one of which can be felled), the log on its carriage, the men who walk out (instanced),
 // and a British camp table far off. Grass in blades everywhere the ground is open.
 import * as THREE from "three";
-import { Batch, boxGeo, V, lam, Kit, tri, kitClone } from "../bridge/build";
+import { Batch, boxGeo, V, lam, Kit, tri } from "../bridge/build";
 import { ctex, cloudHD } from "../bridge/paint";
 import { Pen, bodyFront, fxContact, Outfit, Expr, SKIN } from "../bridge/toon";
 import { LIGHTS, LOOK, LightPreset, WorldLook } from "../bridge/lights";
@@ -19,7 +19,7 @@ type Light = "day" | "barn";
 
 const DAY_ST: LightPreset = { ...LIGHTS.day, fogNear: 60, fogFar: 520 };
 /** inside the barn: the same day, but under a roof */
-const BARN_ST: LightPreset = { ...DAY_ST, lit: [1.0, 0.9, 0.74], shade: [0.2, 0.19, 0.23], lift: [0.03, 0.03, 0.05], charTint: [0.74, 0.68, 0.62], sideTint: [0.7, 0.66, 0.66], hemiI: 0.4 };
+const BARN_ST: LightPreset = { ...DAY_ST, lit: [1.0, 0.9, 0.74], shade: [0.2, 0.19, 0.23], lift: [0.03, 0.03, 0.05], charTint: [0.86, 0.79, 0.71], sideTint: [0.7, 0.66, 0.66], hemiI: 0.4 };
 const LP: Record<Light, LightPreset> = { day: DAY_ST, barn: BARN_ST };
 const LK: Record<Light, WorldLook> = { day: LOOK.day, barn: LOOK.day };
 
@@ -69,6 +69,11 @@ const discTex = () => ctex("sunDisc", 128, 128, (g) => { const gr = g.createRadi
 
 // ---------------- geometry helpers ----------------
 const UP = new THREE.Vector3(0, 1, 0), FZ = new THREE.Vector3(0, 0, 1);
+/** a pine: bare trunk, then tiers of needles */
+const pine = (b: Batch, trunk: THREE.Material, needle: THREE.Material[], x: number, y: number, z: number, h: number, yaw: number) => {
+  const r = 0.019 * h, tg = new THREE.CylinderGeometry(r * 0.45, r, h * 0.8, 10, 1, true); tg.translate(x, y + h * 0.4, z); b.add(tg, trunk);
+  for (let k = 0; k < 5; k++) { const u = k / 5, y0 = h * (0.34 + 0.6 * u * (1 - 0.18 * u)), hh = h * 0.27 * (1 - 0.45 * u), rr = h * 0.2 * (1 - 0.68 * u); const g = new THREE.ConeGeometry(rr, hh, 9, 1); g.rotateY(yaw + k); g.translate(x, y + y0 + hh / 2, z); b.add(g, needle[k % 2]); }
+};
 /** a log from a to b: bark round it, growth rings on both ends */
 const logAt = (b: Batch, side: THREE.Material, end: THREE.Material, a: THREE.Vector3, c: THREE.Vector3, r: number, seg = 10) => {
   const d = c.clone().sub(a), len = d.length(); d.normalize();
@@ -117,7 +122,7 @@ export class KWorld {
   private ray = new THREE.Raycaster();
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private sph = new THREE.Sphere(); private v = new THREE.Vector3();
   constructor(kit: Kit) {
-    const R = this.root;
+    void kit; const R = this.root;
     this.skyMat = new THREE.ShaderMaterial({
       uniforms: { c0: { value: new THREE.Color() }, c1: { value: new THREE.Color() }, c2: { value: new THREE.Color() }, c3: { value: new THREE.Color() }, c4: { value: new THREE.Color() }, e: { value: new THREE.Vector4() } },
       vertexShader: "varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
@@ -214,14 +219,16 @@ export class KWorld {
 
     // ---------------- pines ----------------
     { let st = 23; const rt = () => (st = (st * 16807) % 2147483647) / 2147483647; const placed: [number, number][] = [[TREE[0], TREE[2]]];
+      const tb = new Batch(), needle = [M("lcNeedle", "#2f7a3a"), M("lcNeedle2", "#3b8c46")];
       const tryAdd = (x: number, z: number, h: number) => { if (placed.some(([a, b]) => Math.hypot(a - x, b - z) < 3.4)) return; placed.push([x, z]);
-        const o = kitClone(kit, "tree_cone", h); if (!o) return; o.position.set(x, groundH(x, z, false) * (Math.abs(x) < 36 && z > -24 && z < 36 ? 0 : 1), z); o.rotation.y = rt() * 6; o.traverse((m) => { m.castShadow = true; }); R.add(o); };
+        pine(tb, bark, needle, x, Math.abs(x) < 36 && z > -24 && z < 36 ? 0 : groundH(x, z, false), z, h, rt() * 6); };
       for (let i = 0; i < 90; i++) { const x = 15.5 + rt() * 30, z = -30 + rt() * 64; if ((z > 0.5 && z < 7.5) || (x < 19 && z > 6 && z < 15)) continue; tryAdd(x, z, 9 + rt() * 5); }
       for (let i = 0; i < 40; i++) tryAdd(-46 + rt() * 30, -34 + rt() * 40, 9 + rt() * 5);
+      tb.build(R);
       // the one that comes down: it hinges on its stump
-      const t0 = kitClone(kit, "tree_cone", 11); if (t0) { t0.position.y = -0.45; t0.traverse((m) => { m.castShadow = true; }); this.fellG.add(t0); }
+      const fb = new Batch(); pine(fb, bark, needle, 0, -0.45, 0, 11, 1); fb.build(this.fellG); shadowAll(this.fellG);
       this.fellG.position.set(TREE[0], 0.45, TREE[2]); R.add(this.fellG);
-      const stump = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.2, 0.5, 10), bark); stump.position.set(TREE[0], 0.25, TREE[2]); stump.castShadow = true; R.add(stump); }
+      const stump = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.24, 0.46, 12), bark); stump.position.set(TREE[0], 0.25, TREE[2]); stump.castShadow = true; R.add(stump); }
 
     // ---------------- the log on its carriage ----------------
     { const G = this.gunG, Y = 0.92, LR2 = 0.21;
@@ -251,7 +258,7 @@ export class KWorld {
       cb.add(boxGeo(V(cx - 0.8, 0.74, cz - 0.4), V(cx + 0.8, 0.8, cz + 0.4)), wood);
       for (const [x, z] of [[-0.72, -0.32], [0.72, -0.32], [-0.72, 0.32], [0.72, 0.32]]) cb.add(boxGeo(V(cx + x - 0.04, 0, cz + z - 0.04), V(cx + x + 0.04, 0.74, cz + z + 0.04)), wood2);
       const ink = new THREE.CylinderGeometry(0.035, 0.045, 0.07, 8); ink.translate(cx + 0.5, 0.835, cz + 0.2); cb.add(ink, dark);
-      const tent = new THREE.ConeGeometry(2.3, 3.2, 10); tent.translate(cx + 2.6, 1.6, cz + 5.2); cb.add(tent, canvas);
+      const tent = new THREE.ConeGeometry(2.3, 3.2, 10); tent.translate(cx + 3.6, 1.6, cz + 5.6); cb.add(tent, canvas);
       const tent2 = new THREE.ConeGeometry(2.0, 2.8, 10); tent2.translate(cx - 4.2, 1.4, cz + 7.5); cb.add(tent2, canvas);
       cb.build(R);
       const pp = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.36), lam("lcPaperM", () => ({ map: paperTex() }))); pp.rotation.x = -Math.PI / 2; pp.rotation.z = Math.PI; pp.position.set(cx + 0.02, 0.806, cz + 0.08); pp.receiveShadow = true; R.add(pp); }
