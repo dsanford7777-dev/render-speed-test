@@ -103,7 +103,10 @@ const cylAt = (b: Batch, mat: THREE.Material, r0: number, r1: number, h: number,
 const lifeboat = () => {
   const g = new THREE.Group(), b = new Batch();
   const white = M("ttBoat", "#f4f0e6", { side: THREE.DoubleSide }), rim = M("ttBoatRim", "#7a5236"), inside = M("ttBoatIn", "#c9a06a");
-  b.add(boxGeo(V(-3.4, 0, -1.25), V(3.4, 1.15, 1.25), 0, true), white);
+  // an open hull: two side walls and a solid bottom up to the floorboards (a closed box made the boat read as a
+  // lid people stood on top of)
+  b.add(boxGeo(V(-3.4, 0, -1.25), V(3.4, 1.15, -1.12)), white); b.add(boxGeo(V(-3.4, 0, 1.12), V(3.4, 1.15, 1.25)), white);
+  b.add(boxGeo(V(-3.4, 0, -1.12), V(3.4, 0.55, 1.12), 0, true), white);
   prow(b, 3.4, 4.6, 1.25, 0, 1.15, white, rim); prow(b, -3.4, -4.6, 1.25, 0, 1.15, white, rim);
   b.add(boxGeo(V(-3.4, 1.15, -1.32), V(3.4, 1.24, -1.12)), rim); b.add(boxGeo(V(-3.4, 1.15, 1.12), V(3.4, 1.24, 1.32)), rim);
   b.add(boxGeo(V(-3.4, 0.55, -1.12), V(3.4, 0.6, 1.12)), inside);
