@@ -154,7 +154,7 @@ export class KWorld {
     }
 
     // ---------------- the land ----------------
-    const wood = M("lcWood", "#8a5a3a"), wood2 = M("lcWood2", "#6b4a2f"), iron = M("lcIron", "#3a3a48"), black = M("lcBlack", "#1b161c"), dark = M("lcDark", "#15101a");
+    const wood = M("lcWood", "#8a5a3a"), wood2 = M("lcWood2", "#6b4a2f"), iron = M("lcIron", "#3a3a48"), black = M("lcBlack", "#0b090c"), dark = M("lcDark", "#15101a");
     const bark = lam("lcBarkM", () => ({ map: barkTex() })), rings = lam("lcRingsM", () => ({ map: ringTex() })), plank = lam("lcPlankM", () => ({ map: plankTex() }));
     const tg = new THREE.PlaneGeometry(900, 900, 180, 180); tg.rotateX(-Math.PI / 2);
     { const p = tg.attributes.position as THREE.BufferAttribute; for (let i = 0; i < p.count; i++) p.setY(i, groundH(p.getX(i), p.getZ(i), true)); tg.computeVertexNormals(); }
