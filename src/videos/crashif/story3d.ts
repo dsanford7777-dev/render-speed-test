@@ -190,7 +190,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     cam: orbit(s, f, Rm(0.5, 1.3, 1.3), [-30, 20], [6.6, 5.4], [0.9, 0.4], 44, [0.06, -0.05]),
     people: BEHIND(["banker2", "lamont", "banker3", "banker4"], "stern"), subjects: [["the room sign", Rm(0, 3.35, 3.4), 0.3]] }),
   "bankers-close": (s, f) => { const u = smooth(U(s, f)); return { light: "day", dof: 7, room: { sign: MORGAN, table: true },
-    cam: full({ pos: Rm(-2.3 + 3.6 * u, 1.55, -6), look: Rm(-1.3 + 2.9 * u, 1.45, 1.75), fov: 21, roll: 0.04 - 0.07 * u }),
+    cam: full({ pos: Rm(-0.6 + 2.2 * u, 1.55, -6), look: Rm(0.4 + 1.6 * u, 1.45, 1.75), fov: 28, roll: 0.04 - 0.07 * u }),
     people: BEHIND(["banker2", "lamont", "banker3", "banker4"], ["stern", "neutral", "stern", "smile_closed"]) }; },
   ticker: (s, f) => { const u = U(s, f); return { light: "day", dof: 4, room: { sign: OFFICE, ticker: 0.1 + 0.9 * u },
     cam: kick(snap(Rm(-1.9, 1.35, -1.9), Rm(-3.2, 0.95, 0.7), f, s.a, { fov: 42, roll: 0.08 }, 1.6, 6), f, s.a + 5, 0.7),
