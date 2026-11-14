@@ -1,0 +1,4 @@
+public/logcannon/voice-source.json: raw 56.000000s, pauses cut to 55.152449s, tempo 1.2256099777777778 -> 44.997279s
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+matched 144/153 script words (94%)
+segments: [[np.float64(1.94), np.float64(1.94)], [np.float64(1.94), np.float64(6.56)], [np.float64(7.18), np.float64(9.54)], [np.float64(10.46), np.float64(14.86)], [np.float64(15.32), np.float64(16.98)], [np.float64(17.56), np.float64(19.22)], [np.float64(19.62), np.float64(22.3)], [np.float64(22.86), np.float64(25.6)], [np.float64(26.16), np.float64(28.16)], [np.float64(28.16), np.float64(33.32)], [np.float64(33.78), np.float64(35.2)], [np.float64(35.8), np.float64(38.2)], [np.float64(38.52), np.float64(39.58)], [np.float64(39.96), np.float64(42.62)], [np.float64(43.1), np.float64(44.66)]]
