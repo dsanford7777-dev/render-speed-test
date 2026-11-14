@@ -33,7 +33,7 @@ jobs:
           print(f"force={'true' if c.get('force') else 'false'}")
           PY
       - name: Stop if this release was already uploaded to this channel
-        if: steps.cfg.outputs.force != 'true'
+        if: steps.cfg.outputs.force != 'true' && steps.cfg.outputs.release != 'test'
         run: |
           KEY="${{ steps.cfg.outputs.channel }} ${{ steps.cfg.outputs.release }}"
           if [ -f uploads.log ] && grep -q "^$KEY " uploads.log; then
@@ -44,6 +44,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          if [ "${{ steps.cfg.outputs.release }}" = "test" ]; then
+            # "release": "test" uploads a 5 s generated clip, to check a channel's token
+            ffmpeg -loglevel error -f lavfi -i testsrc2=size=1280x720:rate=30 -f lavfi -i sine=frequency=440 \
+              -t 5 -c:v libx264 -pix_fmt yuv420p -c:a aac video.mp4
+            ls -l video.mp4; exit 0
+          fi
           gh release download "${{ steps.cfg.outputs.release }}" --repo "${{ github.repository }}" \
             -p "${{ steps.cfg.outputs.asset }}" -O video.mp4
           ls -l video.mp4
@@ -67,7 +73,7 @@ jobs:
           fi
           python scripts/youtube_upload.py upload.json video.mp4 "$( [ -f thumb.jpg ] && echo thumb.jpg )"
       - name: Record the upload
-        if: success()
+        if: success() && steps.cfg.outputs.release != 'test'
         run: |
           VID=$(python3 -c "import json;print(json.load(open('upload-result.json'))['videoId'])")
           echo "${{ steps.cfg.outputs.channel }} ${{ steps.cfg.outputs.release }} https://youtu.be/$VID $(date -u +%Y-%m-%dT%H:%MZ)" >> uploads.log
