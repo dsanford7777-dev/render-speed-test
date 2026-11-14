@@ -349,7 +349,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     cam: move({ pos: S(6, 8, -10.5), look: S(22, 1.5, 5), fov: 48, roll: 0.07 }, { pos: S(22, 5, -9.5), look: S(40, 2.5, 9), fov: 46, roll: -0.04 }, f, s.a, s.b, smooth, 0),
     people: Array.from({ length: 26 }, (_, k) => ({ ...walker(`c${(k * 7 + 3) % 48}`, 2 + ((k * 1.9) % 30), k % 3 === 0 ? SW : 0, k % 3 === 0 ? 7.4 + (k % 2) * 1.2 : -3 + (k % 5) * 1.9, 3.2 + (k % 4) * 0.25, tt, "shock", k), extra: true })) }; },
 
-  thumb: () => ({ ...STREET_GREY, dof: 3,
+  thumb: () => ({ ...STREET_GREY, dof: 3, focus: S(1.5, 1.5, -5.2),
     cam: full({ pos: S(1.6, 1.5, -7.6), look: S(-0.6, 3.6, 4), fov: 46, roll: 0 }),
     people: [P("you", Rd(1.5, -5.2), "shock", 0), ...crowd(26, -12, 8, -1.5, 5, 23, pick(WORRY), 0, 4)] }),
 };
