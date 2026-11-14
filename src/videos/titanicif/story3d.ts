@@ -23,7 +23,7 @@ const Qy = (x: number, y: number, z: number): V3 => [x, QUAY + y, z];
 const Nt = at(NEST);
 
 export type Cam = { pos: V3; look: V3; fov: number; roll: number };
-export type Person3 = { who: string; p: V3; expr: Expr; look?: number; headTilt?: number; facing?: -1 | 0 | 1; wave?: number; low?: boolean; side?: { phase: number; mirror: boolean; stride?: number } };
+export type Person3 = { who: string; p: V3; expr: Expr; look?: number; headTilt?: number; facing?: -1 | 0 | 1; wave?: number; low?: boolean; /** world points the hands are on: the arms reach to them */ hands?: V3[]; side?: { phase: number; mirror: boolean; stride?: number } };
 type Num = { text: string; bg?: string; fg?: string; k?: number };
 type Card = { kind: "paper" | "ice" | "spark"; p: V3; spin: number; s: number };
 export type St3 = {
@@ -40,7 +40,7 @@ export type St3 = {
   boat?: { out: number; drop: number };
   seaBoats?: V3[];
   bell?: number;
-  room?: { sign: [string, string]; wheel?: number; radio?: boolean; papers?: number[]; num?: Num | null };
+  room?: { sign: [string, string]; /** night outside the wheelhouse windows */ night?: boolean; wheel?: number; radio?: boolean; papers?: number[]; num?: Num | null };
   cards?: Card[];
 };
 
@@ -97,6 +97,12 @@ const SEA = { light: "night" as const, flow: 9 };
 // rooms
 const BRIDGE: [string, string] = ["ttbridge", "BRIDGE · R.M.S. TITANIC"], MARCONI: [string, string] = ["ttmarconi", "MARCONI WIRELESS ROOM"];
 const TABLE: V3 = Rm(0.5, 1.2, 0.9);
+// the helmsman stands behind the wheel with both hands on its rim
+const HELM: V3 = Rm(WHEEL_X, 0.3, 1.35), RIM: V3[] = [Rm(WHEEL_X - 0.4, 1.33, 0.62), Rm(WHEEL_X + 0.4, 1.33, 0.62)];
+const helm = (expr: Expr, look = 0): Person3 => P("helm", HELM, expr, look, { hands: RIM });
+// the operator stands at the desk with his hand on the key
+const PHIL: V3 = Rm(0.5, 0, 1.45), KEY: V3 = Rm(0.75, 1.07, 0.6), SET: V3 = Rm(0.35, 1.22, 0.82);
+const phil = (expr: Expr, hands: V3[] = [KEY]): Person3 => P("phillips", PHIL, expr, 0, { hands });
 const BEHIND = (names: string[], expr: Expr | Expr[], x0 = -0.9, dx = 1.4): Person3[] =>
   names.map((n, k) => P(n, Rm(x0 + k * dx, 0, 1.75), Array.isArray(expr) ? expr[k] : expr, k === 0 ? 1 : k === names.length - 1 ? -1 : 0));
 const RED = "#c9373a", WHITE = "#ffffff";
@@ -203,8 +209,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
 
   // ---------------- chapter 2: the captain ----------------
   "smith-bridge": (s, f) => ({ light: "day", dof: 5, room: { sign: BRIDGE, wheel: 0.25 * Math.sin(t(f) * 0.9) },
-    cam: orbit(s, f, Rm(-0.6, 1.45, 1.4), [-30, 10], [6.6, 5.2], [0.8, 0.4], 48, [0.07, -0.03], expo),
-    people: [P("helm", Rm(WHEEL_X - 0.95, 0, 1.75), "neutral", 1), P("smith", Rm(0.4, 0, 1.75), "stern", 0)] }),
+    cam: orbit(s, f, Rm(-1.4, 1.5, 1.4), [-30, 10], [7.4, 6.0], [0.8, 0.4], 48, [0.07, -0.03], expo),
+    people: [helm("neutral", 1), P("smith", Rm(0.4, 0, 1.75), "stern", 0)] }),
   "days-near": (s, f) => {
     const tt = (f - s.a) / FPS, x = -10 + 1.2 * tt;
     return { light: "day", flow: 9, dof: 4,
@@ -220,10 +226,10 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   "smith-paper": (s, f) => {
     const k = pop(f, s.a + 2);
     return { light: "day", dof: 8, room: { sign: BRIDGE },
-      cam: move({ pos: Rm(-0.6, 2.4, -2.6), look: Rm(0.5, 1.1, 0.7), fov: 44, roll: -0.09 }, { pos: Rm(0.1, 1.7, -1.6), look: Rm(0.5, 1.15, 0.7), fov: 40, roll: 0.03 }, f, s.a, s.a + 20, expo, 0.001),
-      cards: [{ kind: "paper", p: Rm(0.1, 1.12, 0.55), spin: -0.12, s: 0.9 * k }, { kind: "paper", p: Rm(0.95, 1.1, 0.7), spin: 0.1, s: 0.9 * pop(f, s.a + 8) }],
-      people: [P("smith", Rm(0.4, 0, 1.75), "stern", 0)],
-      subjects: [["ice warning", Rm(0.1, 1.12, 0.55), 0.3]] };
+      cam: move({ pos: Rm(-0.6, 2.4, -2.6), look: Rm(0.4, 1.3, 1.5), fov: 44, roll: -0.09 }, { pos: Rm(0.1, 1.7, -1.6), look: Rm(0.4, 1.35, 1.5), fov: 40, roll: 0.03 }, f, s.a, s.a + 20, expo, 0.001),
+      cards: [{ kind: "paper", p: Rm(-0.08, 1.32, 1.5), spin: -0.1, s: 0.8 * k }, { kind: "paper", p: Rm(0.88, 1.32, 1.5), spin: 0.1, s: 0.8 * k }],
+      people: [P("smith", Rm(0.4, 0, 1.75), "stern", 0, { hands: [Rm(0.1, 1.2, 1.5), Rm(0.7, 1.2, 1.5)] })],
+      subjects: [["ice warning", Rm(-0.08, 1.32, 1.5), 0.3]] };
   },
   knots: (s, f) => ({ ...SEA, flow: 14, dof: 0,
     cam: move({ pos: S(186, 2.2, -34), look: S(128, 8, -4), fov: 60, roll: 0.12 }, { pos: S(150, 5, -52), look: S(110, 9, -6), fov: 52, roll: -0.04 }, f, s.a, s.b - 2, smooth, 0) }),
@@ -266,19 +272,19 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ---------------- chapter 4: the wireless room ----------------
   "wireless-wide": (s, f) => ({ light: "day", dof: 5, room: { sign: MARCONI, radio: true, papers: [0.14, 0.08, 0.05, 0] },
     cam: orbit(s, f, TABLE, [-34, 8], [6.6, 5.0], [0.9, 0.5], 50, [0.07, -0.03], expo),
-    people: [P("phillips", Rm(0.5, 0, 1.75), "stern", 0)] }),
+    people: [phil("stern")] }),
   fixing: (s, f) => {
     const on = Math.sin(f * 1.7) > 0.2;
     return { light: "day", dof: 7, room: { sign: MARCONI, radio: true, papers: [0.1, 0.05, 0, 0] },
       cam: kick(move({ pos: Rm(-1.6, 1.0, -2.4), look: Rm(0.5, 1.2, 0.7), fov: 48, roll: 0.12 }, { pos: Rm(-0.7, 1.25, -1.8), look: Rm(0.5, 1.25, 0.7), fov: 46, roll: 0.06 }, f, s.a, s.a + 16, expo, 0.001), f, s.a + 10, 0.8),
-      cards: on ? [{ kind: "spark", p: Rm(0.72, 1.28, 0.42), spin: f * 0.9, s: 0.34 + 0.1 * Math.sin(f * 2.3) }] : [],
-      people: [P("bride", Rm(-0.9, 0, 1.75), "nervous", 1), P("phillips", Rm(0.9, 0, 1.75), "pained", -1)] };
+      cards: on ? [{ kind: "spark", p: Rm(0.37, 1.34, 0.7), spin: f * 0.9, s: 0.34 + 0.1 * Math.sin(f * 2.3) }] : [],
+      people: [P("bride", Rm(-0.9, 0, 1.45), "nervous", 1), P("phillips", Rm(0.75, 0, 1.45), "pained", -1, { hands: [SET] })] };
   },
   buried: (s, f) => {
     const u = smooth(U(s, f)), x = 1.2 + 1.6 * u;
     return { light: "day", dof: 7, room: { sign: MARCONI, radio: true, papers: [0.14 + 0.5 * u, 0.08 + 0.42 * u, 0.05 + 0.36 * u, 0.32 * u] },
       cam: full({ pos: Rm(x - 2.4, 1.55, -2.5), look: Rm(x * 0.5 + 0.5, 1.3, 0.9), fov: 40, roll: 0.05 }),
-      people: [P("phillips", Rm(0.5, 0, 1.75), "pained", 0)] };
+      people: [phil("pained")] };
   },
   hundreds: (s, f) => {
     const cards: Card[] = [];
@@ -290,13 +296,14 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     }
     return { light: "day", dof: 3, room: { sign: MARCONI, radio: true, papers: [0.64, 0.5, 0.41, 0.32] }, cards,
       cam: kick(kick(full({ pos: Rm(0.5, 1.15, -4.6), look: Rm(0.6, 1.55, 0.6), fov: 60, roll: 0.06 }), f, s.a + 14, 1), f, s.a + 30, 1.1),
-      people: [P("phillips", Rm(0.5, 0, 1.75), "shock", 0)] };
+      people: [phil("shock", [])] };
   },
   "set-aside": (s, f) => {
     const u = smooth((f - s.a - 6) / 24), p = L3(Rm(0.3, 1.04, 0.5), Rm(1.5, 1.4, 0.78), u);
     return { light: "day", dof: 9, closeup: true, room: { sign: MARCONI, radio: true, papers: [0.64, 0.5, 0.41, 0.32] },
       cam: snap(Rm(1.5, 1.7, -1.8), Rm(1.0, 1.25, 0.55), f, s.a, { fov: 40, roll: -0.08 }),
       cards: [{ kind: "paper", p, spin: -0.2 + 0.25 * u, s: 0.8 }],
+      people: [P("phillips", Rm(0.95, 0, 1.45), "stern", 0, { hands: [[p[0] + 0.12, p[1] + 0.02, p[2]]] })],
       subjects: [["the warning", p, 0.3]] };
   },
   californian: (s, f) => ({ light: "night", flow: 0.15, dof: 0, cal: { p: CAL_O, lights: 1, yaw: 0.25 }, floes: CAL_O, ship: { hide: true },
@@ -305,8 +312,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   "cal-ice": (s, f) => ({ light: "night", flow: 0.15, dof: 0, cal: { p: CAL_O, lights: 1, yaw: 0.25 }, floes: CAL_O, ship: { hide: true },
     cam: orbit(s, f, Cl(8, 5, 0), [14, 44], [96, 74], [7, 2.4], 50, [-0.08, 0.06]) }),
   "phillips-answers": (s, f) => ({ light: "day", dof: 10, closeup: true, room: { sign: MARCONI, radio: true, papers: [0.64, 0.5, 0.41, 0.32] },
-    cam: kick(snap(Rm(-0.2, 1.62, -0.6), Rm(0.5, 1.6, 1.75), f, s.a, { fov: 34, roll: -0.1 }), f, s.a + 4, 0.8),
-    people: [P("phillips", Rm(0.5, 0, 1.75), "stern", 0)] }),
+    cam: kick(snap(Rm(-0.2, 1.62, -0.9), Rm(0.5, 1.6, 1.45), f, s.a, { fov: 34, roll: -0.1 }), f, s.a + 4, 0.8),
+    people: [phil("stern")] }),
   "cal-off": (s, f) => {
     const off = W(92, "switches") + 8;
     return { light: "night", flow: 0.15, dof: 0, cal: { p: CAL_O, lights: f < off ? 1 : 0.1, yaw: 0.25 }, floes: CAL_O, ship: { hide: true },
@@ -314,8 +321,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       subjects: [["the Californian", Cl(-4, 8, 0), 12]] };
   },
   door: (s, f) => ({ light: "day", dof: 4, room: { sign: MARCONI, radio: true, papers: [0.64, 0.5, 0.41, 0.32] },
-    cam: move({ pos: Rm(2.6, 1.7, 2.9), look: Rm(0.6, 1.5, -7), fov: 46, roll: 0.07 }, { pos: Rm(1.6, 1.6, 0.0), look: Rm(0.2, 1.5, -7), fov: 40, roll: -0.03 }, f, s.a, s.b - 2, smooth, 0),
-    people: [P("you", Rm(0, 0, -6.5), "nervous", 0, { headTilt: 0.05 })] }),
+    cam: move({ pos: Rm(2.6, 1.7, 2.9), look: Rm(0.4, 1.4, -8), fov: 46, roll: 0.07 }, { pos: Rm(1.4, 1.6, -1.2), look: Rm(0.1, 1.35, -8), fov: 40, roll: -0.03 }, f, s.a, s.b - 2, smooth, 0),
+    people: [P("you", Rm(0, 0, -8.4), "nervous", 0, { headTilt: 0.05 })] }),
   desk: (s, f) => ({ light: "day", dof: 9, closeup: true, room: { sign: MARCONI, radio: true, papers: [0.64, 0.5, 0.41, 0.32] },
     cam: kick(snap(Rm(2.9, 1.55, -1.5), Rm(2.2, 1.2, 0.6), f, s.a, { fov: 38, roll: 0.11 }), f, s.a + 4, 0.7),
     subjects: [["the paper pile", Rm(2.0, 1.3, 0.45), 0.25]] }),
@@ -336,8 +343,9 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     const r0 = W(100, "rings") - 2, e = f - r0, ring = e >= 0 && e < 40;
     let c = orbit(s, f, Nt(0.35, 1.9, 0), [108, 78], [5.6, 4.6], [0.5, 0.9], 44, [-0.08, 0.06]);
     for (const k of [0, 13, 26]) c = kick(c, f, r0 + k, 0.9);
-    return { ...SEA, flow: 11, dof: 6, bell: ring ? 0.6 * Math.sin((e / 13) * Math.PI * 2) : 0, cam: c,
-      people: LOOKOUTS("shock"), subjects: [["the bell", Nt(0.85, 2.5, 0), 0.5]] };
+    const sw = ring ? 0.6 * Math.sin((e / 13) * Math.PI * 2) : 0, rope: V3 = Nt(0.85 + 1.08 * Math.sin(sw), 2.75 - 1.08 * Math.cos(sw), 0);
+    return { ...SEA, flow: 11, dof: 6, bell: sw, cam: c,
+      people: [P("fleet", Nt(0.42, 0.06, -0.12), "shock", 0, { low: true, hands: [rope] }), P("lee", Nt(-0.3, 0.06, 0.42), "shock", 0, { low: true })], subjects: [["the bell", Nt(0.85, 2.5, 0), 0.5]] };
   },
   "iceberg-ahead": (s, f) => {
     const u = U(s, f), bx = 232 - 50 * u;
@@ -345,12 +353,13 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: kick(snap(Nt(1.6, 2.6, 0.4), S(bx, 9, -5), f, s.a, { fov: 40, roll: 0.1 }, 1.02, 6), f, s.a + 4, 1.4),
       subjects: [["iceberg", S(bx, 10, -5), 14]] };
   },
-  "officer-bridge": (s, f) => ({ light: "day", dof: 6, room: { sign: BRIDGE, wheel: 0 },
-    cam: kick(snap(Rm(-1.0, 1.55, -2.6), Rm(-1.4, 1.5, 1.75), f, s.a, { fov: 46, roll: 0.09 }, 1.6, 6), f, s.a + 5, 1),
-    people: [P("helm", Rm(WHEEL_X - 0.95, 0, 1.75), "shock", 1), P("murdoch", Rm(0.4, 0, 1.75), "shock", 0)] }),
-  turn: (s, f) => ({ light: "day", dof: 9, closeup: true, room: { sign: BRIDGE, wheel: -7 * expo((f - s.a) / 26) },
-    cam: kick(snap(Rm(WHEEL_X + 1.0, 1.35, -1.5), Rm(WHEEL_X, 1.2, 0.63), f, s.a, { fov: 40, roll: -0.12 }), f, s.a + 3, 1.2),
-    subjects: [["the wheel", Rm(WHEEL_X, 1.2, 0.6), 0.2]] }),
+  "officer-bridge": (s, f) => ({ light: "day", dof: 6, room: { sign: BRIDGE, night: true, wheel: 0 },
+    cam: kick(snap(Rm(-1.2, 1.6, -3.6), Rm(-1.5, 1.55, 1.75), f, s.a, { fov: 46, roll: 0.09 }, 1.6, 6), f, s.a + 5, 1),
+    people: [helm("shock", 1), P("murdoch", Rm(0.4, 0, 1.75), "shock", 0)] }),
+  turn: (s, f) => ({ light: "day", dof: 9, closeup: true, room: { sign: BRIDGE, night: true, wheel: -7 * expo((f - s.a) / 26) },
+    cam: kick(snap(Rm(WHEEL_X + 1.0, 1.5, -2.1), Rm(WHEEL_X, 1.4, 0.63), f, s.a, { fov: 40, roll: -0.12 }), f, s.a + 3, 1.2),
+    people: [helm("shock")],
+    subjects: [["the wheel", Rm(WHEEL_X, 1.05, 0.6), 0.2]] }),
   swing: (s, f) => {
     const u = smooth(U(s, f));
     return { ...SEA, flow: 11, dof: 0, ship: { yaw: -0.13 * u }, berg: { p: S(246 - 78 * u, 0, -12 - 14 * u), s: 1.2 },
@@ -372,15 +381,18 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     people: [P("gent", Dk(-1.6, 0, -9.9), "smile_closed", 1), P("lady", Dk(-0.2, 0, -9.7), "smile", -1), P("gent2", Dk(1.4, 0, -10.1), "neutral", -1)] }),
   "ice-play": (s, f) => {
     const cards: Card[] = [];
-    for (let k = 0; k < 5; k++) { const ph = ((f - s.a) * 0.03 + k * 0.23) % 1; cards.push({ kind: "ice", p: S(98.4 + k * 1.0 + 1.2 * ph * (k % 2 ? 1 : -1), 11.3 + 0.9 * Math.abs(Math.sin(ph * Math.PI)) * (k % 2 ? 1 : 0.2), -6.6 + (k % 3) * 0.5), spin: ph * 5, s: 0.9 + (k % 2) * 0.4 }); }
+    // one chunk held in both hands, one held up in one hand, the rest lying on the deck
+    const bob = 0.03 * Math.sin((f - s.a) * 0.25), held: V3 = S(99.2, 12.1 + bob, -5.75), up: V3 = S(101.3, 12.75 + 0.05 * Math.sin((f - s.a) * 0.2), -5.3);
+    cards.push({ kind: "ice", p: held, spin: 0.2, s: 0.75 }, { kind: "ice", p: up, spin: -0.4, s: 0.55 });
+    for (const [x, z, sp, sz] of [[97.9, -6.6, 0.5, 0.8], [100.3, -6.9, 2.1, 1.0], [101.9, -6.4, 1.2, 0.7], [103.4, -6.8, 0.2, 0.9]]) cards.push({ kind: "ice", p: S(x, 11.06 + 0.2 * sz, z), spin: sp, s: sz });
     return { ...SEA, dof: 4, cards,
       cam: orbit(s, f, S(100.6, 12.5, -5.8), [-24, 18], [9.6, 8.0], [0.6, 0.3], 44, [0.07, -0.05]),
-      people: [P("worker", S(99.2, 11.06, -5.4), "grin", 1), P("gent3", S(100.8, 11.06, -5.0), "laugh", 0, { wave: 0.6 }), P("worker2", S(102.5, 11.06, -5.5), "smile", -1)] };
+      people: [P("worker", S(99.2, 11.06, -5.4), "grin", 1, { hands: [[held[0] - 0.16, held[1] - 0.05, held[2]], [held[0] + 0.16, held[1] - 0.05, held[2]]] }), P("gent3", S(100.8, 11.06, -5.0), "laugh", 0, { hands: [[up[0], up[1] - 0.08, up[2]]] }), P("worker2", S(102.5, 11.06, -5.5), "smile", -1)] };
   },
-  "wheel-man": (s, f) => ({ light: "day", dof: 6, room: { sign: BRIDGE, wheel: -7 },
+  "wheel-man": (s, f) => ({ light: "day", dof: 6, room: { sign: BRIDGE, night: true, wheel: -7 },
     cam: orbit(s, f, Rm(WHEEL_X + 0.9, 1.45, 1.4), [20, -16], [5.0, 4.2], [0.3, 0.5], 44, [-0.07, 0.05]),
-    people: [P("helm", Rm(WHEEL_X - 0.95, 0, 1.75), "dazed", 1), P("you", Rm(WHEEL_X + 1.9, 0, 1.75), "nervous", -1, { wave: 0.85 })] }),
-  truth: (s, f) => ({ light: "day", dof: 6, room: { sign: BRIDGE },
+    people: [helm("dazed", 1), P("you", Rm(WHEEL_X + 1.9, 0, 1.75), "nervous", -1, { wave: 0.85 })] }),
+  truth: (s, f) => ({ light: "day", dof: 6, room: { sign: BRIDGE, night: true },
     cam: orbit(s, f, Rm(0.5, 1.5, 1.6), [-26, 14], [5.2, 4.2], [0.5, 0.2], 44, [0.06, -0.05]),
     people: [P("andrews", Rm(-0.3, 0, 1.75), "stern", 1), P("smith", Rm(1.3, 0, 1.75), "nervous", -1)] }),
 
@@ -457,13 +469,13 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   },
   "wireless-again": (s, f) => ({ light: "day", dof: 5, room: { sign: MARCONI, radio: true, papers: [0.2, 0.1, 0.05, 0] },
     cam: orbit(s, f, TABLE, [30, -6], [6.0, 4.8], [0.8, 0.4], 48, [-0.07, 0.03], expo),
-    people: [P("phillips", Rm(0.5, 0, 1.75), "stern", 0)] }),
+    people: [phil("stern")] }),
   distress: (s, f) => {
     const on = Math.floor(f / 3) % 3 !== 0;
     return { light: "day", dof: 7, room: { sign: MARCONI, radio: true, papers: [0.2, 0.1, 0.05, 0], num: { text: "SOS", bg: RED, fg: WHITE, k: pop(f, s.a + 6) || 0.001 } },
       cam: kick(move({ pos: Rm(2.4, 1.2, -3.4), look: Rm(0.5, 1.6, 1.6), fov: 50, roll: -0.1 }, { pos: Rm(1.6, 1.45, -2.6), look: Rm(0.5, 1.7, 1.75), fov: 46, roll: -0.03 }, f, s.a, s.a + 18, expo, 0.001), f, s.a + 7, 1),
-      cards: on ? [{ kind: "spark", p: Rm(1.22, 1.08, 0.38), spin: f * 0.8, s: 0.22 + 0.06 * Math.sin(f * 2.1) }] : [],
-      people: [P("phillips", Rm(0.5, 0, 1.75), "stern", 0)],
+      cards: on ? [{ kind: "spark", p: Rm(0.78, 1.14, 0.56), spin: f * 0.8, s: 0.22 + 0.06 * Math.sin(f * 2.1) }] : [],
+      people: [phil("stern")],
       subjects: f > s.a + 16 ? [["SOS", Rm(0.5, 2.15, 3.3), 0.3]] : [] };
   },
   cal2: (s, f) => ({ light: "night", flow: 0.15, dof: 0, cal: { p: CAL_O, lights: 0.1, yaw: 0.25 }, floes: CAL_O, ship: { hide: true },

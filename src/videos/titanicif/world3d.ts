@@ -1,8 +1,9 @@
 // "What If You Were the Only One Who Knew the Titanic Would Sink?" (Paradox Town Explained #4): the three.js world, posed
 // per frame from a shot spec (story3d.ts). An open ocean with: the Titanic (hull, superstructure, four funnels, masts
 // with the crow's nest and its bell, the boat deck with sixteen lifeboats, lit windows), Southampton's quay alongside
-// her, the iceberg and loose floes, a second steamer (the Californian / the Carpathia), a ship's room redressed by its
-// wall sign (bridge, wireless room), boats in the water, and flat cards for paper, ice and sparks.
+// her, the iceberg and loose floes, a second steamer (the Californian / the Carpathia), a ship's cabin dressed as the
+// wheelhouse (windows over the sea, wheel, engine telegraph, chart table) or the Marconi room (instrument wall, desk),
+// boats in the water, and flat cards for paper, ice and sparks. Characters' hands reach to what they hold (`hands`).
 // Ship space: bow toward +x, y up from the waterline, cameras mostly on the -z side (so the bow is screen left).
 import * as THREE from "three";
 import { Batch, boxGeo, V, lam, Kit, quad, tri } from "../bridge/build";
@@ -13,7 +14,7 @@ import { TONE, CHAR, LFB, untone } from "../bridge/shade";
 import { NOINK } from "../bridge/ink";
 import { Pool, Actor, Fx } from "../bridge/cast";
 import { Board, INK } from "../dst/props";
-import { buildSalon, Salon, signTex } from "../lustig/props";
+import { signTex } from "../lustig/props";
 import { numTex, sparkTex, Cards } from "../hertzlong/props3d";
 import { FPS } from "./timeline";
 import { V3, Rm, ROOM_O, DECK, NEST } from "./story3d";
@@ -113,11 +114,15 @@ const lifeboat = () => {
 /** a small steamer about 110 m long (the Californian: one tall funnel, four masts; reused as the Carpathia) */
 const steamer = () => {
   const g = new THREE.Group(), b = new Batch(), wb = new Batch();
-  const black = M("ttHull2", "#23232b", { side: THREE.DoubleSide }), white = M("ttWhite", "#f1ede2"), deck = M("ttBrownDeck", "#a9825a");
+  const black = M("ttHull2", "#23232b", { side: THREE.DoubleSide }), white = M("ttWhite", "#f1ede2"), deck = lam("ttDeck", () => ({ map: planksHD() }));
   const funnel = new THREE.MeshLambertMaterial({ color: "#d9806a" }), winMat = new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false, side: THREE.DoubleSide });
   b.add(boxGeo(V(-48, -3, -6.5), V(46, 5, 6.5)), black);
   prow(b, 46, 56, 6.5, -3, 5, black, deck); prow(b, -48, -55, 6.5, -3, 5, black, deck);
-  b.add(boxGeo(V(-48, 5, -6.4), V(46, 5.08, 6.4)), deck);
+  b.add(boxGeo(V(-48, 5, -6.4), V(46, 5.08, 6.4), 4), deck);
+  for (const s of [-1, 1]) {
+    b.add(boxGeo(V(-48, 6.02, s * 6.3 - 0.04), V(46, 6.1, s * 6.3 + 0.04)), white); b.add(boxGeo(V(-48, 5.55, s * 6.3 - 0.025), V(46, 5.6, s * 6.3 + 0.025)), white);
+    for (let x = -48; x <= 46; x += 2.5) b.add(boxGeo(V(x - 0.04, 5.08, s * 6.3 - 0.04), V(x + 0.04, 6.05, s * 6.3 + 0.04)), white);
+  }
   b.add(boxGeo(V(-20, 5, -5.4), V(16, 8.2, 5.4)), white); b.add(boxGeo(V(-12, 8.2, -4.2), V(10, 10.6, 4.2)), white);
   cylAt(b, funnel, 1.7, 1.7, 9.5, -2, 10.6, 0, 0.08); cylAt(b, M("ttDark", "#1d1b22"), 1.74, 1.74, 2.6, -2.75, 19.9, 0, 0.08);
   for (const x of [34, 20, -26, -40]) cylAt(b, M("ttMast", "#7a5236"), 0.16, 0.26, 17, x, 5, 0, 0.05, 8);
@@ -128,6 +133,103 @@ const steamer = () => {
   }
   b.build(g); wb.build(g, false);
   return { g, winMat, funnel };
+};
+/** metres per canvas unit on a character card (600 units wide) */
+const SUc = 0.00216;
+const panelTex = () => ctex("ttPanel", 512, 512, (g) => {
+  g.fillStyle = "#efe8d6"; g.fillRect(0, 0, 512, 512);
+  g.strokeStyle = "#cdbf9f"; g.lineWidth = 6; for (let x = 0; x <= 512; x += 64) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, 512); g.stroke(); }
+  g.strokeStyle = "#fbf7ea"; g.lineWidth = 3; for (let x = 8; x <= 512; x += 64) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, 512); g.stroke(); }
+});
+const darkWoodTex = () => ctex("ttDarkWood", 512, 512, (g) => {
+  g.fillStyle = "#7a4f33"; g.fillRect(0, 0, 512, 512);
+  g.strokeStyle = "#63402a"; g.lineWidth = 5; for (let y = 20; y < 512; y += 46) { g.beginPath(); g.moveTo(0, y); g.bezierCurveTo(170, y + 14, 340, y - 14, 512, y + 4); g.stroke(); }
+  g.strokeStyle = "#946544"; g.lineWidth = 3; for (let y = 42; y < 512; y += 92) { g.beginPath(); g.moveTo(0, y); g.bezierCurveTo(170, y - 10, 340, y + 12, 512, y); g.stroke(); }
+});
+/** the Marconi set's wall: a slate switchboard with dials, knife switches and a clock */
+const boardTex = () => ctex("ttSwitchboard", 1024, 512, (g) => {
+  g.fillStyle = "#3a3a48"; g.fillRect(0, 0, 1024, 512); g.lineWidth = 18; g.strokeStyle = "#7a4f33"; g.strokeRect(9, 9, 1006, 494);
+  const dial = (x: number, y: number, r: number, a: number) => { g.fillStyle = "#f4ecd8"; g.strokeStyle = INK; g.lineWidth = 10; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); g.stroke();
+    g.strokeStyle = "#c9373a"; g.lineWidth = 8; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * r * 0.75, y + Math.sin(a) * r * 0.75); g.stroke(); };
+  dial(150, 160, 86, -2.2); dial(380, 160, 86, -0.9); dial(610, 160, 86, -1.6);
+  for (let k = 0; k < 5; k++) { g.fillStyle = "#d98a3a"; g.strokeStyle = INK; g.lineWidth = 8; g.fillRect(90 + k * 120, 330, 26, 110); g.strokeRect(90 + k * 120, 330, 26, 110); g.fillStyle = "#1d1b22"; g.beginPath(); g.arc(103 + k * 120, 322, 20, 0, Math.PI * 2); g.fill(); }
+  g.fillStyle = "#e8c45a"; g.strokeStyle = INK; g.lineWidth = 12; g.beginPath(); g.arc(860, 250, 120, 0, Math.PI * 2); g.fill(); g.stroke();
+  g.fillStyle = "#fffaf0"; g.beginPath(); g.arc(860, 250, 96, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = INK; g.lineWidth = 10; g.beginPath(); g.moveTo(860, 250); g.lineTo(860, 178); g.moveTo(860, 250); g.lineTo(910, 268); g.stroke();
+});
+const chartTex = () => ctex("ttChart", 512, 320, (g) => {
+  g.fillStyle = "#f3ead2"; g.fillRect(0, 0, 512, 320); g.strokeStyle = "#b9a988"; g.lineWidth = 3;
+  for (let x = 32; x < 512; x += 64) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, 320); g.stroke(); } for (let y = 32; y < 320; y += 64) { g.beginPath(); g.moveTo(0, y); g.lineTo(512, y); g.stroke(); }
+  g.strokeStyle = "#c9373a"; g.lineWidth = 8; g.setLineDash([22, 14]); g.beginPath(); g.moveTo(450, 70); g.bezierCurveTo(330, 60, 200, 150, 60, 250); g.stroke(); g.setLineDash([]);
+  g.fillStyle = "#9fc3e0"; g.strokeStyle = INK; g.lineWidth = 6; g.beginPath(); g.moveTo(150, 90); g.lineTo(190, 60); g.lineTo(230, 96); g.lineTo(196, 128); g.closePath(); g.fill(); g.stroke();
+});
+type Cabin = { sign: THREE.Mesh; glass: THREE.MeshBasicMaterial; sea: THREE.MeshBasicMaterial; bridge: THREE.Group; marconi: THREE.Group };
+/** a ship's cabin centred on o: plank floor, white tongue-and-groove walls with a dark wood dado on -x, +x and +z, a
+ *  ceiling, and a forward wall at z = -8 with a door in it. A wooden table (x -2..3, z 0.1..1.1, top at 0.8).
+ *  `bridge` holds the wheelhouse dressing (a row of windows over the sea in the +z wall, engine telegraph, binnacle, a
+ *  chart on the table); `marconi` holds the wireless room's (the switchboard on the wall, a porthole). */
+const buildCabin = (root: THREE.Object3D, o: V3): Cabin => {
+  const [cx, y0, cz] = o, b = new Batch(), nb = new Batch();
+  const floor = lam("ttDeck", () => ({ map: planksHD() })), wall = lam("ttPanel", () => ({ map: panelTex() })), wood = lam("ttDarkWood", () => ({ map: darkWoodTex() }));
+  const brass = M("ttGold", "#e8c45a"), dark = M("ttDark", "#1d1b22"), white = M("ttWhite", "#f1ede2");
+  const X0 = cx - 5.5, X1 = cx + 5.5, Z0 = cz - 8, Z1 = cz + 3.5, H = 4.4;
+  b.add(boxGeo(V(X0 - 0.3, y0 - 0.2, Z0 - 0.3), V(X1 + 0.3, y0 + 0.02, Z1 + 0.3), 4), floor);
+  b.add(boxGeo(V(X0 - 0.3, y0, Z0), V(X0, y0 + H, Z1 + 0.3), 2), wall);
+  b.add(boxGeo(V(X1, y0, Z0), V(X1 + 0.3, y0 + H, Z1 + 0.3), 2), wall);
+  b.add(boxGeo(V(X0 - 0.3, y0, Z1), V(X1 + 0.3, y0 + H, Z1 + 0.3), 2), wall);
+  for (const [a, c] of [[V(X0, y0, Z1 - 0.06), V(X1, y0 + 1.05, Z1)], [V(X0, y0, Z0), V(X0 + 0.06, y0 + 1.05, Z1)], [V(X1 - 0.06, y0, Z0), V(X1, y0 + 1.05, Z1)]] as const) b.add(boxGeo(a, c, 2), wood);
+  b.add(boxGeo(V(X0, y0 + 1.05, Z1 - 0.09), V(X1, y0 + 1.13, Z1)), brass);
+  // the forward wall and its door (seen only when the camera looks back down the room)
+  nb.add(boxGeo(V(X0 - 0.3, y0, Z0 - 0.3), V(cx - 0.65, y0 + H, Z0), 2), wall); nb.add(boxGeo(V(cx + 0.65, y0, Z0 - 0.3), V(X1 + 0.3, y0 + H, Z0), 2), wall);
+  nb.add(boxGeo(V(cx - 0.65, y0 + 2.25, Z0 - 0.3), V(cx + 0.65, y0 + H, Z0), 2), wall);
+  for (const sx of [-1, 1]) nb.add(boxGeo(V(cx + sx * 0.7 - 0.07, y0, Z0 - 0.02), V(cx + sx * 0.7 + 0.07, y0 + 2.32, Z0 + 0.08)), wood);
+  nb.add(boxGeo(V(cx - 0.77, y0 + 2.25, Z0 - 0.02), V(cx + 0.77, y0 + 2.39, Z0 + 0.08)), wood);
+  nb.add(boxGeo(V(cx - 0.75, y0, Z0 - 2.3), V(cx + 0.75, y0 + 2.3, Z0 - 2.2)), dark);
+  // the passage outside the door: plank floor, dark walls
+  nb.add(boxGeo(V(cx - 0.75, y0 - 0.2, Z0 - 2.3), V(cx + 0.75, y0 + 0.02, Z0 - 0.3), 4), floor);
+  for (const sx of [-1, 1]) nb.add(boxGeo(V(cx + sx * 0.8 - 0.05, y0, Z0 - 2.3), V(cx + sx * 0.8 + 0.05, y0 + 2.3, Z0 - 0.3)), dark);
+  nb.add(boxGeo(V(cx - 0.85, y0 + 2.26, Z0 - 2.3), V(cx + 0.85, y0 + 2.36, Z0 - 0.3), 0, true), dark);
+  // the door leaf, swung open against the wall, with a round window and a brass knob
+  nb.add(boxGeo(V(cx + 0.72, y0 + 0.02, Z0 + 0.04), V(cx + 0.8, y0 + 2.24, Z0 + 1.3), 2), wood);
+  nb.add(boxGeo(V(cx + 0.69, y0 + 1.0, Z0 + 1.08), V(cx + 0.72, y0 + 1.1, Z0 + 1.18)), brass);
+  // the table: a wooden top on four legs
+  b.add(boxGeo(V(cx - 2.0, y0 + 0.72, cz + 0.1), V(cx + 3.0, y0 + 0.8, cz + 1.1), 2), wood);
+  for (const [x, z] of [[-1.9, 0.2], [2.9, 0.2], [-1.9, 1.0], [2.9, 1.0]]) b.add(boxGeo(V(cx + x - 0.06, y0, cz + z - 0.06), V(cx + x + 0.06, y0 + 0.72, cz + z + 0.06)), wood);
+  nb.add(boxGeo(V(X0 - 0.3, y0 + H, Z0 - 0.3), V(X1 + 0.3, y0 + H + 0.3, Z1 + 0.3), 2, true), white);
+  b.build(root); nb.build(root, false);
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 0.72), lam("sign_ttbridge", () => ({ map: signTex("ttbridge", "BRIDGE · R.M.S. TITANIC", "#2f2a3a", "#e8c45a") })));
+  sign.rotation.y = Math.PI; sign.position.set(cx - 0.3, y0 + 3.75, Z1 - 0.02); root.add(sign);
+  // ---- wheelhouse dressing ----
+  const bridge = new THREE.Group(), bb = new Batch();
+  const glass = new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false }), sea = new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false });
+  for (let k = 0; k < 6; k++) {
+    const x = cx - 4.6 + k * 1.72;
+    const pane = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.5), glass); pane.rotation.y = Math.PI; pane.position.set(x + 0.2, y0 + 2.45, Z1 - 0.03); bridge.add(pane);
+    const water = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.5), sea); water.rotation.y = Math.PI; water.position.set(x + 0.2, y0 + 1.95, Z1 - 0.035); bridge.add(water);
+    bb.add(boxGeo(V(x - 0.56, y0 + 1.62, Z1 - 0.08), V(x - 0.48, y0 + 3.28, Z1)), wood); bb.add(boxGeo(V(x + 0.88, y0 + 1.62, Z1 - 0.08), V(x + 0.96, y0 + 3.28, Z1)), wood);
+    bb.add(boxGeo(V(x - 0.56, y0 + 3.2, Z1 - 0.08), V(x + 0.96, y0 + 3.28, Z1)), wood); bb.add(boxGeo(V(x - 0.56, y0 + 1.62, Z1 - 0.1), V(x + 0.96, y0 + 1.7, Z1)), wood);
+  }
+  // engine-room telegraph: a brass column with a round head and a handle
+  const tx = cx + 3.9, tz = cz + 1.2;
+  cylAt(bb, brass, 0.09, 0.14, 1.05, tx, y0, tz, 0, 14); cylAt(bb, dark, 0.2, 0.2, 0.05, tx, y0, tz, 0, 14);
+  const head = new THREE.CylinderGeometry(0.26, 0.26, 0.16, 24); head.rotateX(Math.PI / 2); bb.add(head, brass, new THREE.Matrix4().makeTranslation(tx, y0 + 1.25, tz));
+  const face = new THREE.CylinderGeometry(0.21, 0.21, 0.17, 24); face.rotateX(Math.PI / 2); bb.add(face, white, new THREE.Matrix4().makeTranslation(tx, y0 + 1.25, tz));
+  const handle = new THREE.BoxGeometry(0.05, 0.44, 0.04); handle.translate(0, 0.2, 0); bb.add(handle, dark, new THREE.Matrix4().makeTranslation(tx, y0 + 1.25, tz - 0.1).multiply(new THREE.Matrix4().makeRotationZ(-0.6)));
+  // compass binnacle
+  const nx = cx - 1.3, nz = cz + 2.4;
+  bb.add(boxGeo(V(nx - 0.2, y0, nz - 0.2), V(nx + 0.2, y0 + 1.0, nz + 0.2), 2), wood);
+  const dome = new THREE.SphereGeometry(0.22, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2); bb.add(dome, brass, new THREE.Matrix4().makeTranslation(nx, y0 + 1.0, nz));
+  bb.build(bridge);
+  const chart = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.94), lam("ttChart", () => ({ map: chartTex() }))); chart.rotation.set(-Math.PI / 2, 0, Math.PI); chart.position.set(cx + 1.9, y0 + 0.812, cz + 0.6); chart.receiveShadow = true; bridge.add(chart);
+  root.add(bridge);
+  // ---- Marconi room dressing ----
+  const marconi = new THREE.Group(), mb = new Batch();
+  const board = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.8), lam("ttSwitchboard", () => ({ map: boardTex() }))); board.rotation.y = Math.PI; board.position.set(cx + 2.6, y0 + 2.25, Z1 - 0.03); marconi.add(board);
+  const port = new THREE.CylinderGeometry(0.42, 0.42, 0.08, 24); port.rotateX(Math.PI / 2); mb.add(port, brass, new THREE.Matrix4().makeTranslation(cx - 3.4, y0 + 2.4, Z1 - 0.04));
+  const pglass = new THREE.CylinderGeometry(0.33, 0.33, 0.1, 24); pglass.rotateX(Math.PI / 2); mb.add(pglass, M("ttPortGlass", "#22366a"), new THREE.Matrix4().makeTranslation(cx - 3.4, y0 + 2.4, Z1 - 0.05));
+  mb.build(marconi); root.add(marconi);
+  root.traverse((ob) => { const m = ob as THREE.Mesh; if (m.isMesh && !m.receiveShadow) m.receiveShadow = true; });
+  return { sign, glass, sea, bridge, marconi };
 };
 const paperTex = () => ctex("ttSlip", 512, 320, (g) => {
   g.fillStyle = "#fff6dc"; g.fillRect(8, 8, 496, 304); g.lineWidth = 12; g.strokeStyle = INK; g.strokeRect(8, 8, 496, 304);
@@ -165,7 +267,7 @@ export class TWorld {
   private dock = new THREE.Group(); private berg = new THREE.Group(); private floes = new THREE.Group();
   private cal: { g: THREE.Group; winMat: THREE.MeshBasicMaterial; funnel: THREE.MeshLambertMaterial };
   private seaBoats: THREE.Group[] = [];
-  private salon: Salon; private wheel: THREE.Group; private wheelRim: THREE.Group; private radio: THREE.Group; private stacks: THREE.Mesh[] = []; private rnum: Board;
+  private cabin: Cabin; private rope: THREE.Mesh; private wheel: THREE.Group; private wheelRim: THREE.Group; private radio: THREE.Group; private stacks: THREE.Mesh[] = []; private rnum: Board;
   private papers: Cards; private ices: Cards; private sparks: Cards;
   private lastPeople: { name: string; p: V3; walking: boolean; low: boolean }[] = [];
   private ray = new THREE.Raycaster();
@@ -252,7 +354,8 @@ export class TWorld {
     this.bell = new THREE.Group(); this.bell.position.set(NEST[0] + 0.85, NEST[1] + 2.75, 0);
     const bl = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.34, 14, 1, true), gold); bl.position.y = -0.2; (bl.material as THREE.Material).side = THREE.DoubleSide;
     const clap = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), dark); clap.position.y = -0.38;
-    this.bell.add(bl, clap); S.add(this.bell);
+    this.rope = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.72, 0.035), mast); this.rope.position.y = -0.74;
+    this.bell.add(bl, clap, this.rope); S.add(this.bell);
     // rails round the boat deck
     for (const s of [-1, 1]) {
       b.add(boxGeo(V(-95, DECK + 1.02, s * 13.8 - 0.04), V(80, DECK + 1.1, s * 13.8 + 0.04)), white);
@@ -309,24 +412,24 @@ export class TWorld {
     for (let i = 0; i < 6; i++) { const sb = lifeboat(); sb.visible = false; R.add(sb); this.seaBoats.push(sb); }
 
     // ---- the room: a roofed salon whose wall sign is swapped per shot, a ship's wheel, the wireless set, paper ----
-    this.salon = buildSalon(R, ROOM_O[0], ROOM_O[1], ROOM_O[2]);
-    this.salon.archSign.visible = false;
-    const ceil = new THREE.Mesh(new THREE.BoxGeometry(18, 0.3, 24), M("ttCeil", "#e9dcc0")); ceil.position.set(ROOM_O[0], ROOM_O[1] + 4.55, ROOM_O[2] - 4); ceil.castShadow = false; R.add(ceil);
+    this.cabin = buildCabin(R, ROOM_O);
     const back = new THREE.Mesh(new THREE.BoxGeometry(60, 30, 0.3), M("ttDark", "#1d1b22")); back.position.set(ROOM_O[0], ROOM_O[1] + 6, ROOM_O[2] - 22); back.castShadow = false; R.add(back);
     this.wheel = new THREE.Group(); this.wheelRim = new THREE.Group();
     const wd = M("ttWheel", "#8a5a3a");
     this.wheelRim.add(new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.05, 10, 32), wd));
-    for (let k = 0; k < 8; k++) { const sp2 = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.3, 0.05), wd); sp2.rotation.z = (k / 8) * Math.PI; if (k < 4) this.wheelRim.add(sp2); }
+    for (let k = 0; k < 8; k++) { const sp2 = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.2, 0.05), wd); sp2.rotation.z = (k / 8) * Math.PI; if (k < 4) this.wheelRim.add(sp2); }
     this.wheelRim.add(new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.12, 12).rotateX(Math.PI / 2), gold));
-    this.wheelRim.position.set(0, 1.2, -0.12);
-    const ped = new THREE.Mesh(new THREE.BoxGeometry(0.34, 1.2, 0.3), wd); ped.position.y = 0.6;
-    this.wheel.add(ped, this.wheelRim); this.wheel.traverse((o) => { o.castShadow = true; }); this.wheel.position.set(...Rm(WHEEL_X, 0, 0.75)); R.add(this.wheel);
+    this.wheelRim.position.set(0, 1.05, -0.12);
+    const ped = new THREE.Mesh(new THREE.BoxGeometry(0.34, 1.05, 0.3), wd); ped.position.y = 0.525;
+    // the grating the helmsman stands on, behind the wheel
+    const grate = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.3, 0.9), wd); grate.position.set(0, 0.15, 0.62);
+    this.wheel.add(ped, grate, this.wheelRim); this.wheel.traverse((o) => { o.castShadow = true; }); this.wheel.position.set(...Rm(WHEEL_X, 0, 0.75)); R.add(this.wheel);
     this.radio = new THREE.Group();
     const base = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.12, 0.6), wd); base.position.y = 0.06;
     const coil = (x: number) => { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.34, 16), M("ttCopper", "#d98a3a")); c.position.set(x, 0.29, 0.05); return c; };
     const key = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.04, 0.08), gold); key.position.set(0.2, 0.2, -0.2); key.rotation.z = 0.12;
     const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.05, 12), dark); knob.position.set(0.4, 0.25, -0.2);
-    this.radio.add(base, coil(-0.3), coil(0.02), key, knob); this.radio.traverse((o) => { o.castShadow = true; }); this.radio.position.set(...Rm(0.5, 0.8, 0.6)); R.add(this.radio);
+    this.radio.add(base, coil(-0.3), coil(0.02), key, knob); this.radio.traverse((o) => { o.castShadow = true; }); this.radio.position.set(...Rm(0.35, 0.8, 0.8)); R.add(this.radio);
     for (let k = 0; k < 4; k++) { const st = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1, 0.22), lam("ttPaperStack", () => ({ map: stackTex() }))); st.position.set(...Rm(1.5 + k * 0.5, 0.8, 0.6)); st.castShadow = true; this.stacks.push(st); R.add(st); }
     this.rnum = new Board(1.9, 1.2, "num_SOS", () => numTex("SOS")); this.rnum.group.position.set(...Rm(0.5, 2.15, 3.38)); R.add(this.rnum.group);
     this.papers = new Cards(R, paperTex(), 16, 0.6); this.ices = new Cards(R, iceTex(), 10, 0.5); this.sparks = new Cards(R, sparkTex(), 6, 1.0);
@@ -410,7 +513,12 @@ export class TWorld {
     if (rm) {
       const [key, text] = rm.sign;
       const mat = lam(`sign_${key}`, () => ({ map: signTex(key, text, "#2f2a3a", "#e8c45a") }));
-      if (this.salon.sign.material !== mat) this.salon.sign.material = mat;
+      if (this.cabin.sign.material !== mat) this.cabin.sign.material = mat;
+      const isBridge = !rm.radio;
+      this.cabin.bridge.visible = isBridge; this.cabin.marconi.visible = !isBridge;
+      // out of the wheelhouse windows: day sky over a blue sea, or the moonless night
+      if (rm.night) { this.cabin.glass.color.setRGB(0.05, 0.08, 0.2); this.cabin.sea.color.setRGB(0.03, 0.05, 0.13); }
+      else { this.cabin.glass.color.setRGB(0.62, 0.86, 1.25); this.cabin.sea.color.setRGB(0.16, 0.42, 0.85); }
     }
     this.wheel.visible = rm?.wheel !== undefined; this.wheelRim.rotation.z = rm?.wheel ?? 0;
     this.radio.visible = !!rm?.radio;
@@ -442,12 +550,19 @@ export class TWorld {
       // side cards are drawn walking toward canvas right; walkers move along world x, so flip by where +x is on screen
       const mirror = !!q.side && (q.side.mirror !== (right.x < 0));
       const lt = mirror ? Math.PI - lightA : lightA;
+      // hands: where each world point falls on this card as seen from the camera; the arm reaches there
+      let hands: { l?: [number, number]; r?: [number, number] } | undefined;
+      if (q.hands?.length && !q.side) { hands = {}; const nx = cam.position.x - q.p[0], nz = cam.position.z - q.p[2], nl = Math.hypot(nx, nz) || 1, n3 = V(nx / nl, 0, nz / nl), cr = V(n3.z, 0, -n3.x), o = V(...q.p);
+        for (const hw of q.hands) { const dir = V(...hw).sub(cam.position), tt = o.clone().sub(cam.position).dot(n3) / dir.dot(n3), pc = cam.position.clone().addScaledVector(dir, tt);
+          const hx = pc.clone().sub(o).dot(cr), hc: [number, number] = [300 + hx / SUc, 975 - (pc.y - q.p[1]) / SUc];
+          if ((hx >= 0 && !hands.r) || hands.l) hands.r = hc; else hands.l = hc; } }
+      const hk = hands ? [hands.l, hands.r].flat().map((n) => Math.round((n ?? 0) / 4)).join(",") : "";
       const key = q.side
         ? `S|${w.key}|${q.expr}|${Math.round(q.side.phase * 16)}|${bl}|${lt.toFixed(2)}`
-        : `F|${w.key}|${q.expr}|${q.look ?? 0}|${(q.headTilt ?? 0).toFixed(2)}|${q.facing ?? 0}|${bl}|${q.wave ?? "-"}|${lt.toFixed(2)}`;
+        : `F|${w.key}|${q.expr}|${q.look ?? 0}|${(q.headTilt ?? 0).toFixed(2)}|${q.facing ?? 0}|${bl}|${q.wave ?? "-"}|${hk}|${lt.toFixed(2)}`;
       act.r = this.pool.req(key, cw, ch, kk, (p: Pen) => q.side
         ? bodySide(p, w.o, { mode: "march", phase: Math.round(q.side.phase * 16) / 16, expr: q.expr, blink: bl, stride: q.side.stride ?? 0.8, stomp: 0.4, light: lt, seed: w.seed })
-        : bodyFront(p, w.o, { mode: "stand", expr: q.expr, look: q.look ?? 0, headTilt: q.headTilt ?? 0, facing: q.facing ?? 0, blink: bl, wave: q.wave, light: lt, seed: w.seed }));
+        : bodyFront(p, w.o, { mode: "stand", expr: q.expr, look: q.look ?? 0, headTilt: q.headTilt ?? 0, facing: q.facing ?? 0, blink: bl, wave: hands ? undefined : q.wave, hands, light: lt, seed: w.seed }));
       act.mesh.visible = true;
       act.mesh.position.set(...q.p);
       act.mesh.rotation.set(0, Math.atan2(cam.position.x - q.p[0], cam.position.z - q.p[2]), 0);
