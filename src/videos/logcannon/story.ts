@@ -105,14 +105,14 @@ const INSIDE: [string, number, number, Expr, number][] = [
 ];
 /** after the surrender: the door stands open and the men are lined up down the path */
 const AFTER = { door: 1, col: { adv: 40, march: false }, fell: 1 };
-const HOOK_C = gp(GF, 0, 0.35, -0.2);
+const HOOK_C = gp(GF, 0, 0.8, -0.2);
 const hookCam = (a: number, r: number, h: number, roll: number, fov = 52): Cam => full(orb(HOOK_C, a, r, h, { fov, roll }));
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // hook: the black muzzle and the man with his hand on it; the camera swings round behind the log to face the fort
   hook: (s, f) => { const u = smooth((f - s.a) / (s.b - s.a));
     return { light: "day", dof: 2, gun: GF, ...AFTER, focus: gp(GF, 0, 0.9, 0),
-      cam: hookCam(27 - 167 * u, 3.6 + 0.6 * u, 0.9 + 0.8 * u, 0.06 - 0.1 * u, 52 + 5 * u),
+      cam: hookCam(27 - 167 * u, 3.6 + 0.6 * u, 0.55 + 0.6 * u, 0.06 - 0.1 * u, 52 + 5 * u),
       people: [washAtGun("grin"), rugAtGun("pained", { extra: true })] }; },
   // the fort from the air: barn, ditch and the ring of stakes, Washington's men drawn up outside
   aerial: (s, f) => ({ light: "day", dof: 0, gun: null,
@@ -216,7 +216,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: [washAtGun("grin")] }; },
   // not one shot fired: round to the back of the "cannon", where it is plainly a tree
   noshot: (s, f) => ({ light: "day", dof: 2, gun: GF, ...AFTER, focus: gp(GF, 0, 0.9, 0.4),
-    cam: orbit(s, f, gp(GF, 0, 0.6, 0.1), [15, -140], [4.4, 3.8], [0.9, 1.2], 54, [-0.05, 0.04]),
+    cam: orbit(s, f, gp(GF, 0, 1.0, 0.1), [15, -140], [4.4, 3.9], [0.55, 0.85], 54, [-0.05, 0.04]),
     people: [washAtGun("grin")] }),
   // the British general hears, and writes one line
   general: (s, f) => { const u = (f - s.a) / (s.b - s.a);
@@ -226,7 +226,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // Rugeley, glum, beside the log that beat him; the camera comes back round to where the film began
   end: (s, f) => { const mid = W(14, "made") - 2, u = smooth((f - mid) / (s.b - mid - 4)), rp = gp(GF, 1.0, 1.45, 2.3);
     return { light: "day", dof: 2, gun: GF, ...AFTER, focus: f < mid ? rp : gp(GF, 0, 1.0, 0), closeup: f < mid,
-      cam: f < mid ? snap(gp(GF, 2.6, 1.5, -0.6), rp, f, s.a, { fov: 40, roll: -0.05 }, 1.3) : hookCam(-40 + 67 * u, 3.9 - 0.3 * u, 1.3 - 0.4 * u, -0.03 + 0.09 * u),
+      cam: f < mid ? snap(gp(GF, 2.6, 1.5, -0.6), rp, f, s.a, { fov: 40, roll: -0.05 }, 1.3) : hookCam(-40 + 67 * u, 3.9 - 0.3 * u, 0.9 - 0.35 * u, -0.03 + 0.09 * u),
       people: [washAtGun("grin", -1, { extra: f < mid }), rugAtGun("pained", { extra: f >= mid })] }; },
 };
 function rollGun(d: number): Gun { return { p: [0, 0, 12.4 - d], yaw: 0, spin: d / 0.62, black: 1, wheels: true }; }
