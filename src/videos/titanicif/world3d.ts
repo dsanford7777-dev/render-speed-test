@@ -74,6 +74,8 @@ const OUT: Record<string, Who> = {
   gent3: who(SUIT("#8a5a3a", { hat: "fedora", cap: "#3a2a20", skin: "#f0d2b0" }), 63, "gent3"),
   sailor: who(SUIT("#f1ede2", { hat: "cap", cap: "#f1ede2", pants: NAVY, skin: "#f5c9a0" }), 64, "sailor"),
 };
+/** let another video that reuses this world add its own people (by name, as `who` in a shot) */
+export const addCast = (key: string, o: Outfit, seed: number) => { OUT[key] = who(o, seed, key); };
 
 const tier = (d: number): [number, number, number] => d < 3.2 ? [1800, 3000, 3.0] : d < 6.5 ? [1080, 1800, 1.8] : d < 16 ? [480, 800, 0.8] : [240, 400, 0.4];
 const M = (key: string, col: string, extra: THREE.MeshLambertMaterialParameters = {}) => lam(key, () => ({ color: col, ...extra }));
@@ -518,7 +520,7 @@ export class TWorld {
       const mat = lam(`sign_${key}`, () => ({ map: signTex(key, text, "#2f2a3a", "#e8c45a") }));
       if (this.cabin.sign.material !== mat) this.cabin.sign.material = mat;
       const isBridge = !rm.radio;
-      this.cabin.bridge.visible = isBridge; this.cabin.marconi.visible = !isBridge;
+      this.cabin.bridge.visible = isBridge && !rm.plain; this.cabin.marconi.visible = !isBridge && !rm.plain;
       // out of the wheelhouse windows: day sky over a blue sea, or the moonless night
       if (rm.night) { this.cabin.glass.color.setRGB(0.05, 0.08, 0.2); this.cabin.sea.color.setRGB(0.03, 0.05, 0.13); }
       else { this.cabin.glass.color.setRGB(0.62, 0.86, 1.25); this.cabin.sea.color.setRGB(0.16, 0.42, 0.85); }

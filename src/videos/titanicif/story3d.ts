@@ -40,7 +40,7 @@ export type St3 = {
   boat?: { out: number; drop: number };
   seaBoats?: V3[];
   bell?: number;
-  room?: { sign: [string, string]; /** night outside the wheelhouse windows */ night?: boolean; wheel?: number; radio?: boolean; papers?: number[]; num?: Num | null };
+  room?: { sign: [string, string]; /** no wheelhouse or wireless dressing: a plain cabin */ plain?: boolean; /** night outside the wheelhouse windows */ night?: boolean; wheel?: number; radio?: boolean; papers?: number[]; num?: Num | null };
   cards?: Card[];
 };
 
