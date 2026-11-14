@@ -148,7 +148,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St> = {
       people: [P("blair", BL, "grin", 0)], subjects: [["the key", hip, 0.1]] }; },
   // the lookouts' locker up in the crow's nest (in port, by day): the camera cranes up the foremast to it
   locker: (s, f) => ({ ...DAY, dof: 1, nestBox: true,
-    cam: move({ pos: Nt(-6, 7, -8), look: Nt(-0.5, 0.8, 0.3), fov: 50, roll: 0.06 }, { pos: Nt(0.6, 3.0, -1.7), look: Nt(-0.65, 0.6, 0), fov: 44, roll: -0.04 }, f, s.a, s.b, smooth, 0),
+    cam: move({ pos: Nt(7, 8, -7), look: Nt(-0.5, 0.9, 0.3), fov: 50, roll: 0.06 }, { pos: Nt(2.2, 3.0, -1.2), look: Nt(-0.6, 1.0, 0.45), fov: 44, roll: -0.04 }, f, s.a, s.b, smooth, 0),
     subjects: [["the locker", Nt(-0.6, 1.1, 0.45), 0.25]] }),
   // binoculars: whip onto a pair, lying on the locker lid
   bino: (s, f) => ({ ...DAY, dof: 4, nestBox: true, focus: Nt(-0.7, 0.8, 0),
@@ -165,7 +165,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St> = {
     people: [P("fleet", Nt(0, 0.06, -0.36), "nervous", 0, { low: true })] }),
   // looking up at him against the stars, nothing in his hands
   dark: (s, f) => ({ ...SEA, dof: 6, nestBox: true,
-    cam: kick(snap(Nt(1.3, 0.9, -1.6), Nt(0.1, 1.9, -0.36), f, s.a, { fov: 46, roll: 0.14 }, 1.5, 5), f, s.a + 3, 1),
+    cam: kick(snap(Nt(1.3, 0.9, -1.6), Nt(0.1, 1.45, -0.36), f, s.a, { fov: 46, roll: 0.14 }, 1.5, 5), f, s.a + 3, 1),
     people: [P("fleet", Nt(0, 0.06, -0.36), "pained", 0, { low: true })] }),
   // the inquiry: Fleet in the witness spot, a senator at the table
   inquiry: (s, f) => ({ light: "day", dof: 4, room: room(INQ),
@@ -217,7 +217,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St> = {
       bino: { p: shelf, yaw: 0.4 }, people: [P("hogg", Rm(-2.6, 0, 2.45), "grin", -1)] }; },
   // before the voyage: the ship at her berth in Southampton
   dock: (s, f) => ({ ...DAY, dof: 0,
-    cam: move({ pos: Qy(-20, 3, -60), look: S(10, 14, 0), fov: 50, roll: 0.06 }, { pos: Qy(-40, 12, -85), look: S(0, 14, 0), fov: 54, roll: -0.03 }, f, s.a, s.b, smooth, 0) }),
+    cam: move({ pos: Qy(-20, 3, -60), look: S(10, 14, 0), fov: 50, roll: 0.06 }, { pos: Qy(-34, 20, -46), look: S(0, 14, 0), fov: 54, roll: -0.03 }, f, s.a, s.b, smooth, 0) }),
   // at sea, a lookout asks the second officer for glasses
   ask: (s, f) => ({ light: "day", dof: 4, room: room(CABIN), cupboard: { door: 0 },
     cam: orbit(s, f, Rm(0.5, 1.3, 1.75), [-22, 14], [5.6, 4.9], [0.2, 0.05], 42, [0.06, -0.05]),
@@ -238,7 +238,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St> = {
       subjects: [["the key", AUC_KEY.p, 0.1]] }; },
   // "Nobody can agree what it opened": back on the quay, the camera comes round to where the film began
   end: (s, f) => { const u = smooth(U(s, f)), h = hookCam(f, 0);
-    const c0 = full({ pos: [HAND[0] - 1.6, HAND[1] + 0.3, HAND[2] - 2.4], look: [HAND[0] + 0.12, HAND[1] + 0.12, HAND[2]], fov: 40, roll: 0.08 });
+    const c0 = full({ pos: [HAND[0] + 1.9, HAND[1] + 0.35, HAND[2] - 2.6], look: HOOK_C, fov: 40, roll: 0.08 });
     return { ...DAY, dof: 3, closeup: true, focus: [HAND[0] + 0.1, HAND[1], HAND[2]],
       cam: u >= 1 ? h : mix(c0, h, u), key: keyInHand(f), people: [blair(u > 0.5 ? "grin" : "nervous", f)],
       subjects: [["the key", [HAND[0], HAND[1] + 0.2, HAND[2]], 0.1]] }; },
