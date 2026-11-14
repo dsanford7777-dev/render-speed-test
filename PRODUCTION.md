@@ -43,7 +43,7 @@
   ```
   - `channel`: `shorts` or `explained`. `asset` defaults to `<Composition>.mp4` from the release.
   - `publishAt` needs a time zone and must be in the future; without it the video stays private.
-  - `thumbnail`: a repo path or a release asset name (long-forms). Optional fields: `categoryId` (default 27 Education), `madeForKids` (default false), `containsSyntheticMedia`, `language` (default en), `force` (re-upload a release already in `uploads.log`), `channelId` (fails the run loudly if the token belongs to another channel).
+  - `thumbnail`: a repo path or a release asset name (long-forms). Optional fields: `categoryId` (default 27 Education), `madeForKids` (default false), `containsSyntheticMedia` (default true: Studio's "Altered content" = Yes), `language` (default en; sets video and title/description language), `force` (re-upload a release already in `uploads.log`), `channelId` (fails the run loudly if the token belongs to another channel).
 - Channel IDs (use as `channelId`): `shorts` = Paradox Town `UCl-QfCSpuFSXpego91Z5i7A`; `explained` = ParadoxTownExplained `UCx1xmhy5MastJ1ug1-KqygA`. Both tokens tested Nov 13 with `"release": "test"` (uploads a 5 s generated clip, private, not logged).
 - Every upload is logged in `uploads.log`; the same release can't go to the same channel twice without `"force": true`.
 - **Comment:** add `"comment": "..."` to `upload.json`. YouTube refuses comments on private videos, so it is queued in `pending-comments.json` and `comment.yml` (hourly, minute 17, or run by hand) posts it once the video is public. The refresh tokens need both scopes: `youtube.upload` and `youtube.force-ssl`.

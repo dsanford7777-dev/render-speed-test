@@ -1,0 +1,30 @@
+name: Mark uploaded videos as AI-made and English
+# Push video-flags.json: [{"channel": "shorts"|"explained", "videoId": "..."}].
+# New uploads already get these settings from upload.yml; this fixes videos uploaded before that.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [video-flags.json]
+permissions:
+  contents: read
+concurrency:
+  group: youtube-upload
+  cancel-in-progress: false
+jobs:
+  flags:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Update the videos
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_SHORTS: ${{ secrets.YT_REFRESH_SHORTS }}
+          YT_REFRESH_EXPLAINED: ${{ secrets.YT_REFRESH_EXPLAINED }}
+        run: |
+          pip install --quiet google-api-python-client google-auth
+          python scripts/youtube_set_flags.py

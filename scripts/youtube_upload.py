@@ -76,8 +76,8 @@ def main() -> None:
     }
     if publish_at:
         status["publishAt"] = publish_at
-    if "containsSyntheticMedia" in cfg:
-        status["containsSyntheticMedia"] = bool(cfg["containsSyntheticMedia"])
+    # Paradox Town videos are AI-made: YouTube's "Altered content" is Yes unless upload.json says false.
+    status["containsSyntheticMedia"] = bool(cfg.get("containsSyntheticMedia", True))
 
     body = {
         "snippet": {
