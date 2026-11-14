@@ -113,10 +113,15 @@ const NESTC: V3 = Nt(0, 1.45, 0);
 const B7 = (drop: number): V3 => [BOAT7_X, DECK + 0.75 - drop, -15.3];
 const inBoat = (names: string[], drop: number, expr: Expr | Expr[] = "nervous", o: V3 = B7(drop)): Person3[] =>
   names.map((n, k) => P(n, [o[0] - 3.0 + (k % 6) * 1.2 + (k >= 6 ? 0.6 : 0), o[1] + 0.55, o[2] + (k >= 6 ? 0.55 : k % 2 ? 0.25 : -0.3)], Array.isArray(expr) ? expr[k % expr.length] : expr, 0, { low: true }));
-// a boat in the water: people sit on its thwarts, inside the hull (half-width 1.12 inside, rail 1.24 above the keel)
-const SEA_SEATS: V3[] = [[-2.6, 0.55, -0.45], [-1.3, 0.55, 0.45], [0, 0.55, -0.45], [1.3, 0.55, 0.45], [2.6, 0.55, -0.45], [-1.95, 0.55, 0.0], [0.65, 0.55, 0.0], [1.95, 0.55, -0.1]];
-const inSeaBoat = (boat: number, names: string[], expr: (k: number) => Expr, kids: string[] = ["kid"]): Person3[] =>
-  names.map((n, k) => { const q = SEA_SEATS[k % SEA_SEATS.length]; return P(n, [q[0], kids.includes(n) ? 0.95 : q[1], q[2]], expr(k), 0, { low: true, ride: boat }); });
+// a boat in the water. Adults stand on the floorboards in the gaps between the thwarts (thwarts at x -2.6, -1.3, 0,
+// 1.3, 2.6, 0.28 thick, across the whole beam), so no seat cuts through a body or a skirt. Children stand on a thwart
+// so they see over the side. Inside half-width 1.12, rail 1.24 above the keel, floorboards 0.55.
+const SEA_GAPS: V3[] = [[-1.95, 0.55, -0.45], [-0.65, 0.55, 0.45], [0.65, 0.55, -0.45], [1.95, 0.55, 0.45], [-1.95, 0.55, 0.45], [0.65, 0.55, 0.45], [-0.65, 0.55, -0.45], [1.95, 0.55, -0.45]];
+const SEA_THWARTS: V3[] = [[0, 0.95, 0], [-1.3, 0.95, 0], [1.3, 0.95, 0]];
+const inSeaBoat = (boat: number, names: string[], expr: (k: number) => Expr, kids: string[] = ["kid"]): Person3[] => {
+  let a = 0, c = 0;
+  return names.map((n, k) => { const kid = kids.includes(n), q = kid ? SEA_THWARTS[c++ % SEA_THWARTS.length] : SEA_GAPS[a++ % SEA_GAPS.length]; return P(n, q, expr(k), 0, { low: true, ride: boat }); });
+};
 // by the lifeboat: the bit of open deck just aft of it, seen from outside the rail
 const GATE: V3 = Dk(17.6, 1.4, -10.5);
 const gateCam = (s: ShotDef, f: number, a: [number, number] = [-16, 14], r: [number, number] = [9.2, 8.0], roll: [number, number] = [0.05, -0.04]) => orbit(s, f, GATE, a, r, [0.5, 0.25], 40, roll);
