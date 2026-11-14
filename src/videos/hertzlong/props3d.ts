@@ -157,8 +157,11 @@ export class Cards {
     for (let i = 0; i < n; i++) { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w), mat); m.visible = false; m.layers.set(NOINK); m.renderOrder = 3; root.add(m); this.list.push(m); }
   }
   hide() { for (const m of this.list) m.visible = false; }
-  put(k: number, p: THREE.Vector3, cam: THREE.Camera, spin: number, scale = 1) {
-    const m = this.list[k]; if (!m) return; m.visible = true; m.position.copy(p); m.quaternion.copy(cam.quaternion); m.rotateZ(spin); m.scale.setScalar(scale);
+  /** `flat`: lie face-up on a surface (paper on a pile or a desk) instead of facing the camera */
+  put(k: number, p: THREE.Vector3, cam: THREE.Camera, spin: number, scale = 1, flat = false) {
+    const m = this.list[k]; if (!m) return; m.visible = true; m.position.copy(p);
+    if (flat) m.quaternion.setFromEuler(new THREE.Euler(-Math.PI / 2, 0, spin)); else { m.quaternion.copy(cam.quaternion); m.rotateZ(spin); }
+    m.scale.setScalar(scale);
   }
 }
 /** a jagged spark burst */

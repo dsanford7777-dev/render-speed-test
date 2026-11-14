@@ -23,9 +23,9 @@ const Qy = (x: number, y: number, z: number): V3 => [x, QUAY + y, z];
 const Nt = at(NEST);
 
 export type Cam = { pos: V3; look: V3; fov: number; roll: number };
-export type Person3 = { who: string; p: V3; expr: Expr; look?: number; headTilt?: number; facing?: -1 | 0 | 1; wave?: number; low?: boolean; /** world points the hands are on: the arms reach to them */ hands?: V3[]; side?: { phase: number; mirror: boolean; stride?: number } };
+export type Person3 = { who: string; p: V3; expr: Expr; look?: number; headTilt?: number; facing?: -1 | 0 | 1; wave?: number; low?: boolean; /** sitting in seaBoats[ride]: `p` is then in the boat's own frame (x along, y up from the keel, z across) and the person moves with the boat */ ride?: number; /** world points the hands are on: the arms reach to them */ hands?: V3[]; side?: { phase: number; mirror: boolean; stride?: number } };
 type Num = { text: string; bg?: string; fg?: string; k?: number };
-type Card = { kind: "paper" | "ice" | "spark"; p: V3; spin: number; s: number };
+type Card = { kind: "paper" | "ice" | "spark"; p: V3; spin: number; s: number; /** lying face-up on something, not facing the camera */ flat?: boolean };
 export type St3 = {
   light: "day" | "golden" | "night"; cam: Cam; dof?: number; focus?: V3; closeup?: boolean;
   people?: Person3[]; wipe?: { color: string; a: number }; subjects?: [string, V3, number][];
@@ -113,6 +113,10 @@ const NESTC: V3 = Nt(0, 1.45, 0);
 const B7 = (drop: number): V3 => [BOAT7_X, DECK + 0.75 - drop, -15.3];
 const inBoat = (names: string[], drop: number, expr: Expr | Expr[] = "nervous", o: V3 = B7(drop)): Person3[] =>
   names.map((n, k) => P(n, [o[0] - 3.0 + (k % 6) * 1.2 + (k >= 6 ? 0.6 : 0), o[1] + 0.55, o[2] + (k >= 6 ? 0.55 : k % 2 ? 0.25 : -0.3)], Array.isArray(expr) ? expr[k % expr.length] : expr, 0, { low: true }));
+// a boat in the water: people sit on its thwarts, inside the hull (half-width 1.12 inside, rail 1.24 above the keel)
+const SEA_SEATS: V3[] = [[-2.6, 0.55, -0.45], [-1.3, 0.55, 0.45], [0, 0.55, -0.45], [1.3, 0.55, 0.45], [2.6, 0.55, -0.45], [-1.95, 0.55, 0.0], [0.65, 0.55, 0.0], [1.95, 0.55, -0.1]];
+const inSeaBoat = (boat: number, names: string[], expr: (k: number) => Expr, kids: string[] = ["kid"]): Person3[] =>
+  names.map((n, k) => { const q = SEA_SEATS[k % SEA_SEATS.length]; return P(n, [q[0], kids.includes(n) ? 0.95 : q[1], q[2]], expr(k), 0, { low: true, ride: boat }); });
 // by the lifeboat: the bit of open deck just aft of it, seen from outside the rail
 const GATE: V3 = Dk(17.6, 1.4, -10.5);
 const gateCam = (s: ShotDef, f: number, a: [number, number] = [-16, 14], r: [number, number] = [9.2, 8.0], roll: [number, number] = [0.05, -0.04]) => orbit(s, f, GATE, a, r, [0.5, 0.25], 40, roll);
@@ -327,12 +331,14 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     cam: kick(snap(Rm(2.9, 1.55, -1.5), Rm(2.2, 1.2, 0.6), f, s.a, { fov: 38, roll: 0.11 }), f, s.a + 4, 0.7),
     subjects: [["the paper pile", Rm(2.0, 1.3, 0.45), 0.25]] }),
   note: (s, f) => {
-    const cards: Card[] = [], land = (f0: number, x: number, y: number, sp: number) => { const u = clamp01((f - f0) / 9); if (u > 0) cards.push({ kind: "paper", p: Rm(x, y + 1.6 * (1 - u) * (1 - u), 0.45), spin: sp, s: 0.62 }); };
-    land(s.a + 4, 1.5, 1.28, 0.1);
-    for (let k = 0; k < 5; k++) land(s.a + 26 + k * 9, 1.5 + (k % 2 ? 0.05 : -0.04), 1.33 + k * 0.045, (k % 2 ? -1 : 1) * 0.16);
+    // each slip drops a hand's height and lies flat on the first pile, one on another
+    const TOP = 0.8 + 0.55 * 0.64 + 0.004;
+    const cards: Card[] = [], land = (f0: number, x: number, y: number, sp: number) => { const u = clamp01((f - f0) / 6); if (u > 0) cards.push({ kind: "paper", p: Rm(x, y + 0.35 * (1 - u) * (1 - u), 0.6), spin: sp, s: 0.42, flat: true }); };
+    land(s.a + 4, 1.5, TOP, 0.1);
+    for (let k = 0; k < 5; k++) land(s.a + 26 + k * 9, 1.5 + (k % 2 ? 0.02 : -0.02), TOP + 0.004 * (k + 1), (k % 2 ? -1 : 1) * 0.16);
     return { light: "day", dof: 8, closeup: true, room: { sign: MARCONI, radio: true, papers: [0.64, 0.5, 0.41, 0.32] }, cards,
-      cam: orbit(s, f, Rm(1.6, 1.25, 0.5), [26, -12], [3.4, 2.9], [0.5, 0.3], 40, [0.08, -0.05]),
-      subjects: [["the note", Rm(1.5, 1.3, 0.45), 0.3]] };
+      cam: orbit(s, f, Rm(1.6, 1.2, 0.55), [26, -12], [3.2, 2.7], [1.5, 1.2], 40, [0.08, -0.05]),
+      subjects: [["the note", Rm(1.5, 1.17, 0.6), 0.3]] };
   },
 
   // ---------------- chapter 5: 11:39 ----------------
@@ -507,7 +513,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   "few-seats": (s, f) => ({ light: "golden", flow: 0.3, dof: 3, ship: { hide: true }, cal: { p: S(-40, 0, 190), lights: 1, yaw: -0.3, kind: "carp" },
     seaBoats: [S(0, 0, 0)],
     cam: orbit(s, f, S(0, 1.5, 0), [-26, 16], [11, 9], [2.6, 1.4], 44, [0.06, -0.05]),
-    people: ["lady3", "mother", "kid", "lady2", "wife", "husband", "sailor"].map((n, k) => P(n, S(-3.3 + k * 1.1, -0.2, k % 2 ? 0.3 : -0.3), k % 3 === 0 ? "relief" : k % 3 === 1 ? "neutral" : "smile_closed", 0, { low: true })) }),
+    people: inSeaBoat(0, ["lady3", "mother", "kid", "lady2", "wife", "husband", "sailor"], (k) => (k % 3 === 0 ? "relief" : k % 3 === 1 ? "neutral" : "smile_closed")) }),
   "you-end": (s, f) => ({ light: "golden", flow: 0.6, dof: 5, ship: { hide: true }, cal: { p: S(0, 0, 0), lights: 1, kind: "carp" },
     cam: orbit(s, f, S(30, 6.5, -4.5), [-18, 16], [8.5, 6.6], [0.6, 0.2], 42, [0.06, -0.04]),
     people: [P("you", S(30, 5.08, -4.5), "neutral", 0, { headTilt: 0.06 })] }),

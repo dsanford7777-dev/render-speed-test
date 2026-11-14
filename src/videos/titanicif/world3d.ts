@@ -17,7 +17,7 @@ import { Board, INK } from "../dst/props";
 import { signTex } from "../lustig/props";
 import { numTex, sparkTex, Cards } from "../hertzlong/props3d";
 import { FPS } from "./timeline";
-import { V3, Rm, ROOM_O, DECK, NEST } from "./story3d";
+import { V3, Rm, ROOM_O, DECK, NEST, type Person3 } from "./story3d";
 import type { St3 } from "./story3d";
 type Light = "day" | "golden" | "night";
 
@@ -417,7 +417,7 @@ export class TWorld {
     this.wheel = new THREE.Group(); this.wheelRim = new THREE.Group();
     const wd = M("ttWheel", "#8a5a3a");
     this.wheelRim.add(new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.05, 10, 32), wd));
-    for (let k = 0; k < 8; k++) { const sp2 = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.2, 0.05), wd); sp2.rotation.z = (k / 8) * Math.PI; if (k < 4) this.wheelRim.add(sp2); }
+    for (let k = 0; k < 8; k++) { const sp2 = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.2, 0.05), wd); sp2.rotation.z = (k / 4) * Math.PI; if (k < 4) this.wheelRim.add(sp2); } // 4 bars through the hub, 45° apart: 8 spokes with handles past the rim
     this.wheelRim.add(new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.12, 12).rotateX(Math.PI / 2), gold));
     this.wheelRim.position.set(0, 1.05, -0.12);
     const ped = new THREE.Mesh(new THREE.BoxGeometry(0.34, 1.05, 0.3), wd); ped.position.y = 0.525;
@@ -430,7 +430,7 @@ export class TWorld {
     const key = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.04, 0.08), gold); key.position.set(0.2, 0.2, -0.2); key.rotation.z = 0.12;
     const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.05, 12), dark); knob.position.set(0.4, 0.25, -0.2);
     this.radio.add(base, coil(-0.3), coil(0.02), key, knob); this.radio.traverse((o) => { o.castShadow = true; }); this.radio.position.set(...Rm(0.35, 0.8, 0.8)); R.add(this.radio);
-    for (let k = 0; k < 4; k++) { const st = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1, 0.22), lam("ttPaperStack", () => ({ map: stackTex() }))); st.position.set(...Rm(1.5 + k * 0.5, 0.8, 0.6)); st.castShadow = true; this.stacks.push(st); R.add(st); }
+    for (let k = 0; k < 4; k++) { const st = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1, 0.22), lam("ttPaperStack", () => ({ map: stackTex() }))); st.position.set(...Rm(1.5 + k * 0.4, 0.8, 0.6)); st.castShadow = true; this.stacks.push(st); R.add(st); }
     this.rnum = new Board(1.9, 1.2, "num_SOS", () => numTex("SOS")); this.rnum.group.position.set(...Rm(0.5, 2.15, 3.38)); R.add(this.rnum.group);
     this.papers = new Cards(R, paperTex(), 16, 0.6); this.ices = new Cards(R, iceTex(), 10, 0.5); this.sparks = new Cards(R, sparkTex(), 6, 1.0);
   }
@@ -530,7 +530,7 @@ export class TWorld {
     this.papers.hide(); this.ices.hide(); this.sparks.hide();
     let np = 0, ni = 0, ns = 0;
     for (const cd of st.cards ?? []) {
-      if (cd.kind === "paper") this.papers.put(np++, V(...cd.p), cam, cd.spin, cd.s);
+      if (cd.kind === "paper") this.papers.put(np++, V(...cd.p), cam, cd.spin, cd.s, !!cd.flat);
       else if (cd.kind === "ice") this.ices.put(ni++, V(...cd.p), cam, cd.spin, cd.s);
       else this.sparks.put(ns++, V(...cd.p), cam, cd.spin, cd.s);
     }
@@ -540,7 +540,13 @@ export class TWorld {
     const right = V(0, 0, 0).setFromMatrixColumn(cam.matrixWorld, 0);
     const lightA = Math.round(Math.atan2(-sunDir.y, sunDir.dot(right)) / (Math.PI / 4)) * (Math.PI / 4);
     const blink = (seed: number) => { const n = Math.floor((t + seed * 0.37) / 2.3), ph = (t + seed * 0.37) - n * 2.3; return ph < 0.13 ? 1 : 0; };
-    const people = (st.people ?? []).map((q) => ({ q, w: OUT[q.who] ?? OUT.man }));
+    const seat = (q: Person3): Person3 => {
+      const sb = q.ride === undefined ? undefined : this.seaBoats[q.ride];
+      if (!sb || !sb.visible) return q;
+      const c = Math.cos(sb.rotation.y), sn = Math.sin(sb.rotation.y), [x, y, z] = q.p;
+      return { ...q, p: [sb.position.x + x * c + z * sn, sb.position.y + y, sb.position.z - x * sn + z * c] };
+    };
+    const people = (st.people ?? []).map((q0) => { const q = seat(q0); return { q, w: OUT[q.who] ?? OUT.man }; });
     this.lastPeople = people.map(({ q }) => ({ name: q.who, p: q.p, walking: !!q.side, low: !!q.low }));
     let ai = 0;
     for (const { q, w } of people) {
