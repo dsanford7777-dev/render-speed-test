@@ -84,18 +84,29 @@ const BL: V3 = Qy(6, 0, -21.5);
 /** the key in his hand: held by the shaft at chest height, out toward the lens (cameras on the -z side, so screen right is -x) */
 const HAND: V3 = [BL[0] - 0.3, BL[1] + 1.1, BL[2] - 0.3];
 /** front = the tag's lettered face (CROWS NEST TELEPHONE KEY) to the lens; otherwise its back (R.M.S. TITANIC) */
-const keyInHand = (f: number, front = false, s = 1): KeyPose => ({ p: [HAND[0] + (front ? 0.27 : -0.27) * s, HAND[1], HAND[2]], yaw: front ? Math.PI : 0, s, swing: 0.12 * Math.sin(f * 0.15) * Math.min(1, f / 12, (TOTAL - f) / 12) });
+/** held up in his fist by the bow, shaft pointing at the sky, the tag (its R.M.S. TITANIC side to the lens) hanging below */
+const keyInHand = (f: number, s = 1.4): KeyPose => ({ p: [HAND[0], HAND[1] + 0.04, HAND[2]], yaw: 0, roll: Math.PI / 2, s, swing: -Math.PI / 2 + 0.12 * Math.sin(f * 0.15) * Math.min(1, f / 12, (TOTAL - f) / 12) });
 /** the middle of the tag hanging off a key */
-const tagC = (k: KeyPose): V3 => { const s = k.s ?? 1, d = (k.yaw ?? 0) === 0 ? -1 : 1; return [k.p[0] + d * 0.061 * s, k.p[1] - 0.0985 * s, k.p[2]]; };
+const tagC = (k: KeyPose): V3 => {
+  // the tag's middle in the key's own frame, turned by the key's rotation (order Y, X, Z as in props.ts)
+  const sc = 1.35 * (k.s ?? 1); let x = -0.045 * sc, y = -0.073 * sc, z = 0;
+  const r = k.roll ?? 0, pi = k.pitch ?? 0, ya = k.yaw ?? 0;
+  [x, y] = [x * Math.cos(r) - y * Math.sin(r), x * Math.sin(r) + y * Math.cos(r)];
+  [y, z] = [y * Math.cos(pi) - z * Math.sin(pi), y * Math.sin(pi) + z * Math.cos(pi)];
+  [x, z] = [x * Math.cos(ya) + z * Math.sin(ya), -x * Math.sin(ya) + z * Math.cos(ya)];
+  return [k.p[0] + x, k.p[1] + y, k.p[2] + z];
+};
 const blair = (expr: Expr, f: number, look = 0, extra: Partial<Person3> = {}): Person3 => P("blair", BL, expr, look, { hands: [HAND], ...extra });
 /** hook framing: close on the key in his hand, his face behind it */
-const HOOK_C: V3 = [HAND[0] + 0.12, HAND[1] + 0.24, HAND[2]];
-const hookCam = (f: number, k: number): Cam => full({ pos: [HOOK_C[0] + 0.1 + 0.3 * k, HOOK_C[1] + 0.05, HOOK_C[2] - 1.55 - 0.15 * k], look: HOOK_C, fov: 36, roll: -0.06 + 0.08 * k });
+const HOOK_C: V3 = [HAND[0] + 0.2, HAND[1] + 0.3, HAND[2]];
+const hookCam = (f: number, k: number): Cam => full({ pos: [HOOK_C[0] + 0.1 + 0.3 * k, HOOK_C[1] + 0.05, HOOK_C[2] - 2.05 - 0.15 * k], look: HOOK_C, fov: 36, roll: -0.06 + 0.08 * k });
 // the cabin far off at ROOM_O: plain (no wheelhouse dressing), its sign swapped per scene
 const CABIN: [string, string] = ["tkcabin", "SECOND OFFICER"], INQ: [string, string] = ["tkinq", "U.S. SENATE INQUIRY · 1912"], AUC: [string, string] = ["tkauc", "AUCTION · 2007"];
 const room = (sign: [string, string]) => ({ sign, plain: true });
 const CUP: V3 = Rm(-3.6, 0, 3.22);
 const TABLE: V3 = Rm(0.5, 0.8, 0.6);
+/** the key lying flat on the table in Blair's cabin, lettered face up */
+const TAB_KEY: KeyPose = { p: [TABLE[0] - 0.6, TABLE[1] + 0.02, TABLE[2] + 0.05], yaw: Math.PI, pitch: -Math.PI / 2, s: 1, swing: 0 };
 /** the key lying flat on the auction cushion, lettered face up */
 const AUC_KEY: KeyPose = { p: [TABLE[0] + 0.12, TABLE[1] + 0.085, TABLE[2] - 0.02], yaw: Math.PI, pitch: -Math.PI / 2, s: 0.9, swing: 0 };
 
@@ -103,7 +114,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St> = {
   // "This key": the key big in the frame, Blair's face behind it
   hook: (s, f) => ({ ...DAY, dof: 3, closeup: true, focus: HAND,
     cam: hookCam(f, smooth(U(s, f))), key: keyInHand(f), people: [blair("grin", f)],
-    subjects: [["the key", HAND, 0.1]] }),
+    subjects: [["the key", [HAND[0], HAND[1] + 0.2, HAND[2]], 0.1]] }),
   // "...sank the Titanic": snap out and up the black side of the ship towering over him
   ship: (s, f) => ({ ...DAY, dof: 0,
     cam: kick(move({ pos: Qy(7.8, 0.6, -25.2), look: Qy(5.5, 2.2, -21), fov: 56, roll: 0.08 }, { pos: Qy(12, 0.5, -30.5), look: S(-6, 19, -8), fov: 62, roll: -0.04 }, f, s.a, s.b, expo, 0), f, s.a + 2, 1),
@@ -132,18 +143,18 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St> = {
   // a key in his pocket: close on his hip, the tag dangling out of the jacket
   pocket: (s, f) => { const hip: V3 = [BL[0] - 0.22, BL[1] + 0.98, BL[2] - 0.12];
     return { ...DAY, dof: 6, closeup: true, focus: hip,
-      cam: kick(snap([hip[0] - 0.15, hip[1] + 0.08, hip[2] - 0.9], [hip[0] + 0.05, hip[1] - 0.02, hip[2]], f, s.a, { fov: 36, roll: -0.09 }, 1.7, 5), f, s.a + 4, 0.8),
-      key: { p: hip, yaw: 0, roll: -1.35, s: 0.55, swing: 1.35 + 0.15 * Math.sin(f * 0.2) },
+      cam: kick(snap([hip[0] - 0.25, hip[1] - 0.05, hip[2] - 1.5], [hip[0] + 0.1, hip[1] + 0.42, hip[2]], f, s.a, { fov: 42, roll: -0.09 }, 1.5, 5), f, s.a + 4, 0.8),
+      key: { p: hip, yaw: 0, roll: -1.35, s: 0.8, swing: 1.35 + 0.15 * Math.sin(f * 0.2) },
       people: [P("blair", BL, "grin", 0)], subjects: [["the key", hip, 0.1]] }; },
   // the lookouts' locker up in the crow's nest (in port, by day): the camera cranes up the foremast to it
   locker: (s, f) => ({ ...DAY, dof: 1, nestBox: true,
     cam: move({ pos: Nt(-4.5, -4.5, -7.5), look: Nt(-0.4, 0.4, 0), fov: 50, roll: 0.06 }, { pos: Nt(0.6, 3.0, -1.7), look: Nt(-0.65, 0.6, 0), fov: 44, roll: -0.04 }, f, s.a, s.b, smooth, 0),
-    subjects: [["the locker", Nt(-0.7, 0.55, 0), 0.25]] }),
+    subjects: [["the locker", Nt(-0.6, 1.1, 0.45), 0.25]] }),
   // binoculars: whip onto a pair, lying on the locker lid
   bino: (s, f) => ({ ...DAY, dof: 4, nestBox: true, focus: Nt(-0.7, 0.8, 0),
-    cam: kick(snap(Nt(0.05, 1.75, -0.55), Nt(-0.65, 0.78, 0), f, s.a, { fov: 40, roll: 0.1 }, 1.8, 5), f, s.a + 4, 0.8),
-    bino: { p: Nt(-0.65, 0.78, 0), yaw: 0.6 + 0.2 * U(s, f) },
-    subjects: [["the binoculars", Nt(-0.65, 0.78, 0), 0.1]] }),
+    cam: kick(snap(Nt(0.2, 1.95, -0.1), Nt(-0.6, 1.17, 0.45), f, s.a, { fov: 40, roll: 0.1 }, 1.8, 5), f, s.a + 4, 0.8),
+    bino: { p: Nt(-0.6, 1.17, 0.45), yaw: 0.6 + 0.2 * U(s, f) },
+    subjects: [["the binoculars", Nt(-0.6, 1.17, 0.45), 0.15]] }),
   // that night: the camera rises past the nest at sea, two men in it
   night: (s, f) => ({ ...SEA, dof: 3, nestBox: true,
     cam: orbit(s, f, Nt(0, 1.45, 0), [58, 112], [7.4, 5.4], [-1.6, 0.6], 44, [0.08, -0.06]),
@@ -155,7 +166,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St> = {
   // looking up at him against the stars, nothing in his hands
   dark: (s, f) => ({ ...SEA, dof: 6, nestBox: true,
     cam: kick(snap(Nt(1.3, 0.9, -1.6), Nt(0.1, 1.9, -0.36), f, s.a, { fov: 46, roll: 0.14 }, 1.5, 5), f, s.a + 3, 1),
-    people: [P("fleet", Nt(0, 0.06, -0.36), "pained", 0, { low: true }), P("lee", Nt(0.05, 0.06, 0.4), "nervous", 0, { low: true })] }),
+    people: [P("fleet", Nt(0, 0.06, -0.36), "pained", 0, { low: true })] }),
   // the inquiry: Fleet in the witness spot, a senator at the table
   inquiry: (s, f) => ({ light: "day", dof: 4, room: room(INQ),
     cam: orbit(s, f, Rm(0.6, 1.3, 1.55), [24, -10], [5.6, 4.8], [0.4, 0.1], 42, [-0.06, 0.04]),
@@ -175,15 +186,15 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St> = {
       cam: kick(move({ pos: Nt(1.5, 3.2, 1.6), look: S(bx + 20, 8, bz), fov: 56, roll: 0.1 }, { pos: Nt(1.0, 3.0, 1.8), look: S(bx - 8, 8, bz + 4), fov: 52, roll: -0.05 }, f, s.a, s.b, smooth, 0), f, s.a + 2, 1),
       subjects: [["iceberg", S(bx, 9, bz), 12]] }; },
   // the key again: round from the back of the tag (R.M.S. TITANIC) to its face
-  tag: (s, f) => { const u = smooth(U(s, f)), k = keyInHand(f, true), c = tagC(k);
-    return { ...DAY, dof: 4, closeup: true, focus: c,
-      cam: full(orb(c, -60 + 60 * u, 0.85 - 0.15 * u, 0.12, { fov: 34, roll: 0.08 - 0.12 * u })),
-      key: k, people: [blair("neutral", f)], subjects: [["the tag", c, 0.05]] }; },
+  tag: (s, f) => { const u = smooth(U(s, f)), c = tagC(TAB_KEY);
+    return { light: "day", dof: 4, room: room(CABIN), cupboard: { door: 0 }, focus: c,
+      cam: move({ pos: [TAB_KEY.p[0] - 0.55, TAB_KEY.p[1] + 0.3, TAB_KEY.p[2] - 0.25], look: TAB_KEY.p, fov: 40, roll: 0.12 }, { pos: [c[0] + 0.05, c[1] + 0.62, c[2] - 0.42], look: c, fov: 36, roll: -0.05 }, f, s.a, s.b, smooth, 0),
+      key: TAB_KEY, subjects: [["the tag", c, 0.05]] }; },
   // "It says: crow's nest telephone": snap onto the tag's face
-  read: (s, f) => { const k = { ...keyInHand(f, true), swing: 0.03 * Math.sin(f * 0.15) }, c = tagC(k);
-    return { ...DAY, dof: 6, closeup: true, focus: c,
-      cam: kick(snap([c[0] - 0.02, c[1] + 0.02, c[2] - 0.78], [c[0], c[1] + 0.02, c[2]], f, s.a, { fov: 30, roll: -0.05 }, 1.8, 5), f, W(9, "crow's") - 1, 0.7),
-      key: k, people: [blair("neutral", f)], subjects: [["the tag", c, 0.05]] }; },
+  read: (s, f) => { const c = tagC(TAB_KEY);
+    return { light: "day", dof: 6, room: room(CABIN), cupboard: { door: 0 }, focus: c,
+      cam: kick(snap([c[0], c[1] + 0.42, c[2] - 0.2], c, f, s.a, { fov: 36, roll: 0.06 }, 1.8, 5), f, W(9, "crow's") - 1, 0.7),
+      key: TAB_KEY, subjects: [["the tag", c, 0.05]] }; },
   // the telephone box in the crow's nest
   phone: (s, f) => ({ ...DAY, dof: 3, nestBox: true, focus: Nt(-0.72, 1.36, 0),
     cam: kick(snap(Nt(0.55, 1.75, -0.45), Nt(-0.72, 1.36, 0), f, s.a, { fov: 40, roll: 0.09 }, 1.6, 5), f, s.a + 4, 0.9),
@@ -192,7 +203,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St> = {
   table: (s, f) => ({ light: "day", dof: 4, room: room(CABIN), cupboard: { door: 1 }, focus: TABLE,
     cam: orbit(s, f, [TABLE[0], TABLE[1] + 0.1, TABLE[2]], [-40, -5], [1.6, 1.3], [0.55, 0.35], 40, [0.1, -0.03], expo),
     bino: { p: [TABLE[0], TABLE[1] + 0.05, TABLE[2]], yaw: 0.4 },
-    subjects: [["the binoculars", [TABLE[0], TABLE[1] + 0.05, TABLE[2]], 0.1]] }),
+    subjects: [["the binoculars", [TABLE[0], TABLE[1] + 0.05, TABLE[2]], 0.2]] }),
   // a lookout (Hogg) puts them in the cupboard in Blair's cabin
   hogg: (s, f) => { const u = smooth(U(s, f)), shelf: V3 = [CUP[0], CUP[1] + 0.86, CUP[2] - 0.05], hp: V3 = L3([TABLE[0], TABLE[1] + 0.05, TABLE[2]], shelf, u);
     return { light: "day", dof: 3, room: room(CABIN), cupboard: { door: 1 },
@@ -223,14 +234,14 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St> = {
   // the hammer comes down on ninety thousand pounds
   hammer: (s, f) => { const bang = s.a + 9, g = f < bang - 7 ? smooth((f - s.a) / 2) : f < bang ? 1 - smooth((f - bang + 7) / 7) : 0;
     return { light: "day", dof: 5, closeup: true, room: room(AUC), auction: { gavel: g }, key: AUC_KEY, focus: AUC_KEY.p,
-      cam: kick(snap([TABLE[0] + 0.15, TABLE[1] + 0.55, TABLE[2] - 0.75], [TABLE[0] + 0.3, TABLE[1] + 0.05, TABLE[2]], f, s.a, { fov: 40, roll: -0.08 }, 1.4, 5), f, bang, 1.5),
+      cam: kick(snap([AUC_KEY.p[0] - 0.05, AUC_KEY.p[1] + 0.6, AUC_KEY.p[2] - 0.75], AUC_KEY.p, f, s.a, { fov: 40, roll: -0.08 }, 1.4, 5), f, bang, 1.5),
       subjects: [["the key", AUC_KEY.p, 0.1]] }; },
   // "Nobody can agree what it opened": back on the quay, the camera comes round to where the film began
   end: (s, f) => { const u = smooth(U(s, f)), h = hookCam(f, 0);
     const c0 = full({ pos: [HAND[0] - 1.6, HAND[1] + 0.3, HAND[2] - 2.4], look: [HAND[0] + 0.12, HAND[1] + 0.12, HAND[2]], fov: 40, roll: 0.08 });
     return { ...DAY, dof: 3, closeup: true, focus: [HAND[0] + 0.1, HAND[1], HAND[2]],
       cam: u >= 1 ? h : mix(c0, h, u), key: keyInHand(f), people: [blair(u > 0.5 ? "grin" : "nervous", f)],
-      subjects: [["the key", [HAND[0] + 0.12, HAND[1], HAND[2]], 0.1]] }; },
+      subjects: [["the key", [HAND[0], HAND[1] + 0.2, HAND[2]], 0.1]] }; },
 };
 
 /** every shot is hand-held: a slow sway on top of its move (none at the loop frames) */

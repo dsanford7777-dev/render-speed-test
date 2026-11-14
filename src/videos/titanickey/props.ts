@@ -94,7 +94,7 @@ export class KeyProps {
     const pb = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.42, 0.18), [wood, wood, wood, wood, new THREE.MeshLambertMaterial({ map: phoneTex() }), wood]);
     pb.position.set(nest[0] - 0.72, nest[1] + 1.36, nest[2]); pb.rotation.y = Math.PI / 2;
     const hs = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.26, 8), dark); hs.position.set(nest[0] - 0.6, nest[1] + 1.36, nest[2] + 0.22);
-    const lk = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.34, 0.26), wood); lk.position.set(nest[0] - 0.7, nest[1] + 0.55, nest[2]); lk.rotation.y = Math.PI / 2;
+    const lk = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.34, 0.26), wood); lk.position.set(nest[0] - 0.6, nest[1] + 0.95, nest[2] + 0.45); lk.rotation.y = Math.PI / 2;
     this.nest.add(pb, hs, lk); this.root.add(this.nest);
     // ---- the auction: a red cushion and a gavel on the table ----
     const cush = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.07, 0.38), red); cush.position.set(table[0], table[1] + 0.035, table[2]);
