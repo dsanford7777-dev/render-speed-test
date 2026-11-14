@@ -143,12 +143,12 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St> = {
   // a key in his pocket: close on his hip, the tag dangling out of the jacket
   pocket: (s, f) => { const hip: V3 = [BL[0] - 0.22, BL[1] + 0.98, BL[2] - 0.12];
     return { ...DAY, dof: 6, closeup: true, focus: hip,
-      cam: kick(snap([hip[0] - 0.25, hip[1] - 0.05, hip[2] - 1.5], [hip[0] + 0.1, hip[1] + 0.42, hip[2]], f, s.a, { fov: 42, roll: -0.09 }, 1.5, 5), f, s.a + 4, 0.8),
+      cam: kick(snap([hip[0] - 0.3, hip[1] - 0.05, hip[2] - 1.75], [hip[0] + 0.1, hip[1] + 0.25, hip[2]], f, s.a, { fov: 42, roll: -0.09 }, 1.4, 5), f, s.a + 4, 0.8),
       key: { p: hip, yaw: 0, roll: -1.35, s: 0.8, swing: 1.35 + 0.15 * Math.sin(f * 0.2) },
       people: [P("blair", BL, "grin", 0)], subjects: [["the key", hip, 0.1]] }; },
   // the lookouts' locker up in the crow's nest (in port, by day): the camera cranes up the foremast to it
   locker: (s, f) => ({ ...DAY, dof: 1, nestBox: true,
-    cam: move({ pos: Nt(-4.5, -4.5, -7.5), look: Nt(-0.4, 0.4, 0), fov: 50, roll: 0.06 }, { pos: Nt(0.6, 3.0, -1.7), look: Nt(-0.65, 0.6, 0), fov: 44, roll: -0.04 }, f, s.a, s.b, smooth, 0),
+    cam: move({ pos: Nt(-6, 7, -8), look: Nt(-0.5, 0.8, 0.3), fov: 50, roll: 0.06 }, { pos: Nt(0.6, 3.0, -1.7), look: Nt(-0.65, 0.6, 0), fov: 44, roll: -0.04 }, f, s.a, s.b, smooth, 0),
     subjects: [["the locker", Nt(-0.6, 1.1, 0.45), 0.25]] }),
   // binoculars: whip onto a pair, lying on the locker lid
   bino: (s, f) => ({ ...DAY, dof: 4, nestBox: true, focus: Nt(-0.7, 0.8, 0),
