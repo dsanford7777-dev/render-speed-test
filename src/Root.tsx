@@ -16,6 +16,7 @@ import { TitanicIf, TitanicThumb, TITANICIF_FRAMES } from "./videos/titanicif/Ti
 import { CrashIf, CrashThumb, CRASHIF_FRAMES } from "./videos/crashif/CrashIf";
 import { KitTest, KitTestWide, KIT_FRAMES } from "./videos/kittest/KitTest";
 import { LogCannon, LOGCANNON_FRAMES } from "./videos/logcannon/LogCannon";
+import { TitanicKey, TITANICKEY_FRAMES } from "./videos/titanickey/TitanicKey";
 
 // Render-farm padding: on software GL (GitHub runners) the first frame each render tab draws comes out blank.
 // "<Id>Padded" plays the real video delayed by PAD frames (frames 0..PAD-1 repeat frame 0), so every chunk can
@@ -43,6 +44,7 @@ const BarberPadded = padded(BarberShort);
 const LustigPadded = padded(LustigShort);
 const ClocksPadded = padded(ClocksShort);
 const LogCannonPadded = padded(LogCannon);
+const TitanicKeyPadded = padded(TitanicKey);
 const HertzLongPadded = padded(HertzLong);
 const HertzThumbPadded = padded(HertzThumb);
 const TitanicIfPadded = padded(TitanicIf);
@@ -82,6 +84,8 @@ export const Root: React.FC = () => (<>
   <Composition id="TitanicThumbPadded" component={TitanicThumbPadded} durationInFrames={3 + PAD} fps={30} width={1920} height={1080} />
   <Composition id="LogCannon" component={LogCannon} durationInFrames={LOGCANNON_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="LogCannonPadded" component={LogCannonPadded} durationInFrames={LOGCANNON_FRAMES + PAD} fps={30} width={1080} height={1920} />
+  <Composition id="TitanicKey" component={TitanicKey} durationInFrames={TITANICKEY_FRAMES} fps={30} width={1080} height={1920} />
+  <Composition id="TitanicKeyPadded" component={TitanicKeyPadded} durationInFrames={TITANICKEY_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="KitTest" component={KitTest} durationInFrames={KIT_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="KitTestWide" component={KitTestWide} durationInFrames={KIT_FRAMES} fps={30} width={1920} height={1080} />
   <Composition id="KitTestPadded" component={KitTestPadded} durationInFrames={KIT_FRAMES + PAD} fps={30} width={1080} height={1920} />
