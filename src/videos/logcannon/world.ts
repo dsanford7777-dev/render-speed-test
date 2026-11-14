@@ -233,8 +233,9 @@ export class KWorld {
     // ---------------- the log on its carriage ----------------
     { const G = this.gunG, Y = 0.92, LR2 = 0.21;
       const lb = new Batch(); logAt(lb, bark, rings, V(0, Y, -1.7), V(0, Y, 1.0), LR2, 14); lb.build(G);
-      this.sleeve = new THREE.Mesh(new THREE.CylinderGeometry(LR2 + 0.004, LR2 + 0.004, 0.55, 14, 1, true), black); this.sleeve.geometry.rotateX(Math.PI / 2); this.sleeve.geometry.translate(0, 0, 0.275); this.sleeve.position.set(0, Y, -1.7);
-      this.blackDisc = new THREE.Mesh(new THREE.CircleGeometry(LR2 + 0.004, 18), black); this.blackDisc.rotation.y = Math.PI; this.blackDisc.position.set(0, Y, -1.706);
+      const soot = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.012, 0.01, 0.012) });
+      this.sleeve = new THREE.Mesh(new THREE.CylinderGeometry(LR2 + 0.004, LR2 + 0.004, 0.55, 14, 1, true), soot); this.sleeve.geometry.rotateX(Math.PI / 2); this.sleeve.geometry.translate(0, 0, 0.275); this.sleeve.position.set(0, Y, -1.7);
+      this.blackDisc = new THREE.Mesh(new THREE.CircleGeometry(LR2 + 0.004, 18), soot); this.blackDisc.rotation.y = Math.PI; this.blackDisc.position.set(0, Y, -1.706);
       G.add(this.sleeve, this.blackDisc);
       const C = this.carriage;
       const ax = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.5, 8), wood2); ax.rotation.z = Math.PI / 2; ax.position.set(0, 0.62, 0); C.add(ax);
