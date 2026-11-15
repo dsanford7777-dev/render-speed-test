@@ -132,7 +132,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "boil", dof: 2, fire: 0.3, focus: COAL_RAT,
       cam: move({ pos: Bo(-1.3, 1.7, -3.8), look: Bo(-1.05, 0.75, 0.2), fov: 52, roll: 0.06 }, { pos: Bo(-1.75, 1.2, -0.75), look: COAL_RAT, fov: 44, roll: -0.05 }, f, s.a + 10, s.b - 4, smooth, 0),
       rats: [{ p: COAL_RAT, yaw: 0.4, side: true, s: 1.3 }], shovel: sh, puffs: fireLight(0.3),
-      people: [stoker(u > 0.5 ? "stern" : "neutral", sh, { look: 1 })],
+      people: [stoker(u > 0.5 ? "stern" : "neutral", sh, { look: 1, extra: f > s.a + 24 })],
       subjects: [["the rat on the coal", COAL_RAT, 0.25]] }; },
   // ...and throws it in the fire: the shovel swings to the open door, the rat flies in
   toss: (s, f) => { const u = U(s, f), sw = smooth(clamp01(u * 1.8)), fly = clamp01((u - 0.45) / 0.3);
@@ -201,7 +201,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: move({ pos: De(-1.1, 2.5, -2.8), look: De(0, 0.7, 1.2), fov: 54, roll: -0.06 }, { pos: De(-0.35, 2.4, -2.4), look: De(0.0, 0.75, 1.2), fov: 54, roll: 0.03 }, f, s.a, s.b, smooth, 0),
       rats: lid > 0.6 ? crateRats(c, 12) : [],
       people: [P("gofficer", De(0.15, 0, 1.95), lid > 0.7 ? "shock" : "stern", 0, { hw: [De(-0.1, 0.5 + 0.5 * lid, 1.3 + 0.2 * lid), De(0.35, 0.5 + 0.5 * lid, 1.3 + 0.2 * lid)] }),
-        P("gs1", De(-0.95, 0, 1.9), "stern", 1), P("gs2", De(0.95, 0, 1.75), lid > 0.7 ? "shock" : "neutral", -1)],
+        P("gs1", De(-0.7, 0, 2.05), "stern", 1), P("gs2", De(0.75, 0, 1.9), lid > 0.7 ? "shock" : "neutral", -1)],
       subjects: [["the crate", De(0, 0.56, 0.95), 0.35]] }; },
   // every rat, seized: straight down into the open crate
   seized: (s, f) => { const c = De(CRATE[0], 0, CRATE[2]);
