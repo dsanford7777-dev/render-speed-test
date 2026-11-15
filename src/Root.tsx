@@ -14,6 +14,7 @@ import { ClocksShort, CLOCKS_FRAMES } from "./videos/clocks/Clocks";
 import { HertzLong, HertzThumb, HERTZLONG_FRAMES } from "./videos/hertzlong/HertzLong";
 import { TitanicIf, TitanicThumb, TITANICIF_FRAMES } from "./videos/titanicif/TitanicIf";
 import { CrashIf, CrashThumb, CRASHIF_FRAMES } from "./videos/crashif/CrashIf";
+import { PhoneIf, PHONEIF_FRAMES } from "./videos/phoneif/PhoneIf";
 import { KitTest, KitTestWide, KIT_FRAMES } from "./videos/kittest/KitTest";
 import { LogCannon, LOGCANNON_FRAMES } from "./videos/logcannon/LogCannon";
 import { TitanicKey, TITANICKEY_FRAMES } from "./videos/titanickey/TitanicKey";
@@ -52,6 +53,7 @@ const HertzThumbPadded = padded(HertzThumb);
 const TitanicIfPadded = padded(TitanicIf);
 const TitanicThumbPadded = padded(TitanicThumb);
 const CrashIfPadded = padded(CrashIf);
+const PhoneIfPadded = padded(PhoneIf);
 const CrashThumbPadded = padded(CrashThumb);
 
 export const Root: React.FC = () => (<>
@@ -96,6 +98,8 @@ export const Root: React.FC = () => (<>
   <Composition id="KitTestWidePadded" component={KitTestWidePadded} durationInFrames={KIT_FRAMES + PAD} fps={30} width={1920} height={1080} />
   <Composition id="CrashIf" component={CrashIf} durationInFrames={CRASHIF_FRAMES} fps={30} width={1920} height={1080} />
   <Composition id="CrashIfPadded" component={CrashIfPadded} durationInFrames={CRASHIF_FRAMES + PAD} fps={30} width={1920} height={1080} />
+  <Composition id="PhoneIf" component={PhoneIf} durationInFrames={PHONEIF_FRAMES} fps={30} width={1920} height={1080} />
+  <Composition id="PhoneIfPadded" component={PhoneIfPadded} durationInFrames={PHONEIF_FRAMES + PAD} fps={30} width={1920} height={1080} />
   <Composition id="CrashThumb" component={CrashThumb} durationInFrames={3} fps={30} width={1920} height={1080} />
   <Composition id="CrashThumbPadded" component={CrashThumbPadded} durationInFrames={3 + PAD} fps={30} width={1920} height={1080} />
   <Composition id="PigWarLongPadded" component={PigWarLongPadded} durationInFrames={PIGWARLONG_FRAMES + PAD} fps={30} width={1920} height={1080} />
