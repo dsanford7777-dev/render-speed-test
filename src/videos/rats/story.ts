@@ -114,7 +114,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       subjects: [["the rat", Wk(0.1, BENCH.y + 0.12, 1.45), 0.2]] }; },
   // the saboteurs' workshop: orbit round the bench, both men at work
   workshop: (s, f) => ({ light: "room", dof: 1, focus: Wk(0, 1.2, 1.6),
-    cam: orbit(s, f, Wk(0, 1.0, 1.6), [-28, 12], [5.4, 4.8], [1.0, 0.8], 50, [0.05, -0.04]),
+    cam: orbit(s, f, Wk(-0.45, 1.0, 1.6), [-16, 12], [6.0, 5.4], [1.0, 0.8], 50, [0.05, -0.04]),
     rats: [heroRat({ open: 1 }), ...benchRow(4)], putty: [Wk(0.6, BENCH.y + 0.035, 1.75)],
     people: [maker("stern"), P("officer", Wk(-1.25, 0, 2.5), "grin", 1, { hw: [Wk(-1.1, BENCH.y + 0.02, 1.85)] })] }),
   // German boilers: crane up the boiler front, the fire glowing through its door
@@ -198,7 +198,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // the first shipment, caught: Germans pry the crate open
   caught: (s, f) => { const u = U(s, f), lid = smooth(clamp01((u - 0.15) / 0.5)), c = De(CRATE[0], 0, CRATE[2]);
     return { light: "dim", dof: 1, focus: De(0, 0.9, 1.3), crate: { p: c, lid },
-      cam: move({ pos: De(-1.1, 1.4, -3.0), look: De(0, 0.9, 1.3), fov: 54, roll: -0.06 }, { pos: De(-0.7, 1.5, -2.6), look: De(0.05, 0.9, 1.3), fov: 52, roll: 0.03 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: De(-1.1, 1.4, -3.0), look: De(0, 0.9, 1.3), fov: 54, roll: -0.06 }, { pos: De(-0.35, 1.5, -2.9), look: De(0.0, 0.9, 1.3), fov: 54, roll: 0.03 }, f, s.a, s.b, smooth, 0),
       rats: lid > 0.6 ? crateRats(c, 12) : [],
       people: [P("gofficer", De(0.15, 0, 1.95), lid > 0.7 ? "shock" : "stern", 0, { hw: [De(-0.1, 0.5 + 0.5 * lid, 1.3 + 0.2 * lid), De(0.35, 0.5 + 0.5 * lid, 1.3 + 0.2 * lid)] }),
         P("gs1", De(-0.95, 0, 1.9), "stern", 1), P("gs2", De(0.95, 0, 1.75), lid > 0.7 ? "shock" : "neutral", -1)],
@@ -223,9 +223,9 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // on display at the military school: the rat under glass, the lecturer pointing at it
   school: (s, f) => { const rp = Sc(CASE[0], CASE[1] + 0.02, CASE[2]);
     return { light: "room", dof: 2, focus: rp,
-      cam: orbit(s, f, Sc(-0.1, 1.25, 2.1), [-25, 4], [2.9, 2.6], [0.25, 0.1], 50, [0.05, -0.05]),
+      cam: orbit(s, f, Sc(-0.15, 1.25, 2.1), [-25, 4], [3.4, 3.0], [0.25, 0.1], 50, [0.05, -0.05]),
       rats: [{ p: rp, yaw: 0, side: true, s: 1.1, stitch: true, fuse: true }],
-      people: [P("lecturer", Sc(0.55, 0, 2.55), "stern", 1, { hold: { l: [-0.55, 1.45] } }),
+      people: [P("lecturer", Sc(0.35, 0, 2.6), "stern", 1, { hold: { l: [-0.55, 1.45] } }),
         P("cad1", Sc(-2.4, 0, 2.5), "shock", -1, { extra: true }), P("cad2", Sc(-1.7, 0, 3.0), "nervous", -1, { extra: true }), P("cad3", Sc(-3.2, 0, 2.9), "shock", -1, { extra: true })],
       subjects: [["the rat in the case", rp, 0.2]] }; },
   // ...and hunting for more: soldiers with lanterns over the coal
@@ -242,8 +242,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // Britain's own files: the file on the bench, both men grinning over it
   files: (s, f) => { const fp = Wk(0.2, BENCH.y + 0.005, 1.4);
     return { light: "room", dof: 2, focus: fp, file: { p: fp, yaw: 0 },
-      cam: move({ pos: Wk(0.2, BENCH.y + 1.4, 0.2), look: fp, fov: 48, roll: 0.0 }, { pos: Wk(0.3, 1.6, -1.8), look: Wk(0.1, 1.3, 2.0), fov: 52, roll: 0.05 }, f, s.a + 4, s.b, smooth, 0),
-      people: [P("officer", Wk(-0.8, 0, 2.3), "grin", 1, { hw: [Wk(-0.3, BENCH.y + 0.01, 1.6)], extra: f < s.a + 30 }), P("maker", Wk(1.0, 0, 2.3), "laugh", -1, { extra: f < s.a + 30 })],
+      cam: move({ pos: Wk(0.2, BENCH.y + 1.4, 0.2), look: fp, fov: 48, roll: 0.0 }, { pos: Wk(0.1, 1.6, -2.0), look: Wk(0.05, 1.3, 2.0), fov: 56, roll: 0.05 }, f, s.a + 4, s.b, smooth, 0),
+      people: [P("officer", Wk(-0.55, 0, 2.3), "grin", 1, { hw: [Wk(-0.2, BENCH.y + 0.01, 1.6)], extra: f < s.a + 30 }), P("maker", Wk(0.65, 0, 2.3), "laugh", -1, { extra: f < s.a + 30 })],
       subjects: [["the file", fp, 0.1]] }; },
   // ...than if the rats had actually been used: back to the bench, the hero rat, as the film began (loop)
   end: (s, f) => { const u = smooth(U(s, f));
