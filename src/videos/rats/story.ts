@@ -210,7 +210,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       rats: crateRats(c, 12), subjects: [["the crate", [c[0], 0.3, c[2]], 0.3]] }; },
   // before a single one was used: the officer lifts one out by the tail and stares at it
   zero: (s, f) => { const c = De(CRATE[0], 0, CRATE[2]), u = smooth(clamp01(U(s, f) * 2));
-    const held: V3 = De(0.15, 0.95 + 0.25 * u, 1.55);
+    const held: V3 = De(0.15, 0.82 + 0.14 * u, 1.55);
     return { light: "dim", dof: 3, focus: De(0.15, 1.45, 1.8), crate: { p: c, lid: 1 },
       cam: snap(De(-0.45, 1.35, -0.6), De(0.25, 1.35, 1.6), f, s.a, { fov: 40, roll: 0.06 }, 1.3),
       rats: [...crateRats(c, 11), { p: held, yaw: 0, side: true, s: 1.1, stitch: true, fuse: true }],
