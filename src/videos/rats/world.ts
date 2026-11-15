@@ -22,7 +22,7 @@ type Light = St3["light"];
 
 const ROOM_L: LightPreset = { ...LIGHTS.day, fogNear: 80, fogFar: 600, lit: [1.42, 1.3, 1.1], shade: [0.3, 0.27, 0.31], lift: [0.06, 0.05, 0.07], charTint: [1.0, 0.92, 0.84], sideTint: [0.9, 0.86, 0.86], hemiI: 0.62, sunI: 2.4 };
 const BOIL_L: LightPreset = { ...ROOM_L, lit: [1.45, 0.9, 0.52], shade: [0.17, 0.12, 0.15], lift: [0.05, 0.03, 0.04], charTint: [1.0, 0.8, 0.62], sideTint: [0.85, 0.72, 0.66], hemiI: 0.4, sunCol: "#ffb36b", sky: "#ffcf9a", ground: "#4a2f24" };
-const DIM_L: LightPreset = { ...ROOM_L, lit: [0.95, 0.9, 0.95], shade: [0.16, 0.16, 0.24], lift: [0.03, 0.04, 0.08], charTint: [0.86, 0.86, 0.94], sideTint: [0.78, 0.78, 0.9], hemiI: 0.42, sunCol: "#d6e0ff" };
+const DIM_L: LightPreset = { ...ROOM_L, lit: [1.12, 1.02, 0.9], shade: [0.2, 0.18, 0.21], lift: [0.04, 0.04, 0.05], charTint: [0.95, 0.9, 0.84], sideTint: [0.85, 0.82, 0.82], hemiI: 0.48, sunCol: "#ffe6c8" };
 const LP: Record<Light, LightPreset> = { room: ROOM_L, boil: BOIL_L, dim: DIM_L };
 const LK: Record<Light, WorldLook> = { room: LOOK.day, boil: LOOK.day, dim: LOOK.day };
 
@@ -105,7 +105,7 @@ const makeRat = () => {
   G.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 16, 0.009, 6), pink));
   // the slit along the back, the charge inside it, the stitches over it, the fuse out of the tail end
   const slit = add(new THREE.BoxGeometry(0.17, 0.012, 0.03), black, -0.005, 0.148, 0); slit.name = "slit";
-  const putty = add(new THREE.SphereGeometry(1, 12, 8), M("rtPutty", "#e6cf8a"), -0.005, 0.15, 0, 0.075, 0.016, 0.02); putty.name = "putty";
+  const putty = add(new THREE.SphereGeometry(1, 12, 8), M("rtPutty", "#e6cf8a"), -0.005, 0.15, 0, 0.075, 0.012, 0.016); putty.name = "putty";
   const st = new THREE.Group(); st.name = "stitch";
   for (let i = 0; i < 6; i++) { const s2 = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.008, 0.05), M("rtThread", "#1a1418")); s2.position.set(-0.075 + i * 0.03, 0.149, 0); s2.rotation.y = 0.5; st.add(s2); }
   G.add(st);
@@ -120,9 +120,9 @@ const makeCrate = (lid: THREE.Group) => {
   add(new THREE.BoxGeometry(W, H, t), w, 0, H / 2, -D / 2 + t / 2); add(new THREE.BoxGeometry(W, H, t), w, 0, H / 2, D / 2 - t / 2);
   add(new THREE.BoxGeometry(t, H, D), w, -W / 2 + t / 2, H / 2, 0); add(new THREE.BoxGeometry(t, H, D), w, W / 2 - t / 2, H / 2, 0);
   for (const y of [0.12, 0.38]) { add(new THREE.BoxGeometry(W + 0.01, 0.06, t + 0.01), w2, 0, y, -D / 2 + t / 2); add(new THREE.BoxGeometry(W + 0.01, 0.06, t + 0.01), w2, 0, y, D / 2 - t / 2); }
-  const lm = new THREE.Mesh(new THREE.BoxGeometry(W + 0.02, t, D + 0.02), w); lm.position.set(0, t / 2, D / 2 + 0.01); lid.add(lm);
-  const lb = new THREE.Mesh(new THREE.BoxGeometry(W + 0.03, 0.04, 0.06), w2); lb.position.set(0, 0.03, D / 2); lid.add(lb);
-  lid.position.set(0, H, -D / 2); G.add(lid);
+  const lm = new THREE.Mesh(new THREE.BoxGeometry(W + 0.02, t, D + 0.02), w); lm.position.set(0, t / 2, -D / 2 - 0.01); lid.add(lm);
+  const lb = new THREE.Mesh(new THREE.BoxGeometry(W + 0.03, 0.04, 0.06), w2); lb.position.set(0, 0.03, -D / 2); lid.add(lb);
+  lid.position.set(0, H, D / 2); G.add(lid);
   return shadowAll(G);
 };
 
@@ -187,7 +187,7 @@ export class RWorld {
       const shade = part(new THREE.ConeGeometry(0.35, 0.25, 16, 1, true), M("rtShade", "#3f6f5a", { side: THREE.DoubleSide }), ox, RH - 1.25, oz + 1.5); shade.castShadow = false;
       const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.08, 10, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color(3, 2.6, 1.8) })); bulb.position.set(ox, RH - 1.33, oz + 1.5); bulb.layers.set(NOINK); R.add(bulb);
       // the putty blocks and the needle live on the bench
-      for (let i = 0; i < 3; i++) { const p = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.07, 0.1), M("rtPutty", "#e6cf8a")); p.castShadow = true; p.visible = false; R.add(p); this.putty.push(p); }
+      for (let i = 0; i < 3; i++) { const p = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.05, 0.07), M("rtPutty", "#e6cf8a")); p.castShadow = true; p.visible = false; R.add(p); this.putty.push(p); }
       const nd = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.002, 0.12, 6), M("rtSteel", "#d8dde4")); nd.rotation.z = Math.PI / 2; this.needle.add(nd);
       const th = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V(-0.06, 0, 0), V(-0.12, 0.03, 0.02), V(-0.2, 0.0, 0.05), V(-0.26, 0.02, 0.0)]), 12, 0.003, 4), M("rtThread", "#1a1418")); this.needle.add(th);
       this.needle.visible = false; R.add(this.needle);
@@ -305,7 +305,7 @@ export class RWorld {
       g.getObjectByName("putty")!.visible = o > 0.3 && !r.stitch; g.getObjectByName("putty")!.scale.x = 0.075 * Math.min(1, (o - 0.3) / 0.7 + 0.2);
       g.getObjectByName("stitch")!.visible = !!r.stitch; g.getObjectByName("fuse")!.visible = !!r.fuse; });
     const cr = st.crate; this.crate.visible = !!cr;
-    if (cr) { this.crate.position.set(...cr.p); this.crate.rotation.y = cr.yaw ?? 0; this.lid.rotation.x = -1.9 * (cr.lid ?? 0); this.lid.position.y = 0.5 + 0.0 * (cr.lid ?? 0); }
+    if (cr) { this.crate.position.set(...cr.p); this.crate.rotation.y = cr.yaw ?? 0; this.lid.rotation.x = 1.9 * (cr.lid ?? 0); this.lid.position.y = 0.5 + 0.0 * (cr.lid ?? 0); }
     const sh = st.shovel; this.shovel.visible = !!sh;
     if (sh) { const gp = V(...sh.g), bp = V(...sh.b), d = bp.clone().sub(gp), len = d.length(); d.normalize();
       this.shovel.position.set(0, 0, 0); this.shovel.rotation.set(0, 0, 0); this.shovel.scale.set(1, 1, 1);

@@ -85,17 +85,17 @@ const P = (who: string, p: V3, expr: Expr, look = 0, extra: Partial<Person3> = {
 // ---------------- the sets as the shots use them ----------------
 /** the hero rat on the workshop bench, lying on its side, back to the camera */
 const HERO = Wk(0.1, BENCH.y, 1.45);
-const heroRat = (o: Partial<RatPose> = {}): RatPose => ({ p: HERO, yaw: 0, side: true, s: 1.5, ...o });
+const heroRat = (o: Partial<RatPose> = {}): RatPose => ({ p: HERO, yaw: 0, side: true, s: 1.15, ...o });
 /** the man in the white coat behind the bench, his hands on the rat */
 const maker = (expr: Expr, hands: V3[] = [Wk(0.25, BENCH.y + 0.14, 1.5), Wk(-0.12, BENCH.y + 0.1, 1.5)], extra: Partial<Person3> = {}) => P("maker", Wk(0.15, 0, 2.35), expr, 0, { hw: hands, ...extra });
 /** the rats on the bench being worked on, in a row to the maker's left */
-const benchRow = (n: number, o: Partial<RatPose> = {}): RatPose[] => Array.from({ length: n }, (_, i) => ({ p: Wk(-1.0 - i * 0.55, BENCH.y, 1.45 + (i % 2) * 0.1), yaw: 0.1 * (i % 3), side: true, s: 1.2, ...o }));
+const benchRow = (n: number, o: Partial<RatPose> = {}): RatPose[] => Array.from({ length: n }, (_, i) => ({ p: Wk(-1.0 - i * 0.55, BENCH.y, 1.45 + (i % 2) * 0.1), yaw: 0.1 * (i % 3), side: true, s: 1.0, ...o }));
 /** the crate's rats: two layers, any yaw, inside crate c (crate origin at its floor centre) */
 const crateRats = (c: V3, n = 12, s = 0.95): RatPose[] => Array.from({ length: n }, (_, i) => { const k = i % 6, layer = Math.floor(i / 6);
   return { p: [c[0] - 0.24 + (k % 3) * 0.24 + (layer ? 0.1 : 0), c[1] + 0.035 + layer * 0.1, c[2] - 0.12 + Math.floor(k / 3) * 0.24], yaw: (i * 1.9) % 6.28, side: i % 3 !== 0, s }; });
 /** the boiler room: where the stoker stands, the rat lying on the coal */
 const STOKER = Bo(-0.6, 0, -0.35);
-const COAL_RAT = Bo(-1.55, coalY(-1.55, 0.45), 0.45);
+const COAL_RAT = Bo(-1.55, coalY(-1.55, 0.45) + 0.07, 0.45);
 const MOUTH = Bo(FIRE[0], FIRE[1] - 0.12, FIRE[2] - 0.3);
 /** shovel from the stoker's hands down to blade point b (a point on the coal or at the fire) */
 const shovelTo = (b: V3, load = false, tip = 0) => { const g: V3 = [STOKER[0] + 0.2, 1.0, STOKER[2] - 0.15]; return { g, b, load, tip }; };
@@ -106,7 +106,7 @@ const fireLight = (k: number): Puff[] => k > 0.05 ? [{ p: Bo(FIRE[0], FIRE[1], F
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // hook: close on the rat, the charge being pressed into its back
   hook: (s, f) => { const u = U(s, f), boom = W(0, "explosives");
-    let c = snap(Wk(-0.35, BENCH.y + 0.42, 0.75), Wk(0.1, BENCH.y + 0.14, 1.5), f, s.a, { fov: 44, roll: 0.07 }, 1.4, 6);
+    let c = snap(Wk(-0.55, BENCH.y + 0.8, -0.25), Wk(0.05, BENCH.y + 0.14, 1.45), f, s.a, { fov: 40, roll: 0.07 }, 1.4, 6);
     c = kick(c, f, boom, 1.0);
     return { light: "room", dof: 3, closeup: true, focus: Wk(0.1, BENCH.y + 0.15, 1.45), cam: c,
       rats: [heroRat({ open: 0.6 + 0.4 * u }), ...benchRow(3)], putty: [Wk(0.6, BENCH.y + 0.035, 1.75)],
@@ -130,7 +130,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // a stoker finds a dead rat in his coal
   stoker: (s, f) => { const u = U(s, f), sh = shovelTo(L3(Bo(-1.25, coalY(-1.25, 0.2) + 0.05, 0.2), Bo(-1.4, coalY(-1.4, 0.4) + 0.06, 0.4), smooth(u * 1.4)));
     return { light: "boil", dof: 2, fire: 0.3, focus: COAL_RAT,
-      cam: move({ pos: Bo(-3.0, 1.0, -2.0), look: Bo(-1.4, 0.55, 0.4), fov: 48, roll: 0.06 }, { pos: Bo(-2.4, 1.2, -1.7), look: Bo(-1.2, 0.7, 0.4), fov: 46, roll: -0.03 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Bo(-1.3, 1.7, -3.8), look: Bo(-1.05, 0.75, 0.2), fov: 52, roll: 0.06 }, { pos: Bo(-1.1, 1.5, -3.3), look: Bo(-1.0, 0.8, 0.2), fov: 50, roll: -0.03 }, f, s.a, s.b, smooth, 0),
       rats: [{ p: COAL_RAT, yaw: 0.4, side: true, s: 1.3 }], shovel: sh, puffs: fireLight(0.3),
       people: [stoker(u > 0.5 ? "stern" : "neutral", sh, { look: 1 })],
       subjects: [["the rat on the coal", COAL_RAT, 0.25]] }; },
@@ -139,12 +139,12 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     const from = Bo(-1.4, coalY(-1.4, 0.4) + 0.06, 0.4), to = MOUTH, blade = L3(from, Bo(FIRE[0] - 0.4, 1.05, FIRE[2] - 0.55), sw), sh = shovelTo(blade, false, -0.4 * sw);
     const rp: V3 = fly <= 0 ? [blade[0], blade[1] + 0.03, blade[2]] : [blade[0] + (to[0] - blade[0]) * fly, blade[1] + (to[1] - blade[1]) * fly + 0.35 * Math.sin(Math.PI * fly), blade[2] + (to[2] - blade[2]) * fly];
     return { light: "boil", dof: 1, fire: 1, flare: fly >= 1 ? 0.6 : 0, focus: Bo(FIRE[0] - 0.4, 1.0, FIRE[2] - 0.4),
-      cam: kick(move({ pos: Bo(2.2, 0.9, -1.6), look: Bo(-0.2, 0.95, 0.9), fov: 52, roll: -0.08 }, { pos: Bo(1.8, 1.1, -2.1), look: Bo(0.2, 0.95, 1.2), fov: 48, roll: 0.03 }, f, s.a, s.b, smooth, 0), f, s.a + Math.round((s.b - s.a) * 0.75), 0.8),
+      cam: kick(move({ pos: Bo(0.9, 1.4, -3.6), look: Bo(-0.2, 1.0, 0.7), fov: 54, roll: -0.08 }, { pos: Bo(0.7, 1.3, -3.2), look: Bo(0.0, 1.0, 0.9), fov: 52, roll: 0.03 }, f, s.a, s.b, smooth, 0), f, s.a + Math.round((s.b - s.a) * 0.75), 0.8),
       rats: fly < 1 ? [{ p: rp, yaw: 0.4 + 2 * fly, side: true, s: 1.3, spin: 6 * fly }] : [], shovel: sh, puffs: fireLight(1 + (fly >= 1 ? 0.6 : 0)),
       people: [stoker("grin", sh, { look: -1 })] }; },
   // London: the officer at the supplier's counter
   shop: (s, f) => ({ light: "room", dof: 1, focus: Sh(-0.5, 1.4, 1.0),
-    cam: move({ pos: Sh(2.8, 1.5, -3.6), look: Sh(-0.3, 1.3, 1.2), fov: 52, roll: 0.06 }, { pos: Sh(1.6, 1.6, -3.0), look: Sh(-0.6, 1.3, 1.2), fov: 48, roll: -0.03 }, f, s.a, s.b, smooth, 0),
+    cam: move({ pos: Sh(0.6, 1.5, -3.9), look: Sh(-0.1, 1.3, 1.2), fov: 54, roll: 0.06 }, { pos: Sh(0.2, 1.6, -3.3), look: Sh(-0.1, 1.3, 1.2), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0),
     people: [P("officer", Sh(-0.9, 0, 0.05), "stern", -1, { hw: [Sh(-0.55, COUNTER.y + 0.02, 0.75)] }), P("keeper", Sh(0.7, 0, 2.15), "neutral", 1, { hw: [Sh(0.5, COUNTER.y + 0.02, 1.3)] })] }),
   // a hundred dead rats: straight down into the crate on the counter, turning
   crate: (s, f) => { const c = Sh(0.2, COUNTER.y + 0.06, 1.1);
@@ -154,32 +154,32 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // "they're for a laboratory experiment": the officer smiles, the shopkeeper doesn't ask
   lab: (s, f) => { const mid = W(5, "he");
     return { light: "room", dof: 4, closeup: true, focus: f < mid ? Sh(-0.9, 1.55, 0.05) : Sh(0.7, 1.55, 2.15),
-      cam: f < mid ? snap(Sh(-0.55, 1.5, -1.9), Sh(-0.9, 1.52, 0.05), f, s.a, { fov: 32, roll: 0.05 }, 1.4) : snap(Sh(0.2, 1.55, -0.1), Sh(0.7, 1.55, 2.15), f, mid, { fov: 32, roll: -0.06 }, 1.4),
+      cam: f < mid ? snap(Sh(-0.55, 1.5, -1.95), Sh(-0.9, 1.52, 0.05), f, s.a, { fov: 36, roll: 0.05 }, 1.4) : snap(Sh(1.5, 1.65, 0.25), Sh(0.7, 1.55, 2.15), f, mid, { fov: 36, roll: -0.06 }, 1.4),
       crate: { p: Sh(0.2, COUNTER.y + 0.06, 1.1), lid: 1 }, rats: crateRats(Sh(0.2, COUNTER.y + 0.06, 1.1), 12),
       people: [P("officer", Sh(-0.9, 0, 0.05), "grin", -1, { hw: [Sh(-0.55, COUNTER.y + 0.02, 0.75)] }), P("keeper", Sh(0.7, 0, 2.15), f < mid ? "neutral" : "nervous", 1, { headTilt: f < mid ? 0 : 0.08, hw: [Sh(0.5, COUNTER.y + 0.02, 1.3)] })] }; },
   // the charge goes in
   fill: (s, f) => { const u = U(s, f);
     return { light: "room", dof: 3, closeup: true, focus: HERO,
-      cam: move({ pos: Wk(0.75, BENCH.y + 0.55, 0.55), look: Wk(0.05, BENCH.y + 0.12, 1.45), fov: 40, roll: -0.07 }, { pos: Wk(0.5, BENCH.y + 0.45, 0.75), look: Wk(0.1, BENCH.y + 0.14, 1.45), fov: 38, roll: 0.02 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Wk(0.95, BENCH.y + 0.85, -0.2), look: Wk(0.05, BENCH.y + 0.12, 1.45), fov: 40, roll: -0.07 }, { pos: Wk(0.7, BENCH.y + 0.75, 0.05), look: Wk(0.1, BENCH.y + 0.14, 1.45), fov: 40, roll: 0.02 }, f, s.a, s.b, smooth, 0),
       rats: [heroRat({ open: 0.5 + 0.5 * smooth(u * 1.5) }), ...benchRow(3)], putty: [Wk(0.62, BENCH.y + 0.035, 1.72), Wk(0.82, BENCH.y + 0.035, 1.78)],
       people: [maker("stern", [Wk(0.08, BENCH.y + 0.2, 1.46), Wk(0.62, BENCH.y + 0.08, 1.72)], { extra: true })],
       subjects: [["the charge", Wk(0.1, BENCH.y + 0.2, 1.4), 0.2]] }; },
   // sewn shut: the needle works along the back
   sew: (s, f) => { const u = U(s, f), nx = -0.08 + 0.18 * ((u * 3) % 1);
     return { light: "room", dof: 3, closeup: true, focus: HERO,
-      cam: snap(Wk(-0.45, BENCH.y + 0.4, 0.95), Wk(0.1, BENCH.y + 0.15, 1.45), f, s.a, { fov: 36, roll: 0.08 }, 1.35),
+      cam: snap(Wk(-0.7, BENCH.y + 0.75, 0.05), Wk(0.1, BENCH.y + 0.15, 1.45), f, s.a, { fov: 40, roll: 0.08 }, 1.35),
       rats: [heroRat({ stitch: true }), ...benchRow(3)], needle: { p: Wk(0.1 + nx, BENCH.y + 0.26, 1.36), yaw: 0.3, tilt: 0.4 },
       people: [maker("stern", [Wk(0.1 + nx, BENCH.y + 0.27, 1.37), Wk(-0.15, BENCH.y + 0.12, 1.47)], { extra: true })],
       subjects: [["the stitches", Wk(0.1, BENCH.y + 0.2, 1.4), 0.2]] }; },
   // and a fuse: snap in on the brass pin at the tail end, then pull back along the row of finished rats
   fuse: (s, f) => { const u = smooth(U(s, f));
     return { light: "room", dof: 2, focus: Wk(-0.3, BENCH.y + 0.15, 1.45),
-      cam: kick(move({ pos: Wk(0.0, BENCH.y + 0.3, 0.9), look: Wk(-0.18, BENCH.y + 0.14, 1.45), fov: 36, roll: -0.05 }, { pos: Wk(-1.0, BENCH.y + 0.9, -0.6), look: Wk(-1.2, BENCH.y + 0.1, 1.5), fov: 46, roll: 0.04 }, f, s.a + 6, s.b, smooth, 0), f, s.a + 2, 0.7),
+      cam: kick(move({ pos: Wk(-0.6, BENCH.y + 0.7, 0.05), look: Wk(-0.2, BENCH.y + 0.12, 1.45), fov: 40, roll: -0.05 }, { pos: Wk(-1.1, BENCH.y + 0.9, -0.2), look: Wk(-0.6, BENCH.y + 0.1, 1.5), fov: 44, roll: 0.04 }, f, s.a + 6, s.b, smooth, 0), f, s.a + 2, 0.7),
       rats: [heroRat({ stitch: true, fuse: true }), ...benchRow(4, { stitch: true, fuse: true })],
       people: [maker("grin", [Wk(-0.05, BENCH.y + 0.16, 1.45)], { extra: u < 0.6 })] }; },
   // the plan: a rat left on the coal pile
   plan: (s, f) => ({ light: "boil", dof: 2, fire: 0.3, focus: COAL_RAT,
-    cam: snap(Bo(-1.95, 0.95, -0.55), COAL_RAT, f, s.a, { fov: 40, roll: 0.07 }, 1.5),
+    cam: snap(Bo(-2.05, 1.35, -1.1), COAL_RAT, f, s.a, { fov: 40, roll: 0.07 }, 1.5),
     rats: [{ p: COAL_RAT, yaw: 0.4, side: true, s: 1.3, stitch: true, fuse: true }], puffs: fireLight(0.3),
     subjects: [["the rat on the coal", COAL_RAT, 0.25]] }),
   // the stoker shovels it in
@@ -217,15 +217,15 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: [P("gofficer", De(0.15, 0, 1.95), "shock", 1, { hw: [hand] })] }; },
   // that's when the trick started working: the German officer's face, close
   working: (s, f) => ({ light: "dim", dof: 4, closeup: true, focus: De(0.15, 1.55, 1.95),
-    cam: kick(snap(De(0.0, 1.55, 0.4), De(0.15, 1.55, 1.95), f, s.a, { fov: 32, roll: -0.08 }, 1.6), f, W(10, "working"), 0.8),
+    cam: kick(snap(De(-0.05, 1.55, 0.2), De(0.15, 1.55, 1.95), f, s.a, { fov: 40, roll: -0.08 }, 1.6), f, W(10, "working"), 0.8),
     crate: { p: De(CRATE[0], 0, CRATE[2]), lid: 1 },
     people: [P("gofficer", De(0.15, 0, 1.95), "nervous", -1, { headTilt: 0.07 })] }),
   // on display at the military school: the rat under glass, the lecturer pointing at it
   school: (s, f) => { const rp = Sc(CASE[0], CASE[1] + 0.02, CASE[2]);
     return { light: "room", dof: 2, focus: rp,
-      cam: orbit(s, f, Sc(0.1, 1.3, 2.0), [-30, 18], [3.6, 3.1], [0.3, 0.1], 50, [0.05, -0.05]),
+      cam: orbit(s, f, Sc(-0.1, 1.25, 2.1), [-25, 15], [2.9, 2.5], [0.25, 0.1], 50, [0.05, -0.05]),
       rats: [{ p: rp, yaw: 0, side: true, s: 1.1, stitch: true, fuse: true }],
-      people: [P("lecturer", Sc(LECTERN[0], 0, LECTERN[2] + 0.6), "stern", 1, { hold: { r: [0.55, 1.45] } }),
+      people: [P("lecturer", Sc(0.55, 0, 2.55), "stern", 1, { hold: { l: [-0.55, 1.45] } }),
         P("cad1", Sc(-2.4, 0, 2.5), "shock", -1, { extra: true }), P("cad2", Sc(-1.7, 0, 3.0), "nervous", -1, { extra: true }), P("cad3", Sc(-3.2, 0, 2.9), "shock", -1, { extra: true })],
       subjects: [["the rat in the case", rp, 0.2]] }; },
   // ...and hunting for more: soldiers with lanterns over the coal
@@ -237,7 +237,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // hundreds already out there: the stoker, shovel over the coal, sweating
   hundreds: (s, f) => { const sh = shovelTo(Bo(-1.25, coalY(-1.25, 0.2) + 0.25, 0.2));
     return { light: "boil", dof: 4, closeup: true, fire: 0.3, focus: [STOKER[0], 1.5, STOKER[2]],
-      cam: move({ pos: Bo(-0.25, 1.45, -1.9), look: Bo(-0.6, 1.45, -0.35), fov: 38, roll: 0.07 }, { pos: Bo(-0.35, 1.5, -1.6), look: Bo(-0.6, 1.5, -0.35), fov: 36, roll: -0.04 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Bo(-0.2, 1.45, -2.2), look: Bo(-0.6, 1.4, -0.35), fov: 42, roll: 0.07 }, { pos: Bo(-0.3, 1.5, -1.95), look: Bo(-0.6, 1.45, -0.35), fov: 42, roll: -0.04 }, f, s.a, s.b, smooth, 0),
       shovel: sh, puffs: fireLight(0.3), people: [stoker("nervous", sh, { look: 1, headTilt: 0.06 })] }; },
   // Britain's own files: the file on the bench, both men grinning over it
   files: (s, f) => { const fp = Wk(0.2, BENCH.y + 0.005, 1.4);
