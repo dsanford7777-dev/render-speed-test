@@ -26,7 +26,8 @@ const spoken = (s: string) => s.split(/[\s-]+/).filter(Boolean).length;
 const est = (): [number, number][] => { let t = 0; return SEGMENTS.map((s) => { const a = t, b = a + spoken(s.say) / WPS; t = b + PAUSE; return [Math.round(a * 100) / 100, Math.round(b * 100) / 100]; }); };
 /** [start, end] seconds per segment; replaced by scripts/align.py once the voice exists */
 // __SEG_TIMES__
-export const SEG_TIMES: [number, number][] = est();
+export const SEG_TIMES: [number, number][] = [[0.0, 2.1], [2.78, 7.42], [7.78, 8.66], [9.06, 12.58], [13.0, 16.7], [17.16, 19.0], [19.4, 23.18], [23.66, 26.48], [27.0, 29.46], [30.0, 33.38], [33.84, 36.26], [36.66, 40.78], [41.16, 43.2], [43.5, 47.76]];
+void est;
 // __END_SEG_TIMES__
 export const TOTAL = Math.ceil((SEG_TIMES[SEG_TIMES.length - 1][1] + 0.9) * FPS);
 
