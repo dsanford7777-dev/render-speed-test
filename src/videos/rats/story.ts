@@ -130,7 +130,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // a stoker finds a dead rat in his coal
   stoker: (s, f) => { const u = U(s, f), sh = shovelTo(L3(Bo(-1.25, coalY(-1.25, 0.2) + 0.05, 0.2), Bo(-1.4, coalY(-1.4, 0.4) + 0.06, 0.4), smooth(u * 1.4)));
     return { light: "boil", dof: 2, fire: 0.3, focus: COAL_RAT,
-      cam: move({ pos: Bo(-1.3, 1.7, -3.8), look: Bo(-1.05, 0.75, 0.2), fov: 52, roll: 0.06 }, { pos: Bo(-1.1, 1.5, -3.3), look: Bo(-1.0, 0.8, 0.2), fov: 50, roll: -0.03 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Bo(-1.3, 1.7, -3.8), look: Bo(-1.05, 0.75, 0.2), fov: 52, roll: 0.06 }, { pos: Bo(-1.75, 1.2, -0.75), look: COAL_RAT, fov: 44, roll: -0.05 }, f, s.a + 10, s.b - 4, smooth, 0),
       rats: [{ p: COAL_RAT, yaw: 0.4, side: true, s: 1.3 }], shovel: sh, puffs: fireLight(0.3),
       people: [stoker(u > 0.5 ? "stern" : "neutral", sh, { look: 1 })],
       subjects: [["the rat on the coal", COAL_RAT, 0.25]] }; },
@@ -144,7 +144,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: [stoker("grin", sh, { look: -1 })] }; },
   // London: the officer at the supplier's counter
   shop: (s, f) => ({ light: "room", dof: 1, focus: Sh(-0.5, 1.4, 1.0),
-    cam: move({ pos: Sh(0.6, 1.5, -3.9), look: Sh(-0.1, 1.3, 1.2), fov: 54, roll: 0.06 }, { pos: Sh(0.2, 1.6, -3.3), look: Sh(-0.1, 1.3, 1.2), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0),
+    cam: move({ pos: Sh(1.0, 2.6, -4.2), look: Sh(-0.1, 1.2, 1.2), fov: 54, roll: 0.07 }, { pos: Sh(-0.1, 1.5, -2.7), look: Sh(-0.2, 1.35, 1.2), fov: 52, roll: -0.04 }, f, s.a, s.b, smooth, 0),
     people: [P("officer", Sh(-0.6, 0, 0.05), "stern", -1, { hw: [Sh(-0.4, COUNTER.y + 0.02, 0.75)] }), P("keeper", Sh(0.7, 0, 2.15), "neutral", 1, { hw: [Sh(0.5, COUNTER.y + 0.02, 1.3)] })] }),
   // a hundred dead rats: straight down into the crate on the counter, turning
   crate: (s, f) => { const c = Sh(0.2, COUNTER.y + 0.06, 1.1);
@@ -174,7 +174,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // and a fuse: snap in on the brass pin at the tail end, then pull back along the row of finished rats
   fuse: (s, f) => { const u = smooth(U(s, f));
     return { light: "room", dof: 2, focus: Wk(-0.3, BENCH.y + 0.15, 1.45),
-      cam: kick(move({ pos: Wk(-0.6, BENCH.y + 0.7, 0.05), look: Wk(-0.2, BENCH.y + 0.12, 1.45), fov: 40, roll: -0.05 }, { pos: Wk(-1.1, BENCH.y + 0.9, -0.2), look: Wk(-0.6, BENCH.y + 0.1, 1.5), fov: 44, roll: 0.04 }, f, s.a + 6, s.b, smooth, 0), f, s.a + 2, 0.7),
+      cam: kick(move({ pos: Wk(-0.6, BENCH.y + 0.7, 0.05), look: Wk(-0.2, BENCH.y + 0.12, 1.45), fov: 40, roll: -0.05 }, { pos: Wk(-0.95, BENCH.y + 0.8, -0.15), look: Wk(-0.3, BENCH.y + 0.12, 1.45), fov: 42, roll: 0.04 }, f, s.a + 6, s.b, smooth, 0), f, s.a + 2, 0.7),
       rats: [heroRat({ stitch: true, fuse: true }), ...benchRow(4, { stitch: true, fuse: true })],
       people: [maker("grin", [Wk(-0.05, BENCH.y + 0.16, 1.45)], { extra: true })] }; },
   // the plan: a rat left on the coal pile
@@ -198,7 +198,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // the first shipment, caught: Germans pry the crate open
   caught: (s, f) => { const u = U(s, f), lid = smooth(clamp01((u - 0.15) / 0.5)), c = De(CRATE[0], 0, CRATE[2]);
     return { light: "dim", dof: 1, focus: De(0, 0.9, 1.3), crate: { p: c, lid },
-      cam: move({ pos: De(-1.1, 1.4, -3.0), look: De(0, 0.9, 1.3), fov: 54, roll: -0.06 }, { pos: De(-0.35, 1.5, -2.9), look: De(0.0, 0.9, 1.3), fov: 54, roll: 0.03 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: De(-1.1, 2.5, -2.8), look: De(0, 0.7, 1.2), fov: 54, roll: -0.06 }, { pos: De(-0.35, 2.4, -2.4), look: De(0.0, 0.75, 1.2), fov: 54, roll: 0.03 }, f, s.a, s.b, smooth, 0),
       rats: lid > 0.6 ? crateRats(c, 12) : [],
       people: [P("gofficer", De(0.15, 0, 1.95), lid > 0.7 ? "shock" : "stern", 0, { hw: [De(-0.1, 0.5 + 0.5 * lid, 1.3 + 0.2 * lid), De(0.35, 0.5 + 0.5 * lid, 1.3 + 0.2 * lid)] }),
         P("gs1", De(-0.95, 0, 1.9), "stern", 1), P("gs2", De(0.95, 0, 1.75), lid > 0.7 ? "shock" : "neutral", -1)],
@@ -210,14 +210,14 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       rats: crateRats(c, 12), subjects: [["the crate", [c[0], 0.3, c[2]], 0.3]] }; },
   // before a single one was used: the officer lifts one out by the tail and stares at it
   zero: (s, f) => { const c = De(CRATE[0], 0, CRATE[2]), u = smooth(clamp01(U(s, f) * 2));
-    const hand = De(0.45, 1.0 + 0.4 * u, 1.35);
+    const held: V3 = De(0.15, 0.95 + 0.25 * u, 1.55);
     return { light: "dim", dof: 3, focus: De(0.15, 1.45, 1.8), crate: { p: c, lid: 1 },
       cam: snap(De(-0.45, 1.35, -0.6), De(0.25, 1.35, 1.6), f, s.a, { fov: 40, roll: 0.06 }, 1.3),
-      rats: [...crateRats(c, 11), { p: [hand[0], hand[1] - 0.35, hand[2]], yaw: Math.PI / 2, side: true, s: 1.1, spin: -1.4, stitch: true, fuse: true }],
-      people: [P("gofficer", De(0.15, 0, 1.95), "shock", 1, { hw: [hand] })] }; },
+      rats: [...crateRats(c, 11), { p: held, yaw: 0, side: true, s: 1.1, stitch: true, fuse: true }],
+      people: [P("gofficer", De(0.15, 0, 1.95), "shock", 1, { hw: [De(0.32, held[1] + 0.12, 1.55), De(-0.08, held[1] + 0.1, 1.55)] })] }; },
   // that's when the trick started working: the German officer's face, close
   working: (s, f) => ({ light: "dim", dof: 4, closeup: true, focus: De(0.15, 1.55, 1.95),
-    cam: kick(snap(De(-0.05, 1.55, 0.2), De(0.15, 1.55, 1.95), f, s.a, { fov: 40, roll: -0.08 }, 1.6), f, W(10, "working"), 0.8),
+    cam: kick(move({ pos: De(-0.9, 1.9, -0.9), look: De(0.15, 1.5, 1.95), fov: 46, roll: 0.06 }, { pos: De(-0.05, 1.55, 0.2), look: De(0.15, 1.55, 1.95), fov: 40, roll: -0.08 }, f, s.a, s.b - 6, smooth, 0), f, W(10, "working"), 0.8),
     crate: { p: De(CRATE[0], 0, CRATE[2]), lid: 1 },
     people: [P("gofficer", De(0.15, 0, 1.95), "nervous", -1, { headTilt: 0.07 })] }),
   // on display at the military school: the rat under glass, the lecturer pointing at it
@@ -243,12 +243,12 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   files: (s, f) => { const fp = Wk(0.2, BENCH.y + 0.005, 1.4);
     return { light: "room", dof: 2, focus: fp, file: { p: fp, yaw: 0 },
       cam: move({ pos: Wk(0.2, BENCH.y + 1.4, 0.2), look: fp, fov: 48, roll: 0.0 }, { pos: Wk(0.1, 1.6, -2.0), look: Wk(0.05, 1.3, 2.0), fov: 56, roll: 0.05 }, f, s.a + 4, s.b, smooth, 0),
-      people: [P("officer", Wk(-0.55, 0, 2.3), "grin", 1, { hw: [Wk(-0.2, BENCH.y + 0.01, 1.6)], extra: f < s.a + 30 }), P("maker", Wk(0.65, 0, 2.3), "laugh", -1, { extra: f < s.a + 30 })],
+      people: [P("officer", Wk(-0.55, 0, 2.3), "grin", 1, { hw: [Wk(-0.2, BENCH.y + 0.01, 1.6)], extra: f < s.a + 40 }), P("maker", Wk(0.65, 0, 2.3), "laugh", -1, { extra: f < s.a + 40 })],
       subjects: [["the file", fp, 0.1]] }; },
   // ...than if the rats had actually been used: back to the bench, the hero rat, as the film began (loop)
   end: (s, f) => { const u = smooth(U(s, f));
     return { light: "room", dof: 3, closeup: true, focus: Wk(0.1, BENCH.y + 0.15, 1.45),
-      cam: move({ pos: Wk(1.2, BENCH.y + 0.9, -0.2), look: Wk(0.0, BENCH.y + 0.3, 1.5), fov: 46, roll: 0.03 }, { pos: Wk(-0.35, BENCH.y + 0.42, 0.75), look: Wk(0.1, BENCH.y + 0.14, 1.5), fov: 44, roll: 0.07 }, f, s.a, s.b - 2, smooth, 0),
+      cam: move({ pos: Wk(1.2, BENCH.y + 0.9, -0.2), look: Wk(0.0, BENCH.y + 0.3, 1.5), fov: 46, roll: 0.03 }, { pos: Wk(-0.79, BENCH.y + 1.064, -0.93), look: Wk(0.05, BENCH.y + 0.14, 1.45), fov: 50, roll: 0.07 }, f, s.a, s.b - 2, smooth, 0),
       rats: [heroRat({ open: 0.6 + 0.0 * u }), ...benchRow(3)], putty: [Wk(0.6, BENCH.y + 0.035, 1.75)], file: { p: Wk(-1.2, BENCH.y + 0.005, 1.35), yaw: 0.3 },
       people: [maker("grin", [Wk(0.1, BENCH.y + 0.22, 1.47), Wk(-0.2, BENCH.y + 0.12, 1.5)], { extra: true })] }; },
 };
