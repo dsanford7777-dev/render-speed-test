@@ -407,7 +407,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
     <Paper><Mv t={t} d={d} m={0}>
       <Banner text="What Henry would get" t={t} at={0} col={GREEN} y={140} />
       <div style={{ position: "absolute", left: 380, top: 280 }}>
-        <Row text="It runs on electricity" t={t} at={Math.max(0, c(48, "electricity") - 6)} mark="check" markAt={c(48, "electricity") + 2} size={80} />
+        <Row text="It runs on electricity" t={t} at={0} mark="check" markAt={c(48, "electricity") + 2} size={80} />
         <Row text="Stored in a battery" t={t} at={Math.max(4, c(48, "battery") - 6)} mark="check" markAt={c(48, "battery") + 2} size={80} />
       </div>
     </Mv></Paper>
@@ -453,7 +453,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
     <Paper><Mv t={t} d={d} m={0}>
       <Banner text="Cholera spreads through dirty water" t={t} at={0} col="#2f6fd0" y={110} />
       <div style={{ position: "absolute", left: 560, top: 250 }}>
-        <Row text="Boil it" t={t} at={Math.max(0, c(57, "Boil") - 4)} mark="check" markAt={c(57, "Boil") + 4} size={86} />
+        <Row text="Boil it" t={t} at={0} mark="check" markAt={c(57, "Boil") + 4} size={86} />
         <Row text="Keep sewage out" t={t} at={Math.max(4, c(57, "sewage") - 4)} mark="check" markAt={c(57, "sewage") + 4} size={86} />
         <Row text="Wash your hands" t={t} at={Math.max(8, c(57, "Wash") - 4)} mark="check" markAt={c(57, "Wash") + 4} size={86} />
       </div>
@@ -469,7 +469,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
   already: say([{ s: "It's already happening", size: 110 }, { s: "to somebody else", col: C.red, size: 140, cue: [60, "somebody"] }], { m: 4 }),
   vienna: DateCard("Vienna", "1847", { m: 4 }),
   deaths: ({ t, d, c }) => {
-    const at2 = Math.max(10, c(61, "fifty") - 2), after = t >= at2;
+    const at2 = Math.max(10, c(61, "50") - 2), after = t >= at2;
     return (
       <Paper><Mv t={t} d={d} m={0}>
         <Banner text={after ? "After handwashing" : "Before"} t={t} at={after ? at2 : 0} col={after ? GREEN : C.red} y={100} />
