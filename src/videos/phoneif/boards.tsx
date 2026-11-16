@@ -123,7 +123,7 @@ const PhoneBoard: React.FC<G> = ({ t, d, v, c }) => {
   const [scr, pct, extra, m] = B[v] ?? B[0];
   return (
     <Dark tone={v === 7 ? RUST : NIGHT}><Mv t={t} d={d} m={m}>
-      <At x={620} y={430} s={pop(t, 0) * 0.98} r={-3 + 2 * Math.sin(t / 40)}><Handset t={t} screen={scr} pct={pct} s={0.98} /></At>
+      <At x={620} y={450} s={pop(t, 0) * 0.88} r={-3 + 2 * Math.sin(t / 40)}><Handset t={t} screen={scr} pct={pct} s={0.88} /></At>
       {extra}
     </Mv></Dark>
   );
@@ -169,7 +169,7 @@ const SnowMap: React.FC<G> = ({ t, d, v, c }) => {
         {v ? <circle cx={960} cy={450} r={60 + 10 * Math.sin(t / 4)} fill="none" stroke={C.red} strokeWidth={10} opacity={clamp01((t - pumpAt) / 6)} /> : null}
         <circle cx={960} cy={450} r={22} fill={C.red} stroke={INK} strokeWidth={6} />
       </Svg>
-      <Banner text={v ? "One pump" : "Every death, marked"} t={t} at={0} col={v ? C.red : INK} y={110} />
+      <Banner text={v ? "One pump" : "Every death, marked"} t={t} at={0} col={v ? C.red : INK} y={140} />
       {v ? <At x={960} y={730} s={pop(t, pumpAt)}><Pill text="Broad Street pump" col={C.red} fg="#fff" size={58} /></At> : null}
     </Mv></Paper>
   );
@@ -221,12 +221,12 @@ export const BOARDS: Record<string, React.FC<G>> = {
         <At key={i} x={420 + i * 270} y={430 + (i % 2) * 60} s={pop(t, i * Math.min(6, d / 8))} r={(i % 2 ? 5 : -6) + i}>
           <div style={{ width: 380, background: "#efe6d0", border: `8px solid ${INK}`, boxShadow: `0 12px 0 ${INK}`, padding: "18px 20px", textAlign: "center" }}>
             <div style={{ fontFamily: "Georgia, serif", fontWeight: 900, fontSize: 34, color: INK }}>{["The Herald", "The Tribune", "The Sun", "The Express", "The Mirror"][i]}</div>
-            <div style={{ borderTop: `6px double ${INK}`, margin: "10px 0" }} /><T size={56} col={C.red}>Jenny Lind!</T>
+            <div style={{ borderTop: `6px double ${INK}`, margin: "10px 0" }} /><T size={44} col={C.red}>Jenny Lind!</T>
             {[0, 1, 2, 3].map((l) => <div key={l} style={{ height: 10, background: "#8a7a6a", margin: "12px 8px 0", width: `${80 - l * 12}%` }} />)}
           </div>
         </At>
       ))}
-      <Banner text="Barnum's publicity, for months" t={t} at={0} col={INK} y={110} />
+      <Banner text="Barnum's publicity, for months" t={t} at={0} col={INK} y={140} />
     </Mv></Paper>
   ),
   n3040: num("30–40,000", "people on the piers", { dark: true, m: 4, col: C.gold, size: 250, sub: "as the papers counted them", subCue: 10 }),
@@ -246,7 +246,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
   ),
   gps: ({ t, d }) => (
     <Bg dark tone={NIGHT}><Mv t={t} d={d} m={0}>
-      <At x={lerp(700, 780, ease(t / Math.max(1, d)))} y={380} s={pop(t, 0)} r={-12}><Gl kind="sat" s={340} /></At>
+      <At x={lerp(520, 600, ease(t / Math.max(1, d)))} y={420} s={pop(t, 0)} r={-12}><Gl kind="sat" s={320} /></At>
       <At x={1300} y={330} s={pop(t, 4)}><T size={70} col="#fff">First GPS satellite</T></At>
       <At x={1300} y={490} s={pop(t, 8)}><T size={230} col={C.yellow} style={{ textShadow: "0 14px 0 #000" }}>1978</T></At>
     </Mv></Bg>
@@ -255,7 +255,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
     <Paper tone="#9fc3d9"><Mv t={t} d={d} m={1}>
       <USMap t={t} drawn={clamp01(t / Math.max(10, d * 0.7))} label="NY" />
       <At x={1420} y={760} s={pop(t, Math.max(4, c(17, "12") - 2))}><Pill text="≈12,000 miles of wire" col={INK} fg="#fff" size={58} /></At>
-      <Banner text="The telegraph, 1850" t={t} at={0} col={INK} y={90} />
+      <Banner text="The telegraph, 1850" t={t} at={0} col={INK} y={130} />
     </Mv></Paper>
   ),
   morse: ({ t, d, v }) => {
@@ -290,7 +290,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
     const rows: [string, [number, string]][] = [["One image", [23, "one"]], ["Silver plate", [23, "silver"]], ["No color", [23, "color"]], ["Hold still", [23, "hold"]]];
     return (
       <Paper><Mv t={t} d={d} m={2}>
-        <Banner text="The daguerreotype" t={t} at={0} col={C.gold} y={110} />
+        <Banner text="The daguerreotype" t={t} at={0} col={C.gold} y={140} />
         <At x={540} y={460} s={pop(t, 0)}><Gl kind="plate" s={380} /></At>
         <div style={{ position: "absolute", left: 900, top: 250 }}>{rows.map(([s, q], i) => <Row key={s} text={s} t={t} at={Math.max(i * 3, c(q[0], q[1]) - 3)} size={80} />)}</div>
       </Mv></Paper>
@@ -310,7 +310,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
     const at2 = Math.max(4, c(29, "fish") - 4);
     return (
       <Paper><Mv t={t} d={d} m={0}>
-        <Banner text="The “mermaid”, 1842" t={t} at={0} col={C.red} y={110} />
+        <Banner text="The “mermaid”, 1842" t={t} at={0} col={C.red} y={140} />
         <At x={420} y={430} s={pop(t, 0)}><Gl kind="monkey" s={300} /></At>
         <At x={720} y={430} s={pop(t, 4)}><T size={160}>+</T></At>
         <At x={1020} y={430} s={pop(t, at2)}><Gl kind="fish" s={300} /></At>
@@ -337,7 +337,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
   look: say([{ s: "Electricity", size: 180, col: C.yellow }, { s: "does exist in 1850", col: "#fff", size: 120, cue: [35, "exist"] }], { dark: true, m: 0 }),
   grove: ({ t, d, c }) => (
     <Paper><Mv t={t} d={d} m={2}>
-      <Banner text="The Grove cell" t={t} at={0} col={C.gold} y={110} />
+      <Banner text="The Grove cell" t={t} at={0} col={C.gold} y={140} />
       <At x={620} y={460} s={pop(t, 0)}><Gl kind="jar" s={380} /></At>
       <At x={1280} y={420} s={pop(t, Math.max(4, c(36, "1.9") - 2))}><T size={210} col={C.red}>1.9 V</T></At>
       <At x={1280} y={580} s={pop(t, Math.max(8, c(36, "jar") - 2))}><T size={60}>per jar, about</T></At>
@@ -354,9 +354,9 @@ export const BOARDS: Record<string, React.FC<G>> = {
     const at3 = Math.max(10, c(38, "over") - 2);
     return (
       <Paper><Mv t={t} d={d} m={0}>
-        {[0, 1, 2].map((i) => <At key={i} x={420 + i * 260} y={360} s={pop(t, i * 4)}><div style={{ textAlign: "center" }}><Gl kind="jar" s={220} /><T size={60} style={{ marginTop: 6 }}>1.9</T></div></At>)}
-        <At x={1260} y={360} s={pop(t, 12)}><T size={120}>=</T></At>
-        <At x={1520} y={360} s={pop(t, 14)}><T size={170} col={C.red}>5.7 V</T></At>
+        {[0, 1, 2].map((i) => <At key={i} x={380 + i * 250} y={360} s={pop(t, i * 4)}><div style={{ textAlign: "center" }}><Gl kind="jar" s={220} /><T size={60} style={{ marginTop: 6 }}>1.9</T></div></At>)}
+        <At x={1220} y={360} s={pop(t, 12)}><T size={120}>=</T></At>
+        <At x={1560} y={360} s={pop(t, 14)}><T size={170} col={C.red}>5.7 V</T></At>
         <At x={960} y={660} s={pop(t, at3)}><Pill text="A little over 5 V" col={C.red} fg="#fff" size={66} /></At>
       </Mv></Paper>
     );
@@ -366,7 +366,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
     const a = lerp(-70, 70, u);
     return (
       <Paper><Mv t={t} d={d} m={5}>
-        <Banner text="A gamble" t={t} at={0} col={C.red} y={110} />
+        <Banner text="A gamble" t={t} at={0} col={C.red} y={140} />
         <Svg>
           <path d="M560 640 A400 400 0 0 1 1360 640" fill="none" stroke={INK} strokeWidth={60} />
           <path d="M560 640 A400 400 0 0 1 760 294" fill="none" stroke="#c9c2b0" strokeWidth={46} /><path d="M760 294 A400 400 0 0 1 1160 294" fill="none" stroke={GREEN} strokeWidth={46} /><path d="M1160 294 A400 400 0 0 1 1360 640" fill="none" stroke={C.red} strokeWidth={46} />
@@ -390,23 +390,23 @@ export const BOARDS: Record<string, React.FC<G>> = {
     const u = clamp01(t / Math.max(10, d * 0.7));
     return (
       <Paper><Mv t={t} d={d} m={2}>
-        <Banner text="The relay" t={t} at={0} col={INK} y={110} />
+        <Banner text="The relay" t={t} at={0} col={INK} y={140} />
         <Svg>
           <path d="M160 450 L760 450" stroke="#c9c2b0" strokeWidth={16} /><path d={`M160 450 L${lerp(160, 760, clamp01(u * 2))} 450`} stroke={C.yellow} strokeWidth={8} />
           <rect x={780} y={360} width={360} height={180} rx={20} fill="#fffaf0" {...st} strokeWidth={9} />
           <path d="M1160 450 L1760 450" stroke="#c9c2b0" strokeWidth={26} /><path d={`M1160 450 L${lerp(1160, 1760, clamp01(u * 2 - 1))} 450`} stroke={C.yellow} strokeWidth={20} />
         </Svg>
-        <At x={460} y={540} s={pop(t, 2)}><T size={48} w={800} up={false}>weak, after miles of wire</T></At>
+        <At x={460} y={600} s={pop(t, 2)}><T size={46} w={800} up={false}>weak, after miles of wire</T></At>
         <At x={960} y={450} s={pop(t, 6)}><T size={64}>Relay</T></At>
-        <At x={1460} y={540} s={pop(t, 12)}><T size={48} w={800} up={false} col={GREEN}>strong again</T></At>
+        <At x={1460} y={600} s={pop(t, 12)}><T size={46} w={800} up={false} col={GREEN}>strong again</T></At>
       </Mv></Paper>
     );
   },
-  smithsonian: num("1846", "Henry runs the brand-new Smithsonian", { m: 4, col: GREEN, size: 330 }),
+  smithsonian: num("1846", "Henry runs the new Smithsonian", { m: 4, col: GREEN, size: 280 }),
   understand: ({ t, d, c }) => (
     <Paper><Mv t={t} d={d} m={0}>
-      <Banner text="What Henry would get" t={t} at={0} col={GREEN} y={110} />
-      <div style={{ position: "absolute", left: 560, top: 280 }}>
+      <Banner text="What Henry would get" t={t} at={0} col={GREEN} y={140} />
+      <div style={{ position: "absolute", left: 380, top: 280 }}>
         <Row text="It runs on electricity" t={t} at={Math.max(0, c(48, "electricity") - 6)} mark="check" markAt={c(48, "electricity") + 2} size={80} />
         <Row text="Stored in a battery" t={t} at={Math.max(4, c(48, "battery") - 6)} mark="check" markAt={c(48, "battery") + 2} size={80} />
       </div>
@@ -424,7 +424,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
     const at2 = Math.max(6, c(51, "smaller") - 2);
     return (
       <Paper><Mv t={t} d={d} m={0}>
-        <Banner text="Too small to see" t={t} at={0} col={C.red} y={110} />
+        <Banner text="Too small to see" t={t} at={0} col={C.red} y={140} />
         <Svg>
           <path d={Array.from({ length: 161 }, (_, i) => `${i ? "L" : "M"}${200 + i * 10} ${400 - 120 * Math.sin((i / 160) * Math.PI * 3 - t * 0.1)}`).join(" ")} fill="none" stroke="#7b5ac9" strokeWidth={14} />
           <rect x={950} y={600} width={6} height={6} fill={C.red} opacity={clamp01((t - at2) / 4)} />
@@ -439,15 +439,15 @@ export const BOARDS: Record<string, React.FC<G>> = {
     const steps: [string, string][] = [["1876", "telephone"], ["1882", "power station"], ["1947", "transistor"], ["1978", "GPS"], ["2026", "your phone"]];
     return (
       <Paper><Mv t={t} d={d} m={2}>
-        <Banner text="150 years of inventions" t={t} at={0} col={INK} y={110} />
+        <Banner text="150 years of inventions" t={t} at={0} col={INK} y={140} />
         <Svg><path d={`M200 440 L${lerp(200, 1720, clamp01(t / Math.max(10, d * 0.8)))} 440`} stroke={INK} strokeWidth={12} strokeLinecap="round" /></Svg>
         <At x={200} y={440} s={pop(t, 0)}><Pill text="1850" col={C.gold} fg={INK} size={52} /></At>
         {steps.map(([y, s], i) => <At key={y} x={480 + i * 300} y={440} s={pop(t, Math.round((i + 1) * Math.max(4, d * 0.13)))}><div style={{ textAlign: "center", transform: "translateY(60px)" }}><Pill text={y} col={i === 4 ? BLUE : "#fffaf0"} fg={i === 4 ? "#fff" : INK} size={48} /><T size={40} w={800} up={false} style={{ marginTop: 14 }}>{s}</T></div></At>)}
       </Mv></Paper>
     );
   },
-  save: say([{ s: "One thing that could", size: 110, col: "#fff" }, { s: "save thousands of lives", col: GREEN, size: 120, cue: [55, "save"] }], { dark: true, m: 0 }),
-  cholera: num("5,000+", "dead of cholera in New York, summer 1849", { dark: true, m: 4, col: C.red, size: 300 }),
+  save: say([{ s: "One thing that could", size: 110, col: "#fff" }, { s: "save thousands", col: GREEN, size: 150, cue: [55, "save"] }, { s: "of lives", col: GREEN, size: 150, cue: [55, "lives"] }], { dark: true, m: 0 }),
+  cholera: num("5,000+", "cholera deaths, New York 1849", { dark: true, m: 4, col: C.red, size: 260 }),
   cholera54: num("2,500", "more in 1854", { dark: true, m: 4, col: C.red, size: 330, sub: "it comes back", subCue: 6 }),
   checklist: ({ t, d, c }) => (
     <Paper><Mv t={t} d={d} m={0}>
@@ -508,7 +508,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
   look2: say([{ s: "He needed them", size: 130, col: "#fff" }, { s: "to look", col: C.yellow, size: 280, cue: [70, "look"] }], { dark: true, m: 4 }),
   rules3: ({ t, d, c }) => (
     <Paper><Mv t={t} d={d} m={0}>
-      <Banner text="A notebook with a light" t={t} at={0} col={GREEN} y={110} />
+      <Banner text="A notebook with a light" t={t} at={0} col={GREEN} y={140} />
       <div style={{ position: "absolute", left: 560, top: 250 }}>
         <Row text="Keep records" t={t} at={Math.max(0, c(71, "Keep") - 4)} mark="check" markAt={c(71, "Keep") + 4} size={86} />
         <Row text="Count cases" t={t} at={Math.max(4, c(71, "Count") - 4)} mark="check" markAt={c(71, "Count") + 4} size={86} />
@@ -529,7 +529,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
   comments: ({ t, d, c }) => (
     <Paper><Mv t={t} d={d} m={0}>
       <At x={960} y={290} s={pop(t, 0)}><Handset t={t} screen="black" s={0.32} /></At>
-      <At x={960} y={540} s={pop(t, 3)}><T size={84}>What would you have used it for?</T></At>
+      <At x={960} y={540} s={pop(t, 3)}><T size={68}>What would you have used it for?</T></At>
       <At x={960} y={690} s={pop(t, 12)}><Pill text="Tell me in the comments" col={C.red} fg="#fff" size={60} /></At>
     </Mv></Paper>
   ),

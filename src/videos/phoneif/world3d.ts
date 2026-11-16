@@ -19,7 +19,7 @@ import { TONE, CHAR, LFB, untone } from "../bridge/shade";
 import { NOINK } from "../bridge/ink";
 import { Pool, Actor, Fx } from "../bridge/cast";
 import { Board, INK, paintText } from "../dst/props";
-import { signTex } from "../lustig/props";
+import { signTex, newsTex } from "../lustig/props";
 import { numTex, Cards } from "../hertzlong/props3d";
 import { FPS } from "./timeline";
 import { V3, Rm, Bw, PIER, SW } from "./story3d.types";
@@ -31,7 +31,7 @@ const GOLD_W: LightPreset = { ...LIGHTS.golden, el: 16, fogNear: 80, fogFar: 600
 /** sickly, foggy: "bad air" (grey-green, flat) */
 const FOG_W: LightPreset = { ...LIGHTS.day, az: 110, el: 50,
   lit: [0.98, 1.02, 0.92], shade: [0.4, 0.44, 0.4], lift: [0.08, 0.09, 0.07], charTint: [0.9, 0.94, 0.86], sideTint: [0.88, 0.92, 0.84],
-  top: "#8f9a86", hor: "#bfc5ad", fog: "#a9b097", fogNear: 8, fogFar: 120, sunCol: "#e6ecd0", sunI: 1.3, sky: "#c9cfb6", ground: "#7a7a6a", hemiI: 0.8 };
+  top: "#8f9a86", hor: "#bfc5ad", fog: "#a9b097", fogNear: 2, fogFar: 46, sunCol: "#e6ecd0", sunI: 1.3, sky: "#c9cfb6", ground: "#7a7a6a", hemiI: 0.8 };
 const NIGHT_W: LightPreset = {
   az: 35, el: 58,
   lit: [0.7, 0.78, 1.2], shade: [0.13, 0.15, 0.3], lift: [0.03, 0.05, 0.13], lambert: 0.35, sideK: 0.84, term: 0.2,
@@ -76,6 +76,8 @@ const OUT: Record<string, Who> = {
   dagman: who(COAT("#5a4a3a", { hat: "hair", hair: "#4a3020", moustache: "#4a3020" }), 58, "dagman"),
   sitter: who(COAT("#3f4656", { moustache: "#3a2a20", build: "stout" }), 59, "sitter"),
   genin: who(COAT("#23232b", { moustache: "#1e1a20", buttons: "#e8c45a" }), 60, "genin"),
+  auctioneer: who(COAT("#5a2a2a", { hat: "hair", hair: "#8a8a92", moustache: "#8a8a92", build: "stout", buttons: "#e8c45a" }), 61, "auctioneer"),
+  kossuth: who(COAT("#2b2f3d", { moustache: "#3a2a20", hair: "#3a2a20", buttons: "#e8c45a" }), 62, "kossuth"),
 };
 // the 1850 crowd: c0..c47, frock coats and top hats, caps, bonnets and full skirts, from a fixed seed
 {
@@ -87,6 +89,8 @@ const OUT: Record<string, Who> = {
     const o: Outfit = lady ? COAT(D[i % D.length], { hat: "bonnet", dress: D[i % D.length], skin: SK[i % SK.length] })
       : COAT(j, { hat: i % 4 === 0 ? "cap" : i % 5 === 2 ? "hair" : "tophat", cap: J[(i * 3 + 1) % J.length], hair: HR[i % HR.length], skin: SK[(i * 3) % SK.length], moustache: i % 4 === 1 ? HR[(i + 2) % HR.length] : undefined, build: i % 6 === 4 ? "stout" : i % 11 === 7 ? "kid" : undefined });
     OUT[`c${i}`] = who(o, 100 + i, `c${i}`);
+    // the same crowd with their hats off (for "people took off their hats")
+    OUT[`b${i}`] = who({ ...o, hat: lady ? "bonnet" : "hair" }, 100 + i, `b${i}`);
   }
 }
 /** card units per metre (a card is 600 units wide; feet at y = 975) */
@@ -130,6 +134,7 @@ const mapTex = () => ctex("pfSnowMap", 512, 512, (g) => {
 });
 const paperTex = () => ctex("pfPaper", 256, 320, (g) => { g.fillStyle = "#fffaf0"; g.fillRect(4, 4, 248, 312); g.lineWidth = 8; g.strokeStyle = INK; g.strokeRect(4, 4, 248, 312); g.fillStyle = "#8a7a6a"; for (let y = 50; y < 290; y += 34) g.fillRect(30, y, 160 + ((y * 7) % 50), 10); });
 const noteTex = () => ctex("pfNote", 256, 128, (g) => { g.fillStyle = "#e9e0c4"; g.fillRect(4, 4, 248, 120); g.lineWidth = 8; g.strokeStyle = INK; g.strokeRect(4, 4, 248, 120); paintText(g, "MORSE", 128, 64, 46, INK, "center", 0.05); });
+const ticketTex = () => ctex("pfTicket", 256, 128, (g) => { g.fillStyle = "#c9373a"; g.fillRect(4, 4, 248, 120); g.lineWidth = 8; g.strokeStyle = INK; g.strokeRect(4, 4, 248, 120); g.strokeStyle = "#f6efdc"; g.lineWidth = 4; g.strokeRect(16, 16, 224, 96); paintText(g, "JENNY LIND", 128, 52, 34, "#f6efdc", "center", 0.05); paintText(g, "No. 1", 128, 92, 30, "#f6efdc", "center", 0.05); });
 const hatTex = () => ctex("pfHatCard", 256, 256, (g) => { g.clearRect(0, 0, 256, 256); g.fillStyle = "#1d1b22"; g.fillRect(78, 50, 100, 140); g.fillRect(40, 180, 176, 24); g.fillStyle = "#c9373a"; g.fillRect(78, 160, 100, 16); g.lineWidth = 8; g.strokeStyle = "#f4f0e6"; g.strokeRect(78, 50, 100, 140); });
 /** the phone's screen, by state */
 const screenTex = (s: string) => ctex(`pfScreen_${s}`, 256, 512, (g) => {
@@ -244,7 +249,8 @@ export class PWorld {
   private wires = new THREE.Group(); private magnet = new THREE.Group(); private beds = new THREE.Group(); private basin = new THREE.Group(); private mermaid = new THREE.Group();
   private bed = new THREE.Group(); private candle = new THREE.Group(); private flame: THREE.Sprite; private dag = new THREE.Group(); private map: THREE.Mesh;
   private phone = new THREE.Group(); private screen: THREE.Mesh; private phoneGlow: THREE.Sprite;
-  private rnum: Board; private papers: Cards; private notes: Cards; private hats: Cards;
+  private rnum: Board; private papers: Cards; private notes: Cards; private hats: Cards; private tickets: Cards;
+  private hall = new THREE.Group(); private news: Board; private pile = new THREE.Group(); private pileHats: THREE.Object3D[] = [];
   private lastPeople: { name: string; p: V3; walking: boolean; low: boolean; extra: boolean }[] = [];
   private ray = new THREE.Raycaster();
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private sph = new THREE.Sphere(); private v = new THREE.Vector3();
@@ -313,7 +319,6 @@ export class PWorld {
     b.add(boxGeo(V(-90, 0.6, 7.6), V(90, PIER + 0.12, 8.2)), pile);
     for (let x = -88; x <= 88; x += 3.2) cylAt(b, pile, 0.22, 0.25, 2.2, x, -0.8, 7.9, 8);
     // bollards and coiled lines along the edge
-    for (let x = -36; x <= 36; x += 12) { cylAt(b, dark, 0.22, 0.26, 0.6, x, PIER, 7.1, 10); }
     // warehouses behind the pier, fronts at z = -16 facing the water (+z)
     let wi = 0;
     for (let x = -90; x < 90; ) { const w = 14 + ((wi * 5) % 4) * 3; front(b, wb, this.winMat, x, x + w - 0.5, 9 + ((wi * 7) % 4) * 2.5, -16, -1, BR[wi % 3], trim, PIER, true); x += w; wi++; }
@@ -338,7 +343,7 @@ export class PWorld {
       for (const z of [z0 + 0.15, z1 - 0.15]) { sb.add(boxGeo(V(x0, dk + 0.08, z - 0.12), V(x1, dk + 1.1, z + 0.12)), wood); }
       for (let x = x0 + 3; x < x1 - 2; x += 3) win(swb, this.winMat, x, 2.6, z0 - 0.06, 0.55, 0.55, -1);
       // the paddle box on the pier side: a half drum with the wheel housing
-      { const pb = new THREE.CylinderGeometry(6.2, 6.2, 1.6, 28, 1, false, -Math.PI / 2, Math.PI); pb.rotateX(Math.PI / 2); pb.translate(2, 2.4, z0 - 0.8); sb.add(pb, M("pfPaddle", "#2b2f3d")); }
+      { const pb = new THREE.CylinderGeometry(6.2, 6.2, 1.6, 28, 1, false, Math.PI / 2, Math.PI); pb.rotateX(Math.PI / 2); pb.translate(2, 2.4, z0 - 0.8); sb.add(pb, M("pfPaddle", "#2b2f3d")); }
       { const rim = new THREE.TorusGeometry(6.25, 0.18, 6, 28, Math.PI); rim.translate(2, 2.4, z0 - 1.62); sb.add(rim, gold); }
       // deckhouse, funnel (black with a red band), three masts with yards, rigging to bow and stern
       sb.add(boxGeo(V(-10, dk, 14.5), V(14, dk + 2.6, 21.5)), M("pfHouse", "#e9dcc0"));
@@ -427,7 +432,7 @@ export class PWorld {
       part(J, new THREE.CylinderGeometry(0.11, 0.11, 0.26, 16), glass, 0, 0.13, 0); part(J, new THREE.CylinderGeometry(0.1, 0.1, 0.2, 16), acid, 0, 0.1, 0);
       part(J, new THREE.BoxGeometry(0.03, 0.34, 0.03), zinc, 0.03, 0.18, 0); part(J, new THREE.BoxGeometry(0.02, 0.06, 0.02), gold, -0.04, 0.29, 0);
       J.position.set(-1.25 + col * 0.5, row ? 0.93 : 0.48, 0); this.shelf.add(J); this.jars.push(J);
-      const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: new THREE.Color(2.4, 2.0, 0.6), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); gl.scale.setScalar(0.5); gl.position.set(0, 0.2, -0.02); gl.visible = false; gl.layers.set(NOINK); J.add(gl); this.jarGlow.push(gl);
+      const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: new THREE.Color(1.3, 1.1, 0.35), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); gl.scale.setScalar(0.5); gl.position.set(0, 0.2, -0.02); gl.visible = false; gl.layers.set(NOINK); J.add(gl); this.jarGlow.push(gl);
     }
     { const wbt = new Batch(); for (let r = 0; r < 2; r++) rod(wbt, M("pfWire", "#5a3b2a"), [-1.29, (r ? 0.93 : 0.48) + 0.31, 0], [1.29, (r ? 0.93 : 0.48) + 0.31, 0], 0.012); wbt.build(this.shelf); }
     { const wbt = new Batch(); for (const x of [-0.2, 0.2]) rod(wbt, M("pfWire", "#5a3b2a"), [x, 1.3, 0], [x, 3.2, 0.2], 0.015); wbt.build(this.wires); }
@@ -446,8 +451,9 @@ export class PWorld {
     part(this.basin, new THREE.CylinderGeometry(0.05, 0.08, 0.86, 10), wood, 0, 0.43, 0); part(this.basin, new THREE.CylinderGeometry(0.3, 0.2, 0.14, 20), M("pfBowl", "#f1ede2"), 0, 0.93, 0); part(this.basin, new THREE.CylinderGeometry(0.26, 0.26, 0.02, 20), M("pfWater", "#9fd0ea"), 0, 0.98, 0);
     // the mermaid case: a pedestal, a glass box, a small dark stylised figure with a fish tail, a label
     {
-      part(this.mermaid, new THREE.BoxGeometry(1.2, 0.9, 0.7), wood, 0, 0.45, 0);
-      const gb = new THREE.MeshLambertMaterial({ color: "#cfe6f0", transparent: true, opacity: 0.28, depthWrite: false }); part(this.mermaid, new THREE.BoxGeometry(1.1, 0.8, 0.6), gb, 0, 1.3, 0);
+      this.mermaid.scale.setScalar(1.35);
+    part(this.mermaid, new THREE.BoxGeometry(1.2, 0.9, 0.7), wood, 0, 0.45, 0);
+      const gb = new THREE.MeshLambertMaterial({ color: "#cfe6f0", transparent: true, opacity: 0.16, depthWrite: false }); part(this.mermaid, new THREE.BoxGeometry(1.1, 0.8, 0.6), gb, 0, 1.3, 0);
       const fig = M("pfMerm", "#5a4030"), tail = M("pfTail", "#7a8a6a");
       part(this.mermaid, new THREE.SphereGeometry(0.09, 12, 10), fig, -0.25, 1.22, 0); part(this.mermaid, new THREE.CylinderGeometry(0.06, 0.09, 0.2, 10), fig, -0.25, 1.06, 0);
       const tl = part(this.mermaid, new THREE.ConeGeometry(0.08, 0.5, 10), tail, 0.02, 1.0, 0); tl.rotation.z = Math.PI / 2 + 0.2;
@@ -475,7 +481,19 @@ export class PWorld {
     this.phone.visible = false; R.add(this.phone);
 
     this.rnum = new Board(1.9, 1.2, "num_x", () => numTex("x")); R.add(this.rnum.group);
-    this.papers = new Cards(R, paperTex(), 20, 0.4); this.notes = new Cards(R, noteTex(), 10, 0.4); this.hats = new Cards(R, hatTex(), 20, 0.5);
+    this.papers = new Cards(R, paperTex(), 20, 0.4); this.notes = new Cards(R, noteTex(), 10, 0.4); this.hats = new Cards(R, hatTex(), 20, 0.5); this.tickets = new Cards(R, ticketTex(), 4, 0.4);
+    // Castle Garden: a stage across the back (x -4..4, z 1.6..3.4, 0.7 high) with a rostrum, five rows of benches facing it
+    part(this.hall, new THREE.BoxGeometry(8, 0.7, 1.8), M("pfStage", "#7a5236"), 0, 0.35, 2.5); part(this.hall, new THREE.BoxGeometry(8.1, 0.06, 1.9), wood, 0, 0.73, 2.5);
+    part(this.hall, new THREE.BoxGeometry(0.9, 0.55, 0.5), M("pfRostrum", "#5a3b2a"), 0, 1.0, 2.2);
+    for (let r = 0; r < 5; r++) for (const sx of [-1, 1]) { const x = sx * 2.3, z = 0.6 - r * 1.25; part(this.hall, new THREE.BoxGeometry(3.4, 0.08, 0.4), M("pfBench", "#8a5a3a"), x, 0.45, z); part(this.hall, new THREE.BoxGeometry(3.4, 0.5, 0.06), M("pfBench", "#8a5a3a"), x, 0.7, z - 0.22); for (const lx of [-1.5, 1.5]) part(this.hall, new THREE.BoxGeometry(0.08, 0.45, 0.36), wood, x + lx, 0.22, z); }
+    this.hall.position.set(...Rm(0, 0, 0)); shadowAll(this.hall); this.hall.visible = false; R.add(this.hall);
+    this.news = new Board(0.9, 0.67, "news_pf0", () => newsTex("pf0", "The Herald", "JENNY LIND", "TICKETS")); this.news.group.visible = false; R.add(this.news.group);
+    // a heap of top hats
+    { const hatM = M("pfHatBlack", "#1d1b22"), band = M("pfHatBand", "#c9373a");
+      for (let i = 0; i < 14; i++) { const h = new THREE.Group(); part(h, new THREE.CylinderGeometry(0.11, 0.12, 0.2, 14), hatM, 0, 0.1, 0); part(h, new THREE.CylinderGeometry(0.19, 0.19, 0.02, 16), hatM, 0, 0.01, 0); part(h, new THREE.CylinderGeometry(0.122, 0.122, 0.04, 14), band, 0, 0.04, 0);
+        const ring = i < 6 ? 0 : i < 11 ? 1 : 2, k = ring === 0 ? i : ring === 1 ? i - 6 : i - 11, n = [6, 5, 3][ring], a = (k / n) * Math.PI * 2 + ring;
+        h.position.set(Math.cos(a) * [0.42, 0.26, 0.1][ring], ring * 0.19, Math.sin(a) * [0.42, 0.26, 0.1][ring]); h.rotation.set(0.25 * Math.sin(i * 1.7), i, 0.25 * Math.cos(i * 2.3)); this.pile.add(h); this.pileHats.push(h); }
+      shadowAll(this.pile); this.pile.visible = false; R.add(this.pile); }
   }
 
   private shotSun(id: number, L: LightPreset, sample: (f: number) => { pos: V3; look: V3 }, a: number, b: number) {
@@ -540,10 +558,15 @@ export class PWorld {
     const rm = st.room;
     if (rm) { const [key, text] = rm.sign; const mat = lam(`sign_${key}`, () => ({ map: signTex(key, text, "#2f2a3a", "#e8c45a") })); if (this.roomSign.material !== mat) this.roomSign.material = mat; }
     this.table.visible = !!rm?.table; this.telegraph.visible = !!rm?.telegraph; this.shelf.visible = (rm?.jars ?? 0) > 0; this.wires.visible = !!rm?.wires;
-    this.jars.forEach((j, i) => { j.visible = i < (rm?.jars ?? 0); this.jarGlow[i].visible = i < (rm?.jarsLit ?? 0); if (this.jarGlow[i].visible) this.jarGlow[i].scale.setScalar(0.42 + 0.06 * Math.sin(t * 9 + i)); });
+    this.jars.forEach((j, i) => { j.visible = i < (rm?.jars ?? 0); this.jarGlow[i].visible = i < (rm?.jarsLit ?? 0); if (this.jarGlow[i].visible) this.jarGlow[i].scale.setScalar(0.24 + 0.04 * Math.sin(t * 9 + i)); });
     this.magnet.visible = !!rm?.magnet; this.beds.visible = !!rm?.beds; this.basin.visible = !!rm?.basin; this.mermaid.visible = !!rm?.mermaid;
     this.bed.visible = !!rm?.bed; this.candle.visible = (rm?.candle ?? 0) > 0; this.flame.scale.set(0.16 * (rm?.candle ?? 1) * (1 + 0.08 * Math.sin(t * 13)), 0.28 * (rm?.candle ?? 1) * (1 + 0.1 * Math.sin(t * 17)), 1);
-    this.dag.visible = !!rm?.daguerre; this.map.visible = !!rm?.map;
+    this.dag.visible = !!rm?.daguerre; this.map.visible = !!rm?.map; this.hall.visible = !!rm?.hall;
+    const nw = st.news;
+    this.news.group.visible = !!nw;
+    if (nw) { const nm = lam(`news_${nw.text.join("_")}`, () => ({ map: newsTex(nw.text.join("_"), nw.text[0], nw.text[1], nw.text[2]) })); if (this.news.face.material !== nm) this.news.face.material = nm;
+      this.news.group.position.set(...nw.p); this.news.group.quaternion.copy(cam.quaternion); this.news.group.rotateY(Math.PI); this.news.group.rotateZ(nw.spin ?? 0); this.news.group.scale.setScalar(nw.s); }
+    this.pile.visible = !!st.pile; if (st.pile) { this.pile.position.set(...st.pile.p); this.pileHats.forEach((h, i) => { h.visible = i < st.pile!.n; }); }
     // ---- the phone ----
     const ph = st.phone;
     this.phone.visible = !!ph;
@@ -552,17 +575,18 @@ export class PWorld {
       if (ph.face === undefined || ph.face === "cam") { this.phone.lookAt(cam.position); this.phone.rotateY(Math.PI); } else this.phone.rotation.set(0, ph.face, 0);
       this.phone.rotateX(ph.tilt ?? 0);
       const sm2 = unlit(`pfScreen_${ph.screen}`, () => screenTex(ph.screen)); if (this.screen.material !== sm2) this.screen.material = sm2;
-      const gk = ph.glow ?? (ph.screen === "black" ? 0 : light === "night" ? 1 : 0.25); this.phoneGlow.visible = gk > 0.01; this.phoneGlow.scale.setScalar(0.5 * gk);
+      const gk = ph.glow ?? (ph.screen === "black" ? 0 : light === "night" ? 1 : 0); this.phoneGlow.visible = gk > 0.01; this.phoneGlow.scale.setScalar(0.5 * gk);
     }
     const rn = st.num;
     if (rn) { this.rnum.face.material = unlit(`num_${rn.text}_${rn.bg ?? ""}_${rn.fg ?? ""}`, () => numTex(rn.text, rn.bg, rn.fg)); this.rnum.group.position.set(...rn.p); this.rnum.group.rotation.y = rn.yaw ?? 0; }
     this.rnum.group.visible = !!rn && (rn.k ?? 1) > 0.001; this.rnum.group.scale.set(Math.max(0.001, rn ? (rn.k ?? 1) * (rn.w ?? 1) : 1), Math.max(0.001, rn ? rn.k ?? 1 : 1), 1);
     // ---- cards ----
-    this.papers.hide(); this.notes.hide(); this.hats.hide();
-    let np = 0, nn = 0, nh = 0;
+    this.papers.hide(); this.notes.hide(); this.hats.hide(); this.tickets.hide();
+    let np = 0, nn = 0, nh = 0, nt = 0;
     for (const cd of st.cards ?? []) {
       if (cd.kind === "paper") { this.papers.put(np, V(...cd.p), cam, cd.spin, cd.s, cd.flat); this.papers.list[np++]?.scale.set(cd.s, cd.s * 1.25, 1); }
       else if (cd.kind === "note") { this.notes.put(nn, V(...cd.p), cam, cd.spin, cd.s, cd.flat); this.notes.list[nn++]?.scale.set(cd.s, cd.s * 0.5, 1); }
+      else if (cd.kind === "ticket") { this.tickets.put(nt, V(...cd.p), cam, cd.spin, cd.s, cd.flat); this.tickets.list[nt++]?.scale.set(cd.s, cd.s * 0.5, 1); }
       else this.hats.put(nh++, V(...cd.p), cam, cd.spin, cd.s, cd.flat);
     }
 

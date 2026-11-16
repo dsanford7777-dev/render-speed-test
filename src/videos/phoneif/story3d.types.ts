@@ -21,11 +21,13 @@ export type Person3 = {
 /** the phone: where it is, which way its screen faces ("cam" = toward the camera, a number = yaw), what the screen shows */
 export type Phone = { p: V3; face?: "cam" | number; tilt?: number; screen: string; s?: number; glow?: number };
 export type Num = { text: string; bg?: string; fg?: string; k?: number; p: V3; yaw?: number; w?: number };
-export type Card = { kind: "paper" | "note" | "hat"; p: V3; spin: number; s: number; flat?: boolean };
+export type Card = { kind: "paper" | "note" | "hat" | "ticket"; p: V3; spin: number; s: number; flat?: boolean };
 export type Room = {
   sign: [string, string];
   table?: boolean; telegraph?: boolean; jars?: number; jarsLit?: number; magnet?: boolean; beds?: boolean; basin?: boolean;
   mermaid?: boolean; bed?: boolean; candle?: number; daguerre?: boolean; map?: boolean; wires?: boolean;
+  /** Castle Garden: a stage across the back and rows of benches */
+  hall?: boolean;
 };
 export type St3 = {
   light: "day" | "golden" | "night" | "fog"; cam: Cam; dof?: number; focus?: V3; closeup?: boolean;
@@ -33,4 +35,8 @@ export type St3 = {
   /** the ship: x offset (pulling in), smoke amount */
   ship?: { x?: number; smoke?: number };
   room?: Room; phone?: Phone | null; num?: Num | null; cards?: Card[];
+  /** a newspaper page facing the camera: masthead, two headline lines */
+  news?: { p: V3; s: number; text: [string, string, string]; spin?: number } | null;
+  /** a heap of top hats (3D), at p; n hats */
+  pile?: { p: V3; n: number } | null;
 };
