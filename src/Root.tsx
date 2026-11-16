@@ -14,11 +14,12 @@ import { ClocksShort, CLOCKS_FRAMES } from "./videos/clocks/Clocks";
 import { HertzLong, HertzThumb, HERTZLONG_FRAMES } from "./videos/hertzlong/HertzLong";
 import { TitanicIf, TitanicThumb, TITANICIF_FRAMES } from "./videos/titanicif/TitanicIf";
 import { CrashIf, CrashThumb, CRASHIF_FRAMES } from "./videos/crashif/CrashIf";
-import { PhoneIf, PHONEIF_FRAMES } from "./videos/phoneif/PhoneIf";
+import { PhoneIf, PhoneThumb, PHONEIF_FRAMES } from "./videos/phoneif/PhoneIf";
 import { KitTest, KitTestWide, KIT_FRAMES } from "./videos/kittest/KitTest";
 import { LogCannon, LOGCANNON_FRAMES } from "./videos/logcannon/LogCannon";
 import { TitanicKey, TITANICKEY_FRAMES } from "./videos/titanickey/TitanicKey";
 import { Rats, RATS_FRAMES } from "./videos/rats/Rats";
+import { Genin, GENIN_FRAMES } from "./videos/genin/Genin";
 
 // Render-farm padding: on software GL (GitHub runners) the first frame each render tab draws comes out blank.
 // "<Id>Padded" plays the real video delayed by PAD frames (frames 0..PAD-1 repeat frame 0), so every chunk can
@@ -48,12 +49,14 @@ const ClocksPadded = padded(ClocksShort);
 const LogCannonPadded = padded(LogCannon);
 const TitanicKeyPadded = padded(TitanicKey);
 const RatsPadded = padded(Rats);
+const GeninPadded = padded(Genin);
 const HertzLongPadded = padded(HertzLong);
 const HertzThumbPadded = padded(HertzThumb);
 const TitanicIfPadded = padded(TitanicIf);
 const TitanicThumbPadded = padded(TitanicThumb);
 const CrashIfPadded = padded(CrashIf);
 const PhoneIfPadded = padded(PhoneIf);
+const PhoneThumbPadded = padded(PhoneThumb);
 const CrashThumbPadded = padded(CrashThumb);
 
 export const Root: React.FC = () => (<>
@@ -92,6 +95,8 @@ export const Root: React.FC = () => (<>
   <Composition id="TitanicKeyPadded" component={TitanicKeyPadded} durationInFrames={TITANICKEY_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="Rats" component={Rats} durationInFrames={RATS_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="RatsPadded" component={RatsPadded} durationInFrames={RATS_FRAMES + PAD} fps={30} width={1080} height={1920} />
+  <Composition id="Genin" component={Genin} durationInFrames={GENIN_FRAMES} fps={30} width={1080} height={1920} />
+  <Composition id="GeninPadded" component={GeninPadded} durationInFrames={GENIN_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="KitTest" component={KitTest} durationInFrames={KIT_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="KitTestWide" component={KitTestWide} durationInFrames={KIT_FRAMES} fps={30} width={1920} height={1080} />
   <Composition id="KitTestPadded" component={KitTestPadded} durationInFrames={KIT_FRAMES + PAD} fps={30} width={1080} height={1920} />
@@ -100,6 +105,8 @@ export const Root: React.FC = () => (<>
   <Composition id="CrashIfPadded" component={CrashIfPadded} durationInFrames={CRASHIF_FRAMES + PAD} fps={30} width={1920} height={1080} />
   <Composition id="PhoneIf" component={PhoneIf} durationInFrames={PHONEIF_FRAMES} fps={30} width={1920} height={1080} />
   <Composition id="PhoneIfPadded" component={PhoneIfPadded} durationInFrames={PHONEIF_FRAMES + PAD} fps={30} width={1920} height={1080} />
+  <Composition id="PhoneThumb" component={PhoneThumb} durationInFrames={3} fps={30} width={1920} height={1080} />
+  <Composition id="PhoneThumbPadded" component={PhoneThumbPadded} durationInFrames={3 + PAD} fps={30} width={1920} height={1080} />
   <Composition id="CrashThumb" component={CrashThumb} durationInFrames={3} fps={30} width={1920} height={1080} />
   <Composition id="CrashThumbPadded" component={CrashThumbPadded} durationInFrames={3 + PAD} fps={30} width={1920} height={1080} />
   <Composition id="PigWarLongPadded" component={PigWarLongPadded} durationInFrames={PIGWARLONG_FRAMES + PAD} fps={30} width={1920} height={1080} />

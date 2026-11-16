@@ -1,11 +1,12 @@
-// Long-form #6 skeleton: placeholders until the 1850 world and boards are built (see timeline.ts).
-// "What If You Woke Up in 1929 Knowing the Crash Was Coming?" (Paradox Town Explained #5), 1920 x 1080. One timeline,
+// "What If You Were Stuck in 1850 With Only Your Phone?" (Paradox Town Explained #6), 1920 x 1080. One timeline,
 // two kinds of shot: 2D boards and maps (boards.tsx) and 3D scenes (story3d.ts, every one a moving camera).
 // Chapter tags at each chapter start, captions on top, an end card after the last line. Voice muxed in at render.
 import React from "react";
 import { AbsoluteFill, Audio, getInputProps, staticFile, useCurrentFrame } from "remotion";
 import { TOTAL, VOICE_END, SHOTS, shotAt, wordAt, XFADE, CHAPTER_SHOTS, CHAPTERS, ShotDef, segAt, FPS } from "./timeline";
+import { BOARDS, MapBoard } from "./boards";
 import { Placeholder } from "../hertzlong/Placeholder";
+import { View3D, useKit, has3D } from "./View3D";
 import { Captions } from "./Captions";
 import { C, T, Paper, k, ease } from "../pigwarlong/kit";
 
@@ -13,10 +14,13 @@ export const PHONEIF_FRAMES = TOTAL;
 
 const Shot: React.FC<{ shot: ShotDef; f: number }> = ({ shot, f }) => {
   const t = f - shot.a;
+  if (has3D(shot)) return null;
   const c = (seg: number, w: string) => wordAt(seg, w) - shot.a, d = shot.b - shot.a;
   if (shot.k === "2d") {
     const parts = shot.g.split(":");
-    void parts; void c; void d;
+    if (parts[0] === "map") return <MapBoard name={parts[1]} t={t} d={d} v={0} c={c} />;
+    const B = BOARDS[parts[0]];
+    if (B) return <B t={t} d={d} v={Number(parts[1] ?? 0)} c={c} />;
   }
   return <Placeholder shot={shot as never} t={t} />;
 };
@@ -77,12 +81,15 @@ const EndCard: React.FC<{ t: number }> = ({ t }) => {
 export const PhoneIf: React.FC = () => {
   const f = useCurrentFrame();
   const voice = (getInputProps() as { voice?: boolean }).voice;
+  const kit = useKit();
+  if (!kit) return null;
   if (f >= VOICE_END) return <AbsoluteFill><EndCard t={f - VOICE_END} />{voice ? <Audio src={staticFile("phoneif/voice.mp3")} /> : null}</AbsoluteFill>;
   const s = shotAt(f) ?? SHOTS[SHOTS.length - 1];
-  const prev = SHOTS[s.id - 2];
-  const fade = CHAPTER_SHOTS.has(s.id) && prev && f < s.a + XFADE ? (f - s.a + 1) / (XFADE + 1) : 1;
+  const prev = SHOTS[s.id - 2], d3 = has3D(s);
+  const fade = CHAPTER_SHOTS.has(s.id) && prev && !d3 && !has3D(prev) && f < s.a + XFADE ? (f - s.a + 1) / (XFADE + 1) : 1;
   return (
     <AbsoluteFill style={{ background: "#000" }}>
+      <View3D kit={kit} shot={s} f={f} visible={d3} />
       {fade < 1 ? <AbsoluteFill><Shot shot={prev} f={f} /></AbsoluteFill> : null}
       <AbsoluteFill style={{ opacity: fade }}><Shot shot={s} f={f} /></AbsoluteFill>
       <ChapterTag f={f} />
@@ -92,3 +99,11 @@ export const PhoneIf: React.FC = () => {
   );
 };
 
+/** the thumbnail background (1920 x 1080 still; the headline is added by scripts/thumb_phoneif.py) */
+export const PhoneThumb: React.FC = () => {
+  const kit = useKit();
+  if (!kit) return null;
+  const shot = { id: 9001, s: 0, k: "3d", g: "thumb", a: 0, b: 10 } as unknown as (typeof SHOTS)[number];
+  return <AbsoluteFill style={{ background: "#000" }}><View3D kit={kit} shot={shot} f={4} visible /></AbsoluteFill>;
+};
+void C;
