@@ -95,6 +95,16 @@ jobs:
             ffmpeg -loglevel error -y -i video.mp4 -i "$VOICE" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 256k \
               -af apad -shortest -movflags +faststart voiced.mp4 && mv voiced.mp4 video.mp4
             echo "- Voice: $VOICE" >> voice.txt
+            # subscribe end card (src/videos/shared/SubscribeTag.tsx): the mascot's slap lands SLAP_FROM_END = 70 frames
+            # before the end; public/brand/slap.mp3 hits 0.203 s into the file, so start it that much earlier
+            LC=$(echo '${{ needs.plan.outputs.composition }}' | tr A-Z a-z)
+            if grep -rqs "<SubscribeTag" "repo/src/videos/$LC" && [ -f repo/public/brand/slap.mp3 ]; then
+              MS=$(python3 -c "print(max(0, round((( ${{ needs.plan.outputs.total }} - 70) / 30 - 0.203) * 1000)))")
+              ffmpeg -loglevel error -y -i video.mp4 -i repo/public/brand/slap.mp3 -filter_complex \
+                "[0:a]apad[v];[1:a]adelay=${MS}|${MS},volume=0.8[s];[v][s]amix=inputs=2:duration=first:normalize=0[a]" \
+                -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 256k -shortest -movflags +faststart slapped.mp4 && mv slapped.mp4 video.mp4
+              echo "- Slap sound at ${MS} ms (subscribe end card)" >> voice.txt
+            fi
           else
             echo "- Voice: none (silent)" >> voice.txt
           fi

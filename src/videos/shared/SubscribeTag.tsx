@@ -28,6 +28,9 @@ type Props = {
   mascot?: boolean;   // false = card only, no character
 };
 
+/** frames from the end of the video to the slap with the default len/tail (8 + 96 - 34). The render workflow mixes
+ *  public/brand/slap.mp3 in at this point (render.yml): change both together, and don't override len/tail on a Short. */
+export const SLAP_FROM_END = 70;
 const W = 1080, H = 1920;
 const S = 0.75;                                  // character scale (design units -> px)
 const CX = 360, FEET = 1103;                     // where the character stands (feet centre, px)
