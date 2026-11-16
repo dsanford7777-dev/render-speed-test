@@ -293,9 +293,9 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     cam: orbit(s, f, Rm(0.3, 1.2, 1.2), [-30, 14], [4.4, 3.4], [0.5, 0.2], 40, [0.06, -0.05]),
     people: [P("operator", Rm(0.3, 0, 1.75), "stern", 0, { hw: [Rm(0.17, 0.92 + tap, 0.55)] })], subjects: [["the telegraph key", Rm(0.3, 0.86, 0.55), 0.2]] }; },
 
-  thumb: () => { const ph: V3 = [YOU[0] + 0.32, PIER + 1.62, YOU[2] - 0.55]; return { ...DAY, dof: 3, focus: [YOU[0], PIER + 1.5, YOU[2]], ship: { x: 0 },
-    cam: full({ pos: [1.3, PIER + 1.55, -5.4], look: [-1.0, PIER + 2.6, 6], fov: 46, roll: 0 }),
-    people: [P("you", YOU, "shock", 0, { hw: [ph] }), ...WHARF(50, 13, CHEER, 0.8).filter((q) => Math.hypot(q.p[0] - YOU[0], q.p[2] - YOU[2]) > 1.6)], phone: phone(ph, "80", 2.4, { glow: 0.5 }) }; },
+  thumb: () => { const ph: V3 = [YOU[0] - 0.5, PIER + 1.45, YOU[2] - 0.55]; return { ...DAY, dof: 3, focus: [YOU[0], PIER + 1.5, YOU[2]], ship: { x: 0 },
+    cam: full({ pos: [0.2, PIER + 1.5, -4.6], look: [-1.9, PIER + 2.3, 6], fov: 44, roll: 0 }),
+    people: [P("you", YOU, "shock", 0, { hw: [ph] }), ...WHARF(50, 13, CHEER, 0.8).filter((q) => Math.hypot(q.p[0] - YOU[0], q.p[2] - YOU[2]) > 1.6 && q.p[2] > -1)], phone: phone(ph, "80", 3.0, { glow: 0.3 }) }; },
 };
 
 /** every shot is hand-held: a slow sway on top of its move, less when the lens is long */
