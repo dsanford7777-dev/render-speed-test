@@ -138,7 +138,7 @@ const DateCard = (big: string, sub: string, o: { tone?: string; col?: string; m?
 );
 
 // ---------------- the map of 1850 ----------------
-const CITY: Record<string, [number, number]> = { Boston: [905, 110], NY: [872, 150], Phila: [850, 182], DC: [826, 214], Richmond: [818, 248], Charleston: [800, 340], Buffalo: [796, 120], Cleveland: [756, 152], Detroit: [730, 132], Chicago: [688, 160], Pittsburgh: [788, 178], Cincinnati: [722, 228], Louisville: [700, 256], StLouis: [640, 248], Nashville: [690, 300], Mobile: [668, 420], NOLA: [636, 440] };
+const CITY: Record<string, [number, number]> = { Boston: [905, 110], NY: [872, 150], Phila: [850, 182], DC: [826, 214], Richmond: [818, 248], Charleston: [790, 340], Buffalo: [796, 134], Cleveland: [756, 152], Detroit: [730, 144], Chicago: [688, 160], Pittsburgh: [788, 178], Cincinnati: [722, 228], Louisville: [700, 256], StLouis: [640, 248], Nashville: [690, 300], Mobile: [668, 403], NOLA: [634, 407] };
 const LINES: [string, string][] = [["Boston", "NY"], ["NY", "Phila"], ["Phila", "DC"], ["DC", "Richmond"], ["Richmond", "Charleston"], ["Charleston", "Mobile"], ["Mobile", "NOLA"], ["NY", "Buffalo"], ["Buffalo", "Cleveland"], ["Cleveland", "Detroit"], ["Detroit", "Chicago"], ["Phila", "Pittsburgh"], ["Pittsburgh", "Cincinnati"], ["Cincinnati", "Louisville"], ["Louisville", "StLouis"], ["Louisville", "Nashville"], ["Nashville", "NOLA"], ["Cleveland", "Pittsburgh"], ["Chicago", "StLouis"]];
 const MAPX = (p: [number, number]): [number, number] => [-340 + p[0] * 1.95, 30 + p[1] * 1.6];
 const USMap: React.FC<{ t: number; drawn: number; route?: number; label?: string }> = ({ t, drawn, route = -1, label }) => {
