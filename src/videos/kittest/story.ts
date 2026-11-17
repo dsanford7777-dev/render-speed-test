@@ -5,7 +5,7 @@ import { V3, FPS, PATCH, WORK, GUN, LAMPS, FUSE, ARMY_Z, groundH } from "./place
 export type { V3 };
 
 export type ShotDef = { id: number; g: string; a: number; b: number; k: "3d"; s: number };
-const LEN: [string, number, string][] = [["army", 84, "an army"], ["work", 84, "hands on tools"], ["break", 84, "the ground gives way"], ["rain", 78, "rain and lanterns"], ["fuse", 96, "ride the fuse"], ["volley", 96, "one shot"]];
+const LEN: [string, number, string][] = [["army", 84, "an army"], ["work", 84, "hands on tools"], ["break", 84, "the ground gives way"], ["rain", 78, "rain and lanterns"], ["fuse", 96, "ride the fuse"], ["volley", 96, "one shot"], ["faces", 60, "faces"]];
 export const SHOTS: ShotDef[] = []; { let a = 0; LEN.forEach(([g, n], i) => { SHOTS.push({ id: i + 1, g, a, b: a + n, k: "3d", s: i }); a += n; }); }
 export const LABELS = LEN.map((l) => l[2]);
 export const TOTAL = SHOTS[SHOTS.length - 1].b;
@@ -88,6 +88,11 @@ const bounce = (u: number) => { const x = clamp01(u); return x >= 1 ? 1 : 1 - Ma
 const SHOCK: Expr[] = ["shock", "nervous", "shock", "dazed", "shock", "pained"];
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
+  // character look test: two people close to the lens
+  faces: (s, f) => ({ light: "day", dof: 4, closeup: true,
+    cam: move({ pos: S(0.7, 1.3, -7.6), look: S(-0.15, 1.3, -11), fov: 44, roll: 0.03 }, { pos: S(0.6, 1.3, -7.9), look: S(-0.15, 1.3, -11), fov: 44, roll: 0.0 }, f, s.a, s.b, smooth, 0),
+    people: f < s.a + 45 ? [P("carp", S(-0.85, 0, -11.7), f < s.a + 30 ? "shock" : "grin", 1), P("whitney", S(0.2, 0, -10.6), f < s.a + 30 ? "laugh" : "relief", -1)]
+      : f < s.a + 52 ? [P("oldman", S(-0.6, 0, -11.2), "smile", 0), P("official", S(0.35, 0, -10.6), "stern", -1)] : [walker("carp", -0.75, 0, -11.2, 0.6, t(f - s.a - 52)), walker("whitney", 0.6, 0, -10.6, -0.6, t(f - s.a - 52), "grin")] }),
   // the scout leads hundreds of soldiers down the hillside; the camera backs away in front of him and rises to show them all
   army: (s, f) => { const tt = t(f - s.a), adv = 8 + 2.4 * tt, sz = ARMY_Z - adv - 4.5, gy = groundH(1.0, sz, false);
     return { light: "day", dof: 0, army: { adv, march: true },

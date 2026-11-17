@@ -76,6 +76,7 @@ const OUT: Record<string, Who> = {
 OUT.carp = who({ jacket: "#c2384a", pants: "#4a4038", boots: "#3a2a20", hat: "hair", hair: "#5a3b2a", skin: SKIN, buttons: "#e8c45a" }, 71, "carp");
 OUT.chief = who(SUIT("#2f4f9a", { hat: "cap", cap: "#c9373a", moustache: "#3a2a20", build: "stout", buttons: "#e8c45a" }), 72, "chief");
 OUT.scout = who(SUIT("#a8312f", { hat: "cap", cap: "#8a8f98", buttons: "#f1ede2", skin: "#f5c9a0" }), 73, "scout");
+Object.assign(OUT.whitney.o, { jacket: "#4f5d7a", pants: "#39405a", shirt: "#f6f2e8", tie: "#b5362f" }); Object.assign(OUT.carp.o, { plaid: "#8f2233", braces: "#6b4a2f" }); // look test
 // the crowd: c0..c47, mostly men in dark suits and hats, some women, generated from a fixed seed
 {
   const J = ["#3f4656", "#5a4a3a", "#2b2f3d", "#6b4a2f", "#4a5a7a", "#3f5f4a", "#7a5236", "#4a4038", "#23232b", "#5d5468"];
