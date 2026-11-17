@@ -69,7 +69,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with: { path: repo, sparse-checkout: public }
+        with:
+          path: repo
+          # scripts + src/videos: scripts/slap_times.py reads each video's timeline for the subscribe-card slap
+          sparse-checkout: |
+            public
+            scripts
+            src/videos
       # partial re-render: start from the earlier run's chunks, then this run's redone chunks overwrite theirs
       - if: needs.plan.outputs.reuse != ''
         uses: actions/download-artifact@v4
