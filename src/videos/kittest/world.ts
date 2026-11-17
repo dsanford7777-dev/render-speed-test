@@ -357,16 +357,18 @@ export class KWorld {
   }
   private growGrass(cam: THREE.PerspectiveCamera, brk: number, fuse: boolean) {
     const cx = cam.position.x, cz = cam.position.z, e = cam.matrixWorld.elements; let fx = -e[8], fz = -e[10]; const fl = Math.hypot(fx, fz) || 1; fx /= fl; fz /= fl;
-    const PAL = GRASS_PAL, fp = this.fusePts;
+    const vl = this.valleyOn, PAL = vl ? VALLEY_PAL : GRASS_PAL, fp = this.fusePts, hk = vl ? 0.6 : 1;
     this.grass.forEach((L, li) => { const { mesh, cell, R, f0, sc, cap } = L; let n = 0;
       const i0 = Math.floor((cx - R) / cell), i1 = Math.ceil((cx + R) / cell), j0 = Math.floor((cz - R) / cell), j1 = Math.ceil((cz + R) / cell);
       for (let j = j0; j <= j1 && n < cap; j++) for (let i = i0; i <= i1 && n < cap; i++) {
         const h1 = hsh(i, j, li * 7 + 1), x = (i + h1) * cell, z = (j + hsh(i, j, li * 7 + 2)) * cell, dx = x - cx, dz = z - cz, d = Math.hypot(dx, dz);
         if (d > R || d < 0.45 || (d > 3 && dx * fx + dz * fz < 0.5 * d)) continue;
         const y = this.turfY(x, z, brk); if (y === null) continue;
+        // the valley: shorter, muted grass with bare patches, so the painted ground shows through
+        if (vl && Math.sin(x * 0.9 + 2.1 * Math.sin(z * 0.7)) * Math.cos(z * 0.8 + 1.3) > 0.42) continue;
         if (fuse && li < 2 && x > 0.4 && x < 11 && z > -11 && z < 9) { let near = false; for (let q = 0; q < fp.length; q += 2) { const ax = fp[q] - x, az = fp[q + 1] - z; if (ax * ax + az * az < 0.2) { near = true; break; } } if (near) continue; }
         const h3 = hsh(i, j, li * 7 + 3), fade = d > f0 ? 1 - (d - f0) / (R - f0) : 1, s = sc * (0.75 + 0.6 * h3) * fade;
-        this.e5.set(0, h1 * 6.283, 0); this.m5.compose(this.v.set(x, y, z), this.q5.setFromEuler(this.e5), this.s5.set(s, (1 + 0.45 * (s - 1)) * (0.8 + 0.5 * hsh(i, j, li * 7 + 4)) * Math.min(1, fade * 3), s)); mesh.setMatrixAt(n, this.m5);
+        this.e5.set(0, h1 * 6.283, 0); this.m5.compose(this.v.set(x, y, z), this.q5.setFromEuler(this.e5), this.s5.set(s, hk * (1 + 0.45 * (s - 1)) * (0.8 + 0.5 * hsh(i, j, li * 7 + 4)) * Math.min(1, fade * 3), s)); mesh.setMatrixAt(n, this.m5);
         // patches of colour a few metres across, plus blade-to-blade variety
         const patch = 0.5 + 0.5 * Math.sin(x * 0.31 + 1.7 * Math.sin(z * 0.23)) * Math.cos(z * 0.27 + 0.6);
         mesh.setColorAt(n, PAL[Math.min(PAL.length - 1, Math.floor((0.55 * patch + 0.45 * h3) * PAL.length))]); n++; }
@@ -557,6 +559,7 @@ const HAMMER_L = 0.34;
 const MOAT_N = 8;
 /** soldiers within this many metres of an impact are knocked down */
 const BLAST_R = 10;
+const VALLEY_PAL = ["#3c5625", "#46622a", "#516e2f", "#5c7a35", "#68863b", "#759243", "#839e4c", "#93aa58"].map((c) => new THREE.Color(c));
 const GRASS_PAL = ["#2f6a22", "#3a7a26", "#44862a", "#4e912e", "#5a9c33", "#68a83a", "#79b344", "#93bd50"].map((c) => new THREE.Color(c));
 const hsh = (i: number, j: number, k: number) => { let n = (Math.imul(i, 374761393) + Math.imul(j, 668265263) + Math.imul(k, 1274126177)) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
 const fieldsTex = () => ctex("k2Fields", 2048, 2048, (g, r) => {

@@ -2,7 +2,7 @@
 import * as THREE from "three";
 import { Expr } from "../bridge/toon";
 import { V3, FPS, PATCH, WORK, GUN, LAMPS, FUSE, ARMY_Z, groundH } from "./place";
-import { roadZ, cabinSmoke } from "./valley";
+import { roadZ, cabinSmoke, ROAD_Y } from "./valley";
 export type { V3 };
 
 export type ShotDef = { id: number; g: string; a: number; b: number; k: "3d"; s: number };
@@ -99,7 +99,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   valley: (s, f) => { const tt = t(f - s.a);
     return { light: "day", set: "valley", twins: true, sun: [120, 40], dof: 3, focus: S(-18.2, 1.3, 22.6),
       cam: move({ pos: S(-11.4, 1.5, 22.2), look: S(-30, 3.5, 22.3), fov: 58, roll: 0.03 }, { pos: S(-12.6, 1.45, 22.2), look: S(-30, 3.3, 22.3), fov: 54, roll: -0.01 }, f, s.a, s.b, smooth, 0),
-      people: [P("carp", S(-18.7, 0, 23.45), "smile", -1), P("whitney", S(-17.7, 0, 21.95), "grin", 1), walker("oldman", -57, groundH(-56, roadZ(-56), false) + 0.09, roadZ(-56), 0.9, tt)],
+      people: [P("carp", S(-18.7, 0.03, 23.45), "smile", -1), P("whitney", S(-17.7, ROAD_Y, 21.95), "grin", 1), walker("oldman", -57, groundH(-56, roadZ(-56), false) + ROAD_Y, roadZ(-56), 0.9, tt)],
       puffs: cabinSmoke(tt) }; },
   // background look test (room.ts): a lamp-lit storeroom, two people, the camera easing in past a foreground lantern
   room: (s, f) => { const X = 24, Y = 1.0, Z = 22;

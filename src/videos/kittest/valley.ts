@@ -6,6 +6,7 @@
 import * as THREE from "three";
 import { lam } from "../bridge/build";
 import { ctex, planksHD, rep } from "../bridge/paint";
+import { cloudHD } from "../bridge/paint";
 import { NOINK } from "../bridge/ink";
 import { rockTex, dirtTex, rockWall, rockGeo, pineGeo, bushGeo, mergeFacets, dustMotes } from "../bridge/scenery";
 import { groundH } from "./place";
@@ -17,6 +18,8 @@ const CLIFF_H = 9, EYE: P2 = [-12, 22];
 export const CABIN: [number, number] = [-47, 14.2];
 /** the road's centre line: z at x */
 export const roadZ = (x: number) => 22 + 0.4 * Math.sin(0.3 * x) - (x < -24 ? 0.005 * (x + 24) * (x + 24) : 0);
+/** the road surface stands this far above the ground (people on the road stand at this height) */
+export const ROAD_Y = 0.07;
 const gy = (x: number, z: number) => (Math.abs(x) < 36 && z > -14 && z < 36 ? 0 : groundH(x, z, false));
 const segs = CLIFF.slice(1).map((b, i) => { const a = CLIFF[i], L = Math.hypot(b[0] - a[0], b[1] - a[1]), d: P2 = [(b[0] - a[0]) / L, (b[1] - a[1]) / L], mid: P2 = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
   let n: P2 = [-d[1], d[0]]; if ((EYE[0] - mid[0]) * n[0] + (EYE[1] - mid[1]) * n[1] < 0) n = [d[1], -d[0]];
@@ -30,6 +33,19 @@ export const valleyClear = (x: number, z: number) => {
   return false;
 };
 
+/** meadow floor, 12 m to the tile: olive greens in big blotches, bare-earth patches, blade strokes, fallen leaves, tiny flowers */
+const groundTex = () => ctex("vlGround", 2048, 2048, (g, r) => {
+  const S = 2048; g.fillStyle = "#58763a"; g.fillRect(0, 0, S, S);
+  const wrap = (x: number, y: number, rad: number, f: (x: number, y: number) => void) => { for (const dx of [-S, 0, S]) for (const dy of [-S, 0, S]) if (x + dx > -rad && x + dx < S + rad && y + dy > -rad && y + dy < S + rad) f(x + dx, y + dy); };
+  for (let i = 0; i < 46; i++) { const x = r() * S, y = r() * S, rx = 110 + r() * 260, ry = 80 + r() * 200, a = r() * 3, c = r() > 0.5 ? "rgba(132,158,78,0.3)" : "rgba(56,84,38,0.34)"; wrap(x, y, 380, (xx, yy) => { g.fillStyle = c; g.beginPath(); g.ellipse(xx, yy, rx, ry, a, 0, 6.3); g.fill(); }); }
+  for (let i = 0; i < 13; i++) { const x = r() * S, y = r() * S, rx = 70 + r() * 150, ry = 50 + r() * 100, a = r() * 3;
+    wrap(x, y, 240, (xx, yy) => { for (let k = 0; k < 3; k++) { g.fillStyle = `rgba(${150 + k * 8},${118 + k * 6},${78 + k * 4},${0.3 + 0.12 * k})`; g.beginPath(); g.ellipse(xx, yy, rx * (1 - 0.22 * k), ry * (1 - 0.22 * k), a, 0, 6.3); g.fill(); } }); }
+  g.lineCap = "round";
+  for (let i = 0; i < 9000; i++) { const x = r() * S, y = r() * S, l = 6 + r() * 12, a = -1.57 + (r() - 0.5) * 1.3; g.strokeStyle = r() > 0.5 ? "rgba(150,176,90,0.4)" : "rgba(40,66,30,0.4)"; g.lineWidth = 1.5 + r() * 1.5; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke(); }
+  for (let i = 0; i < 2600; i++) { g.fillStyle = r() > 0.5 ? "rgba(190,170,120,0.3)" : "rgba(50,40,26,0.3)"; g.fillRect(r() * S, r() * S, 2 + r() * 4, 2 + r() * 3); }
+  for (let i = 0; i < 520; i++) { const x = r() * S, y = r() * S; g.fillStyle = ["#c98a32", "#d9b03c", "#9a5a2a", "#b87434"][Math.floor(r() * 4)]; g.beginPath(); g.ellipse(x, y, 5 + r() * 4, 2.5 + r() * 2, r() * 3, 0, 6.3); g.fill(); }
+  for (let i = 0; i < 240; i++) { const x = r() * S, y = r() * S, c = r() > 0.6 ? "#f4efe0" : r() > 0.5 ? "#f0d04a" : "#d98ab0"; g.fillStyle = c; for (let k = 0; k < 5; k++) { g.beginPath(); g.arc(x + 3.2 * Math.cos(k * 1.257), y + 3.2 * Math.sin(k * 1.257), 2.1, 0, 6.3); g.fill(); } g.fillStyle = "#e0a030"; g.beginPath(); g.arc(x, y, 1.6, 0, 6.3); g.fill(); }
+});
 const signTex = () => ctex("vlSign", 512, 256, (g, r) => {
   g.fillStyle = "#c9a060"; g.fillRect(0, 0, 512, 256);
   for (let k = 0; k < 40; k++) { g.strokeStyle = "rgba(96,62,28,0.3)"; g.lineWidth = 1 + r() * 2.5; const y = r() * 256; g.beginPath(); g.moveTo(0, y); g.bezierCurveTo(170, y + 10 * (r() - 0.5), 340, y + 10 * (r() - 0.5), 512, y); g.stroke(); }
@@ -58,18 +74,19 @@ export function buildValley(): Valley {
   const pineM = [lam("vlPine0", () => ({ color: "#2b6638", ...F })), lam("vlPine1", () => ({ color: "#4f8870", ...F })), lam("vlPine2", () => ({ color: "#8fb4b0", ...F }))];
   const barkM = [lam("vlBark0", () => ({ color: "#6b4a30", ...F })), lam("vlBark1", () => ({ color: "#86796c", ...F })), lam("vlBark2", () => ({ color: "#a9bcbc", ...F }))];
   const aspenM = [lam("vlAspen0", () => ({ color: "#e3b93a", ...F })), lam("vlAspen1", () => ({ color: "#d9c276", ...F }))], birchM = lam("vlBirch", () => ({ color: "#e6dfcf", ...F }));
-  const bushM = lam("vlBush", () => ({ color: "#33662f", ...F })), bushM2 = lam("vlBush2", () => ({ color: "#4f7631", ...F }));
+  const bushM = lam("vlBush", () => ({ color: "#2f5a2c", ...F })), bushM2 = lam("vlBush2", () => ({ color: "#476a2f", ...F }));
   const turf = lam("k2TurfDark", () => ({ color: "#3f7a28" })), roadM = lam("vlRoad", () => ({ map: dirtTex("vlDirt", "#b28c60", true) }));
   const plank = planksHD(), woodM = lam("vlWood", () => ({ map: rep(plank, 1, 1), color: "#b08862" })), woodDark = lam("vlWoodDark", () => ({ map: rep(plank, 0.5, 0.5), color: "#7a5a3c" }));
   const M4 = (x: number, y: number, z: number, ry = 0, s = 1, sy = s) => new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, ry, 0)), new THREE.Vector3(s, sy, s));
 
-  // ---- the meadow beyond the yard (the kit's patchwork fields would read as farmland) ----
-  { const g = new THREE.PlaneGeometry(126, 130, 25, 26); g.rotateX(-Math.PI / 2); g.translate(-98.95, 0, 20); const p = g.attributes.position as THREE.BufferAttribute;
-    for (let i = 0; i < p.count; i++) p.setY(i, groundH(p.getX(i), p.getZ(i), false) + 0.05); g.computeVertexNormals(); put(g, turf, false); }
+  // ---- the ground: one painted meadow floor from behind the camera to the far trees (the kit's flat turf and
+  //      patchwork fields would read as a lawn and farmland) ----
+  { const g = new THREE.PlaneGeometry(160, 130, 32, 26); g.rotateX(-Math.PI / 2); g.translate(-84, 0, 20); const p = g.attributes.position as THREE.BufferAttribute, uv = g.attributes.uv as THREE.BufferAttribute;
+    for (let i = 0; i < p.count; i++) { p.setY(i, gy(p.getX(i), p.getZ(i)) + 0.025); uv.setXY(i, p.getX(i) / 12, p.getZ(i) / 12); } g.computeVertexNormals(); put(g, lam("vlGroundM", () => ({ map: groundTex() })), false); }
   // ---- the road: a ribbon with wheel ruts along it ----
   { const P: number[] = [], UV: number[] = [], I: number[] = []; let len = 0, n = 0;
     for (let x = -4; x >= -74; x -= 1, n++) { const z = roadZ(x), dz = roadZ(x - 0.5) - roadZ(x + 0.5), tl = Math.hypot(1, dz), nx = dz / tl, nz = 1 / tl, w = 1.4 + 0.12 * Math.sin(x * 0.9);
-      const y = (x < -35.5 ? groundH(x, z, false) + 0.09 : 0.03); if (n) len += Math.hypot(1, roadZ(x) - roadZ(x + 1));
+      const y = gy(x, z) + ROAD_Y; if (n) len += Math.hypot(1, roadZ(x) - roadZ(x + 1));
       P.push(x - nx * w, y, z + nz * w, x + nx * w, y, z - nz * w); UV.push(0, len / 3, 1, len / 3);
       if (n) { const a = (n - 1) * 2; I.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); } }
     const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(P, 3)); g.setAttribute("uv", new THREE.Float32BufferAttribute(UV, 2)); g.setIndex(I); g.computeVertexNormals();
@@ -90,7 +107,7 @@ export function buildValley(): Valley {
     for (let i = 0; i < 14; i++) { const k = i % 2, s = segs[k], [x, z] = at(k, (r() - 0.5) * s.L, -0.5 - 0.9 * r()), rad = 0.5 + 0.9 * r(); list.push({ g: rockGeo(rad, i + 40, 1, 0.6), m: M4(x, CLIFF_H + rad * 0.2, z, r() * 6) }); }
     for (let i = 0; i < 22; i++) { const x = -9 - 46 * r(), side = r() > 0.5 ? 1 : -1, rad = 0.12 + 0.42 * r() * r(), z = roadZ(x) + side * (1.6 + 1.6 * r()); list.push({ g: rockGeo(rad, i + 60, 0, 0.7), m: M4(x, gy(x, z) + rad * 0.3, z, r() * 6) }); }
     const m = put(mergeFacets(list), stoneM); m.name = "rocks";
-    const peb: typeof list = []; for (let i = 0; i < 46; i++) { const x = -8 - 34 * r(), rad = 0.035 + 0.07 * r(), z = roadZ(x) + (r() - 0.5) * 2.4; peb.push({ g: rockGeo(rad, i + 90, 0, 0.6), m: M4(x, 0.03 + rad * 0.3, z, r() * 6), tint: 0.9 + 0.3 * r() }); }
+    const peb: typeof list = []; for (let i = 0; i < 46; i++) { const x = -8 - 34 * r(), rad = 0.035 + 0.07 * r(), z = roadZ(x) + (r() - 0.5) * 2.4; peb.push({ g: rockGeo(rad, i + 90, 0, 0.6), m: M4(x, ROAD_Y + rad * 0.3, z, r() * 6), tint: 0.9 + 0.3 * r() }); }
     put(mergeFacets(peb), stoneM); }
   // ---- trees: three bands, each paler and bluer than the one in front (the far ones are faded before the fog touches them) ----
   const band = (b: number, spots: [number, number, number, number][], cast: boolean) => { const fol: { g: THREE.BufferGeometry; m: THREE.Matrix4; tint?: number }[] = [], tr: typeof fol = [];
@@ -151,6 +168,10 @@ export function buildValley(): Valley {
   // ---- foreground, close to the lens: a boulder and a bush low on the left ----
   { const list = [{ g: rockGeo(0.55, 201, 1, 0.8), m: M4(-14.1, 0.2, 22.95, 1.2) }, { g: rockGeo(0.28, 203, 1, 0.8), m: M4(-14.6, 0.1, 22.5, 0.4) }]; put(mergeFacets(list), stoneM);
     put(mergeFacets([{ g: bushGeo(0.36, 205, 6), m: M4(-14.0, 0.3, 23.15, 0.7) }]), bushM); }
+  // ---- sky: clouds stacked up the frame, the low ones half hidden behind the mountains ----
+  ([[-900, 300, 150, 300, 0], [-1000, 470, -90, 360, 1], [-800, 165, -40, 260, 2], [-850, 250, -230, 280, 3]] as number[][]).forEach(([x, y, z, w, k]) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: cloudHD(k), color: new THREE.Color(1.08, 1.08, 1.08), transparent: true, depthWrite: false, fog: false }));
+    m.rotation.y = Math.PI / 2; m.position.set(x, y, z); m.scale.set(w, w / 2, 1); m.frustumCulled = false; G.add(m); });
   // dust and pollen drifting in the sun
   const dust = dustMotes(new THREE.Vector3(-18, 1.6, 22), new THREE.Vector3(12, 2.2, 6), 150, new THREE.Color(1.4, 1.3, 1.0), 0.022, 0.38); G.add(dust.points);
   G.traverse((o) => { o.layers.set(NOINK); });

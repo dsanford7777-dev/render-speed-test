@@ -69,14 +69,23 @@ export const rockGeo = (rad: number, seed: number, detail = 1, squash = 0.75) =>
   return facet(g0, seed + 2, 0.34);
 };
 
-/** a pine: stacked cones on a trunk, h metres tall, foliage radius rr. Returns [foliage, trunk] geometries at the origin. */
+/** a pine: tiers of drooping, ragged boughs on a trunk, h metres tall, foliage radius rr. Each tier is a cone whose rim
+ *  is cut into points that hang down, so the outline is a tree and not a stack of party hats.
+ *  Returns [foliage, trunk] geometries at the origin. */
 export const pineGeo = (h: number, rr: number, seed: number): [THREE.BufferGeometry, THREE.BufferGeometry] => {
-  const r = rngOf(seed), parts: THREE.BufferGeometry[] = [], tiers = 4;
-  for (let k = 0; k < tiers; k++) { const t = k / tiers, ch = (h * 0.8) / tiers * 1.7, cr = rr * (1 - 0.72 * t) * (0.9 + 0.2 * r()); const c = new THREE.ConeGeometry(cr, ch, 7, 1); c.rotateY(r() * 6.283); c.translate((r() - 0.5) * 0.12 * rr, h * 0.2 + t * h * 0.8 * 0.92 + ch / 2 - ch * 0.25, (r() - 0.5) * 0.12 * rr); parts.push(c.toNonIndexed()); }
-  const pos: number[] = []; for (const c of parts) pos.push(...(c.attributes.position.array as Float32Array));
+  const r = rngOf(seed), pos: number[] = [], tiers = 6, seg = 10, y0 = h * 0.16, span = h - y0;
+  for (let k = 0; k < tiers; k++) {
+    const t = k / tiers, ch = (span / tiers) * 1.9, cr = rr * Math.pow(1 - t, 0.85) * (0.88 + 0.24 * r()) + rr * 0.06, c = new THREE.ConeGeometry(cr, ch, seg, 1), p = c.attributes.position as THREE.BufferAttribute;
+    const jit = Array.from({ length: seg }, () => r()), ph = Math.floor(r() * 2);
+    for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), z = p.getZ(i), rad = Math.hypot(x, z); if (y > -ch / 2 + 1e-3 || rad < 1e-4) continue;
+      const q = ((Math.round(Math.atan2(z, x) / (6.2832 / seg)) % seg) + seg) % seg, out = (q + ph) % 2 === 0, kk = out ? 1.0 + 0.16 * jit[q] : 0.6 + 0.12 * jit[q];
+      p.setXYZ(i, x * kk, y - (out ? ch * (0.1 + 0.12 * jit[q]) : -ch * 0.06), z * kk); }
+    c.rotateY(r() * 6.283); c.translate((r() - 0.5) * 0.1 * rr, y0 + t * span * 0.94 + ch * 0.36, (r() - 0.5) * 0.1 * rr);
+    pos.push(...(c.toNonIndexed().attributes.position.array as Float32Array));
+  }
   const fol = new THREE.BufferGeometry(); fol.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  const trunk = new THREE.CylinderGeometry(rr * 0.07, rr * 0.11, h * 0.34, 6); trunk.translate(0, h * 0.17, 0);
-  return [facet(fol, seed + 3, 0.22), facet(trunk, seed + 4, 0.15)];
+  const trunk = new THREE.CylinderGeometry(rr * 0.06, rr * 0.11, h * 0.36, 6); trunk.translate(0, h * 0.18, 0);
+  return [facet(fol, seed + 3, 0.26), facet(trunk, seed + 4, 0.15)];
 };
 
 /** a bush or a round treetop: a clump of low-poly balls, flat facets */
