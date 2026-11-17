@@ -111,8 +111,9 @@ const SOAK: V3 = Rm(1.85, 0, 4.12);
 const soak = (ph: number) => { const k = 0.5 + 0.5 * Math.sin(ph * 7), bp = Rm(1.02, 2.35 - 1.05 * k, 4.6), hand = Rm(1.5, 1.6 - 0.4 * k, 4.3);
   const drops: Card[] = Array.from({ length: 9 }, (_, i) => { const u = (ph * 1.5 + i * 0.111) % 1; return { kind: "drop" as const, p: Rm(1.02 + 0.22 * Math.sin(i * 2.1), 2.2 - 0.25 * (i % 3) - 2.0 * u * u, 4.52) as V3, spin: 0, s: 1.1 }; });
   return { tool: { kind: "brush" as const, g: hand, b: bp }, hand, drops, man: (expr: Expr, extra: Partial<Person3> = {}) => P("hand1", SOAK, expr, 1, { hw: [hand], ...extra }) }; };
-const HOOK_POS: V3 = Rm(1.1, 1.3, 1.8), HOOK_LOOK: V3 = Rm(1.45, 1.5, 4.7), HOOK = { fov: 46, roll: 0.06 };
-const hookCam = (f: number) => snap(HOOK_POS, HOOK_LOOK, f, 0, HOOK, 1.4, 6);
+const HOOK_POS: V3 = Rm(1.1, 1.25, 1.8), HOOK_LOOK: V3 = Rm(1.45, 1.32, 4.7), HOOK = { fov: 46, roll: 0.06 };
+// frame 0 is already close on the brush and the curtain (it is also the last frame: the film loops)
+const hookCam = (f: number) => snap(HOOK_POS, HOOK_LOOK, f, 0, HOOK, 1.1, 8);
 const hookState = (ph: number): Partial<St3> => { const sk = soak(ph); return { light: "room", wet: true, tools: [sk.tool], buckets: [{ p: Rm(1.25, 0, 3.75) }], cards: sk.drops, people: [sk.man("grin", { extra: true })] }; };
 /** the bench crowd: members standing in front of the benches, both sides */
 const BENCH_L: V3[] = [Rm(2.65, 0, 0.5), Rm(2.6, 0, 1.75), Rm(2.65, 0, 3.0)], BENCH_R: V3[] = [Rm(-2.65, 0, 0.9), Rm(-2.6, 0, 2.15), Rm(-2.65, 0, 3.3)];
@@ -136,7 +137,7 @@ const dig = (tt: number): { people: Person3[]; tools: Tool[]; plan: St3["plan"];
   const k = 0.5 + 0.5 * Math.sin(tt * 5.5), k2 = 0.5 + 0.5 * Math.sin(tt * 4.2 + 1.2);
   const g1 = Sw(1.02, 1.05 + 0.15 * k, 2.8), b1 = Sw(0.62, 0.12 + 0.3 * k, 3.25), g2 = Sw(-1.0, 1.3 + 0.45 * k2, 6.2), b2 = Sw(-1.95, 2.3 - 1.2 * k2, 6.45);
   return { tools: [{ kind: "shovel", g: g1, b: b1 }, { kind: "pick", g: g2, b: b2 }],
-    people: [P("navvy1", Sw(1.3, 0, 3.0), "stern", -1, { hw: [g1, L3(g1, b1, 0.45)] }), P("navvy2", Sw(-1.28, 0, 6.5), "stern", 1, { hw: [g2, L3(g2, b2, 0.4)] }),
+    people: [P("navvy1", Sw(1.3, 0, 3.0), "stern", -1, { hw: [g1, L3(g1, b1, 0.45)], extra: true }), P("navvy2", Sw(-1.28, 0, 6.5), "stern", 1, { hw: [g2, L3(g2, b2, 0.4)] }),
       P("engineer", Sw(-1.3, 0, 3.4), "smile", 1, { hw: [Sw(-1.52, 1.18, 3.2), Sw(-1.02, 1.18, 3.2)] }), P("navvy3", Sw(1.32, 0, 8.4), "neutral", -1, { hw: [Sw(1.05, 0.72, 8.2)], extra: true })],
     plan: { p: Sw(-1.27, 1.2, 3.17), yaw: 0, tilt: -0.5 }, buckets: [{ p: Sw(1.05, 0.38, 8.2), brown: true }] }; };
 
@@ -147,7 +148,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   gag: (s, f) => { const tt = t(f - s.a);
     return { light: "room", dof: 2, wet: true, focus: Rm(0, 1.45, -1.0),
       cam: move({ pos: Rm(-0.9, 1.0, -5.6), look: Rm(0, 1.5, -1.0), fov: 46, roll: -0.07 }, { pos: Rm(0.4, 1.2, -5.1), look: Rm(0, 1.5, -1.0), fov: 42, roll: 0.03 }, f, s.a, s.b, smooth, 0),
-      people: [P("chief", Rm(0.0, 0, -1.25), "pained", 0, { hanky: true }), P("mp1", Rm(0.78, 0, -0.8), "dazed", -1, { hanky: true }), P("mp2", Rm(-0.78, 0, -0.9), "shock", 1, { hanky: true })],
+      people: [P("chief", Rm(0.0, 0, -1.25), "pained", 0, { hanky: true }), P("mp1", Rm(0.62, 0, -0.8), "dazed", -1, { hanky: true }), P("mp2", Rm(-0.62, 0, -0.9), "shock", 1, { hanky: true })],
       cards: stinks([Rm(0.5, 1.7, -0.6), Rm(-0.55, 1.8, -0.7), Rm(1.6, 1.5, -0.4), Rm(-1.6, 1.6, -0.5)], tt, 0.9), puffs: haze(Rm(0, 1.2, 0.6), tt, 5, 1.6, 1.3, 0.22) }; },
   // ...couldn't breathe in their own building: the long gothic front and the clock tower, the stink rising to it
   building: (s, f) => { const tt = t(f - s.a);
@@ -186,8 +187,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: crowd(["stern", "neutral"], false), subjects: [["the front page", Rm(0.08, 1.52, -2.6), 0.6]] }; },
   // and for years they gave the same answer: a slide along three members who could not care less
   years: (s, f) => ({ light: "room", dof: 3, focus: Rm(0.5, 1.45, -0.3),
-    cam: move({ pos: Rm(-2.0, 1.5, -5.2), look: Rm(-0.4, 1.45, -0.3), fov: 30, roll: -0.04 }, { pos: Rm(1.6, 1.5, -5.2), look: Rm(1.2, 1.45, -0.3), fov: 30, roll: 0.03 }, f, s.a, s.b, smooth, 0),
-    people: [P("mp2", Rm(-0.55, 0, -0.2), "stern", 1, { wave: 1 }), P("chief", Rm(0.6, 0, -0.4), "neutral", 0), P("mp4", Rm(1.75, 0, -0.1), "stern", -1, { wave: -1 })] }),
+    cam: move({ pos: Rm(-1.6, 1.5, -5.2), look: Rm(0.15, 1.45, -0.3), fov: 30, roll: -0.04 }, { pos: Rm(1.8, 1.5, -5.2), look: Rm(1.05, 1.45, -0.3), fov: 30, roll: 0.03 }, f, s.a, s.b, smooth, 0),
+    people: [P("mp2", Rm(-0.55, 0, -0.2), "stern", 1, { wave: 1, extra: true }), P("chief", Rm(0.6, 0, -0.4), "neutral", 0), P("mp4", Rm(1.75, 0, -0.1), "stern", -1, { wave: -1, extra: true })] }),
   // too expensive: snap to the stout senior member, his hand up
   expensive: (s, f) => ({ light: "room", dof: 3, closeup: true, focus: Rm(0.6, 1.45, -0.4),
     cam: kick(snap(Rm(0.95, 1.5, -2.75), Rm(0.6, 1.5, -0.4), f, s.a, { fov: 36, roll: -0.06 }, 1.5, 5), f, W(2, "expensive"), 0.9),
@@ -238,7 +239,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: kick(move({ pos: Rm(-0.4, 2.3, -3.0), look: Rm(1.5, 2.2, 4.8), fov: 54, roll: -0.05 }, { pos: Rm(0.6, 1.9, -1.6), look: Rm(1.7, 2.2, 4.8), fov: 50, roll: 0.03 }, f, s.a, s.b, smooth, 0), f, s.a + 2, 0.8),
       tools: [sk.tool, { kind: "brush", g: h2, b: b2 }], buckets: [{ p: Rm(1.25, 0, 3.75) }, { p: Rm(2.45, 0, 3.8) }],
       cards: [...sk.drops, ...Array.from({ length: 6 }, (_, i) => { const u = (tt * 1.4 + i * 0.166) % 1; return { kind: "drop" as const, p: Rm(2.72 + 0.2 * Math.sin(i * 2.7), 2.5 - 2.2 * u * u, 4.52) as V3, spin: 0, s: 1.1 }; })],
-      people: [sk.man("stern"), P("hand2", Rm(3.3, 0, 4.1), "stern", -1, { hw: [h2] })] }; },
+      people: [sk.man("stern"), P("hand2", Rm(3.3, 0, 4.1), "stern", -1, { hw: [h2], extra: true })] }; },
   // that was the plan: close on a soaked drape dripping into a bucket
   plan: (s, f) => { const tt = t(f - s.a);
     return { light: "room", dof: 3, wet: true, closeup: true, focus: Rm(-1.0, 1.6, 4.6),
@@ -256,7 +257,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "room", dof: 1, wet: true, focus: Rm(0, 1.45, 2.0),
       cam: orbit(s, f, Rm(0, 1.35, 1.7), [-20, 12], [6.0, 5.2], [0.5, 0.8], 50, [0.05, -0.04]),
       people: [P("mp4", orator, "stern", 0, { hanky: true, hw: [Rm(0.6, 1.3 + 0.12 * Math.sin(tt * 7), 1.6)] }),
-        P("mp1", Rm(1.8, 0, 1.0), "pained", -1, { hanky: true }), P("mp2", Rm(1.95, 0, 2.5), "dazed", -1, { hanky: true, extra: true }), P("mp5", Rm(-1.8, 0, 1.2), "nervous", 1, { hanky: true }), P("mp6", Rm(-1.95, 0, 2.7), "pained", 1, { hanky: true, extra: true })],
+        P("mp1", Rm(1.8, 0, 1.0), "pained", -1, { hanky: true, extra: true }), P("mp2", Rm(1.95, 0, 2.5), "dazed", -1, { hanky: true, extra: true }), P("mp5", Rm(-1.8, 0, 1.2), "nervous", 1, { hanky: true, extra: true }), P("mp6", Rm(-1.95, 0, 2.7), "pained", 1, { hanky: true, extra: true })],
       cards: stinks([Rm(-1.2, 2.0, 3.6), Rm(1.3, 2.1, 3.4), Rm(0.2, 2.4, 4.2)], tt, 1.0) }; },
   // one meeting ended with the man in charge of the country's money...
   meeting: (s, f) => { const tt = t(f - s.a), p = runAt(0);
@@ -278,7 +279,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   move: (s, f) => { const tt = t(f - s.a), z1 = 1.6 - 1.3 * tt, z2 = 2.6 - 1.3 * tt, c1 = Rm(0.75, 1.02, z1 - 0.28), c2 = Rm(-0.8, 1.02, z2 - 0.28);
     return { light: "room", dof: 1, wet: true, focus: Rm(0, 1.2, z1),
       cam: move({ pos: Rm(-1.4, 1.1, -5.4), look: Rm(0.2, 1.3, 0.0), fov: 50, roll: -0.06 }, { pos: Rm(-0.8, 1.5, -5.0), look: Rm(0.1, 1.3, -0.4), fov: 46, roll: 0.03 }, f, s.a, s.b, smooth, 0),
-      people: [P("mp1", Rm(0.75, 0, z1), "nervous", 0, { march: (tt * 1.9) % 1, hw: [add(c1, 0.3, -0.05, 0), add(c1, -0.3, -0.05, 0)] }), P("mp6", Rm(-0.8, 0, z2), "pained", 0, { march: (tt * 1.9 + 0.5) % 1, hw: [add(c2, 0.3, -0.05, 0), add(c2, -0.3, -0.05, 0)] }), P("chief", Rm(2.3, 0, -0.6), "stern", -1, { hanky: true, extra: true })],
+      people: [P("mp1", Rm(0.75, 0, z1), "nervous", 0, { march: (tt * 1.9) % 1, hw: [add(c1, 0.3, -0.05, 0), add(c1, -0.3, -0.05, 0)] }), P("mp6", Rm(-0.8, 0, z2), "pained", 0, { march: (tt * 1.9 + 0.5) % 1, hw: [add(c2, 0.3, -0.05, 0), add(c2, -0.3, -0.05, 0)], extra: true }), P("chief", Rm(2.3, 0, -0.6), "stern", -1, { hanky: true, extra: true })],
       crates: [{ p: c1, yaw: 0 }, { p: c2, yaw: 0.1 }, { p: Rm(-2.2, 0.21, -1.9), yaw: 0.4 }, { p: Rm(-2.3, 0.63, -1.95), yaw: -0.2 }] }; },
   // ...to another town: from above, the room being packed up
   town: (s, f) => { const tt = t(f - s.a) + t(s.a - SHOTS.find((x) => x.g === "move")!.a), z1 = 1.6 - 1.3 * tt, z2 = 2.6 - 1.3 * tt, c1 = Rm(0.75, 1.02, z1 - 0.28), c2 = Rm(-0.8, 1.02, z2 - 0.28);
@@ -295,17 +296,17 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   poor: (s, f) => { const tt = t(f - s.a);
     return { light: "street", dof: 3, focus: St(-1.0, 1.25, 1.9),
       cam: move({ pos: St(0.9, 1.3, -4.0), look: St(-1.3, 1.15, 2.4), fov: 30, roll: -0.05 }, { pos: St(-0.4, 1.3, -4.0), look: St(-0.5, 1.15, 1.4), fov: 30, roll: 0.03 }, f, s.a, s.b, smooth, 0),
-      people: court(tt, false), buckets: [{ p: St(-0.55, 0, 0.2), brown: true }], cards: stinks([St(-1.7, 1.5, 3.0), St(-0.2, 1.4, 2.6), St(0.6, 1.5, 3.2)], tt, 0.9) }; },
+      people: court(tt, false).map((q) => (q.who === "oldman" ? q : { ...q, extra: true })), buckets: [{ p: St(-0.55, 0, 0.2), brown: true }], cards: stinks([St(-1.7, 1.5, 3.0), St(-0.2, 1.4, 2.6), St(0.6, 1.5, 3.2)], tt, 0.9) }; },
   // ...and drinking it: the pump runs brown
   drinking: (s, f) => { const tt = t(f - s.a);
     return { light: "street", dof: 2, pump: true, focus: St(0.95, 0.8, 1.6),
-      cam: kick(snap(St(-0.2, 1.2, -2.6), St(1.2, 0.95, 1.5), f, s.a, { fov: 46, roll: 0.06 }, 1.5, 5), f, s.a + 2, 0.8),
-      people: court(tt, true).filter((q) => q.who === "mother" || q.who === "kid"), puffs: [0, 1, 2].map((i) => ({ p: St(PUMP[0] - 0.55 + 0.12 * Math.sin(tt * 9 + i * 2), 0.36 + 0.06 * i, PUMP[2] - 0.05) as V3, s: 0.34, c: [0.6, 0.48, 0.26] as [number, number, number], a: 0.55 })), subjects: [["the pump", St(PUMP[0] - 0.3, 1.0, PUMP[2]), 0.4]] }; },
+      cam: kick(snap(St(0.2, 1.25, -3.0), St(1.5, 1.0, 1.4), f, s.a, { fov: 46, roll: 0.06 }, 1.3, 5), f, s.a + 2, 0.8),
+      people: court(tt, true).filter((q) => q.who === "mother"), puffs: [0, 1, 2].map((i) => ({ p: St(PUMP[0] - 0.55 + 0.12 * Math.sin(tt * 9 + i * 2), 0.36 + 0.06 * i, PUMP[2] - 0.05) as V3, s: 0.34, c: [0.6, 0.48, 0.26] as [number, number, number], a: 0.55 })), subjects: [["the pump", St(PUMP[0] - 0.3, 1.0, PUMP[2]), 0.4]] }; },
   // nobody rushed for them: a gentleman hurries past the end of the court with his nose covered and does not look in
   nobody: (s, f) => { const tt = t(f - s.a);
     return { light: "street", dof: 1, focus: St(0, 1.3, -1),
       cam: move({ pos: St(0.3, 1.5, -11.6), look: St(0, 1.4, 0), fov: 46, roll: 0.04 }, { pos: St(-0.2, 1.5, -11.2), look: St(0, 1.4, 0), fov: 44, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      people: [walker("toff", SET.street[0] + 2.4, 0, -8.4, -2.0, tt, "pained", { hanky: true }), ...court(tt, false).map((q) => ({ ...q, extra: true }))], buckets: [{ p: St(-0.55, 0, 0.2), brown: true }] }; },
+      people: [walker("toff", SET.street[0] + 0.95, 0, -8.4, -1.35, tt, "pained", { hanky: true }), ...court(tt, false).map((q) => ({ ...q, extra: true }))], buckets: [{ p: St(-0.55, 0, 0.2), brown: true }] }; },
   // this time it was their own noses: a slow line of members, then right in on one nose
   noses: (s, f) => ({ light: "room", dof: 3, wet: true, closeup: true, focus: Rm(0.2, 1.42, -1.0),
     cam: kick(snap(Rm(0.45, 1.45, -3.0), Rm(0.2, 1.42, -1.0), f, s.a + 14, { fov: 30, roll: 0.05 }, 2.2, 10), f, W(11, "noses"), 0.8),
@@ -313,7 +314,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // so the same men who had argued for years: all of them round the table at once
   same: (s, f) => ({ light: "room", dof: 1, wet: true, focus: Rm(0, 1.2, 0.9),
     cam: orbit(s, f, Rm(0, 1.15, 0.9), [22, -8], [5.6, 4.8], [1.3, 0.9], 48, [-0.06, 0.04]),
-    people: [P("chief", Rm(0.0, 0, 2.0), "stern", 0, { hanky: true }), P("clerk", Rm(1.05, 0, 2.05), "nervous", -1, { hanky: true }), P("mp1", Rm(2.0, 0, 0.9), "stern", -1, { hanky: true, extra: true }), P("mp2", Rm(-2.0, 0, 0.9), "stern", 1, { hanky: true, extra: true }), P("mp5", Rm(-1.1, 0, 2.05), "pained", 1, { hanky: true })],
+    people: [P("chief", Rm(0.0, 0, 2.0), "stern", 0, { hanky: true }), P("clerk", Rm(1.05, 0, 2.05), "nervous", -1, { hanky: true, extra: true }), P("mp1", Rm(2.0, 0, 0.9), "stern", -1, { hanky: true, extra: true }), P("mp2", Rm(-2.0, 0, 0.9), "stern", 1, { hanky: true, extra: true }), P("mp5", Rm(-1.1, 0, 2.05), "pained", 1, { hanky: true, extra: true })],
     bill: { p: Rm(0, TY + 0.012, 0.78), yaw: 0 } }),
   // wrote a law: the quill on the bill
   law: (s, f) => { const tt = t(f - s.a), tip = Rm(0.02 + 0.12 * Math.sin(tt * 9), TY + 0.03, 0.9 + 0.03 * Math.sin(tt * 13)), top = add(tip, 0.1, 0.3, 0.16);
@@ -330,7 +331,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "room", dof: 2, wet: true, closeup: true, focus: Rm(0, 1.0, 0.75),
       cam: kick(kick(move({ pos: Rm(0.9, 1.7, -1.9), look: Rm(0, 1.0, 0.75), fov: 44, roll: 0.06 }, { pos: Rm(0.6, 1.5, -1.6), look: Rm(0, 1.0, 0.75), fov: 40, roll: 0.0 }, f, s.a, s.b, smooth, 0), f, s.a + 6, 1.0), f, s.a + 10, 0.7),
       bags: [Rm(-0.45, drop(0), 0.75), Rm(0.05, drop(1), 0.62), Rm(0.5, drop(2), 0.8)], bill: { p: Rm(-0.95, TY + 0.012, 0.7), yaw: 0.3 },
-      people: [P("mp2", Rm(-0.5, 0, 2.0), "grin", 1, { extra: true }), P("chief", Rm(0.6, 0, 2.0), "relief", -1, { extra: true })], subjects: [["the money", Rm(0.05, TY + 0.2, 0.7), 0.25]] }; },
+      people: [P("mp2", Rm(-0.5, 0, 2.0), "grin", 1, { extra: true }), P("chief", Rm(0.6, 0, 2.0), "relief", -1, { extra: true })] }; },
   // for brand new sewers under the entire city: navvies at work, the engineer with his drawing, the lamps running away
   sewers: (s, f) => { const tt = t(f - s.a), dg = dig(tt);
     return { light: "sewer", dof: 1, works: true, flow: 0, key: LAMP(0), focus: Sw(0, 1.4, 4), ...dg,
