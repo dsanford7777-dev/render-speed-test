@@ -108,10 +108,10 @@ const haze = (c: V3, tt: number, n: number, spread: number, size: number, a = 0.
 const TY = TABLE.y;
 /** the man soaking the middle window's left-hand drape: where he stands, his brush stroke k (0 = high, 1 = low) */
 const SOAK: V3 = Rm(1.85, 0, 4.12);
-const soak = (ph: number) => { const k = 0.5 + 0.5 * Math.sin(ph * 7), bp = Rm(1.02, 2.35 - 1.05 * k, 4.6), hand = Rm(1.5, 1.6 - 0.4 * k, 4.3);
-  const drops: Card[] = Array.from({ length: 9 }, (_, i) => { const u = (ph * 1.5 + i * 0.111) % 1; return { kind: "drop" as const, p: Rm(1.02 + 0.22 * Math.sin(i * 2.1), 2.2 - 0.25 * (i % 3) - 2.0 * u * u, 4.52) as V3, spin: 0, s: 1.1 }; });
+const soak = (ph: number) => { const k = 0.5 + 0.5 * Math.sin(ph * 7), bp = Rm(1.02, 2.02 - 0.8 * k, 4.6), hand = Rm(1.5, 1.52 - 0.34 * k, 4.3);
+  const drops: Card[] = Array.from({ length: 9 }, (_, i) => { const u = (ph * 1.5 + i * 0.111) % 1; return { kind: "drop" as const, p: Rm(1.02 + 0.22 * Math.sin(i * 2.1), 1.95 - 0.25 * (i % 3) - 1.8 * u * u, 4.52) as V3, spin: 0, s: 1.1 }; });
   return { tool: { kind: "brush" as const, g: hand, b: bp }, hand, drops, man: (expr: Expr, extra: Partial<Person3> = {}) => P("hand1", SOAK, expr, 1, { hw: [hand], ...extra }) }; };
-const HOOK_POS: V3 = Rm(1.1, 1.25, 1.8), HOOK_LOOK: V3 = Rm(1.45, 1.32, 4.7), HOOK = { fov: 46, roll: 0.06 };
+const HOOK_POS: V3 = Rm(1.25, 1.25, 1.8), HOOK_LOOK: V3 = Rm(1.56, 1.32, 4.7), HOOK = { fov: 46, roll: 0.06 };
 // frame 0 is already close on the brush and the curtain (it is also the last frame: the film loops)
 const hookCam = (f: number) => snap(HOOK_POS, HOOK_LOOK, f, 0, HOOK, 1.1, 8);
 const hookState = (ph: number): Partial<St3> => { const sk = soak(ph); return { light: "room", wet: true, tools: [sk.tool], buckets: [{ p: Rm(1.25, 0, 3.75) }], cards: sk.drops, people: [sk.man("grin", { extra: true })] }; };
@@ -188,7 +188,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // and for years they gave the same answer: a slide along three members who could not care less
   years: (s, f) => ({ light: "room", dof: 3, focus: Rm(0.5, 1.45, -0.3),
     cam: move({ pos: Rm(-1.6, 1.5, -5.2), look: Rm(0.15, 1.45, -0.3), fov: 30, roll: -0.04 }, { pos: Rm(1.8, 1.5, -5.2), look: Rm(1.05, 1.45, -0.3), fov: 30, roll: 0.03 }, f, s.a, s.b, smooth, 0),
-    people: [P("mp2", Rm(-0.55, 0, -0.2), "stern", 1, { wave: 1, extra: true }), P("chief", Rm(0.6, 0, -0.4), "neutral", 0), P("mp4", Rm(1.75, 0, -0.1), "stern", -1, { wave: -1, extra: true })] }),
+    people: [P("chief", Rm(0.6, 0, -0.4), "neutral", 0), ...crowd(["stern", "neutral"], false)] }),
   // too expensive: snap to the stout senior member, his hand up
   expensive: (s, f) => ({ light: "room", dof: 3, closeup: true, focus: Rm(0.6, 1.45, -0.4),
     cam: kick(snap(Rm(0.95, 1.5, -2.75), Rm(0.6, 1.5, -0.4), f, s.a, { fov: 36, roll: -0.06 }, 1.5, 5), f, W(2, "expensive"), 0.9),
@@ -208,7 +208,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   cooked: (s, f) => { const tt = t(f - s.a);
     return { light: "river", dof: 2, river: WATER.low, pour: 0.6, focus: Rv(2.2, -1.4, 9.2),
       cam: move({ pos: Rv(5.2, -0.5, 5.4), look: Rv(2.2, -1.4, 9.4), fov: 46, roll: -0.07 }, { pos: Rv(4.2, -0.9, 6.0), look: Rv(2.0, -1.3, 9.4), fov: 42, roll: 0.02 }, f, s.a, s.b, smooth, 0),
-      cards: stinks([Rv(2.6, -1.3, 9.0), Rv(1.2, -1.2, 9.8), Rv(3.6, -1.1, 10.2), Rv(0.2, -1.4, 8.6), Rv(4.4, -1.5, 8.2)], tt, 1.2, 1.0), puffs: haze(Rv(2.2, -1.5, 9), tt, 6, 2.2, 1.8, 0.3),
+      cards: stinks([Rv(2.6, -1.3, 9.0), Rv(1.2, -1.2, 9.8), Rv(3.6, -1.1, 10.2), Rv(0.2, -1.4, 8.6), Rv(4.4, -1.5, 8.2)], tt, 1.2, 1.0), puffs: haze(Rv(2.4, -1.7, 8.2), tt, 5, 1.6, 1.2, 0.2),
       subjects: [["the mud", Rv(2.2, -1.5, 9.2), 0.6]] }; },
   // and the smell climbed the walls: stink lines crawl up the terrace wall to the windows; the camera climbs with them
   climbed: (s, f) => { const u = smooth(U(s, f)), tt = t(f - s.a);
@@ -381,9 +381,8 @@ export const ITEMS = (): Item[] => ([
   { key: "plan", kind: "stamp", text: "THE PLAN", f0: W(6, "plan"), f1: B("plan"), y: 15, rot: 4, bg: "#2f2a3a", fg: "#ffffff", size: 130 },
   { key: "money", kind: "pill", text: "THE MAN WITH THE MONEY", sub: "the country's finance minister", f0: W(8, "man"), f1: B("meeting"), y: 12, size: 52 },
   { key: "move", kind: "pill", text: "MOVE THE GOVERNMENT?", sub: "to Oxford, or St Albans", f0: A(9) + 6, f1: B("town"), y: 12, size: 54 },
-  { key: "drink", kind: "call", text: "AND DRINKING IT", f0: W(10, "drinking"), f1: B("drinking"), y: 14, fg: "#ffd166", size: 96 },
   { key: "aye", kind: "call", text: "AYE!", f0: W(12, "voted"), f1: B("voted"), y: 16, fg: "#ffd166", size: 200, rot: -5 },
   { key: "18", kind: "stamp", text: "18 DAYS", f0: W(13, "18"), f1: B("days"), y: 15, rot: -4, bg: "#2f9a57", fg: "#ffffff", size: 150 },
-  { key: "today", kind: "stamp", text: "STILL IN USE", f0: W(14, "still"), f1: B("today"), y: 15, rot: 4, bg: "#e0332e", fg: "#ffffff", size: 110 },
+  { key: "today", kind: "stamp", text: "STILL IN USE", f0: W(14, "still"), f1: B("today"), y: 82, rot: -3, bg: "#e0332e", fg: "#ffffff", size: 96 },
 ] as Item[]).filter((i) => i.f1 > i.f0);
 void WATER; void TABLE;
