@@ -1,0 +1,15 @@
+[
+  {
+    "channel": "shorts",
+    "videoId": "5ras_2bGBJw",
+    "action": "replace_text",
+    "find": "https://youtu.be/xNUNnDS4BiY",
+    "replace": "https://youtu.be/xJq1Bz9gPmw"
+  },
+  {
+    "channel": "explained",
+    "videoId": "xNUNnDS4BiY",
+    "action": "delete",
+    "title": "What If You Were Stuck in 1850 With Only Your Phone?"
+  }
+]
