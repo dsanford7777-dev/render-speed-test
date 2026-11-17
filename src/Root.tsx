@@ -23,6 +23,7 @@ import { Genin, GENIN_FRAMES } from "./videos/genin/Genin";
 import { SubscribeTag } from "./videos/shared/SubscribeTag";
 import { AbsoluteFill as AF } from "remotion";
 const SubDemo: React.FC = () => <AF><Genin /><SubscribeTag total={GENIN_FRAMES} /></AF>;
+const SubDemoWide: React.FC = () => <AF><PhoneIf /><SubscribeTag at={3000} /></AF>;
 
 // Render-farm padding: on software GL (GitHub runners) the first frame each render tab draws comes out blank.
 // "<Id>Padded" plays the real video delayed by PAD frames (frames 0..PAD-1 repeat frame 0), so every chunk can
@@ -54,6 +55,7 @@ const TitanicKeyPadded = padded(TitanicKey);
 const RatsPadded = padded(Rats);
 const GeninPadded = padded(Genin);
 const SubDemoPadded = padded(SubDemo);
+const SubDemoWidePadded = padded(SubDemoWide);
 const HertzLongPadded = padded(HertzLong);
 const HertzThumbPadded = padded(HertzThumb);
 const TitanicIfPadded = padded(TitanicIf);
@@ -100,6 +102,8 @@ export const Root: React.FC = () => (<>
   <Composition id="Rats" component={Rats} durationInFrames={RATS_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="RatsPadded" component={RatsPadded} durationInFrames={RATS_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="SubDemo" component={SubDemo} durationInFrames={GENIN_FRAMES} fps={30} width={1080} height={1920} />
+  <Composition id="SubDemoWide" component={SubDemoWide} durationInFrames={PHONEIF_FRAMES} fps={30} width={1920} height={1080} />
+  <Composition id="SubDemoWidePadded" component={SubDemoWidePadded} durationInFrames={PHONEIF_FRAMES + PAD} fps={30} width={1920} height={1080} />
   <Composition id="SubDemoPadded" component={SubDemoPadded} durationInFrames={GENIN_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="Genin" component={Genin} durationInFrames={GENIN_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="GeninPadded" component={GeninPadded} durationInFrames={GENIN_FRAMES + PAD} fps={30} width={1080} height={1920} />
