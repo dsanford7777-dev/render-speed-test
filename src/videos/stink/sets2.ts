@@ -52,7 +52,7 @@ export function buildRiver(): RiverSet {
     { const y = -0.3 - 2.0 * sm((ZW + 0.2 - 9.2) / 5.2); const wh = put(new THREE.TorusGeometry(0.55, 0.06, 6, 20), wood2, 2.2, y + 0.3, 9.2); wh.rotation.set(1.1, 0.3, 0); for (let k = 0; k < 4; k++) { const sp = put(new THREE.BoxGeometry(1.06, 0.045, 0.045), wood2, 2.2, y + 0.3, 9.2); sp.rotation.set(1.1, 0.3, (k * Math.PI) / 4, "YXZ"); } } }
   // ---- the water (level posed per frame) ----
   const waterMap = repT(waterTex(), 14, 1.4);
-  const water = new THREE.Mesh(plane(180, ZW - ZQ + 0.4), new THREE.MeshLambertMaterial({ map: waterMap, color: "#b8a888" })); water.rotation.x = -Math.PI / 2; water.position.set(ox, WATER.high, (ZQ + ZW) / 2); water.receiveShadow = true; G.add(water);
+  const water = new THREE.Mesh(plane(180, ZW - ZQ + 0.4), lam("skWaterM", () => ({ map: waterMap, color: "#b9a892" }))); water.rotation.x = -Math.PI / 2; water.position.set(ox, WATER.high, (ZQ + ZW) / 2); water.receiveShadow = true; G.add(water);
   // ---- the terrace wall with its sewer mouths, the balustrade, the terrace ----
   b.add(boxGeo(V(ox - 90, -3.2, ZW), V(ox + 90, YT, ZW + 1.4), 2.4), stone); b.add(boxGeo(V(ox - 90, YT - 0.3, ZW + 1.4), V(ox + 90, YT, ZF), 2.4), stoneDark);
   b.add(boxGeo(V(ox - 90, YT, ZW + 0.1), V(ox + 90, YT + 0.16, ZW + 0.5)), trim); b.add(boxGeo(V(ox - 90, YT + 0.86, ZW + 0.08), V(ox + 90, YT + 1.0, ZW + 0.52)), trim);
@@ -91,7 +91,7 @@ export function buildRiver(): RiverSet {
     add(new THREE.BoxGeometry(8.6, 0.1, 2.7), wood2, 0, 1.02, 0); add(new THREE.BoxGeometry(1.8, 0.8, 1.6), M("skCabin", "#5a6a4a"), -2.8, 1.45, 0); add(new THREE.CylinderGeometry(0.09, 0.12, 8.5, 8), wood2, 0.8, 5.2, 0);
     const sail = add(new THREE.PlaneGeometry(4.6, 6.2, 6, 6), sailM, 2.2, 5.2, 0.1); const sp = sail.geometry.attributes.position as THREE.BufferAttribute; for (let i = 0; i < sp.count; i++) sp.setZ(i, 0.35 * Math.sin((sp.getX(i) / 4.6 + 0.5) * Math.PI)); sail.geometry.computeVertexNormals();
     const sprit = add(new THREE.CylinderGeometry(0.05, 0.05, 7.6, 6), wood2, 2.4, 5.3, 0.1); sprit.rotation.z = -0.62; for (let k = 0; k < 3; k++) add(new THREE.BoxGeometry(0.7, 0.5, 0.7), lam("skCrateRv", () => ({ map: labelTex("LONDON", "#a8834e") })), 1.5 + k * 0.9, 1.32, 0.3 * (k % 2 ? 1 : -1)); }
-  barge.position.set(ox - 11.5, WATER.high - 0.35, 6.2); barge.rotation.y = 0.12; G.add(barge);
+  barge.position.set(ox - 11.5, WATER.high - 0.3, 6.2); barge.rotation.y = 0.12; G.add(barge);
   const boat = new THREE.Group();
   { const hull = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), M("skBoat", "#6a7a5a", { side: THREE.DoubleSide })); hull.scale.set(1.7, 0.5, 0.62); hull.castShadow = true; boat.add(hull);
     for (const x of [-0.6, 0.3]) { const th = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.04, 1.05), wood2); th.position.set(x, -0.12, 0); boat.add(th); } const oar = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.04, 0.08), wood2); oar.position.set(0, -0.05, 0.3); oar.rotation.y = 0.2; boat.add(oar); }

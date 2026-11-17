@@ -33,12 +33,12 @@ export const ROOM_SUN: V3 = [-0.2, 0.62, 0.76];
 /** near quay edge z, terrace wall face z, terrace height, building front z */
 export const RIVER = { zQuay: -4, zWall: 12, yTerrace: 3.2, zFacade: 16.5, yQuay: 0.5 };
 /** water level: normal, and after the hot summer */
-export const WATER = { high: -0.45, low: -1.75 };
+export const WATER = { high: -0.45, low: -2.1 };
 /** the jetty the scientist stands on: half width, how far it runs out, deck height */
 export const JETTY = { hw: 1.5, z1: 1.2, y: 0.5 };
 /** sewer outfalls in the terrace wall: x of each, centre height */
 export const OUTFALLS = [-13, -6.5, 0, 6.5, 13];
-export const OUTFALL_Y = -0.35;
+export const OUTFALL_Y = 0.35;
 export const RIVER_SUN: V3 = [0.42, 0.62, -0.66];
 
 // ---- the street ----

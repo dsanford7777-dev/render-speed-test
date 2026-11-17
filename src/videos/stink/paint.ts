@@ -30,12 +30,13 @@ export const wallpaperTex = () => ctex("skPaper", 512, 512, (g, r) => {
       g.fillStyle = "rgba(214,170,84,0.8)"; g.beginPath(); g.arc(x + dx, y, 9, 0, 6.3); g.fill(); g.beginPath(); g.arc(x + dx + 64, y - 64, 5, 0, 6.3); g.fill(); } }
   for (let i = 0; i < 2200; i++) { g.fillStyle = r() > 0.5 ? "rgba(255,200,180,0.06)" : "rgba(20,4,8,0.14)"; g.fillRect(r() * 512, r() * 512, 3, 5); }
 });
-/** the carpet: green field, gold border and motifs, worn patches */
-export const carpetTex = () => ctex("skCarpet", 1024, 1024, (g, r) => {
-  g.fillStyle = "#2f5a3c"; g.fillRect(0, 0, 1024, 1024);
-  for (let j = 0; j < 8; j++) for (let i = 0; i < 8; i++) { const x = i * 128 + 64, y = j * 128 + 64; g.fillStyle = (i + j) % 2 ? "#c9a24a" : "#8a2f2a"; g.beginPath(); g.moveTo(x, y - 30); g.lineTo(x + 22, y); g.lineTo(x, y + 30); g.lineTo(x - 22, y); g.closePath(); g.fill(); g.strokeStyle = "rgba(20,40,26,0.6)"; g.lineWidth = 3; g.stroke(); }
-  for (let i = 0; i < 6000; i++) { g.fillStyle = r() > 0.5 ? "rgba(220,240,200,0.07)" : "rgba(8,20,12,0.16)"; g.fillRect(r() * 1024, r() * 1024, 4, 2); }
-  for (let i = 0; i < 12; i++) { g.fillStyle = "rgba(190,180,140,0.1)"; g.beginPath(); g.ellipse(r() * 1024, r() * 1024, 60 + r() * 90, 30 + r() * 50, r() * 3, 0, 6.3); g.fill(); }
+/** the carpet: a deep green field with a small, quiet gold and red figure, worn in patches (it must not shout: the people stand on it) */
+export const carpetTex = () => ctex("skCarpet2", 1024, 1024, (g, r) => {
+  g.fillStyle = "#2c4a36"; g.fillRect(0, 0, 1024, 1024);
+  for (let j = 0; j < 8; j++) for (let i = 0; i < 8; i++) { const x = i * 128 + 64 + (j % 2) * 64, y = j * 128 + 64; g.fillStyle = (i + j) % 2 ? "rgba(168,140,74,0.5)" : "rgba(120,52,48,0.5)"; for (const dx of [0, -1024]) { g.beginPath(); g.moveTo(x + dx, y - 15); g.lineTo(x + dx + 11, y); g.lineTo(x + dx, y + 15); g.lineTo(x + dx - 11, y); g.closePath(); g.fill(); } }
+  g.strokeStyle = "rgba(20,40,28,0.5)"; g.lineWidth = 3; for (let k = 0; k <= 1024; k += 128) { g.beginPath(); g.moveTo(k, 0); g.lineTo(k, 1024); g.moveTo(0, k); g.lineTo(1024, k); g.stroke(); }
+  for (let i = 0; i < 6000; i++) { g.fillStyle = r() > 0.5 ? "rgba(200,220,190,0.06)" : "rgba(8,20,12,0.16)"; g.fillRect(r() * 1024, r() * 1024, 4, 2); }
+  for (let i = 0; i < 12; i++) { g.fillStyle = "rgba(170,160,130,0.09)"; g.beginPath(); g.ellipse(r() * 1024, r() * 1024, 60 + r() * 90, 30 + r() * 50, r() * 3, 0, 6.3); g.fill(); }
 });
 /** buttoned green leather */
 export const leatherTex = () => ctex("skLeather", 512, 512, (g, r) => {
@@ -47,7 +48,7 @@ export const leatherTex = () => ctex("skLeather", 512, 512, (g, r) => {
 /** a heavy crimson curtain, pleats running down, a gold band near the hem. Wet: soaked dark from the top down, chalky
  *  white runs and tide marks from the lime, drips gathering at the hem. */
 export const curtainTex = (wet: boolean) => ctex("skCurtain" + (wet ? "W" : "D"), 256, 1024, (g, r) => {
-  g.fillStyle = wet ? "#5c1a22" : "#9a2630"; g.fillRect(0, 0, 256, 1024);
+  g.fillStyle = wet ? "#8a1e2a" : "#b02a36"; g.fillRect(0, 0, 256, 1024);
   for (let i = 0; i < 6; i++) { const x = i * 42.7; const gr = g.createLinearGradient(x, 0, x + 42.7, 0); gr.addColorStop(0, "rgba(255,170,150,0.18)"); gr.addColorStop(0.45, "rgba(0,0,0,0)"); gr.addColorStop(1, "rgba(20,0,6,0.5)"); g.fillStyle = gr; g.fillRect(x, 0, 42.7, 1024); }
   g.fillStyle = "#c9a24a"; g.fillRect(0, 900, 256, 26); g.fillStyle = "rgba(60,36,10,0.6)"; for (let x = 0; x < 256; x += 16) g.fillRect(x, 900, 3, 26);
   for (let x = 4; x < 256; x += 10) { g.strokeStyle = "#c9a24a"; g.lineWidth = 3; g.beginPath(); g.moveTo(x, 1000); g.lineTo(x + (r() - 0.5) * 4, 1024); g.stroke(); }
@@ -66,13 +67,13 @@ export const riverViewTex = () => ctex("skView", 1024, 512, (g, r) => {
   for (let i = 0; i < 160; i++) { g.strokeStyle = r() > 0.5 ? "rgba(230,210,150,0.3)" : "rgba(70,54,30,0.3)"; g.lineWidth = 2; const x = r() * 1024, y = 340 + r() * 170; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 30 + r() * 80, y); g.stroke(); }
 });
 /** the river: brown-green murk, slow ripples, scum and floating bits */
-export const waterTex = () => { const t = ctex("skWater", 1024, 1024, (g, r) => {
-  const S = 1024; g.fillStyle = "#6a5a34"; g.fillRect(0, 0, S, S);
+export const waterTex = () => { const t = ctex("skWater2", 1024, 1024, (g, r) => {
+  const S = 1024; g.fillStyle = "#6e5a3c"; g.fillRect(0, 0, S, S);
   const wrap = (x: number, y: number, rad: number, f: (x: number, y: number) => void) => { for (const dx of [-S, 0, S]) for (const dy of [-S, 0, S]) if (x + dx > -rad && x + dx < S + rad && y + dy > -rad && y + dy < S + rad) f(x + dx, y + dy); };
-  for (let i = 0; i < 40; i++) { const x = r() * S, y = r() * S, rx = 90 + r() * 200, ry = 30 + r() * 70, c = r() > 0.5 ? "rgba(96,104,50,0.4)" : "rgba(60,44,22,0.4)"; wrap(x, y, 300, (xx, yy) => { g.fillStyle = c; g.beginPath(); g.ellipse(xx, yy, rx, ry, 0, 0, 6.3); g.fill(); }); }
+  for (let i = 0; i < 40; i++) { const x = r() * S, y = r() * S, rx = 90 + r() * 200, ry = 30 + r() * 70, c = r() > 0.5 ? "rgba(104,98,58,0.35)" : "rgba(60,44,26,0.4)"; wrap(x, y, 300, (xx, yy) => { g.fillStyle = c; g.beginPath(); g.ellipse(xx, yy, rx, ry, 0, 0, 6.3); g.fill(); }); }
   g.lineCap = "round";
-  for (let i = 0; i < 520; i++) { const x = r() * S, y = r() * S, l = 30 + r() * 90; g.strokeStyle = r() > 0.45 ? "rgba(214,196,130,0.38)" : "rgba(30,22,10,0.4)"; g.lineWidth = 2 + r() * 3; wrap(x, y, 130, (xx, yy) => { g.beginPath(); g.moveTo(xx, yy); g.quadraticCurveTo(xx + l / 2, yy + 5 * (r() - 0.5), xx + l, yy); g.stroke(); }); }
-  for (let i = 0; i < 70; i++) { const x = r() * S, y = r() * S, s = 8 + r() * 22; wrap(x, y, 40, (xx, yy) => { g.fillStyle = "rgba(188,186,120,0.5)"; g.beginPath(); g.ellipse(xx, yy, s * 1.6, s * 0.6, 0, 0, 6.3); g.fill(); g.fillStyle = "rgba(226,222,170,0.5)"; g.beginPath(); g.ellipse(xx - 2, yy - 1, s, s * 0.35, 0, 0, 6.3); g.fill(); }); }
+  for (let i = 0; i < 520; i++) { const x = r() * S, y = r() * S, l = 30 + r() * 90; g.strokeStyle = r() > 0.45 ? "rgba(206,190,150,0.3)" : "rgba(30,22,12,0.4)"; g.lineWidth = 2 + r() * 3; wrap(x, y, 130, (xx, yy) => { g.beginPath(); g.moveTo(xx, yy); g.quadraticCurveTo(xx + l / 2, yy + 5 * (r() - 0.5), xx + l, yy); g.stroke(); }); }
+  for (let i = 0; i < 70; i++) { const x = r() * S, y = r() * S, s = 8 + r() * 22; wrap(x, y, 40, (xx, yy) => { g.fillStyle = "rgba(176,170,128,0.42)"; g.beginPath(); g.ellipse(xx, yy, s * 1.6, s * 0.6, 0, 0, 6.3); g.fill(); g.fillStyle = "rgba(214,208,176,0.42)"; g.beginPath(); g.ellipse(xx - 2, yy - 1, s, s * 0.35, 0, 0, 6.3); g.fill(); }); }
   for (let i = 0; i < 90; i++) { g.fillStyle = r() > 0.5 ? "#3a2c18" : "#8a7a52"; g.fillRect(r() * S, r() * S, 4 + r() * 10, 3 + r() * 4); }
 }); return t; };
 /** river mud: dark, wet, lumpy, with shine and litter */
@@ -151,8 +152,10 @@ export const stinkTex = () => ctex("skStink", 128, 512, (g) => { g.clearRect(0, 
   for (const [w, c] of [[30, "rgba(36,23,38,0.85)"], [18, "#b9c84a"]] as [number, string][]) { g.strokeStyle = c; g.lineWidth = w; g.beginPath(); g.moveTo(64, 490); for (let y = 490; y > 110; y -= 8) g.lineTo(64 + 30 * Math.sin((490 - y) * 0.03), y); g.quadraticCurveTo(110, 60, 70, 40); g.quadraticCurveTo(40, 30, 44, 62); g.stroke(); } });
 /** a white sheet of paper or card */
 export const sheetTex = () => ctex("skSheet", 128, 160, (g) => { g.clearRect(0, 0, 128, 160); g.fillStyle = "#f6f1e4"; g.fillRect(12, 12, 104, 136); g.strokeStyle = INK; g.lineWidth = 8; g.strokeRect(12, 12, 104, 136); g.strokeStyle = "rgba(36,23,38,0.5)"; g.lineWidth = 4; for (let y = 40; y < 130; y += 18) { g.beginPath(); g.moveTo(28, y); g.lineTo(100, y); g.stroke(); } });
-/** a handkerchief: a white cloth bunched in a fist */
-export const hankyTex = () => ctex("skHanky", 128, 128, (g) => { g.clearRect(0, 0, 128, 128); g.fillStyle = "#fbf8f0"; g.strokeStyle = INK; g.lineWidth = 9; g.lineJoin = "round"; g.beginPath(); g.moveTo(22, 40); g.quadraticCurveTo(64, 10, 106, 36); g.lineTo(112, 84); g.lineTo(92, 74); g.lineTo(80, 112); g.lineTo(60, 80); g.lineTo(38, 108); g.lineTo(30, 78); g.lineTo(14, 84); g.closePath(); g.fill(); g.stroke(); g.strokeStyle = "rgba(36,23,38,0.35)"; g.lineWidth = 4; g.beginPath(); g.moveTo(50, 40); g.lineTo(56, 74); g.moveTo(78, 38); g.lineTo(82, 70); g.stroke(); });
+/** a handkerchief pressed over nose and mouth: a soft white cloth, gathered at the top, hanging in three gentle folds */
+export const hankyTex = () => ctex("skHanky2", 128, 128, (g) => { g.clearRect(0, 0, 128, 128); g.fillStyle = "#fbf9f2"; g.strokeStyle = INK; g.lineWidth = 8; g.lineJoin = "round"; g.lineCap = "round";
+  g.beginPath(); g.moveTo(30, 30); g.quadraticCurveTo(64, 12, 98, 30); g.quadraticCurveTo(116, 62, 106, 100); g.quadraticCurveTo(92, 116, 82, 100); g.quadraticCurveTo(64, 120, 46, 100); g.quadraticCurveTo(36, 116, 22, 100); g.quadraticCurveTo(12, 62, 30, 30); g.closePath(); g.fill(); g.stroke();
+  g.strokeStyle = "rgba(36,23,38,0.22)"; g.lineWidth = 4; g.beginPath(); g.moveTo(50, 40); g.quadraticCurveTo(44, 70, 47, 92); g.moveTo(80, 40); g.quadraticCurveTo(86, 70, 82, 92); g.stroke(); });
 /** a drop of lime wash */
 export const dropTex = () => ctex("skDrop", 64, 96, (g) => { g.clearRect(0, 0, 64, 96); g.fillStyle = "#f4f0e2"; g.strokeStyle = INK; g.lineWidth = 6; g.beginPath(); g.moveTo(32, 8); g.quadraticCurveTo(58, 56, 32, 86); g.quadraticCurveTo(6, 56, 32, 8); g.fill(); g.stroke(); });
 /** a round glow for lamps */

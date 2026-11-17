@@ -75,7 +75,7 @@ export function buildRoom(): RoomSet {
     for (const x of WIN.xs) { const rod = put(new THREE.CylinderGeometry(0.03, 0.03, 2.9, 8), brass, x, 4.62, CURTAIN_Z - 0.05); rod.rotation.z = Math.PI / 2; for (const sx of [-1, 1]) put(new THREE.SphereGeometry(0.06, 10, 8), brass, x + sx * 1.48, 4.62, CURTAIN_Z - 0.05); } }
   wet.visible = false;
   // ---- shafts of light from each window down to the floor ----
-  { const r = new THREE.Vector3(-ROOM_SUN[0], -ROOM_SUN[1], -ROOM_SUN[2]).normalize(), mat = new THREE.MeshBasicMaterial({ map: shaftTex(), color: new THREE.Color(1.0, 0.9, 0.62), transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false });
+  { const r = new THREE.Vector3(-ROOM_SUN[0], -ROOM_SUN[1], -ROOM_SUN[2]).normalize(), mat = new THREE.MeshBasicMaterial({ map: shaftTex(), color: new THREE.Color(1.0, 0.9, 0.62), transparent: true, opacity: 0.09, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false });
     for (const x of WIN.xs) for (const y of [WIN.y1, 2.9, 1.9]) { const t = y / -r.y, a = V(ox + x - 0.72, y, Z1), c = V(ox + x + 0.72, y, Z1), g = new THREE.BufferGeometry();
       const a2 = a.clone().addScaledVector(r, t), c2 = c.clone().addScaledVector(r, t);
       g.setAttribute("position", new THREE.Float32BufferAttribute([a, c, c2, a, c2, a2].flatMap((v) => [v.x, v.y, v.z]), 3)); g.setAttribute("uv", new THREE.Float32BufferAttribute([0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1], 2));
@@ -102,7 +102,7 @@ export function buildRoom(): RoomSet {
   for (const x of [-1.85, 1.85]) { put(new THREE.BoxGeometry(0.06, 0.06, 0.34), brass, x, 3.05, Z1 - 0.17); put(new THREE.CylinderGeometry(0.02, 0.02, 0.2, 6), brass, x, 3.15, Z1 - 0.32);
     const gl = new THREE.Mesh(new THREE.SphereGeometry(0.13, 14, 10), new THREE.MeshBasicMaterial({ color: new THREE.Color(2.6, 2.0, 1.1), fog: false })); gl.position.set(ox + x, 3.34, Z1 - 0.32); G.add(gl);
     const h = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: new THREE.Color(1.3, 0.9, 0.45), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false })); h.position.copy(gl.position); h.scale.setScalar(1.1); G.add(h);
-    const pl = new THREE.PointLight("#ffbe6a", 5, 7, 1.6); pl.position.set(ox + x, 3.3, Z1 - 0.7); G.add(pl); }
+    const pl = new THREE.PointLight("#ffbe6a", 9, 8, 1.5); pl.position.set(ox + x, 2.9, Z1 - 0.9); G.add(pl); }
   // ---- walls: portraits, a clock, a painted board over the door ----
   { const fr = (k: number, x: number, z: number, ry: number) => { const m = put(plane(1.0, 1.25), lam("skPortraitM" + k, () => ({ map: portraitTex(k) })), x, 3.55, z, false); m.rotation.y = ry; };
     fr(0, W - 0.02, 1.2, -Math.PI / 2); fr(1, W - 0.02, -2.2, -Math.PI / 2); fr(2, -W + 0.02, 1.6, Math.PI / 2); fr(1, W - 0.02, -5.4, -Math.PI / 2);
@@ -119,6 +119,7 @@ export function buildRoom(): RoomSet {
     for (let k = 0; k < 5; k++) { const st = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.035, 0.14), wd); st.position.set(0, 0.36 + k * 0.36, -0.42 + k * 0.105); lad.add(st); } const tp = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.04, 0.26), wd); tp.position.set(0, 2.0, 0); lad.add(tp);
     lad.traverse((o) => { o.castShadow = true; o.receiveShadow = true; }); lad.position.set(ox + 5.55, 0, 3.6); G.add(lad); }
   // ceiling beams, a skirting of shadow at the back, hat stands by the door
+  { const cl = put(plane(2 * W + 0.6, Z1 - Z0 + 0.9), oakPlain, 0, H - 0.004, (Z0 + Z1) / 2, false); cl.rotation.x = Math.PI / 2; }
   for (let z = Z0 + 1; z < Z1; z += 2.1) put(new THREE.BoxGeometry(2 * W, 0.28, 0.3), oakDark, 0, H - 0.14, z, false);
   for (const z of [-5.0, -5.6]) { put(new THREE.CylinderGeometry(0.03, 0.03, 1.9, 8), oakDark, -W + 0.45, 0.95, z); put(new THREE.CylinderGeometry(0.2, 0.2, 0.04, 12), oakDark, -W + 0.45, 0.02, z); put(new THREE.CylinderGeometry(0.16, 0.17, 0.2, 14), M("skHat", "#1c1a22"), -W + 0.45, 2.0, z); put(new THREE.CylinderGeometry(0.25, 0.25, 0.02, 14), M("skHat", "#1c1a22"), -W + 0.45, 1.9, z); }
   const dust = dustMotes(new THREE.Vector3(ox + 0.6, 2.0, 2.0), new THREE.Vector3(10, 3.6, 5.5), 240, new THREE.Color(1.5, 1.3, 0.8), 0.03, 0.55); G.add(dust.points);
@@ -140,7 +141,7 @@ export function buildStreet(): StreetSet {
   b.build(G, true);
   { const v = new THREE.Mesh(plane(30, 13), new THREE.MeshBasicMaterial({ map: riverViewTex(), color: new THREE.Color(1.35, 1.28, 1.08), fog: false })); v.rotation.y = Math.PI; v.position.set(ox, 2.6, Z1 + 12); G.add(v); }
   // the gutter down the middle, wet and brown, running to the arch
-  const gt = repT(waterTex2(), 0.4, 9); const gm = put(plane(0.62, Z1 - Z0 + 2), new THREE.MeshLambertMaterial({ map: gt, color: "#8a7a5a" }), 0, 0.012, (Z0 + Z1) / 2 - 1, false); gm.rotation.x = -Math.PI / 2;
+  const gt = repT(waterTex2(), 0.4, 9); const gm = put(plane(0.62, Z1 - Z0 + 2), lam("skGutter", () => ({ map: gt, color: "#c9b890" })), 0, 0.012, (Z0 + Z1) / 2 - 1, false); gm.rotation.x = -Math.PI / 2;
   for (const sx of [-1, 1]) put(new THREE.BoxGeometry(0.1, 0.05, Z1 - Z0 + 2), M("skKerb", "#6a6258"), sx * 0.36, 0.02, (Z0 + Z1) / 2 - 1, false);
   // windows and doors up both walls
   { let k = 0; for (const sx of [-1, 1]) for (let z = Z0 + 1.2; z < Z1 - 0.6; z += 2.6) for (const y of [1.9, 4.6, 7.2]) { if (y < 2 && Math.abs(z - PUMP[2]) < 1.2 && sx > 0) continue; const m = put(plane(0.95, 1.45), lam("skTenWinM" + (k % 6), () => ({ map: tenWinTex(k % 6) })), sx * (W - 0.02), y, z + (y > 4 ? 0.4 : 0), false); m.rotation.y = -sx * Math.PI / 2; k++;
@@ -150,14 +151,14 @@ export function buildStreet(): StreetSet {
   { let k = 0; for (const [z, y] of [[-4.5, 5.2], [-0.5, 6.0], [3.4, 4.9], [6.4, 5.6]]) { const ln = put(new THREE.CylinderGeometry(0.012, 0.012, 2 * W, 5), wood2, 0, y, z, false); ln.rotation.z = Math.PI / 2;
       for (let i = 0; i < 6; i++) { const c = put(plane(0.62, 0.78), new THREE.MeshLambertMaterial({ map: clothTex(k), transparent: true, alphaTest: 0.5, side: THREE.DoubleSide }), -2.3 + i * 0.92 + 0.2 * Math.sin(k), y - 0.4, z, true); c.rotation.y = Math.PI + 0.2 * Math.sin(k * 1.7); k++; } } }
   // the parish pump: a stone base, an iron body with a spout and a long handle, a tub under the spout, its board on the wall
-  { const [px, , pz] = PUMP; put(new THREE.BoxGeometry(0.8, 0.22, 0.8), stone, px, 0.11, pz); put(new THREE.CylinderGeometry(0.1, 0.12, 1.35, 12), iron, px, 0.9, pz); put(new THREE.SphereGeometry(0.13, 12, 8), iron, px, 1.6, pz);
-    const sp = put(new THREE.CylinderGeometry(0.045, 0.045, 0.42, 8), iron, px - 0.26, 1.02, pz); sp.rotation.z = Math.PI / 2 - 0.25;
-    const hd = put(new THREE.BoxGeometry(0.05, 0.05, 0.95), iron, px + 0.02, 1.4, pz - 0.42); hd.rotation.x = -0.5;
+  { const [px, , pz] = PUMP; put(new THREE.BoxGeometry(0.8, 0.22, 0.8), stone, px, 0.11, pz); put(new THREE.CylinderGeometry(0.11, 0.13, 1.35, 12), M("skPumpGreen", "#4f7a5e"), px, 0.9, pz); put(new THREE.SphereGeometry(0.15, 12, 8), M("skPumpGreen", "#4f7a5e"), px, 1.6, pz);
+    const sp = put(new THREE.CylinderGeometry(0.055, 0.055, 0.46, 8), M("skBrass", "#d9b04a"), px - 0.28, 1.02, pz); sp.rotation.z = Math.PI / 2 - 0.25;
+    const hd = put(new THREE.BoxGeometry(0.06, 0.06, 0.95), M("skPumpGreen", "#4f7a5e"), px + 0.02, 1.4, pz - 0.42); hd.rotation.x = -0.5;
     put(new THREE.CylinderGeometry(0.34, 0.3, 0.3, 14), wood, px - 0.55, 0.15, pz); put(new THREE.CylinderGeometry(0.31, 0.31, 0.02, 14), M("skBrown", "#6a5430"), px - 0.55, 0.27, pz, false);
     const bd = put(plane(1.5, 0.5), lam("skPumpBoard", () => ({ map: labelTex("PARISH PUMP", "#2e3a4a", "#e6dcc0", 3) })), W - 0.03, 2.75, pz, false); bd.rotation.y = -Math.PI / 2;
     const bd2 = put(plane(1.3, 0.44), lam("skCourtBoard", () => ({ map: labelTex("RIVER COURT", "#e6dcc0", "rgba(40,30,26,0.95)", 3) })), -W + 0.03, 3.3, -1.6, false); bd2.rotation.y = Math.PI / 2; }
   // the stream of water from the spout (posed: shown when someone pumps)
-  const spout = put(new THREE.CylinderGeometry(0.03, 0.045, 0.72, 6), new THREE.MeshLambertMaterial({ color: "#7a6234" }), PUMP[0] - 0.5, 0.62, PUMP[2], false); spout.visible = false;
+  const spout = put(new THREE.CylinderGeometry(0.04, 0.06, 0.72, 8), new THREE.MeshBasicMaterial({ color: "#8a6a30" }), PUMP[0] - 0.5, 0.62, PUMP[2], false); spout.visible = false;
   // dressing: barrels, crates, a hand cart, sacks, a ladder, a broken wheel, a rubbish heap, puddles
   barrelAt(put, -2.3, -6.4, 1, "#6e5238"); barrelAt(put, -2.45, -5.5, 0.85, "#5e4630"); barrelAt(put, 2.4, 6.6, 0.9, "#6e5238");
   for (const [x, y, z, s, ry] of [[2.3, 0.3, -3.4, 0.6, 0.2], [2.35, 0.82, -3.5, 0.45, -0.3], [-2.3, 0.25, 7.2, 0.5, 0.4], [2.2, 0.25, -8.2, 0.5, 0.1]]) put(new THREE.BoxGeometry(s, s, s), lam("skCrateSt", () => ({ map: labelTex("SOAP", "#a8834e") })), x, y, z).rotation.y = ry;

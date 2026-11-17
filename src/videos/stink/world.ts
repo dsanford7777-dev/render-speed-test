@@ -122,7 +122,7 @@ export class SWorld {
       const heads = { brush, shovel, pick, quill }; for (const h of Object.values(heads)) g.add(h);
       shadowAll(g); g.visible = false; R.add(g); this.tools.push({ g, handle, heads }); }
     for (let i = 0; i < 3; i++) { const bk = makeBucket("#f1eee2"); bk.visible = false; R.add(bk); this.buckets.push(bk); const bb = makeBucket("#6a5430"); bb.visible = false; R.add(bb); this.bucketsB.push(bb); }
-    this.cards = { paper: new CardPool(R, sheetTex(), 28, 0.24, 0.3, NOINK), hanky: new CardPool(R, hankyTex(), 12, 0.24, 0.24, NOINK), drop: new CardPool(R, dropTex(), 30, 0.07, 0.105, NOINK), stink: new CardPool(R, stinkTex(), 30, 0.3, 1.2, AFTERINK) };
+    this.cards = { paper: new CardPool(R, sheetTex(), 28, 0.24, 0.3, NOINK), hanky: new CardPool(R, hankyTex(), 12, 0.3, 0.3, NOINK), drop: new CardPool(R, dropTex(), 30, 0.07, 0.105, NOINK), stink: new CardPool(R, stinkTex(), 30, 0.3, 1.2, AFTERINK) };
     const puffT = puffTex();
     for (let i = 0; i < 48; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: puffT, transparent: true, depthWrite: false, fog: false })); s.visible = false; s.layers.set(AFTERINK); R.add(s); this.puffs.push(s); }
     this.news = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.742), new THREE.MeshBasicMaterial({ map: newsTex("stink", "THE TIMES", "THE GREAT STINK", "FIX THE RIVER!"), side: THREE.DoubleSide, color: new THREE.Color(0.95, 0.95, 0.95) })); this.news.visible = false; this.news.layers.set(NOINK); R.add(this.news);
@@ -167,8 +167,8 @@ export class SWorld {
     if (light === "river") { const R2 = this.river, lv = st.river ?? WATER.high, low = THREE.MathUtils.clamp((WATER.high - lv) / (WATER.high - WATER.low), 0, 1);
       R2.water.position.y = lv; R2.waterMap.offset.x = t * 0.012; R2.pourMap.offset.y = t * 1.4; R2.drift(t);
       const top = OUTFALL_Y - 0.5; R2.pours.forEach((p, i) => { const on = (st.pour ?? 0) > 0 && lv < top - 0.1; p.visible = on; if (on) { const k = (st.pour ?? 0) * (0.85 + 0.15 * Math.sin(t * 9 + i * 2)); p.scale.set(k, top - lv + 0.1, 1); p.position.y = (top + lv) / 2; } });
-      R2.barge.position.y = Math.max(lv, -1.45) - 0.35 + 0.03 * Math.sin(t * 1.3) * (1 - low); R2.barge.rotation.z = 0.16 * low * low; R2.barge.rotation.x = 0.02 * Math.sin(t * 0.9) * (1 - low);
-      R2.boat.position.y = Math.max(lv, -1.0) + 0.3 + 0.03 * Math.sin(t * 1.7 + 1) * (1 - low); R2.boat.rotation.z = -0.3 * low * low; }
+      R2.barge.position.y = Math.max(lv - 0.3, -2.2) + 0.03 * Math.sin(t * 1.3) * (1 - low); R2.barge.rotation.z = 0.16 * low * low; R2.barge.rotation.x = 0.02 * Math.sin(t * 0.9) * (1 - low);
+      R2.boat.position.y = Math.max(lv + 0.3, -0.4) + 0.03 * Math.sin(t * 1.7 + 1) * (1 - low); R2.boat.rotation.z = -0.3 * low * low; }
     if (light === "street") { this.street.gutter.offset.y = -t * 0.5; this.street.spout.visible = !!st.pump; this.street.drift(t); }
     if (light === "sewer") { const S2 = this.sewer, fl = st.flow ?? 0; S2.works.visible = !!st.works; S2.water.position.y = -0.62 + 0.4 * fl; S2.waterMap.offset.y = -t * (0.12 + 1.5 * fl); S2.drift(t);
       S2.lights.forEach((l, i) => { l.intensity = (l.userData.I as number) * (1 + 0.05 * Math.sin(t * 9 + i * 2.1) + 0.03 * Math.sin(t * 23 + i)); });
@@ -213,7 +213,7 @@ export class SWorld {
       const onCard = (wp: THREE.Vector3): [number, number] => { const dir = wp.clone().sub(cam.position), tt = o3.clone().sub(cam.position).dot(n3) / dir.dot(n3), pc = cam.position.clone().addScaledVector(dir, tt); return [pc.clone().sub(o3).dot(crs) / ks, (pc.y - q.p[1]) / ks]; };
       const mirror = !!q.side && (q.side.mirror !== (right.x < 0));
       // a handkerchief over the nose: a hand goes to it (walkers bring both hands up), and the cloth sits just in front of the face
-      const noseW: V3 | null = !q.hanky ? null : q.side ? (q.side.carry ?? [q.p[0] + (q.side.mirror ? -0.3 : 0.3), q.p[1] + 1.36 * ks, q.p[2]]) : [q.p[0] + n3.x * 0.16, q.p[1] + 1.37 * ks, q.p[2] + n3.z * 0.16];
+      const noseW: V3 | null = !q.hanky ? null : q.side ? (q.side.carry ?? [q.p[0] + (q.side.mirror ? -0.3 : 0.3), q.p[1] + 1.36 * ks, q.p[2]]) : [q.p[0] + n3.x * 0.16, q.p[1] + 1.34 * ks, q.p[2] + n3.z * 0.16];
       if (noseW) hankies.push(q.side ? [noseW[0] + n3.x * 0.1, noseW[1], noseW[2] + n3.z * 0.1] : noseW);
       const lt = mirror ? Math.PI - lightA : lightA;
       if (q.side) {
