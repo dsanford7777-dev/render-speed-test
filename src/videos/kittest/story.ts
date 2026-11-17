@@ -5,7 +5,7 @@ import { V3, FPS, PATCH, WORK, GUN, LAMPS, FUSE, ARMY_Z, groundH } from "./place
 export type { V3 };
 
 export type ShotDef = { id: number; g: string; a: number; b: number; k: "3d"; s: number };
-const LEN: [string, number, string][] = [["army", 84, "an army"], ["work", 84, "hands on tools"], ["break", 84, "the ground gives way"], ["rain", 78, "rain and lanterns"], ["fuse", 96, "ride the fuse"], ["volley", 96, "one shot"], ["faces", 60, "faces"]];
+const LEN: [string, number, string][] = [["army", 84, "an army"], ["work", 84, "hands on tools"], ["break", 84, "the ground gives way"], ["rain", 78, "rain and lanterns"], ["fuse", 96, "ride the fuse"], ["volley", 96, "one shot"], ["faces", 60, "faces"], ["room", 60, "lamp-lit room"]];
 export const SHOTS: ShotDef[] = []; { let a = 0; LEN.forEach(([g, n], i) => { SHOTS.push({ id: i + 1, g, a, b: a + n, k: "3d", s: i }); a += n; }); }
 export const LABELS = LEN.map((l) => l[2]);
 export const TOTAL = SHOTS[SHOTS.length - 1].b;
@@ -25,7 +25,7 @@ export type Person3 = { who: string; p: V3; expr: Expr; look?: number; headTilt?
 type Puff = { p: V3; s: number; c: [number, number, number]; a: number; add?: boolean };
 type Card = { kind: "spark" | "chip"; p: V3; spin: number; s: number };
 export type St3 = {
-  light: "day" | "golden" | "grey" | "night"; cam: Cam; dof?: number; focus?: V3; closeup?: boolean;
+  light: "day" | "golden" | "grey" | "night" | "lamp"; cam: Cam; dof?: number; focus?: V3; closeup?: boolean;
   people?: Person3[]; wipe?: { color: string; a: number }; subjects?: [string, V3, number][];
   army?: { adv: number; march: boolean } | null; breakK?: number; rain?: number; lamps?: number; fuse?: number;
   puffs?: Puff[]; cards?: Card[]; pegDrop?: number; ball?: V3;
@@ -88,6 +88,11 @@ const bounce = (u: number) => { const x = clamp01(u); return x >= 1 ? 1 : 1 - Ma
 const SHOCK: Expr[] = ["shock", "nervous", "shock", "dazed", "shock", "pained"];
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
+  // background look test (room.ts): a lamp-lit storeroom, two people, the camera easing in past a foreground lantern
+  room: (s, f) => { const X = 24, Y = 1.0, Z = 22;
+    return { light: "lamp", dof: 3, closeup: true, focus: S(X - 0.6, Y + 1.3, Z - 1.1),
+      cam: move({ pos: S(X + 1.9, Y + 1.55, Z + 3.3), look: S(X - 0.35, Y + 1.2, Z - 1.2), fov: 52, roll: 0.03 }, { pos: S(X + 1.2, Y + 1.45, Z + 2.5), look: S(X - 0.35, Y + 1.2, Z - 1.2), fov: 48, roll: -0.01 }, f, s.a, s.b, smooth, 0),
+      people: [P("whitney", S(X - 1.0, Y, Z - 0.9), "grin", 1), P("carp", S(X + 0.25, Y, Z - 1.35), "nervous", -1)] }; },
   // character look test: two people close to the lens
   faces: (s, f) => ({ light: "day", dof: 4, closeup: true,
     cam: move({ pos: S(0.7, 1.3, -7.6), look: S(-0.15, 1.3, -11), fov: 44, roll: 0.03 }, { pos: S(0.6, 1.3, -7.9), look: S(-0.15, 1.3, -11), fov: 44, roll: 0.0 }, f, s.a, s.b, smooth, 0),

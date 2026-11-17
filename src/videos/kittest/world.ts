@@ -18,7 +18,8 @@ import { signTex, newsTex, cashPile, suitcase } from "../lustig/props";
 import { numTex, Cards, sparkTex } from "../hertzlong/props3d";
 import { V3, FPS, PATCH, PN, PC, WORK, GUN, LAMPS, FUSE, ARMY, ARMY_Z, groundH } from "./place";
 import type { St3 } from "./story";
-type Light = "day" | "golden" | "grey" | "night";
+import { buildRoom, poseRoom, Room } from "./room";
+type Light = "day" | "golden" | "grey" | "night" | "lamp";
 
 // the street is a canyon: fog starts late so the far end still reads
 const DAY_ST: LightPreset = { ...LIGHTS.day, fogNear: 60, fogFar: 520 };
@@ -38,8 +39,12 @@ const NIGHT_ST: LightPreset = {
 };
 const GREY_LOOK: WorldLook = { ...LOOK.day, sky: { c: ["#c3c9d4", "#b6bdca", "#a3acbd", "#939db1", "#8590a6"], e: [0, 3, 8, 16, 40] }, cloud: { lit: "#d5d9e2", mid: "#b9bfcc", shade: "#9aa2b4" }, sat: 0.82 };
 const NIGHT_LOOK: WorldLook = { ...LOOK.day, sky: { c: ["#263a6e", "#1f3164", "#182955", "#111f46", "#0a1433"], e: [0, 3, 8, 16, 40] }, cloud: { lit: "#4a5f9c", mid: "#34477e", shade: "#243463" }, bounce: [0, 0, 0], sat: 1.0 };
-const LP: Record<Light, LightPreset> = { day: DAY_ST, golden: GOLD_ST, grey: GREY_ST, night: NIGHT_ST };
-const LK: Record<Light, WorldLook> = { day: LOOK.day, golden: LOOK.golden, grey: GREY_LOOK, night: NIGHT_LOOK };
+/** indoors by lamplight: no sun, a dim warm fill; the room's own lamps do the lighting (room.ts) */
+const LAMP_ST: LightPreset = { ...NIGHT_ST, lit: [0.5, 0.4, 0.3], shade: [0.1, 0.08, 0.07], charTint: [1.02, 0.9, 0.74], sideTint: [0.92, 0.82, 0.7], blob: [0.5, 0.42, 0.38],
+  top: "#0d0a08", hor: "#1a120c", fog: "#1a120c", fogNear: 40, fogFar: 300, sunCol: "#ffd0a0", sunI: 0.0, sky: "#6e5a48", ground: "#2c2018", hemiI: 0.16 };
+const LAMP_LOOK: WorldLook = { ...NIGHT_LOOK, sky: { c: ["#1a120c", "#17100b", "#130d09", "#0f0a07", "#0b0806"], e: [0, 3, 8, 16, 40] } };
+const LP: Record<Light, LightPreset> = { day: DAY_ST, golden: GOLD_ST, grey: GREY_ST, night: NIGHT_ST, lamp: LAMP_ST };
+const LK: Record<Light, WorldLook> = { day: LOOK.day, golden: LOOK.golden, grey: GREY_LOOK, night: NIGHT_LOOK, lamp: LAMP_LOOK };
 
 // ---------------- cast ----------------
 const SUIT = (jacket: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#2b2f3d", boots: "#1e1a20", hat: "hair", hair: "#3a2a20", buttons: "#d9d4c8", skin: "#f5c9a0", ...extra });
@@ -154,7 +159,7 @@ export class KWorld {
   private moat: { a: number[]; rin: number[]; rout: number[]; chunks: { mesh: THREE.Mesh; c: [number, number]; er: [number, number]; axis: THREE.Vector3; d: number; tilt: number; yaw: number }[] } = { a: [], rin: [], rout: [], chunks: [] };
   private grass: { mesh: THREE.InstancedMesh; cell: number; R: number; f0: number; sc: number; cap: number }[] = []; private fusePts: number[] = []; private col5 = new THREE.Color();
   private pegHit: THREE.Mesh; private ball: THREE.Mesh;
-  private lid: THREE.Mesh;
+  private lid: THREE.Mesh; private room: Room;
   private rain: THREE.Mesh; private rainSeed: number[] = [];
   private lamps: { bulb: THREE.Mesh; halo: THREE.Sprite; pool: THREE.Mesh; light: THREE.PointLight }[] = [];
   private fuse: THREE.Mesh; private fuseBurnt: THREE.Mesh; private fusePath: THREE.CatmullRomCurve3; private sparkLight: THREE.Sprite;
@@ -189,7 +194,7 @@ export class KWorld {
     this.sun = new THREE.DirectionalLight("#fff0d6", 2.6);
     this.sun.castShadow = true; this.sun.shadow.mapSize.set(4096, 4096);
     R.add(this.hemi, this.sun, this.sun.target);
-    this.cloudMaps = { day: [0, 1, 2, 3].map((k) => cloudHD(k, LOOK.day.cloud)), golden: [0, 1, 2, 3].map((k) => cloudHD(k, LOOK.golden.cloud)), grey: [0, 1, 2, 3].map((k) => cloudHD(k, GREY_LOOK.cloud)), night: [0, 1, 2, 3].map((k) => cloudHD(k, NIGHT_LOOK.cloud)) };
+    this.cloudMaps = { day: [0, 1, 2, 3].map((k) => cloudHD(k, LOOK.day.cloud)), golden: [0, 1, 2, 3].map((k) => cloudHD(k, LOOK.golden.cloud)), grey: [0, 1, 2, 3].map((k) => cloudHD(k, GREY_LOOK.cloud)), night: [0, 1, 2, 3].map((k) => cloudHD(k, NIGHT_LOOK.cloud)), lamp: [0, 1, 2, 3].map((k) => cloudHD(k, NIGHT_LOOK.cloud)) };
     for (let i = 0; i < 9; i++) {
       const a = (i / 9) * Math.PI * 2 + 0.3, d = 1150 + (i % 3) * 90, w = 230 + (i % 4) * 50;
       const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: this.cloudMaps.day[i % 4], color: new THREE.Color(1.1, 1.1, 1.1), transparent: true, depthWrite: false, fog: false }));
@@ -198,6 +203,7 @@ export class KWorld {
     }
 
 
+    this.room = buildRoom(); R.add(this.room.group);
     // ---------------- the land ----------------
     const dark = M("k2Dark", "#1d1b22"), wood = M("k2Wood", "#8a5a3a"), wood2 = M("k2Wood2", "#6b4a2f"), iron = M("k2Iron", "#3a3a48"), gold = M("k2Gold", "#e8c45a");
     const tg = new THREE.PlaneGeometry(900, 900, 180, 180); tg.rotateX(-Math.PI / 2);
@@ -393,8 +399,9 @@ export class KWorld {
     untone(L.fog, this.fog.color); this.fog.near = L.fogNear; this.fog.far = L.fogFar; scene.fog = this.fog; scene.background = null;
     this.sunDisc.visible = light === "golden";
     if (this.sunDisc.visible) { this.sunDisc.position.copy(cam.position).addScaledVector(sunDir, 1500); this.sunDisc.scale.setScalar(2 * 1500 * Math.tan(THREE.MathUtils.degToRad(1.7))); }
-    for (let i = 0; i < this.clouds.length; i++) { const m = this.clouds[i]; m.visible = light !== "night"; m.lookAt(cam.position.x, m.position.y, cam.position.z); (m.material as THREE.MeshBasicMaterial).map = this.cloudMaps[light][i % 4]; }
+    for (let i = 0; i < this.clouds.length; i++) { const m = this.clouds[i]; m.visible = light !== "night" && light !== "lamp"; m.lookAt(cam.position.x, m.position.y, cam.position.z); (m.material as THREE.MeshBasicMaterial).map = this.cloudMaps[light][i % 4]; }
 
+    poseRoom(this.room, light === "lamp", t);
     // ---------------- the land, the army, the weather ----------------
     this.winMat.color.setRGB(1, 1, 1);
     const brk = st.breakK ?? 0;

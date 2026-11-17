@@ -20,7 +20,9 @@ import { SPECS, specAt, whipAt, ShotDef } from "./story";
 const GRADE_NIGHT: GradeParams = { ky: [0, 0.085, 0.24, 0.52, 0.79, 0.93, 1], sat: [1.0, 1.08, 1.1], tintS: [0.035, -0.012], tintM: [0.02, -0.006], tintH: [-0.01, 0.006], vig: [0.26, 0.38] };
 /** the grey morning of the crash: the day grade with the colour pulled out and a cooler cast */
 const GRADE_GREY: GradeParams = { ...GRADES.day, sat: GRADES.day.sat.map((x) => x * 0.72) as [number, number, number], tintS: [0.01, 0.0], tintM: [0.012, -0.004], tintH: [0, 0], vig: [0.2, 0.42] };
-const GR: Record<"day" | "golden" | "grey" | "night", GradeParams> = { day: GRADES.day, golden: GRADES.golden, grey: GRADE_GREY, night: GRADE_NIGHT };
+/** lamplight indoors: the day curve with a heavy vignette, so the frame edges fall away */
+const GRADE_LAMP: GradeParams = { ...GRADES.day, sat: GRADES.day.sat.map((x) => x * 0.9) as [number, number, number], vig: [0.42, 0.24] };
+const GR: Record<"day" | "golden" | "grey" | "night" | "lamp", GradeParams> = { day: GRADES.day, golden: GRADES.golden, grey: GRADE_GREY, night: GRADE_NIGHT, lamp: GRADE_LAMP };
 const QA = !!(getInputProps() as { qa?: boolean }).qa;
 
 const makeBloom = () => {
