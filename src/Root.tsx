@@ -20,6 +20,7 @@ import { LogCannon, LOGCANNON_FRAMES } from "./videos/logcannon/LogCannon";
 import { TitanicKey, TITANICKEY_FRAMES } from "./videos/titanickey/TitanicKey";
 import { Rats, RATS_FRAMES } from "./videos/rats/Rats";
 import { Genin, GENIN_FRAMES } from "./videos/genin/Genin";
+import { Stink, STINK_FRAMES } from "./videos/stink/Stink";
 import { SubscribeTag } from "./videos/shared/SubscribeTag";
 import { AbsoluteFill as AF } from "remotion";
 const SubDemo: React.FC = () => <AF><Genin /><SubscribeTag total={GENIN_FRAMES} /></AF>;
@@ -54,6 +55,7 @@ const LogCannonPadded = padded(LogCannon);
 const TitanicKeyPadded = padded(TitanicKey);
 const RatsPadded = padded(Rats);
 const GeninPadded = padded(Genin);
+const StinkPadded = padded(Stink);
 const SubDemoPadded = padded(SubDemo);
 const SubDemoWidePadded = padded(SubDemoWide);
 const HertzLongPadded = padded(HertzLong);
@@ -107,6 +109,8 @@ export const Root: React.FC = () => (<>
   <Composition id="SubDemoPadded" component={SubDemoPadded} durationInFrames={GENIN_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="Genin" component={Genin} durationInFrames={GENIN_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="GeninPadded" component={GeninPadded} durationInFrames={GENIN_FRAMES + PAD} fps={30} width={1080} height={1920} />
+  <Composition id="Stink" component={Stink} durationInFrames={STINK_FRAMES} fps={30} width={1080} height={1920} />
+  <Composition id="StinkPadded" component={StinkPadded} durationInFrames={STINK_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="KitTest" component={KitTest} durationInFrames={KIT_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="KitTestWide" component={KitTestWide} durationInFrames={KIT_FRAMES} fps={30} width={1920} height={1080} />
   <Composition id="KitTestPadded" component={KitTestPadded} durationInFrames={KIT_FRAMES + PAD} fps={30} width={1080} height={1920} />
