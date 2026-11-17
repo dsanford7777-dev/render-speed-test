@@ -56,10 +56,20 @@ vec3 outgoingLight = diffuseColor.rgb * tintK;
   #endif
 }
 #endif
+#if NUM_POINT_LIGHTS > 0
+if ( uLamp.x > 0.0 ) {
+  // lamplight: sum the point lights by distance only (the card is flat, so no N.L), mostly as brightness with a little of their colour
+  vec3 e = vec3( 0.0 ); IncidentLight pl;
+  for ( int i = 0; i < NUM_POINT_LIGHTS; i ++ ) { getPointLightInfo( pointLights[ i ], geometryPosition, pl ); e += pl.color; }
+  float lum = dot( e, vec3( 0.2126, 0.7152, 0.0722 ) );
+  vec3 k = uLamp.y + uLamp.z * mix( vec3( lum ), e, 0.3 );
+  outgoingLight *= mix( vec3( 1.0 ), min( k, vec3( 1.2 ) ), uLamp.x );
+}
+#endif
 `;
 
 const DECL = "#include <common>\nuniform vec3 uCharTint; uniform float uCharShade; uniform float uGrad; uniform float uBodyGrad; uniform vec3 uSideTint;"
-  + " uniform float uGradK; uniform float uGradKB; uniform float uTintK; uniform float uNorm; uniform float uGain; uniform float uPx;";
+  + " uniform float uGradK; uniform float uGradKB; uniform float uTintK; uniform float uNorm; uniform float uGain; uniform float uPx; uniform vec3 uLamp;";
 /** card-only constants (not per light): gradient share, tint share, overall gain (calibrated: faces ~.93 V) */
 export const CARD_K = { uGradK: { value: GRAD_K }, uGradKB: { value: GRAD_KB }, uTintK: { value: TINT_K }, uNorm: { value: 0.7 }, uGain: { value: 1.03 }, uPx: { value: 0.5 } }; // uPx = render height / 1920 (set per draw in cast.ts)
 
@@ -73,7 +83,7 @@ export function cardShade(m: THREE.MeshLambertMaterial) {
       .replace("#include <lights_fragment_begin>", "float sunVis = 1.0;\n" + LFB)
       .replace("vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;", CARD);
   };
-  m.customProgramCacheKey = () => "card9";
+  m.customProgramCacheKey = () => "card10";
   return m;
 }
 

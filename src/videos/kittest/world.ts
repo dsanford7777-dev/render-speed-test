@@ -18,7 +18,8 @@ import { signTex, newsTex, cashPile, suitcase } from "../lustig/props";
 import { numTex, Cards, sparkTex } from "../hertzlong/props3d";
 import { V3, FPS, PATCH, PN, PC, WORK, GUN, LAMPS, FUSE, ARMY, ARMY_Z, groundH } from "./place";
 import type { St3 } from "./story";
-import { buildRoom, poseRoom, Room } from "./room";
+import { buildRoom, poseRoom, Room, ROOM_KEY } from "./room";
+import { buildValley, Valley, valleyClear } from "./valley";
 type Light = "day" | "golden" | "grey" | "night" | "lamp";
 
 // the street is a canyon: fog starts late so the far end still reads
@@ -159,7 +160,7 @@ export class KWorld {
   private moat: { a: number[]; rin: number[]; rout: number[]; chunks: { mesh: THREE.Mesh; c: [number, number]; er: [number, number]; axis: THREE.Vector3; d: number; tilt: number; yaw: number }[] } = { a: [], rin: [], rout: [], chunks: [] };
   private grass: { mesh: THREE.InstancedMesh; cell: number; R: number; f0: number; sc: number; cap: number }[] = []; private fusePts: number[] = []; private col5 = new THREE.Color();
   private pegHit: THREE.Mesh; private ball: THREE.Mesh;
-  private lid: THREE.Mesh; private room: Room;
+  private lid: THREE.Mesh; private room: Room; private valley: Valley; private valleyOn = false;
   private rain: THREE.Mesh; private rainSeed: number[] = [];
   private lamps: { bulb: THREE.Mesh; halo: THREE.Sprite; pool: THREE.Mesh; light: THREE.PointLight }[] = [];
   private fuse: THREE.Mesh; private fuseBurnt: THREE.Mesh; private fusePath: THREE.CatmullRomCurve3; private sparkLight: THREE.Sprite;
@@ -204,6 +205,7 @@ export class KWorld {
 
 
     this.room = buildRoom(); R.add(this.room.group);
+    this.valley = buildValley(); R.add(this.valley.group);
     // ---------------- the land ----------------
     const dark = M("k2Dark", "#1d1b22"), wood = M("k2Wood", "#8a5a3a"), wood2 = M("k2Wood2", "#6b4a2f"), iron = M("k2Iron", "#3a3a48"), gold = M("k2Gold", "#e8c45a");
     const tg = new THREE.PlaneGeometry(900, 900, 180, 180); tg.rotateX(-Math.PI / 2);
@@ -322,13 +324,13 @@ export class KWorld {
         g.userData.x = [-30, -21, -13, -4.6, 5.4, 13, 21, 30][i]; g.userData.z = ARMY_Z + 5 + (i % 3) * 9; R.add(g); this.flags.push(g); } }
   }
 
-  private shotSun(id: number, L: LightPreset, sample: (f: number) => { pos: V3; look: V3 }, a: number, b: number) {
+  private shotSun(id: number, L: LightPreset, sample: (f: number) => { pos: V3; look: V3 }, a: number, b: number, sun?: [number, number]) {
     let v = this.sunCache.get(id);
     if (v) return v;
     let fx = 0, fz = 0;
     for (let f = a; f < b; f += 3) { const c = sample(f), x = c.look[0] - c.pos[0], z = c.look[2] - c.pos[2], n = Math.hypot(x, z) || 1; fx += x / n; fz += z / n; }
     const n = Math.hypot(fx, fz) || 1; fx /= n; fz /= n;
-    const az = THREE.MathUtils.degToRad(L.az), el = THREE.MathUtils.degToRad(L.el);
+    const az = THREE.MathUtils.degToRad(sun ? sun[0] : L.az), el = THREE.MathUtils.degToRad(sun ? sun[1] : L.el);
     const hx = fx * Math.cos(az) - fz * Math.sin(az), hz = fz * Math.cos(az) + fx * Math.sin(az);
     v = new THREE.Vector3(hx * Math.cos(el), Math.sin(el), hz * Math.cos(el)).normalize();
     this.sunCache.set(id, v);
@@ -341,6 +343,7 @@ export class KWorld {
   /** height of the open ground, or null where no grass grows (wall, path, road, the gaps of the moat) */
   private turfY(x: number, z: number, brk: number): number | null {
     if (z < -13.7 || (Math.abs(x) < 2.5 && z < 113)) return null;
+    if (this.valleyOn && valleyClear(x, z)) return null;
     const px = x - PATCH[0], pz = z - PATCH[1], half = PN * PC / 2;
     if (brk > 0 && Math.abs(px) < half && Math.abs(pz) < half) { const mo = this.moat, N = MOAT_N, r = Math.hypot(px, pz); let th = Math.atan2(pz, px); if (th < mo.a[0]) th += Math.PI * 2;
       let k = N - 1; for (let i = 0; i < N - 1; i++) if (th < mo.a[i + 1]) { k = i; break; }
@@ -379,7 +382,7 @@ export class KWorld {
     const focus = V(...(st.focus ?? c.look)), dist = cam.position.distanceTo(focus);
     cam.layers.enable(NOINK);
     // ---- lights ----
-    const sunDir = this.shotSun(id, L, sample, a, b);
+    const sunDir = this.shotSun(id, L, sample, a, b, st.sun);
     this.hemi.color.set(L.sky); this.hemi.groundColor.set(L.ground); this.hemi.intensity = L.hemiI;
     this.sun.color.set(L.sunCol); this.sun.intensity = L.sunI;
     let Rr = THREE.MathUtils.clamp(dist * 1.15 + 7, 12, 260);
@@ -402,6 +405,8 @@ export class KWorld {
     for (let i = 0; i < this.clouds.length; i++) { const m = this.clouds[i]; m.visible = light !== "night" && light !== "lamp"; m.lookAt(cam.position.x, m.position.y, cam.position.z); (m.material as THREE.MeshBasicMaterial).map = this.cloudMaps[light][i % 4]; }
 
     poseRoom(this.room, light === "lamp", t);
+    this.valleyOn = st.set === "valley"; this.valley.group.visible = this.valleyOn; if (this.valleyOn) this.valley.drift(t);
+    CHAR.uLamp.value.x = light === "lamp" ? 1 : 0;
     // ---------------- the land, the army, the weather ----------------
     this.winMat.color.setRGB(1, 1, 1);
     const brk = st.breakK ?? 0;
@@ -478,11 +483,16 @@ export class KWorld {
       act.mesh.rotation.set(0, Math.atan2(cam.position.x - q.p[0], cam.position.z - q.p[2]), 0);
       act.mesh.scale.set(mirror ? -1 : 1, 1, 1);
       act.mesh.castShadow = L.actorShadow;
+      // shadow twin: a second, unseen card turned to face the light, so the flat card throws a full silhouette
+      const twin = !L.actorShadow && (light === "lamp" || !!st.twins);
+      act.caster.visible = twin; act.mesh.receiveShadow = !twin;
+      if (twin) { act.caster.position.set(...q.p); act.caster.scale.copy(act.mesh.scale);
+        act.caster.rotation.set(0, light === "lamp" ? Math.atan2(ROOM_KEY[0] - q.p[0], ROOM_KEY[2] - q.p[2]) : Math.atan2(sunDir.x, sunDir.z), 0); }
       if (q.hold?.tool && (grip || q.hold.r)) { const g = q.hold.tool === "hammer" ? this.hammer : this.torch; g.visible = true;
         if (grip) g.position.copy(grip); else { g.position.set(q.p[0], q.p[1] + q.hold.r![1], q.p[2]).addScaledVector(right, q.hold.r![0] * (mirror ? -1 : 1)); g.position.addScaledVector(this.v.copy(cam.position).sub(g.position).normalize(), 0.06); }
         g.quaternion.copy(cam.quaternion); g.rotateZ(ang); }
     }
-    for (let i = ai; i < this.actors.length; i++) this.actors[i].mesh.visible = false;
+    for (let i = ai; i < this.actors.length; i++) this.actors[i].mesh.visible = this.actors[i].caster.visible = false;
     // ---- contact shadows ----
     const cc = light === "night" ? "#5d6aa8" : light === "grey" ? "#7d8094" : "#8a8ab0";
     let fi = 0;

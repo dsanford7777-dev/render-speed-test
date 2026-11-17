@@ -69,6 +69,9 @@ const ROOTS = new Set<THREE.Object3D>();
  *  when world.ts says so (golden). Drawn after the contact blobs (renderOrder 1). */
 export class Actor {
   mesh: THREE.Mesh; mat: THREE.MeshLambertMaterial; dmat: THREE.MeshDepthMaterial; r: Req | null = null;
+  /** shadow twin: never drawn, only casts. world.ts turns it to face the light (sun or key lamp), so a flat card still
+   *  throws a full silhouette on the ground and walls whatever way the card itself faces */
+  caster: THREE.Mesh; private pmat: THREE.MeshDistanceMaterial;
   constructor(parent: THREE.Object3D, geo: THREE.BufferGeometry = BODY) {
     this.mat = cardShade(new THREE.MeshLambertMaterial({ map: blank, alphaTest: 0.5, side: THREE.DoubleSide }));
     this.mat.alphaToCoverage = false; // A2C + MSAA left 1 px sky-depth seams on blurred far cards (POST)
@@ -80,9 +83,14 @@ export class Actor {
     this.mesh.castShadow = false; this.mesh.receiveShadow = true; this.mesh.visible = false;
     this.mesh.rotation.order = "YXZ"; this.mesh.renderOrder = 1; this.mesh.layers.set(NOINK);
     parent.add(this.mesh);
+    this.pmat = new THREE.MeshDistanceMaterial({ map: blank, alphaTest: 0.5, side: THREE.DoubleSide });
+    this.caster = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: blank, alphaTest: 0.5, colorWrite: false, depthWrite: false, side: THREE.DoubleSide }));
+    this.caster.customDepthMaterial = this.dmat; this.caster.customDistanceMaterial = this.pmat;
+    this.caster.castShadow = true; this.caster.receiveShadow = false; this.caster.visible = false; this.caster.layers.set(NOINK);
+    parent.add(this.caster);
     ROOTS.add(parent);
   }
-  bind() { const t = this.r?.tex; if (t) { this.mat.map = t; this.dmat.map = t; } }
+  bind() { const t = this.r?.tex; if (t) { this.mat.map = t; this.dmat.map = t; this.pmat.map = t; (this.caster.material as THREE.MeshBasicMaterial).map = t; } }
 }
 /** unlit effect card: hard cut-out (ink drawings), soft see-through (dust, mist) or a multiply ground blob */
 export class Fx {

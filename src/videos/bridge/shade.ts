@@ -14,6 +14,9 @@ export const TONE = {
 export const CHAR = {
   uCharTint: { value: new THREE.Vector3(1, 0.94, 0.92) }, uCharShade: { value: 0.86 }, uGrad: { value: 0.07 },
   uBodyGrad: { value: 0.2 }, uSideTint: { value: new THREE.Vector3(0.92, 0.9, 0.96) },
+  /** lamplight on cards (x = on 0..1, y = floor, z = gain): the scene's point lights brighten a card by distance, so a
+   *  character near a lantern is bright and one in the far corner is dim. 0 everywhere except lamp-lit scenes. */
+  uLamp: { value: new THREE.Vector3(0, 0.34, 0.2) },
 };
 
 // directional light 0 = the sun = the only shadow caster (three sorts shadow-casting lights first). Only the

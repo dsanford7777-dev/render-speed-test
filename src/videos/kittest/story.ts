@@ -2,10 +2,11 @@
 import * as THREE from "three";
 import { Expr } from "../bridge/toon";
 import { V3, FPS, PATCH, WORK, GUN, LAMPS, FUSE, ARMY_Z, groundH } from "./place";
+import { roadZ, cabinSmoke } from "./valley";
 export type { V3 };
 
 export type ShotDef = { id: number; g: string; a: number; b: number; k: "3d"; s: number };
-const LEN: [string, number, string][] = [["army", 84, "an army"], ["work", 84, "hands on tools"], ["break", 84, "the ground gives way"], ["rain", 78, "rain and lanterns"], ["fuse", 96, "ride the fuse"], ["volley", 96, "one shot"], ["faces", 60, "faces"], ["room", 60, "lamp-lit room"]];
+const LEN: [string, number, string][] = [["army", 84, "an army"], ["work", 84, "hands on tools"], ["break", 84, "the ground gives way"], ["rain", 78, "rain and lanterns"], ["fuse", 96, "ride the fuse"], ["volley", 96, "one shot"], ["faces", 60, "faces"], ["room", 60, "lamp-lit room"], ["valley", 60, "sunlit valley"]];
 export const SHOTS: ShotDef[] = []; { let a = 0; LEN.forEach(([g, n], i) => { SHOTS.push({ id: i + 1, g, a, b: a + n, k: "3d", s: i }); a += n; }); }
 export const LABELS = LEN.map((l) => l[2]);
 export const TOTAL = SHOTS[SHOTS.length - 1].b;
@@ -31,6 +32,12 @@ export type St3 = {
   puffs?: Puff[]; cards?: Card[]; pegDrop?: number; ball?: V3;
   /** an explosion at a point, t seconds ago: soldiers near it fall outward */
   blast?: { at: V3; t: number };
+  /** outdoors: characters cast real shadows from the sun (shadow twins) instead of only a contact blob */
+  twins?: boolean;
+  /** which test set is standing (the valley is hidden in every other shot) */
+  set?: "valley";
+  /** this shot's sun: degrees round from the way the camera looks, and degrees above the horizon */
+  sun?: [number, number];
 };
 
 // ---------------- helpers ----------------
@@ -88,6 +95,12 @@ const bounce = (u: number) => { const x = clamp01(u); return x >= 1 ? 1 : 1 - Ma
 const SHOCK: Expr[] = ["shock", "nervous", "shock", "dazed", "shock", "pained"];
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
+  // background look test, outdoors (valley.ts): two people on a rutted road under a sunlit cliff, a cabin down the valley
+  valley: (s, f) => { const tt = t(f - s.a);
+    return { light: "day", set: "valley", twins: true, sun: [120, 40], dof: 3, focus: S(-18.2, 1.3, 22.6),
+      cam: move({ pos: S(-11.4, 1.5, 22.2), look: S(-30, 3.5, 22.3), fov: 58, roll: 0.03 }, { pos: S(-12.6, 1.45, 22.2), look: S(-30, 3.3, 22.3), fov: 54, roll: -0.01 }, f, s.a, s.b, smooth, 0),
+      people: [P("carp", S(-18.7, 0, 23.45), "smile", -1), P("whitney", S(-17.7, 0, 21.95), "grin", 1), walker("oldman", -57, groundH(-56, roadZ(-56), false) + 0.09, roadZ(-56), 0.9, tt)],
+      puffs: cabinSmoke(tt) }; },
   // background look test (room.ts): a lamp-lit storeroom, two people, the camera easing in past a foreground lantern
   room: (s, f) => { const X = 24, Y = 1.0, Z = 22;
     return { light: "lamp", dof: 3, closeup: true, focus: S(X - 0.6, Y + 1.3, Z - 1.1),
