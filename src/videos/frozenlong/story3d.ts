@@ -62,12 +62,12 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // a new cemetery on the hillside: night, snow, two miners with lanterns where the graves will go
   hillside: (s, f) => { const t = tt(s, f);
     return { light: "night", snow: true, dug: false, lanterns: true, crosses: false, dof: 0, focus: Gv(0, 0.8, 2.0), key: Gv(3.9, 1.9, 0.6),
-      cam: move({ pos: Gv(-0.9, 1.9, -4.6), look: Gv(0, 1.0, 2.0), fov: 40, roll: 0.04 }, { pos: Gv(-0.5, 1.7, -3.8), look: Gv(0, 1.0, 2.0), fov: 38, roll: -0.03 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Gv(-0.8, 1.85, -4.0), look: Gv(0, 1.0, 2.0), fov: 40, roll: 0.04 }, { pos: Gv(-0.5, 1.7, -3.8), look: Gv(0, 1.0, 2.0), fov: 38, roll: -0.03 }, f, s.a, s.b, smooth, 0),
       people: [P("miner2", Gv(1.4, 0, 1.6), "stern", -1), P("miner4", Gv(-1.3, 0, 1.9), "nervous", 1)],
-      puffs: [...breath(Gv(1.4, 1.5, 1.6), t), ...breath(Gv(-1.3, 1.5, 1.9), t + 0.5)], subjects: [["the graves", Gv(0, 0.3, 2.0), 0.4]] }; },
-  frozen: R("frozen"),
+      puffs: [...breath(Gv(1.4, 1.5, 1.6), t), ...breath(Gv(-1.3, 1.5, 1.9), t + 0.5)], subjects: [["the graves", Gv(0, 1.0, 1.8), 0.4]] }; },
+  frozen: R("frozen", (st) => ({ ...st, cam: { ...st.cam, fov: st.cam.fov + 6 } })),
   dynamite: R("dynamite"),
-  boom: R("boom"),
+  boom: R("boom", (st) => ({ ...st, people: [] })),
   // seven crosses, all dated 1918: along the row in the snow, no tent
   crosses18: (s, f) => { const cam = move({ pos: Gv(-3.0, 0.45, -1.4), look: Gv(-2.0, 0.95, CROSS_Z), fov: 34, roll: 0.04 }, { pos: Gv(3.0, 0.45, -1.4), look: Gv(2.0, 0.95, CROSS_Z), fov: 34, roll: -0.04 }, f, s.a, s.b, smooth, 0);
     return { light: "grey", snow: false, dug: false, tent: false, dof: 2, focus: cam.look, cam, subjects: [["a cross", [cam.look[0], 0.8, CROSS_Z], 0.3]] }; },
@@ -92,7 +92,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     cam: move({ pos: Gv(-5.5, 3.2, -8.5), look: Gv(0, 0.6, CROSS_Z), fov: 38, roll: 0.04 }, { pos: Gv(-3.5, 2.8, -9.0), look: Gv(0.5, 0.6, CROSS_Z), fov: 38, roll: -0.02 }, f, s.a, s.b, smooth, 0),
     subjects: [["the crosses", Gv(0, 0.8, CROSS_Z), 0.3]] }),
   // ---------------- the geographer, the dig ----------------
-  diary: R("oldest", (st, s, f) => ({ ...st, cam: move({ pos: Wd(0.2, 1.75, -0.6), look: Wd(0.45, 1.08, 0.28), fov: 34, roll: 0.05 }, { pos: Wd(0.3, 1.6, -0.35), look: Wd(0.45, 1.08, 0.28), fov: 30, roll: -0.03 }, f, s.a, s.b, smooth, 0), closeup: true })),
+  diary: R("oldest", (st, s, f) => ({ ...st, people: [], tools: [], cam: move({ pos: Wd(0.2, 1.75, -0.6), look: Wd(0.45, 1.08, 0.28), fov: 34, roll: 0.05 }, { pos: Wd(0.3, 1.6, -0.35), look: Wd(0.45, 1.08, 0.28), fov: 30, roll: -0.03 }, f, s.a, s.b, smooth, 0), closeup: true })),
   flags: R("flags"),
   suits: R("suits"),
   // strict containment: the tent over the graves, from outside
@@ -103,7 +103,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   radar: R("radar"),
   idea: R("idea"),
   dig: R("dig"),
-  hit: R("hit", (st, s, f) => ({ ...st, cam: kick(st.cam, f, s.a + T(0.35), 1.0) })),
+  hit: R("hit", (st, s, f) => ({ ...st, cam: kick(move({ pos: Gv(1.95, 2.3, 1.95), look: Gv(-3.0, 0.27, 2.1), fov: 50, roll: 0.04 }, { pos: Gv(1.75, 2.28, 1.95), look: Gv(-3.0, 0.27, 2.1), fov: 49, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, s.a + T(0.35), 1.0) })),
   shallow: R("shallow"),
   // either way, not in the permafrost: low along the cut, the coffins sitting above the frozen line
   above: R("shallow", (st, s, f) => ({ ...st, cam: move({ pos: Ct(2.2, -1.0, -4.8), look: Ct(0.2, -1.1, CUT.z), fov: 34, roll: -0.05 }, { pos: Ct(-1.8, -1.0, -4.6), look: Ct(-0.2, -1.1, CUT.z), fov: 34, roll: 0.04 }, f, s.a, s.b, smooth, 0) })),
@@ -115,12 +115,12 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   plane: R("plane"),
   village: R("village"),
   adig: R("adig"),
-  found: R("found"),
+  found: R("found", (st) => ({ ...st, cam: { ...st.cam, fov: 46 } })),
   mail: R("mail"),
   // the lab found the flu inside: the screen comes up partway through the shot
   reveal: (s, f) => { const on = f >= s.a + Math.round(0.45 * (s.b - s.a));
     return { light: "lab", parcel: { p: Lb(0.15, BENCH_Y, 3.35), yaw: 0.1, open: true }, done: on, dof: 2, focus: Lb(SCREEN[0], BENCH_Y + 0.25, SCREEN[2] - 0.26),
-      cam: kick(snap(Lb(-0.5, 1.4, 0.4), Lb(-0.92, 1.2, 2.6), f, s.a, { fov: 36, roll: 0.05 }, 1.5, 5), f, s.a + Math.round(0.45 * (s.b - s.a)), 1.0),
+      cam: kick(snap(Lb(-0.25, 1.45, -0.4), Lb(-0.85, 1.25, 2.6), f, s.a, { fov: 46, roll: 0.05 }, 1.5, 5), f, s.a + Math.round(0.45 * (s.b - s.a)), 1.0),
       people: [P("path", Lb(-0.62, 0, 2.45), on ? "grin" : "shock", 1)], subjects: [["the screen", Lb(SCREEN[0], BENCH_Y + 0.25, SCREEN[2] - 0.26), 0.1]] }; },
   // ---------------- the rule, the end ----------------
   town2b: R("town2", (st, s, f) => ({ ...st, cam: move({ pos: Gv(2.5, 1.4, 5.0), look: Gv(-1, 0.6, -30), fov: 38, roll: -0.04 }, { pos: Gv(1.2, 1.9, 6.0), look: Gv(-1, 0.4, -30), fov: 38, roll: 0.03 }, f, s.a, s.b, smooth, 0) })),
