@@ -107,7 +107,7 @@ export function buildGrave(): GraveSet {
   const crosses = new THREE.Group(), plates = new THREE.Group(); G.add(crosses); crosses.add(plates);
   { const cb = new Batch(); CROSS_X.forEach((x, k) => crossAt(cb, plates, white, ox + x, 0, CROSS_Z, k)); cb.build(crosses, true); }
   { const b = new Batch();
-    for (const [zr, xs] of [[-1.7, [3.6, 2.3, -3.6]], [-3.7, [2.9, -4.4]]] as [number, number[]][]) for (const x of xs) { b.add(boxGeo(V(ox + x - 0.035, -0.2, zr - 0.035), V(ox + x + 0.035, 0.85, zr + 0.035)), dark); b.add(boxGeo(V(ox + x - 0.24, 0.58, zr - 0.03), V(ox + x + 0.24, 0.65, zr + 0.03)), dark); }
+    for (const [zr, xs] of [[-1.7, [3.6, 2.3, 4.6]], [-3.7, [2.9, 4.0]]] as [number, number[]][]) for (const x of xs) { b.add(boxGeo(V(ox + x - 0.035, -0.2, zr - 0.035), V(ox + x + 0.035, 0.85, zr + 0.035)), dark); b.add(boxGeo(V(ox + x - 0.24, 0.58, zr - 0.03), V(ox + x + 0.24, 0.65, zr + 0.03)), dark); }
     // the picket fence round the cemetery, a gate at the front
     for (let x = -5.6; x <= 5.6; x += 0.32) { if (Math.abs(x) < 0.7) continue; b.add(boxGeo(V(ox + x - 0.035, 0, -5.6), V(ox + x + 0.035, 0.85 + 0.05 * Math.sin(x * 9), -5.55)), white); b.add(boxGeo(V(ox + x - 0.035, 0, 6.2), V(ox + x + 0.035, 0.85, 6.25)), white); }
     for (let z = -5.6; z <= 6.2; z += 0.32) for (const sx of [-1, 1]) b.add(boxGeo(V(ox + sx * 5.62 - 0.03, hillY(z), z - 0.035), V(ox + sx * 5.62 + 0.03, hillY(z) + 0.85, z + 0.035)), white);
@@ -142,8 +142,8 @@ export function buildGrave(): GraveSet {
     const h = glow(new THREE.Color(0.9, 0.95, 1.1), 1.2); h.position.set(ox, ridge - 0.38, 2.1); tent.add(h);
     flood.position.set(ox, ridge - 0.5, 2.0); tent.add(flood);
     // the kit outside the tent: cases with the four flags, a generator, a wheelbarrow, buckets of samples
-    const cases: [number, number, "ca" | "uk" | "us" | "no"][] = [[-3.75, -0.7, "ca"], [-4.41, -0.55, "uk"], [-5.07, -0.7, "us"], [-5.73, -0.55, "no"]];
-    for (const [x, z, fl] of cases) { const c = put(new THREE.BoxGeometry(0.62, 0.42, 0.42), M("frCase", "#3a4048"), x, 0.21, z); tent.add(c); G.remove(c);
+    const cases: [number, number, "ca" | "uk" | "us" | "no"][] = [[-3.5, -0.7, "ca"], [-4.1, -0.55, "uk"], [-4.7, -0.7, "us"], [-5.3, -0.55, "no"]];
+    for (const [x, z, fl] of cases) { const c = put(new THREE.BoxGeometry(0.55, 0.42, 0.42), M("frCase", "#3a4048"), x, 0.21, z); tent.add(c); G.remove(c);
       const f = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.2), new THREE.MeshBasicMaterial({ map: flagTex(fl), color: new THREE.Color(0.95, 0.95, 0.95) })); f.rotation.y = Math.PI; f.position.set(ox + x, 0.24, z - 0.215); tent.add(f); }
     const gen = put(new THREE.BoxGeometry(0.8, 0.6, 0.55), M("frGen", "#c9a23a"), -4.4, 0.3, 4.6); tent.add(gen); G.remove(gen);
     const wb = new THREE.Group(), wm = M("frBarrow", "#4f7a4a"); { const tray = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.25, 0.85), wm); tray.position.y = 0.45; wb.add(tray); const wh = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.08, 14), M("frTyre", "#1e1e22")); wh.rotation.z = Math.PI / 2; wh.position.set(0, 0.17, -0.5); wb.add(wh); for (const sx of [-0.25, 0.25]) { const hd = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.8), wm); hd.position.set(sx, 0.5, 0.55); wb.add(hd); } }

@@ -124,9 +124,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // they dug up seven dead miners: a shovel bites the gravel in front of the white crosses (frame 0 is already close)
   hook: (s, f) => ({ ...hookState(t(f)), light: "grey", dof: 2, closeup: true, focus: Gv(-1.4, 0.8, 1.4), cam: kick(hookCam(f), f, W(0, "dug"), 0.9), subjects: [["the shovel", Gv(-1.1, 0.25, 1.66), 0.3], ["a cross", Gv(0, 0.8, CROSS_Z), 0.3]] }),
   // seven: a low long-lens slide along the seven crosses inside the tent
-  crosses: (s, f) => ({ light: "grey", tent: true, dug: false, dof: 2, focus: Gv(0, 0.75, CROSS_Z),
-    cam: move({ pos: Gv(3.1, 0.75, -2.2), look: Gv(2.0, 0.7, CROSS_Z), fov: 36, roll: -0.05 }, { pos: Gv(-3.0, 0.8, -2.2), look: Gv(-1.9, 0.7, CROSS_Z), fov: 36, roll: 0.04 }, f, s.a, s.b, smooth, 0),
-    subjects: [["the seven crosses", Gv(0, 0.75, CROSS_Z), 0.4]] }),
+  crosses: (s, f) => { const cam = move({ pos: Gv(3.1, 0.75, -2.2), look: Gv(2.0, 0.7, CROSS_Z), fov: 36, roll: -0.05 }, { pos: Gv(-3.0, 0.8, -2.2), look: Gv(-1.9, 0.7, CROSS_Z), fov: 36, roll: 0.04 }, f, s.a, s.b, smooth, 0);
+    return { light: "grey", tent: true, dug: false, dof: 2, focus: cam.look, cam, subjects: [["a cross", [cam.look[0], 0.8, CROSS_Z], 0.3]] }; },
   // the deadliest virus in history: the ground cut open, a virus waiting in every coffin
   virus: (s, f) => { const tt = t(f - s.a);
     return { light: "cut", thaw: 0, ghosts: false, dof: 1, focus: Ct(0, -0.95, CUT.z), key: Ct(-1.5, 3.4, CUT.z - 2.6),
@@ -139,7 +138,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // in 1918 a ship sailed into a tiny coal town: the Forsete comes in along the pier, smoking, through falling snow
   ship: (s, f) => { const u = smooth(U(s, f));
     return { light: "quay", shipZ: -16 * (1 - u), dof: 0, focus: Qy(6.4, 4, -10),
-      cam: move({ pos: Qy(-1.0, 2.3, -34), look: Qy(5.5, 4.2, -12), fov: 56, roll: 0.06 }, { pos: Qy(-1.6, 4.6, -31), look: Qy(6.0, 4.6, -8), fov: 50, roll: -0.02 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Qy(-1.0, 2.3, -36), look: Qy(5.5, 4.2, -24), fov: 56, roll: 0.06 }, { pos: Qy(-1.6, 4.6, -31), look: Qy(6.0, 4.6, -9), fov: 50, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       subjects: [["the ship", Qy(6.4, 3.5, -10 - 16 * (1 - u)), 2]] }; },
   // ...near the North Pole: past the signpost on the pier to the snowy town
   town: (s, f) => ({ light: "quay", dof: 1, focus: Qy(-1.4, PIER.y + 2.2, 2.94),
@@ -156,7 +155,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   week: (s, f) => { const u = U(s, f);
     return { light: "ward", candles: 7 - Math.floor(clamp01(u * 1.12) * 7.0), day: 1 + Math.floor(u * 6.99), dof: 2, focus: Wd(0, 0.8, 3.2), key: Wd(0, 2.35, 0.6),
       cam: move({ pos: Wd(4.3, 1.35, -0.9), look: Wd(3.0, 0.85, 3.2), fov: 44, roll: -0.05 }, { pos: Wd(-4.3, 1.35, -0.9), look: Wd(-3.0, 0.85, 3.2), fov: 44, roll: 0.05 }, f, s.a, s.b, (x) => x, 0),
-      subjects: [["the beds", Wd(0, 0.6, 3.2), 0.3]] }; },
+      subjects: [["a bed", Wd(4.2 - 8.4 * u, 0.6, 3.2), 0.3]] }; },
   // the oldest was twenty-eight: the nurse writes the last name in the register
   oldest: (s, f) => { const tt = t(f - s.a), bk = Wd(0.45, 1.08, 0.28), pen: V3 = add(bk, -0.08 + 0.05 * Math.sin(tt * 9), 0.06, -0.02);
     return { light: "ward", candles: 0, day: 7, dof: 2, focus: Wd(0.5, 1.3, 0.5), key: Wd(0, 2.35, 0.6),
@@ -167,7 +166,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   frozen: (s, f) => { const tt = t(f - s.a), ph = (tt * 1.6) % 1, k = ph < 0.6 ? ph / 0.6 : 1 - (ph - 0.6) / 0.4, hit = ph > 0.55 && ph < 0.75;
     const g = Gv(0.05, 1.05 + 0.2 * (1 - k), 1.05), b = Gv(0.45, 0.05 + 1.25 * (1 - k * k), 1.75), strike = Gv(0.45, 0.05, 1.75);
     return { light: "night", snow: true, dug: false, lanterns: true, crosses: false, dof: 1, focus: Gv(-0.3, 0.8, 1.6), key: Gv(3.9, 1.9, 0.6),
-      cam: kick(move({ pos: Gv(1.2, 0.9, -2.2), look: Gv(0.1, 0.85, 1.7), fov: 50, roll: 0.07 }, { pos: Gv(0.9, 0.95, -1.9), look: Gv(0.1, 0.85, 1.7), fov: 48, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, s.a + Math.round(0.36 * FPS), 0.8),
+      cam: kick(move({ pos: Gv(0.6, 1.0, -2.4), look: Gv(-0.1, 0.7, 1.7), fov: 52, roll: 0.06 }, { pos: Gv(0.4, 1.0, -2.1), look: Gv(-0.1, 0.7, 1.7), fov: 50, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, s.a + Math.round(0.36 * FPS), 0.8),
       people: [P("miner4", Gv(-0.35, 0, 1.0), hit ? "shock" : "stern", -1, { hw: [g, L3(g, b, 0.35)] }), P("miner2", Gv(0.45, 0, 4.4), "nervous", 1)],
       tools: [{ kind: "pick", g, b }], cards: hit ? Array.from({ length: 8 }, (_, i) => ({ kind: "spark" as const, p: add(strike, 0.25 * Math.cos(i * 0.8) * (ph - 0.5) * 5, 0.3 * (ph - 0.5) * 5 * (1 + (i % 3)) * 0.4, -0.05), spin: i, s: 0.9 })) : [],
       puffs: [...breath(Gv(-0.35, 1.5, 1.0), tt), ...breath(Gv(0.45, 1.5, 4.4), tt + 0.5)], subjects: [["the frozen ground", strike, 0.3]] }; },
@@ -203,11 +202,11 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ground radar: the cart rolls over the graves, seven bumps on its screen
   radar: (s, f) => { const tt = t(f - s.a), z = 1.6 - 0.3 * tt, cart = Gv(0.45, 0, z), hand = Gv(0.45, 0.92, z + 0.62);
     return { light: "grey", tent: true, dug: false, dof: 2, focus: Gv(0.45, 0.6, z), radar: { p: cart, yaw: Math.PI },
-      cam: move({ pos: Gv(0.75, 1.25, -1.6), look: Gv(0.45, 0.8, z + 0.6), fov: 46, roll: -0.06 }, { pos: Gv(0.6, 1.15, -1.3), look: Gv(0.45, 0.8, z + 0.6), fov: 44, roll: 0.03 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Gv(0.75, 1.15, -1.9), look: Gv(0.45, 0.65, z + 0.6), fov: 48, roll: -0.06 }, { pos: Gv(0.6, 1.1, -1.6), look: Gv(0.45, 0.65, z + 0.6), fov: 46, roll: 0.03 }, f, s.a, s.b, smooth, 0),
       people: [P("sci1", Gv(0.5, 0, z + 0.95), "smile", 0, { mask: true, hw: [add(hand, 0.1, 0, 0), add(hand, -0.1, 0, 0)] })], subjects: [["the radar cart", Gv(0.45, 0.2, z), 0.2]] }; },
   // ...from four countries: the four flags on the team's cases
   flags: (s, f) => ({ light: "grey", tent: true, dug: false, dof: 2, closeup: true, focus: Gv(-4.7, 0.25, -0.5),
-    cam: move({ pos: Gv(-4.55, 1.1, -5.6), look: Gv(-4.74, 0.3, -0.6), fov: 60, roll: 0.05 }, { pos: Gv(-4.95, 1.05, -5.3), look: Gv(-4.74, 0.3, -0.6), fov: 60, roll: -0.03 }, f, s.a, s.b, smooth, 0),
+    cam: move({ pos: Gv(-4.55, 1.1, -5.6), look: Gv(-4.4, 0.3, -0.6), fov: 60, roll: 0.05 }, { pos: Gv(-4.6, 1.05, -5.3), look: Gv(-4.4, 0.3, -0.6), fov: 60, roll: -0.03 }, f, s.a, s.b, smooth, 0),
     subjects: [["the flags", Gv(-4.74, 0.24, -0.8), 0.1]] }),
   // the idea was simple: the leader points down at the graves
   plan: (s, f) => { const tt = t(f - s.a);
@@ -221,7 +220,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // the idea: the coffins six feet down, deep in ground that never thaws
   idea: (s, f) => { const tt = t(f - s.a);
     return { light: "cut", thaw: 0, ghosts: true, coffins: false, dof: 1, focus: Ct(0, -2.0, CUT.z), key: Ct(-1.5, 3.4, CUT.z - 2.6),
-      cam: move({ pos: Ct(-0.6, 0.4, -5.2), look: Ct(0, -0.4, CUT.z), fov: 52, roll: -0.05 }, { pos: Ct(-0.3, -1.6, -4.4), look: Ct(0, -2.0, CUT.z), fov: 48, roll: 0.04 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Ct(-0.6, 0.0, -5.6), look: Ct(0, -1.2, CUT.z), fov: 54, roll: -0.05 }, { pos: Ct(-0.3, -1.6, -4.4), look: Ct(0, -2.0, CUT.z), fov: 48, roll: 0.04 }, f, s.a, s.b, smooth, 0),
       cards: viruses(tt, -2.0, 0.9), subjects: [["the six-foot line", Ct(0, -2.0, CUT.z), 0.2]] }; },
   // the virus should be frozen solid: close on one, locked in the ice
   solid: (s, f) => { const tt = t(f - s.a);
@@ -230,13 +229,13 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // they dug for a week: the tent, the team at the pit, earth flying, the days going by
   dig: (s, f) => { const tt = t(f - s.a), u = U(s, f), d1 = digPose(tt), k2 = 0.5 + 0.5 * Math.sin(tt * 4.6 + 1.4), g2 = Gv(0.45, 1.05 + 0.2 * k2, 0.85), b2 = Gv(0.15, 0.0 + 0.3 * k2, 1.45);
     return { light: "grey", tent: true, dug: true, coffins: false, fill: -0.15 - 0.4 * u, dof: 1, focus: Gv(0, 0.8, 1.6),
-      cam: orbit(s, f, Gv(-0.7, 0.8, 1.4), [14, -10], [5.2, 4.9], [1.5, 2.0], 50, [0.05, -0.04]),
+      cam: orbit(s, f, Gv(-0.5, 0.9, 1.2), [12, -8], [6.6, 6.3], [1.2, 1.6], 52, [0.05, -0.04]),
       people: [d1.man("stern"), P("sci4", Gv(0.75, 0, 0.6), "stern", -1, { mask: true, hw: [g2, L3(g2, b2, 0.42)] })],
       tools: [d1.tool, { kind: "shovel", g: g2, b: b2 }], cards: [...spray(d1.blade, Gv(-4.5, 0.6, 2.0), tt, 4, 1.3), ...spray(b2, Gv(2.2, 0.6, 0.0), tt + 0.3, 4, 1.3)] }; },
   // and less than one meter down, they hit the coffins: a shovel knocks on wood at the pit's edge
   hit: (s, f) => { const tt = t(f - s.a), k = 0.5 + 0.5 * Math.cos(Math.min(tt, 0.4) * 7.8), g = Gv(-3.05, 1.05, 2.2), b = Gv(-2.6, LID_Y + 0.02 + 0.3 * k, 2.25);
     return { light: "grey", tent: true, dug: true, coffins: true, dof: 1, focus: Gv(-2.6, LID_Y, 2.2),
-      cam: kick(move({ pos: Gv(-2.1, 2.2, -2.4), look: Gv(-3.0, 0.3, 2.0), fov: 54, roll: 0.06 }, { pos: Gv(-2.25, 2.05, -2.1), look: Gv(-3.05, 0.25, 2.0), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, W(7, "hit"), 1.0),
+      cam: kick(move({ pos: Gv(-2.2, 3.1, -1.5), look: Gv(-3.0, 0.1, 2.0), fov: 54, roll: 0.06 }, { pos: Gv(-2.3, 2.95, -1.25), look: Gv(-3.05, 0.05, 2.0), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, W(7, "hit"), 1.0),
       people: [P("sci2", Gv(-3.45, 0, 2.3), tt > 0.6 ? "shock" : "stern", 1, { mask: true, hw: [g, L3(g, b, 0.4)] })], tools: [{ kind: "shovel", g, b }],
       subjects: [["the coffin lid", Gv(-2.7, LID_Y, 1.9), 0.3]] }; },
   // too shallow: back in the cut, the coffins sit above the frozen line; where they should have been, empty
@@ -281,19 +280,19 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   adig: (s, f) => { const tt = t(f - s.a), k = 0.5 + 0.5 * Math.sin(tt * 4.4), k2 = 0.5 + 0.5 * Math.sin(tt * 3.8 + 1.7);
     const g1 = Ak(-1.35, 1.05 + 0.2 * k, 1.75), b1 = Ak(-0.85, 0.0 + 0.4 * k, 2.6), g2 = Ak(1.45, 1.3 + 0.4 * k2, 1.7), b2 = Ak(0.95, 0.1 + 1.0 * (1 - k2), 2.5);
     return { light: "alaska", dug: true, dof: 1, focus: Ak(0, 0.8, 2.6),
-      cam: orbit(s, f, Ak(0, 0.4, 2.6), [-18, 8], [5.6, 5.2], [2.3, 2.8], 52, [0.05, -0.04]),
+      cam: orbit(s, f, Ak(0, 0.6, 2.2), [-14, 8], [7.0, 6.6], [2.2, 2.6], 52, [0.05, -0.04]),
       people: [P("vil1", Ak(-1.7, 0, 1.6), "stern", 1, { hw: [g1, L3(g1, b1, 0.42)] }), P("vil3", Ak(1.75, 0, 1.55), "stern", -1, { hw: [g2, L3(g2, b2, 0.35)] }), P("hultin", Ak(0.1, 0, 1.25), "stern", 0)],
       tools: [{ kind: "shovel", g: g1, b: b1 }, { kind: "pick", g: g2, b: b2 }], cards: [...spray(b1, Ak(-2.7, 0.6, 3.2), tt, 4, 1.3), ...spray(b2, Ak(2.7, 0.5, 3.2), tt + 0.4, 3, 1.1)] }; },
   // ...and found a woman whose lungs had been preserved: from down in the pit, his face over the edge, lantern-lit
   found: (s, f) => { const tt = t(f - s.a);
     return { light: "alaska", dug: true, dof: 2, closeup: true, focus: Ak(0.2, 1.35, 2.0),
       cam: move({ pos: Ak(0.5, 1.15, 5.6), look: Ak(0.15, 0.75, 2.2), fov: 48, roll: 0.06 }, { pos: Ak(0.4, 1.1, 5.3), look: Ak(0.15, 0.8, 2.2), fov: 46, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      specimen: tt > 0.5 ? Ak(-0.15, 1.15, 1.75) : null, people: [P("hultin", Ak(0.2, 0, 1.95), tt > 0.6 ? "smile" : "shock", 0, { headTilt: 0.2, hw: tt > 0.5 ? [Ak(-0.12, 1.1, 1.78)] : [] }), P("vil2", Ak(1.35, 0, 1.75), "shock", 0)], key: Ak(1.55, 0.4, 2.0), subjects: [["the pit", Ak(0, -0.6, 3.4), 0.3]] }; },
+      specimen: tt > 0.5 ? Ak(-0.15, 1.15, 1.75) : null, people: [P("hultin", Ak(0.2, 0, 1.95), tt > 0.6 ? "smile" : "shock", 0, { headTilt: 0.2, hw: tt > 0.5 ? [Ak(-0.12, 1.1, 1.78)] : [] }), P("vil2", Ak(1.35, 0, 1.75), "shock", 0)], key: Ak(1.55, 0.4, 2.0), subjects: tt > 0.55 ? [["the jar", Ak(-0.15, 1.15, 1.75), 0.1]] : [] }; },
   // he mailed them to a lab: the parcel lands on the bench, hard
   mail: (s, f) => { const u = expo(U(s, f) * 1.8), pp = L3(Lb(0.6, 1.6, 0.4), Lb(0.15, BENCH_Y, 3.35), u);
     return { light: "lab", parcel: { p: pp, yaw: 0.3 * (1 - u), tilt: 0.6 * (1 - u), roll: 0.8 * (1 - u), open: false }, dof: 2, focus: Lb(0.15, BENCH_Y + 0.15, 3.35),
       cam: kick(move({ pos: Lb(0.5, 1.55, 0.4), look: Lb(0.15, 1.2, 3.3), fov: 46, roll: 0.06 }, { pos: Lb(0.4, 1.5, 0.9), look: Lb(0.15, 1.1, 3.35), fov: 42, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, s.a + Math.round(0.42 * FPS), 1.0),
-      people: [P("path", Lb(0.6, 0, 2.5), "nervous", -1)], subjects: [["the parcel", Lb(0.15, BENCH_Y + 0.15, 3.35), 0.2]] }; },
+      subjects: [["the parcel", Lb(0.15, BENCH_Y + 0.15, 3.35), 0.2]] }; },
   // and inside them: at the microscope
   inside: (s, f) => ({ light: "lab", parcel: { p: Lb(0.15, BENCH_Y, 3.35), yaw: 0.1, open: true }, dof: 2, focus: Lb(0.9, 1.4, 2.4),
     cam: orbit(s, f, Lb(1.15, 1.25, 2.4), [-22, -6], [3.4, 3.1], [0.25, 0.2], 46, [-0.05, 0.03]),
@@ -301,12 +300,12 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // scientists found the whole 1918 flu: the screen fills, the result comes up
   reveal: (s, f) => { const on = f >= W(12, "found") + 4;
     return { light: "lab", parcel: { p: Lb(0.15, BENCH_Y, 3.35), yaw: 0.1, open: true }, done: on, dof: 2, focus: Lb(SCREEN[0], BENCH_Y + 0.25, SCREEN[2] - 0.26),
-      cam: kick(snap(Lb(-0.7, 1.45, 0.25), Lb(-0.95, 1.2, 2.6), f, s.a, { fov: 44, roll: 0.06 }, 1.5, 5), f, W(12, "found") + 4, 1.0),
-      people: [P("path", Lb(-0.6, 0, 2.15), on ? "grin" : "shock", 1)], subjects: [["the screen", Lb(SCREEN[0], BENCH_Y + 0.25, SCREEN[2] - 0.26), 0.1]] }; },
+      cam: kick(snap(Lb(-0.6, 1.4, -0.1), Lb(-0.92, 1.2, 2.6), f, s.a, { fov: 46, roll: 0.06 }, 1.5, 5), f, W(12, "found") + 4, 1.0),
+      people: [P("path", Lb(-0.62, 0, 2.45), on ? "grin" : "shock", 1)], subjects: [["the screen", Lb(SCREEN[0], BENCH_Y + 0.25, SCREEN[2] - 0.26), 0.1]] }; },
   // and that Arctic town? the seven crosses under new snow, blue twilight, nobody about
   town2: (s, f) => ({ light: "twilight", snow: true, dug: false, dof: 0, focus: Gv(0, 0.6, -30),
     cam: move({ pos: Gv(-0.6, 2.6, 6.4), look: Gv(0.4, 0.2, -30), fov: 54, roll: 0.05 }, { pos: Gv(-0.2, 1.7, 5.2), look: Gv(0.3, 0.4, -30), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-    subjects: [["the seven crosses", Gv(0, 0.75, CROSS_Z), 0.4], ["the town", Gv(0, 2, -36), 3]] }),
+    subjects: [["the town", Gv(-6, 2, -30), 3]] }),
   // back to the shovel, as the film began (loop)
   end: (s, f) => { const tt = t(f - TOTAL), h0 = hookCam(0);
     return { ...hookState(tt), light: "grey", dof: 2, closeup: true, focus: Gv(-1.4, 0.8, 1.4),
