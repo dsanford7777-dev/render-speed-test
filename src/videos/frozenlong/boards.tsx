@@ -280,7 +280,7 @@ const Radar: React.FC<G> = ({ t, d, c }) => {
         <path d={`M380 ${360 + 8 * Math.sin(t * 0.3)} ${Array.from({ length: 58 }, (_, i) => { const x = 380 + i * 20, b = Math.floor((i - 4) / 7.4), bump = i >= 4 && i < 56 && ((i - 4) % 7.4) < 4 && t > 8 + b * 6; return `L${x} ${360 + (bump ? 150 : 0) + 12 * Math.sin(i * 1.7 + t * 0.2)}`; }).join(" ")}`} stroke="#7cf0a8" strokeWidth={8} fill="none" />
         <rect x={380 + ((sweep / (Math.PI * 2)) * 1160)} y={180} width={16} height={540} fill="#7cf0a8" opacity={0.25} />
       </svg>
-      <Stamp text="7 COFFINS" t={t} at={at([47, "Seven"], c)} x={960} y={660} size={110} col={C.yellow} r={-6} />
+      <Stamp text="7 COFFINS" t={t} at={at([47, "7"], c)} x={960} y={660} size={110} col={C.yellow} r={-6} />
     </Mv></Dark>
   );
 };
@@ -310,7 +310,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
   // ---------------- cold open ----------------
   y80: num("80", "years in the ground", { dark: true, col: C.yellow, glyph: "cross" }),
   flu1918: say([{ s: "The 1918 flu", col: FLU, size: 170 }, { s: "the deadliest pandemic", cue: [3, "deadliest"] }, { s: "in modern history", cue: [3, "modern"], size: 90 }], { glyph: "virus", m: 4 }),
-  permafrost: ({ t, d, c }) => <AbsoluteFill><Mv t={t} d={d} m={0}><Ground t={t} thaw={0} coffY={600} lab={k(t, at([4, "never"], c), 10)} /><Title text="Ground that never thaws" s={pop(t, 0)} col={ICE} y={110} /></Mv></AbsoluteFill>,
+  permafrost: ({ t, d, c }) => <AbsoluteFill><Mv t={t} d={d} m={0}><Ground t={t} thaw={0} coffY={600} lab={k(t, at([4, "never"], c), 10)} /><Title text="Ground that never thaws" s={pop(t, 0)} col={ICE} y={58} size={50} /></Mv></AbsoluteFill>,
   story: icons([{ g: "shovel", label: "The dig" }, { g: "x", label: "Why it failed", cue: [6, "failed"] }, { g: "shears", label: "The man who found it", cue: [6, "man"] }], { top: "This is the story of", topCol: INK }),
   noburial: say([{ s: "Today:", size: 90 }, { s: "no burials at all", cue: [7, "buried"], col: FLU, size: 140 }], { glyph: "nosign", m: 4 }),
   // ---------------- a town named after an American ----------------

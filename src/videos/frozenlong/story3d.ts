@@ -105,6 +105,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   dig: R("dig"),
   hit: R("hit", (st, s, f) => ({ ...st, cam: kick(st.cam, f, s.a + T(0.35), 1.0) })),
   shallow: R("shallow"),
+  // either way, not in the permafrost: low along the cut, the coffins sitting above the frozen line
+  above: R("shallow", (st, s, f) => ({ ...st, cam: move({ pos: Ct(2.2, -1.0, -4.8), look: Ct(0.2, -1.1, CUT.z), fov: 34, roll: -0.05 }, { pos: Ct(-1.8, -1.0, -4.6), look: Ct(-0.2, -1.1, CUT.z), fov: 34, roll: 0.04 }, f, s.a, s.b, smooth, 0) })),
   layer: R("layer"),
   summers: R("summers"),
   gone: R("gone", (st, s, f) => ({ ...st, cam: kick(st.cam, f, s.a + T(0.4), 0.8) })),

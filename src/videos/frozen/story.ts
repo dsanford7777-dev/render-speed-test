@@ -235,7 +235,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // and less than one meter down, they hit the coffins: a shovel knocks on wood at the pit's edge
   hit: (s, f) => { const tt = t(f - s.a), k = 0.5 + 0.5 * Math.cos(Math.min(tt, 0.4) * 7.8), g = Gv(-3.05, 1.05, 2.2), b = Gv(-2.6, LID_Y + 0.02 + 0.3 * k, 2.25);
     return { light: "grey", tent: true, dug: true, coffins: true, dof: 1, focus: Gv(-2.6, LID_Y, 2.2),
-      cam: kick(move({ pos: Gv(-2.2, 3.1, -1.5), look: Gv(-3.0, 0.1, 2.0), fov: 54, roll: 0.06 }, { pos: Gv(-2.3, 2.95, -1.25), look: Gv(-3.05, 0.05, 2.0), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, W(7, "hit"), 1.0),
+      cam: kick(move({ pos: Gv(1.6, 1.9, 1.95), look: Gv(-3.0, 0.6, 2.1), fov: 52, roll: 0.05 }, { pos: Gv(1.2, 1.85, 1.95), look: Gv(-3.0, 0.6, 2.1), fov: 50, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, W(7, "hit"), 1.0),
       people: [P("sci2", Gv(-3.45, 0, 2.3), tt > 0.6 ? "shock" : "stern", 1, { mask: true, hw: [g, L3(g, b, 0.4)] })], tools: [{ kind: "shovel", g, b }],
       subjects: [["the coffin lid", Gv(-2.7, LID_Y, 1.9), 0.3]] }; },
   // too shallow: back in the cut, the coffins sit above the frozen line; where they should have been, empty
