@@ -280,7 +280,7 @@ export function buildQuay(): QuaySet {
 export type WardSet = { group: THREE.Group; candles: { f: THREE.Mesh; h: THREE.Sprite; l: THREE.PointLight }[]; cal: THREE.Mesh; lamp: THREE.PointLight; stove: THREE.PointLight; dust: ReturnType<typeof dustMotes>; drift: (t: number) => void };
 export function buildWard(): WardSet {
   const G = new THREE.Group(), ox = SET.ward[0], put = putter(G, ox), b = new Batch(), { w: W, z0: Z0, z1: Z1, h: H } = WARD;
-  const plank = lam("frWardPlank", () => ({ map: planksHD(), color: "#c9b49a" })), floor = lam("frWardFloor", () => ({ map: planksHD(), color: "#9a8068" })), beam = M("frBeam", "#5a4434"), iron = M("frIron", "#2e2c34"), wool = M("frBlanket", "#6e7a8a"), linen = M("frLinen", "#efe9dc");
+  const plank = lam("frWardPlank", () => ({ map: planksHD(), color: "#c9b49a" })), floor = lam("frWardFloor", () => ({ map: planksHD(), color: "#9a8068" })), beam = M("frBeam", "#5a4434"), iron = M("frIron", "#2e2c34"), wool = M("frBlanket", "#9fb0c2"), linen = M("frLinen", "#efe9dc");
   b.add(boxGeo(V(ox - W - 0.3, -0.3, Z0 - 0.3), V(ox + W + 0.3, 0, Z1 + 0.3), 2.5), floor);
   b.add(boxGeo(V(ox - W - 0.3, H, Z0 - 0.3), V(ox + W + 0.3, H + 0.25, Z1 + 0.3), 2.5), plank);
   b.add(boxGeo(V(ox - W - 0.3, 0, Z1), V(ox + W + 0.3, H, Z1 + 0.3), 2.5), plank);

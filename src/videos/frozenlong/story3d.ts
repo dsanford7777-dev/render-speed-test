@@ -62,18 +62,18 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // a new cemetery on the hillside: night, snow, two miners with lanterns where the graves will go
   hillside: (s, f) => { const t = tt(s, f);
     return { light: "night", snow: true, dug: false, lanterns: true, crosses: false, dof: 0, focus: Gv(0, 0.8, 2.0), key: Gv(3.9, 1.9, 0.6),
-      cam: move({ pos: Gv(-1.2, 2.6, -9.5), look: Gv(0, 0.9, 2.5), fov: 40, roll: 0.04 }, { pos: Gv(-0.6, 2.2, -8.0), look: Gv(0, 0.9, 2.5), fov: 38, roll: -0.03 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Gv(-0.9, 1.9, -4.6), look: Gv(0, 1.0, 2.0), fov: 40, roll: 0.04 }, { pos: Gv(-0.5, 1.7, -3.8), look: Gv(0, 1.0, 2.0), fov: 38, roll: -0.03 }, f, s.a, s.b, smooth, 0),
       people: [P("miner2", Gv(1.4, 0, 1.6), "stern", -1), P("miner4", Gv(-1.3, 0, 1.9), "nervous", 1)],
       puffs: [...breath(Gv(1.4, 1.5, 1.6), t), ...breath(Gv(-1.3, 1.5, 1.9), t + 0.5)], subjects: [["the graves", Gv(0, 0.3, 2.0), 0.4]] }; },
   frozen: R("frozen"),
   dynamite: R("dynamite"),
   boom: R("boom"),
   // seven crosses, all dated 1918: along the row in the snow, no tent
-  crosses18: (s, f) => { const cam = move({ pos: Gv(-3.0, 0.85, -2.6), look: Gv(-2.0, 0.75, CROSS_Z), fov: 30, roll: 0.04 }, { pos: Gv(3.0, 0.8, -2.6), look: Gv(2.0, 0.75, CROSS_Z), fov: 30, roll: -0.04 }, f, s.a, s.b, smooth, 0);
-    return { light: "twilight", snow: true, dug: false, tent: false, dof: 2, focus: cam.look, cam, subjects: [["a cross", [cam.look[0], 0.8, CROSS_Z], 0.3]] }; },
+  crosses18: (s, f) => { const cam = move({ pos: Gv(-3.0, 0.45, -1.4), look: Gv(-2.0, 0.95, CROSS_Z), fov: 34, roll: 0.04 }, { pos: Gv(3.0, 0.45, -1.4), look: Gv(2.0, 0.95, CROSS_Z), fov: 34, roll: -0.04 }, f, s.a, s.b, smooth, 0);
+    return { light: "grey", snow: false, dug: false, tent: false, dof: 2, focus: cam.look, cam, subjects: [["a cross", [cam.look[0], 0.8, CROSS_Z], 0.3]] }; },
   // left alone for eighty years: a slow push on the row at night, snow falling
   alone: (s, f) => ({ light: "night", snow: true, dug: false, tent: false, lanterns: false, dof: 1, focus: Gv(0, 0.8, CROSS_Z),
-    cam: move({ pos: Gv(0.4, 1.6, -7.5), look: Gv(0, 0.8, CROSS_Z), fov: 36, roll: -0.03 }, { pos: Gv(0.2, 1.2, -4.6), look: Gv(0, 0.8, CROSS_Z), fov: 34, roll: 0.02 }, f, s.a, s.b, smooth, 0),
+    cam: move({ pos: Gv(0.4, 1.3, -3.6), look: Gv(0, 0.8, CROSS_Z), fov: 36, roll: -0.03 }, { pos: Gv(0.2, 1.0, -2.2), look: Gv(0, 0.8, CROSS_Z), fov: 34, roll: 0.02 }, f, s.a, s.b, smooth, 0),
     subjects: [["the crosses", Gv(0, 0.8, CROSS_Z), 0.3]] }),
   // ---------------- a virus nobody kept ----------------
   millions: R("millions"),
@@ -126,8 +126,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   town2b: R("town2", (st, s, f) => ({ ...st, cam: move({ pos: Gv(2.5, 1.4, 5.0), look: Gv(-1, 0.6, -30), fov: 38, roll: -0.04 }, { pos: Gv(1.2, 1.9, 6.0), look: Gv(-1, 0.4, -30), fov: 38, roll: 0.03 }, f, s.a, s.b, smooth, 0) })),
   townwide2: R("town", (st, s, f) => ({ ...st, cam: move({ pos: Qy(1.2, PIER.y + 3.4, -6.0), look: Qy(-3.0, PIER.y + 3.0, 16), fov: 40, roll: 0.03 }, { pos: Qy(0.4, PIER.y + 3.0, -3.0), look: Qy(-3.5, PIER.y + 3.4, 16), fov: 38, roll: -0.03 }, f, s.a, s.b, smooth, 0) })),
   town2c: R("town2", (st, s, f) => ({ ...st, cam: move({ pos: Gv(-2.4, 3.6, 8.0), look: Gv(0.5, 0.2, -30), fov: 40, roll: 0.04 }, { pos: Gv(-1.0, 3.0, 7.0), look: Gv(0.5, 0.4, -30), fov: 40, roll: -0.02 }, f, s.a, s.b, smooth, 0) })),
-  crosses3: (s, f) => { const cam = move({ pos: Gv(2.6, 1.3, -3.4), look: Gv(1.0, 0.75, CROSS_Z), fov: 34, roll: -0.04 }, { pos: Gv(-2.6, 1.1, -3.0), look: Gv(-1.0, 0.75, CROSS_Z), fov: 34, roll: 0.04 }, f, s.a, s.b, smooth, 0);
-    return { light: "twilight", snow: true, dug: false, tent: false, dof: 1, focus: cam.look, cam, subjects: [["the crosses", Gv(0, 0.8, CROSS_Z), 0.3]] }; },
+  crosses3: (s, f) => { const cam = move({ pos: Gv(2.6, 0.5, -2.0), look: Gv(1.0, 0.95, CROSS_Z), fov: 36, roll: -0.04 }, { pos: Gv(-2.6, 0.5, -1.8), look: Gv(-1.0, 0.95, CROSS_Z), fov: 36, roll: 0.04 }, f, s.a, s.b, smooth, 0);
+    return { light: "grey", snow: false, dug: false, tent: false, dof: 1, focus: cam.look, cam, subjects: [["the crosses", Gv(0, 0.8, CROSS_Z), 0.3]] }; },
   shallow2: R("shallow", (st, s, f) => ({ ...st, cam: move({ pos: Ct(-0.8, 0.0, -7.0), look: Ct(0, -1.0, CUT.z), fov: 38, roll: -0.04 }, { pos: Ct(-0.3, -0.6, -6.0), look: Ct(0, -1.1, CUT.z), fov: 36, roll: 0.03 }, f, s.a, s.b, smooth, 0) })),
   gone2: R("gone", (st, s, f) => ({ ...st, cam: move({ pos: Ct(-0.4, -0.3, -4.2), look: Ct(0, LID_Y - 0.2, CUT.z), fov: 34, roll: -0.05 }, { pos: Ct(-0.2, -0.5, -3.4), look: Ct(0, LID_Y - 0.2, CUT.z), fov: 32, roll: 0.03 }, f, s.a, s.b, smooth, 0) })),
   village2: R("village", (st, s, f) => ({ ...st, cam: move({ pos: Ak(5, 4.0, -11), look: Ak(0, 1.2, 6), fov: 40, roll: -0.04 }, { pos: Ak(8, 6.0, -13), look: Ak(-0.5, 0.8, 6), fov: 42, roll: 0.03 }, f, s.a, s.b, smooth, 0) })),

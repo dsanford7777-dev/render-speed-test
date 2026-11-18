@@ -82,7 +82,7 @@ const say = (lines: Ln[], o: SayOpts = {}): React.FC<G> => ({ t, d, c }) => {
 const num = (n: string, label: string, o: { top?: string; col?: string; dark?: boolean; m?: number; cue?: Cue; size?: number; sub?: string; subCue?: Cue; glyph?: string } = {}): React.FC<G> => ({ t, d, c }) => (
   <Bg dark={o.dark}><Mv t={t} d={d} m={o.m ?? 4}>
     {o.top ? <Banner text={o.top} t={t} at={0} col={o.col ?? INK} y={150} /> : null}
-    {o.glyph ? <At x={300} y={440} s={pop(t, 4)} r={-8}><Disc dark={o.dark}><Glyph kind={o.glyph} s={200} /></Disc></At> : null}
+    {o.glyph ? <At x={Math.max(170, 960 - (n.length * Math.min(o.size ?? 330, 1500 / (n.length * 0.62)) * 0.62) / 2 - 190)} y={440} s={pop(t, 4)} r={-8}><Disc dark={o.dark}><Glyph kind={o.glyph} s={200} /></Disc></At> : null}
     <Big n={n} label={label} t={t} at={at(o.cue, c, 3)} x={960} y={o.top ? 470 : 420} size={Math.min(o.size ?? 330, 1500 / (n.length * 0.62))} col={o.col ?? FLU} lcol={o.dark ? "#fff" : INK} />
     {o.sub ? <At x={960} y={735} s={pop(t, at(o.subCue ?? 10, c))}><T size={52} w={800} col={o.dark ? C.gold : C.grey} up={false}>{o.sub}</T></At> : null}
   </Mv></Bg>
@@ -162,14 +162,14 @@ const pathOf = (pts: [number, number][]) => pts.map((p, i) => `${i ? "L" : "M"}$
 const SEA_ROUTE: [number, number][] = [[1090, 930], [1040, 800], [990, 660], [960, 560], [985, 470]];
 const ArcticMap: React.FC<G> = ({ t, d, v, c }) => {
   const views: [[number, number, number], [number, number, number]][] = [
-    [[0.62, 1000, 300], [1.25, 990, 430]], [[1.1, 990, 420], [0.5, 1000, 80]], [[0.85, 1020, 650], [0.95, 1010, 620]],
+    [[0.62, 1000, 300], [1.9, 990, 440]], [[1.1, 990, 420], [0.5, 1000, 80]], [[0.85, 1020, 650], [0.95, 1010, 620]],
     [[1.0, 980, 600], [0.85, 960, 700]], [[0.8, 1000, 500], [1.5, 985, 455]], [[0.85, 1000, 600], [0.8, 1030, 680]]];
   const [from, to] = views[v] ?? views[0];
   const u = ease(t / Math.max(1, d)), p1 = pop(t, 4);
   const shipU = v === 2 ? clamp01((t - 6) / Math.max(1, d - 20)) : v === 3 ? clamp01((t - at([20, "Their"], c) - 4) / Math.max(1, d * 0.7)) : 0;
   const home: [number, number][] = [[985, 470], [960, 600], [930, 760], [900, 900], NOR_HOME];
   return (
-    <Wrap title={<Title text={["Svalbard", "1,300 km to the Pole", "Spring and summer 1918", "Shipped home", "Longyearbyen", "Flown south"][v] ?? "Svalbard"} s={pop(t, 0)} col={v === 3 ? INK : v === 5 ? ICE : FLU} />}>
+    <Wrap title={<Title y={175} text={["Svalbard", "1,300 km to the Pole", "Spring and summer 1918", "Shipped home", "Longyearbyen", "Flown south"][v] ?? "Svalbard"} s={pop(t, 0)} col={v === 3 ? INK : v === 5 ? ICE : FLU} />}>
       <Viewport t={t} d={d} from={from} to={to}>
         <Land d={GREEN_L} fill="#f2f6f8" /><Land d={NORWAY} /><Land d={SPITS} fill="#f6f8fa" /><Land d={NORDA} fill="#f6f8fa" /><Land d={EDGE} fill="#f6f8fa" />
         <Label x={300} y={260} text="GREENLAND" size={44} bg={null} col={C.grey} /><Label x={1500} y={960} text="NORWAY" size={56} bg={null} col={C.grey} />
@@ -185,7 +185,6 @@ const ArcticMap: React.FC<G> = ({ t, d, v, c }) => {
         {v !== 5 ? <Pin x={TROMSO[0]} y={TROMSO[1]} s={v === 2 || v === 3 ? p1 : 0} col={INK} label="Tromsø" lx={170} ly={10} size={40} /> : null}
         <Pin x={LYB[0]} y={LYB[1]} s={v === 0 ? pop(t, Math.round(d * 0.35)) : p1} col={FLU} label="Longyearbyen" lx={-270} ly={0} size={v === 4 ? 30 : 44} />
         {v === 4 ? <Burst x={LYB[0]} y={LYB[1]} s={pop(t, 10) * 0.8} /> : null}
-        {v === 0 ? <Label x={1000} y={210} text="SVALBARD" size={56} o={k(t, 6, 10)} /> : null}
         {void u}
       </Viewport>
     </Wrap>
@@ -196,7 +195,7 @@ const NAM = "M-200 200 L180 160 L300 260 L330 380 L360 470 L420 560 L400 680 L30
 const EUR = "M1500 1300 L1440 1000 L1500 840 L1560 700 L1640 580 L1720 520 L1860 480 L2200 460 L2200 1300 Z";
 const BOS: [number, number] = [390, 560], SVB: [number, number] = [1560, 180];
 const AtlanticMap: React.FC<G> = ({ t, d }) => (
-  <Wrap title={<Title text="Boston to Svalbard, 1901" s={pop(t, 0)} col={INK} />}>
+  <Wrap title={<Title y={175} text="Boston to Svalbard, 1901" s={pop(t, 0)} col={INK} />}>
     <Viewport t={t} d={d} from={[0.8, 960, 470]} to={[0.88, 1000, 430]}>
       <Land d={NAM} /><Land d={EUR} /><Land d="M1470 150 L1560 120 L1640 160 L1600 230 L1520 240 Z" fill="#f6f8fa" /><Land d={GREEN_L.replace("M-200 -200 L560", "M500 -200 L1100").replace("L600 40 L520 260 L440 420 L330 560 L180 700 L-200 760 Z", "L1120 60 L1040 260 L900 340 L760 300 L620 160 Z")} fill="#f2f6f8" />
       <Draw d={`M${BOS[0]} ${BOS[1]} Q1000 300 ${SVB[0]} ${SVB[1]}`} u={k(t, 6, d * 0.6)} col={FLU} w={10} dash />
@@ -210,7 +209,7 @@ const AKL = "M-200 120 L300 60 L700 80 L1100 40 L1500 60 L2200 40 L2200 1300 L15
 const RUS = "M-200 600 L80 620 L160 700 L120 860 L-200 980 Z";
 const BREVIG: [number, number] = [560, 560], NOME: [number, number] = [930, 820];
 const AlaskaMap: React.FC<G> = ({ t, d }) => (
-  <Wrap title={<Title text="Brevig Mission, Alaska" s={pop(t, 0)} col={AK} />}>
+  <Wrap title={<Title y={175} text="Brevig Mission, Alaska" s={pop(t, 0)} col={AK} />}>
     <Viewport t={t} d={d} from={[0.7, 960, 500]} to={[1.15, 600, 560]}>
       <Land d={AKL} /><Land d={RUS} fill={C.paper2} />
       <Label x={1400} y={420} text="ALASKA" size={64} bg={null} col={C.grey} /><Label x={20} y={760} text="RUSSIA" size={40} bg={null} col={C.grey} />
@@ -226,8 +225,8 @@ const IOWA: [number, number] = [1080, 640], SF: [number, number] = [330, 720], A
 const UsaMap: React.FC<G> = ({ t, d, v, c }) => {
   const a = v === 0 ? at([37, "carried"], c) : 0;
   return (
-    <Wrap title={<Title text={v === 0 ? "Back to Iowa, 1951" : "San Francisco, 1997"} s={pop(t, 0)} col={v === 0 ? AK : INK} />}>
-      <Viewport t={t} d={d} from={[0.78, 900, 520]} to={[0.84, 860, 540]}>
+    <Wrap title={<Title y={175} text={v === 0 ? "Back to Iowa, 1951" : "San Francisco, 1997"} s={pop(t, 0)} col={v === 0 ? AK : INK} />}>
+      <Viewport t={t} d={d} from={v === 0 ? [0.95, 640, 420] : [0.85, 330, 480]} to={v === 0 ? [1.0, 680, 440] : [0.92, 320, 500]}>
         <Land d={L48} /><Land d={AKU} /><Label x={330} y={250} text="ALASKA" size={40} bg={null} col={C.grey} />
         <Pin x={AKP[0]} y={AKP[1]} s={pop(t, 0)} col={AK} label="Brevig Mission" lx={0} ly={-56} size={36} />
         {v === 0 ? <><Draw d={`M${AKP[0]} ${AKP[1]} Q760 260 ${IOWA[0]} ${IOWA[1]}`} u={k(t, a + 4, d * 0.55)} col={AK} w={10} /><Pin x={IOWA[0]} y={IOWA[1]} s={pop(t, Math.round(d * 0.55))} col={INK} label="Iowa" lx={0} ly={60} size={44} />
@@ -242,9 +241,9 @@ export const MapBoard: React.FC<G & { name: string }> = ({ name, ...g }) => { co
 
 // ---------------- boards ----------------
 const People: React.FC<{ t: number; n: number; sick: number; at0: number }> = ({ t, n, sick, at0 }) => (
-  <div style={{ position: "absolute", left: 0, right: 0, top: 290, display: "flex", justifyContent: "center", gap: 18 }}>
+  <div style={{ position: "absolute", left: 0, right: 0, top: 300, display: "flex", justifyContent: "center", gap: 22 }}>
     {Array.from({ length: n }, (_, i) => { const s = i < sick ? clamp01((t - at0 - i * 3) / 6) : 0;
-      return <div key={i} style={{ transform: `scale(${pop(t, i * 2)})`, position: "relative" }}><Glyph kind="miner" s={150} />
+      return <div key={i} style={{ transform: `scale(${pop(t, i * 2)})`, position: "relative" }}><Glyph kind="miner" s={180} />
         {s > 0 ? <div style={{ position: "absolute", left: 40, top: -10, transform: `scale(${s})` }}><Glyph kind="virus" s={70} /></div> : null}</div>; })}
   </div>
 );
@@ -252,7 +251,7 @@ const Cols: React.FC<{ t: number; d: number; c: G["c"]; L: { g: string; title: s
   <Paper><Mv t={t} d={d} m={0}>
     {[L, R].map((x, i) => { const a = i === 0 ? 0 : at(x.cue ?? 20, c); return (
       <At key={i} x={i === 0 ? 560 : 1360} y={420} s={pop(t, a)}><div style={{ textAlign: "center", background: "#fffaf0", border: `8px solid ${INK}`, borderRadius: 24, padding: "30px 50px", boxShadow: `0 12px 0 ${INK}`, position: "relative", width: 560 }}>
-        <Glyph kind={x.g} s={220} /><T size={64}>{x.title}</T><T size={40} w={800} col={C.grey} up={false}>{x.sub}</T>
+        <Glyph kind={x.g} s={220} /><T size={Math.min(58, 760 / x.title.length)}>{x.title}</T><T size={40} w={800} col={C.grey} up={false}>{x.sub}</T>
         <div style={{ position: "absolute", right: -40, top: -40, transform: `scale(${pop(t, a + 10)})` }}><Glyph kind={x.mark} s={130} /></div></div></At>); })}
     {mid ? <At x={960} y={420} s={pop(t, 6)}><T size={80} col={FLU}>{mid}</T></At> : null}
   </Mv></Paper>
@@ -289,7 +288,7 @@ const Science: React.FC<G> = ({ t, d }) => (
     <At x={760} y={420} s={pop(t, 0)} r={-4}><div style={{ width: 520, height: 660, background: "#fffaf0", border: `8px solid ${INK}`, boxShadow: `0 14px 0 ${INK}` }}>
       <div style={{ background: "#b31b1b", padding: "26px 0", textAlign: "center", borderBottom: `8px solid ${INK}` }}><T size={86} col="#fff">Science</T></div>
       <div style={{ padding: 34 }}><T size={44} w={800} col={C.grey} up={false}>March 1997</T>
-        <div style={{ marginTop: 26 }}><T size={50} up={false}>Pieces of the 1918 flu, from soldiers' saved tissue</T></div></div></div></At>
+        <div style={{ marginTop: 26 }}>{["Pieces of the", "1918 flu, from", "soldiers' saved", "tissue"].map((l, i) => <div key={i}><T size={50} up={false}>{l}</T></div>)}</div></div></div></At>
     <At x={1380} y={420} s={pop(t, 12)}><Glyph kind="microscope" s={300} /></At>
   </Mv></Paper>
 );
@@ -310,7 +309,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
   // ---------------- cold open ----------------
   y80: num("80", "years in the ground", { dark: true, col: C.yellow, glyph: "cross" }),
   flu1918: say([{ s: "The 1918 flu", col: FLU, size: 170 }, { s: "the deadliest pandemic", cue: [3, "deadliest"] }, { s: "in modern history", cue: [3, "modern"], size: 90 }], { glyph: "virus", m: 4 }),
-  permafrost: ({ t, d, c }) => <AbsoluteFill><Mv t={t} d={d} m={0}><Ground t={t} thaw={0} coffY={600} lab={k(t, at([4, "never"], c), 10)} /><Title text="Ground that never thaws" s={pop(t, 0)} col={ICE} y={58} size={50} /></Mv></AbsoluteFill>,
+  permafrost: ({ t, d, c }) => <AbsoluteFill><Mv t={t} d={d} m={0}><Ground t={t} thaw={0} coffY={600} lab={k(t, at([4, "never"], c), 10)} /><Title text="Ground that never thaws" s={pop(t, 0)} col={ICE} y={82} size={50} /></Mv></AbsoluteFill>,
   story: icons([{ g: "shovel", label: "The dig" }, { g: "x", label: "Why it failed", cue: [6, "failed"] }, { g: "shears", label: "The man who found it", cue: [6, "man"] }], { top: "This is the story of", topCol: INK }),
   noburial: say([{ s: "Today:", size: 90 }, { s: "no burials at all", cue: [7, "buried"], col: FLU, size: 140 }], { glyph: "nosign", m: 4 }),
   // ---------------- a town named after an American ----------------
@@ -324,12 +323,12 @@ export const BOARDS: Record<string, React.FC<G>> = {
   half: ({ t, d, c }) => <Paper><Mv t={t} d={d} m={2}><Banner text="By July: more than half sick" t={t} at={0} col={FLU} /><People t={t} n={9} sick={5} at0={Math.max(6, at([16, "half"], c))} /></Mv></Paper>,
   n20: num("20", "of 200 men could work", { sub: "one day in late July, 1918", subCue: [16, "late"], glyph: "miner" }),
   shifts: checks([{ s: "Shifts", mark: "x", strike: true }, { s: "Whole mines, for days", cue: [17, "mines"], mark: "x", strike: true }], { top: "Stopped", topCol: FLU, size: 90 }),
-  carpenters: ({ t, d, c }) => <Cols t={t} d={d} c={c} L={{ g: "miner", title: "Miners", sub: "underground, packed in", mark: "x" }} R={{ g: "carpenter", title: "Carpenters", sub: "outside, mostly not sick", mark: "check", cue: [18, "carpenters"] }} />,
+  carpenters: ({ t, d, c }) => <Cols t={t} d={d} c={c} L={{ g: "miner", title: "Miners", sub: "underground", mark: "x" }} R={{ g: "carpenter", title: "Carpenters", sub: "outside", mark: "check", cue: [18, "carpenters"] }} />,
   freshair: icons([{ g: "wind", label: "Fresh air" }, { g: "apart", label: "Distance", cue: [18, "distance"] }], { top: "Today we'd say", topCol: ICE }),
   aug8: say([{ s: "August 8, 1918", size: 110 }, { s: "the first miner dies", cue: [19, "first"], col: FLU }], { glyph: "calendar", m: 0 }),
   age20: num("20", "years old", { col: FLU, m: 4 }),
   three: icons([{ g: "coffin", label: "" }, { g: "coffin", label: "", cue: 6 }, { g: "coffin", label: "", cue: 12 }], { top: "3 more in two weeks", topCol: INK, m: 3 }),
-  over: say([{ s: "By the end of August", size: 100 }, { s: "it seemed over", cue: [21, "seemed"], size: 150 }], { m: 1, stamp: { s: "IT WASN'T", cue: 34, y: 700, size: 90 } }),
+  over: say([{ s: "By the end of August", size: 100 }, { s: "it seemed over", cue: [21, "seemed"], size: 150 }], { m: 1, stamp: { s: "IT WASN'T", cue: [21, "over"], y: 700, size: 90 } }),
   // ---------------- the last ship ----------------
   nothome: say([{ s: "This time,", size: 100 }, { s: "nobody shipped them home", cue: [25, "nobody"], col: C.yellow }], { dark: true, m: 0 }),
   burned: icons([{ g: "fire", label: "Their clothes" }, { g: "fire", label: "Their bedding", cue: [25, "bedding"] }], { top: "Burned", topCol: FLU, m: 2 }),
@@ -347,7 +346,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
     <Paper><Mv t={t} d={d} m={0}>
       <Banner text="1951: the U.S. Army looks too" t={t} at={0} col={INK} />
       <At x={960} y={460} s={pop(t, 0)} r={-3}><div style={{ width: 760, height: 470, background: "#fffaf0", border: `8px solid ${INK}`, padding: 40, boxShadow: `0 12px 0 ${INK}` }}>
-        <T size={52}>Search for the 1918 virus</T>{[0, 1, 2, 3].map((i) => <div key={i} style={{ height: 22, background: INK, opacity: 0.85, margin: "28px 0", width: `${[90, 70, 84, 55][i]}%` }} />)}</div></At>
+        <T size={40}>Search for the 1918 virus</T>{[0, 1, 2, 3].map((i) => <div key={i} style={{ height: 22, background: INK, opacity: 0.85, margin: "28px 0", width: `${[90, 70, 84, 55][i]}%` }} />)}</div></At>
       <Stamp text="CLASSIFIED" t={t} at={at([38, "classified"], c)} x={860} y={400} size={110} col={FLU} r={-10} />
       <Stamp text="NEGATIVE" t={t} at={at([38, "negative"], c)} x={1100} y={600} size={110} col={INK} r={6} />
     </Mv></Paper>
@@ -357,7 +356,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
   archives: icons([{ g: "doc", label: "Death records" }, { g: "doc", label: "Burial records", cue: 8 }, { g: "doc", label: "Diaries", cue: 16 }], { top: "Years in the archives", topCol: INK, m: 3 }),
   checklist: checks([{ s: "Died of the 1918 flu" }, { s: "Buried somewhere frozen", cue: [41, "buried"] }, { s: "Records of who they were", cue: [41, "records"] }], { top: "She needed victims who", topCol: INK }),
   perfect: checks([{ s: "Known names" }, { s: "Known dates", cue: [43, "dates"] }, { s: "A graveyard in permafrost", cue: [43, "graveyard"] }], { top: "Close to perfect", topCol: C.green }),
-  n5: num("5", "years to set it up", { col: INK, glyph: "calendar" }),
+  n5: num("5", "years to set it up", { col: INK, glyph: "doc" }),
   permits: checks([{ s: "Norwegian authorities" }, { s: "The miners' families", cue: [44, "families"] }], { top: "Permission from", topCol: INK, size: 84 }),
   whatif: say([{ s: "What if", size: 120 }, { s: "it's still alive?", cue: [45, "alive"], col: C.yellow, size: 150 }], { dark: true, glyph: "virus", m: 4 }),
   // ---------------- the dig ----------------
@@ -373,11 +372,11 @@ export const BOARDS: Record<string, React.FC<G>> = {
     </Mv></AbsoluteFill>
   ),
   active: ({ t, d, c }) => { const cyc = (t / 36) % 1, th = cyc < 0.5 ? ease(cyc * 4) : 1 - ease((cyc - 0.5) * 4);
-    return <AbsoluteFill><Mv t={t} d={d} m={0}><Ground t={t} thaw={th} coffY={300} iceY={420} /><Title text={th > 0.5 ? "Summer: it thaws" : "Winter: it freezes"} s={pop(t, 0)} col={th > 0.5 ? "#a8642a" : ICE} y={110} />
+    return <AbsoluteFill><Mv t={t} d={d} m={0}><Ground t={t} thaw={th} coffY={300} iceY={420} /><Title text={th > 0.5 ? "Summer: it thaws" : "Winter: it freezes"} s={pop(t, 0)} col={th > 0.5 ? "#a8642a" : ICE} y={82} size={50} />
       <At x={360} y={630} s={pop(t, at([53, "summer"], c))}><Glyph kind={th > 0.5 ? "sun" : "flake"} s={180} /></At></Mv></AbsoluteFill>; },
-  six7: num("6 of 7", "bodies sampled", { col: INK, m: 4, glyph: "coffin" }),
+  six7: num("6 of 7", "bodies sampled", { col: INK, m: 4 }),
   notpreserved: say([{ s: "But not preserved", size: 130 }, { s: "the way they'd hoped", cue: [55, "way"], size: 100, col: FLU }], { glyph: "x", m: 1 }),
-  either: ({ t, d, c }) => <Cols t={t} d={d} c={c} L={{ g: "coffin", title: "They rose", sub: "pushed up over the years", mark: "x" }} R={{ g: "shovel", title: "Never that deep", sub: "buried shallow in 1918", mark: "x", cue: [56, "never"] }} mid="OR" />,
+  either: ({ t, d, c }) => <Cols t={t} d={d} c={c} L={{ g: "coffin", title: "They rose", sub: "over the years", mark: "x" }} R={{ g: "shovel", title: "Never that deep", sub: "in 1918", mark: "x", cue: [56, "never"] }} mid="OR" />,
   switchoff: Freezer,
   stings: say([{ s: "Here's the part", size: 110 }, { s: "that stings", cue: [58, "stings"], col: FLU, size: 170 }], { dark: true, m: 4 }),
   // ---------------- meanwhile, in Alaska ----------------
@@ -390,7 +389,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
   lungs: say([{ s: "Her lungs:", size: 110 }, { s: "still preserved", cue: [64, "preserved"], col: C.green, size: 150 }], { glyph: "lungs", m: 4 }),
   code: Sequence,
   y2005: num("2005", "rebuilt in a secure lab", { col: FLU, sub: "to see what made it so deadly", subCue: [66, "finally"], glyph: "microscope" }),
-  twoplaces: ({ t, d, c }) => <Cols t={t} d={d} c={c} L={{ g: "shears", title: "Alaska", sub: "a mass grave, 1997: found", mark: "check" }} R={{ g: "coffin", title: "Longyearbyen", sub: "the big dig, 1998: gone", mark: "x", cue: [67, "Just"] }} />,
+  twoplaces: ({ t, d, c }) => <Cols t={t} d={d} c={c} L={{ g: "shears", title: "Alaska", sub: "1997: found", mark: "check" }} R={{ g: "coffin", title: "Longyearbyen", sub: "1998: gone", mark: "x", cue: [67, "Just"] }} />,
   // ---------------- the rule ----------------
   y1950: num("1950", "the last coffin burial", { col: INK, glyph: "coffin", sub: "then it stopped", subCue: [69, "stopped"] }),
   decay: say([{ s: "In that ground,", size: 100 }, { s: "bodies barely decay", cue: [70, "decay"], col: ICE, size: 140 }], { glyph: "flake", m: 0 }),
@@ -399,7 +398,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
   hospital: icons([{ g: "hospital", label: "No delivery room" }, { g: "baby", label: "Babies: born on the mainland", cue: [72, "babies"] }], { top: "The rest of life, too", topCol: INK, m: 3 }),
   illegal: say([{ s: "The town where", size: 110 }, { s: "it's illegal to die", cue: [73, "illegal"], col: FLU, size: 150 }], { m: 4 }),
   myth: say([{ s: "The town where", size: 110 }, { s: "it's illegal to die", col: FLU, size: 150, cue: 0 }], { m: 0, stamp: { s: "MYTH", cue: 0, y: 470, size: 200, col: C.blue, r: -10 } }),
-  strange: say([{ s: "So here's", size: 110 }, { s: "the strange part", cue: [77, "strange"], col: C.yellow, size: 160 }], { dark: true, m: 4 }),
+  strange: say([{ s: "So here's", size: 110 }, { s: "the strange part", cue: [77, "strange"], col: C.yellow, size: 136 }], { dark: true, m: 4 }),
   question: say([{ s: "Should anyone", size: 120 }, { s: "have brought it back?", cue: [82, "bring"], col: C.yellow, size: 130 }], { dark: true, glyph: "virus", m: 0 }),
 };
 void Label; void Burst; void FLU;

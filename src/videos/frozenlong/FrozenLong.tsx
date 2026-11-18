@@ -19,7 +19,7 @@ const Shot: React.FC<{ shot: ShotDef; f: number }> = ({ shot, f }) => {
   const c = (seg: number, w: string) => wordAt(seg, w) - shot.a, d = shot.b - shot.a;
   if (shot.k === "2d") {
     const parts = shot.g.split(":");
-    if (parts[0] === "map") return <MapBoard name={parts[1]} t={t} d={d} v={0} c={c} />;
+    if (parts[0] === "map") return <MapBoard name={parts[1]} t={t} d={d} v={Number(parts[2] ?? 0)} c={c} />;
     const B = BOARDS[parts[0]];
     if (B) return <B t={t} d={d} v={Number(parts[1] ?? 0)} c={c} />;
   }
