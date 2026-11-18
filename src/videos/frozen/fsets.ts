@@ -107,7 +107,7 @@ export function buildGrave(): GraveSet {
   const crosses = new THREE.Group(), plates = new THREE.Group(); G.add(crosses); crosses.add(plates);
   { const cb = new Batch(); CROSS_X.forEach((x, k) => crossAt(cb, plates, white, ox + x, 0, CROSS_Z, k)); cb.build(crosses, true); }
   { const b = new Batch();
-    for (const [zr, xs] of [[-1.7, [3.6, 2.3, 4.6]], [-3.7, [2.9, 4.0]]] as [number, number[]][]) for (const x of xs) { b.add(boxGeo(V(ox + x - 0.035, -0.2, zr - 0.035), V(ox + x + 0.035, 0.85, zr + 0.035)), dark); b.add(boxGeo(V(ox + x - 0.24, 0.58, zr - 0.03), V(ox + x + 0.24, 0.65, zr + 0.03)), dark); }
+    for (const [zr, xs] of [[-3.9, [4.8]]] as [number, number[]][]) for (const x of xs) { b.add(boxGeo(V(ox + x - 0.035, -0.2, zr - 0.035), V(ox + x + 0.035, 0.85, zr + 0.035)), dark); b.add(boxGeo(V(ox + x - 0.24, 0.58, zr - 0.03), V(ox + x + 0.24, 0.65, zr + 0.03)), dark); }
     // the picket fence round the cemetery, a gate at the front
     for (let x = -5.6; x <= 5.6; x += 0.32) { if (Math.abs(x) < 0.7) continue; b.add(boxGeo(V(ox + x - 0.035, 0, -5.6), V(ox + x + 0.035, 0.85 + 0.05 * Math.sin(x * 9), -5.55)), white); b.add(boxGeo(V(ox + x - 0.035, 0, 6.2), V(ox + x + 0.035, 0.85, 6.25)), white); }
     for (let z = -5.6; z <= 6.2; z += 0.32) for (const sx of [-1, 1]) b.add(boxGeo(V(ox + sx * 5.62 - 0.03, hillY(z), z - 0.035), V(ox + sx * 5.62 + 0.03, hillY(z) + 0.85, z + 0.035)), white);
