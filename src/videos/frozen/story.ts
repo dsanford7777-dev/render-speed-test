@@ -235,7 +235,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // and less than one meter down, they hit the coffins: a shovel knocks on wood at the pit's edge
   hit: (s, f) => { const tt = t(f - s.a), k = 0.5 + 0.5 * Math.cos(Math.min(tt, 0.4) * 7.8), g = Gv(-3.05, 1.05, 2.2), b = Gv(-2.6, LID_Y + 0.02 + 0.3 * k, 2.25);
     return { light: "grey", tent: true, dug: true, coffins: true, dof: 1, focus: Gv(-2.6, LID_Y, 2.2),
-      cam: kick(move({ pos: Gv(1.6, 1.9, 1.95), look: Gv(-3.0, 0.6, 2.1), fov: 52, roll: 0.05 }, { pos: Gv(1.2, 1.85, 1.95), look: Gv(-3.0, 0.6, 2.1), fov: 50, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, W(7, "hit"), 1.0),
+      cam: kick(move({ pos: Gv(1.95, 2.3, 1.95), look: Gv(-3.0, 0.12, 2.1), fov: 54, roll: 0.05 }, { pos: Gv(1.75, 2.28, 1.95), look: Gv(-3.0, 0.12, 2.1), fov: 53, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, W(7, "hit"), 1.0),
       people: [P("sci2", Gv(-3.45, 0, 2.3), tt > 0.6 ? "shock" : "stern", 1, { mask: true, hw: [g, L3(g, b, 0.4)] })], tools: [{ kind: "shovel", g, b }],
       subjects: [["the coffin lid", Gv(-2.7, LID_Y, 1.9), 0.3]] }; },
   // too shallow: back in the cut, the coffins sit above the frozen line; where they should have been, empty
@@ -344,7 +344,7 @@ export const ITEMS = (): Item[] => ([
   { key: "solid", kind: "stamp", text: "FROZEN SOLID", f0: W(6, "frozen"), f1: B("solid"), y: 15, rot: 4, bg: "#2f5a9a", fg: "#ffffff", size: 110 },
   { key: "bumps", kind: "call", text: "7 COFFINS", f0: S0("radar") + 2, f1: B("radar"), y: 14, fg: "#7dff8e", size: 140 },
   ...days(),
-  { key: "1m", kind: "call", text: "UNDER 1 METER", f0: W(7, "meter"), f1: B("hit"), y: 14, fg: "#ffd166", size: 120 },
+  { key: "1m", kind: "call", text: "UNDER 1 METER", f0: W(7, "meter"), f1: B("hit"), y: 8, fg: "#ffd166", size: 120 },
   { key: "shallow", kind: "stamp", text: "TOO SHALLOW", f0: S0("shallow") + 2, f1: B("shallow"), y: 15, rot: -5, bg: "#e0332e", fg: "#ffffff", size: 120 },
   { key: "80", kind: "call", text: "80 SUMMERS", f0: W(8, "80"), f1: B("summers"), y: 14, fg: "#ffd166", size: 140 },
   { key: "gone", kind: "stamp", text: "GONE", f0: W(9, "gone"), f1: B("gone"), y: 15, rot: 5, bg: "#4a4a50", fg: "#ffffff", size: 170 },
