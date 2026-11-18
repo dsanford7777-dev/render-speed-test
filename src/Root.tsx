@@ -60,6 +60,7 @@ const GeninPadded = padded(Genin);
 const StinkPadded = padded(Stink);
 const FrozenPadded = padded(Frozen);
 const FrozenLongPadded = padded(FrozenLong);
+const FrozenThumbPadded = padded(FrozenThumb);
 const SubDemoPadded = padded(SubDemo);
 const SubDemoWidePadded = padded(SubDemoWide);
 const HertzLongPadded = padded(HertzLong);
@@ -120,6 +121,7 @@ export const Root: React.FC = () => (<>
   <Composition id="FrozenLong" component={FrozenLong} durationInFrames={FROZENLONG_FRAMES} fps={30} width={1920} height={1080} />
   <Composition id="FrozenLongPadded" component={FrozenLongPadded} durationInFrames={FROZENLONG_FRAMES + PAD} fps={30} width={1920} height={1080} />
   <Composition id="FrozenThumb" component={FrozenThumb} durationInFrames={10} fps={30} width={1920} height={1080} />
+  <Composition id="FrozenThumbPadded" component={FrozenThumbPadded} durationInFrames={10 + PAD} fps={30} width={1920} height={1080} />
   <Composition id="KitTest" component={KitTest} durationInFrames={KIT_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="KitTestWide" component={KitTestWide} durationInFrames={KIT_FRAMES} fps={30} width={1920} height={1080} />
   <Composition id="KitTestPadded" component={KitTestPadded} durationInFrames={KIT_FRAMES + PAD} fps={30} width={1080} height={1920} />

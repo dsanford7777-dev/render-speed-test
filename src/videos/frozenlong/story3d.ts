@@ -133,8 +133,10 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   village2: R("village", (st, s, f) => ({ ...st, cam: move({ pos: Ak(5, 4.0, -11), look: Ak(0, 1.2, 6), fov: 40, roll: -0.04 }, { pos: Ak(8, 6.0, -13), look: Ak(-0.5, 0.8, 6), fov: 42, roll: 0.03 }, f, s.a, s.b, smooth, 0) })),
   shears2: R("shears"),
   // thumbnail: the seven crosses in the snow, one virus glowing over the cut ground in front
-  thumb: () => ({ light: "grey", tent: false, snow: true, dug: false, dof: 1, focus: Gv(0, 0.8, CROSS_Z),
-    cam: { pos: Gv(0.2, 1.0, -3.6), look: Gv(0, 0.75, CROSS_Z), fov: 36, roll: 0.03 } }),
+  thumb: () => { const st = hookState(0.4);
+    return { ...st, light: "night", lanterns: true, key: Gv(3.9, 1.9, 0.6), tent: false, snow: true, dug: false, dof: 1, focus: Gv(-1.4, 1.0, 1.2),
+      cam: { pos: Gv(0.9, 1.0, -2.0), look: Gv(-1.1, 1.0, 1.6), fov: 44, roll: 0.03 },
+      cards: [...(st.cards ?? []), { kind: "virus", p: Gv(-0.55, 0.75, 1.2), spin: 0.2, s: 1.5 }, { kind: "virus", p: Gv(-0.1, 1.55, 1.9), spin: -0.3, s: 0.7 }] }; },
 };
 void expo; void L3; void spray; void viruses; void clamp01; void SET;
 
