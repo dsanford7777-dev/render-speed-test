@@ -74,6 +74,8 @@ const OUT: Record<string, Who> = {
   sci4: who(SUIT(4, { skin: "#ecd0b6" }), 85, "sci4"),
   // 1997: Johan Hultin (white hair, a plaid shirt, a work jacket), the villagers who helped him, the pathologist
   hultin: who({ jacket: "#5a6a4a", pants: "#4a4a52", boots: "#3a2a20", hat: "hair", hair: "#e8e6e0", moustache: "#e8e6e0", buttons: "#5a6a4a", skin: "#f0d2b0", plaid: "#8a3a2e", shirt: "#c9b8a0" }, 86, "hultin"),
+  // Hultin in 1951, a graduate student of 26 (the long-form)
+  hultin51: who({ jacket: "#5a6a4a", pants: "#4a4a52", boots: "#3a2a20", hat: "hair", hair: "#4a3a2a", buttons: "#5a6a4a", skin: "#f0d2b0", plaid: "#8a3a2e", shirt: "#c9b8a0" }, 96, "hultin51"),
   vil1: who({ jacket: "#3a5a7a", pants: "#3a3a44", boots: "#2a221c", hat: "cap", cap: "#c9302c", buttons: "#3a5a7a", skin: "#c8946a", hair: "#1a1612" }, 87, "vil1"),
   vil2: who({ jacket: "#7a4a3a", pants: "#3e3a40", boots: "#2a221c", hat: "hair", hair: "#1a1612", buttons: "#7a4a3a", skin: "#b8845a" }, 88, "vil2"),
   vil3: who({ jacket: "#4a6a4a", pants: "#3a3a44", boots: "#2a221c", hat: "cap", cap: "#2e2a2c", buttons: "#4a6a4a", skin: "#c08a60", hair: "#1a1612", build: "stout" }, 89, "vil3"),

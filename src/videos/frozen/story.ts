@@ -312,6 +312,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: move({ pos: Gv(-0.6, 1.5, -5.0), look: Gv(-0.9, 1.0, 1.8), fov: 54, roll: -0.03 }, h0, f, s.a, s.b - 2, smooth, 0) }; },
 };
 void APIT; void GANG;
+/** the house kit, for the long-form (frozenlong/story3d.ts) */
+export { clamp01, smooth, expo, rad, L3, full, mix, move, orb, orbit, snap, kick, t as secs, U, P, walker, add, breath, spray, digPose, DIGGER, TEAM, viruses, CZ, hookState };
 
 /** every shot is hand-held: a slow sway on top of its move (not the loop frames) */
 export const specAt = (s: ShotDef, f: number): St3 => {

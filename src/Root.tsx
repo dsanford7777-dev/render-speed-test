@@ -22,6 +22,7 @@ import { Rats, RATS_FRAMES } from "./videos/rats/Rats";
 import { Genin, GENIN_FRAMES } from "./videos/genin/Genin";
 import { Stink, STINK_FRAMES } from "./videos/stink/Stink";
 import { Frozen, FROZEN_FRAMES } from "./videos/frozen/Frozen";
+import { FrozenLong, FrozenThumb, FROZENLONG_FRAMES } from "./videos/frozenlong/FrozenLong";
 import { SubscribeTag } from "./videos/shared/SubscribeTag";
 import { AbsoluteFill as AF } from "remotion";
 const SubDemo: React.FC = () => <AF><Genin /><SubscribeTag total={GENIN_FRAMES} /></AF>;
@@ -58,6 +59,7 @@ const RatsPadded = padded(Rats);
 const GeninPadded = padded(Genin);
 const StinkPadded = padded(Stink);
 const FrozenPadded = padded(Frozen);
+const FrozenLongPadded = padded(FrozenLong);
 const SubDemoPadded = padded(SubDemo);
 const SubDemoWidePadded = padded(SubDemoWide);
 const HertzLongPadded = padded(HertzLong);
@@ -115,6 +117,9 @@ export const Root: React.FC = () => (<>
   <Composition id="StinkPadded" component={StinkPadded} durationInFrames={STINK_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="Frozen" component={Frozen} durationInFrames={FROZEN_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="FrozenPadded" component={FrozenPadded} durationInFrames={FROZEN_FRAMES + PAD} fps={30} width={1080} height={1920} />
+  <Composition id="FrozenLong" component={FrozenLong} durationInFrames={FROZENLONG_FRAMES} fps={30} width={1920} height={1080} />
+  <Composition id="FrozenLongPadded" component={FrozenLongPadded} durationInFrames={FROZENLONG_FRAMES + PAD} fps={30} width={1920} height={1080} />
+  <Composition id="FrozenThumb" component={FrozenThumb} durationInFrames={10} fps={30} width={1920} height={1080} />
   <Composition id="KitTest" component={KitTest} durationInFrames={KIT_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="KitTestWide" component={KitTestWide} durationInFrames={KIT_FRAMES} fps={30} width={1920} height={1080} />
   <Composition id="KitTestPadded" component={KitTestPadded} durationInFrames={KIT_FRAMES + PAD} fps={30} width={1080} height={1920} />

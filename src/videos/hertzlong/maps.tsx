@@ -263,3 +263,4 @@ const WorldMap: React.FC<G> = ({ t, d, v, c }) => {
 const MAPS: Record<string, React.FC<G>> = { usa: UsaMap, atlantic: AtlanticMap, lauffen: LauffenMap, europe: EuropeMap, japan: JapanMap, world: WorldMap };
 export const MapBoard: React.FC<G & { name: string }> = ({ name, ...g }) => { const M = MAPS[name]; return M ? <M {...g} /> : null; };
 void easeOut;
+export { Viewport, Land, Tint, Label, Pin, Tag, Draw, Burst, Title, Wrap, SEA, LAND, LAND2 };
