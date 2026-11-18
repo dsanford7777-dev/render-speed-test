@@ -106,7 +106,7 @@ const icons = (items: { g: string; label: string; cue?: Cue; col?: string; mark?
         return <At key={i} x={x0 + i * w} y={items.length === 1 ? 430 : 450} s={s}><div style={{ textAlign: "center", position: "relative" }}>
           <Disc dark={o.dark}><Glyph kind={it.g} s={gs} col={it.col} /></Disc>
           {it.mark ? <div style={{ position: "absolute", right: -10, top: -10, transform: `scale(${pop(t, a + 8)})` }}><Glyph kind={it.mark} s={gs * 0.5} /></div> : null}
-          <T size={items.length === 1 ? 84 : Math.min(52, (w * 1.3) / Math.max(6, it.label.length))} col={o.dark ? "#fff" : INK}>{it.label}</T></div></At>;
+          <T size={items.length === 1 ? 84 : Math.min(52, Math.max(40, (w * 1.3) / Math.max(6, it.label.length)))} col={o.dark ? "#fff" : INK} style={{ whiteSpace: "normal", width: w * 0.92, margin: "0 auto" }}>{it.label}</T></div></At>;
       })}
       {o.foot ? <At x={960} y={735} s={pop(t, at(o.footCue ?? 20, c))}><T size={62} col={o.dark ? C.yellow : FLU}>{o.foot}</T></At> : null}
     </Mv></Bg>
@@ -399,6 +399,6 @@ export const BOARDS: Record<string, React.FC<G>> = {
   illegal: say([{ s: "The town where", size: 110 }, { s: "it's illegal to die", cue: [73, "illegal"], col: FLU, size: 150 }], { m: 4 }),
   myth: say([{ s: "The town where", size: 110 }, { s: "it's illegal to die", col: FLU, size: 150, cue: 0 }], { m: 0, stamp: { s: "MYTH", cue: 0, y: 470, size: 200, col: C.blue, r: -10 } }),
   strange: say([{ s: "So here's", size: 110 }, { s: "the strange part", cue: [77, "strange"], col: C.yellow, size: 136 }], { dark: true, m: 4 }),
-  question: say([{ s: "Should anyone", size: 120 }, { s: "have brought it back?", cue: [82, "bring"], col: C.yellow, size: 130 }], { dark: true, glyph: "virus", m: 0 }),
+  question: say([{ s: "Should anyone", size: 110 }, { s: "have brought it back?", cue: [82, "bring"], col: C.yellow, size: 100 }], { dark: true, glyph: "virus", m: 0 }),
 };
 void Label; void Burst; void FLU;

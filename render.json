@@ -1,1 +1,1 @@
-{"composition": "FrozenLong", "chunks": 20, "step": 10, "note": "Longyearbyen long-form, framing fixes (rev 2)"}
+{"composition": "FrozenLong", "chunks": 20, "step": 10, "redo": [17, 19], "reuse_run": 44257238279, "note": "Longyearbyen long-form: icon labels wrap larger, closing question no longer clips on its pop"}
