@@ -17,7 +17,7 @@ import { SWorld } from "./world";
 import { SPECS, specAt, whipAt, ShotDef } from "./story";
 
 const sat = (k: number) => GRADES.day.sat.map((x) => x * k) as [number, number, number];
-const GR: Record<"room" | "river" | "street" | "sewer", GradeParams> = { room: { ...GRADES.day, sat: sat(0.96), vig: [0.36, 0.3] }, river: { ...GRADES.day, sat: sat(0.9), vig: [0.26, 0.4] }, street: { ...GRADES.day, sat: sat(0.8), vig: [0.38, 0.32] }, sewer: { ...GRADES.day, sat: sat(0.9), vig: [0.42, 0.24] } };
+const GR: Record<"night" | "grey" | "twilight" | "quay" | "ward" | "cut" | "alaska" | "lab", GradeParams> = { night: { ...GRADES.day, sat: sat(0.85), vig: [0.42, 0.3] }, grey: { ...GRADES.day, sat: sat(0.85), vig: [0.3, 0.36] }, twilight: { ...GRADES.day, sat: sat(0.9), vig: [0.36, 0.32] }, quay: { ...GRADES.day, sat: sat(0.85), vig: [0.34, 0.34] }, ward: { ...GRADES.day, sat: sat(0.95), vig: [0.44, 0.26] }, cut: { ...GRADES.day, sat: sat(0.95), vig: [0.42, 0.28] }, alaska: { ...GRADES.day, sat: sat(0.85), vig: [0.28, 0.38] }, lab: { ...GRADES.day, sat: sat(0.9), vig: [0.32, 0.34] } };
 const QA = !!(getInputProps() as { qa?: boolean }).qa;
 
 const makeBloom = () => {
