@@ -21,13 +21,14 @@ export const BOARDS: Record<string, React.FC<G>> = {
   hanburycard: card("Henry Hanbury", "a railroad conductor, off duty", "person", { col: C.blue, extra: "riding with his wife and two children", extraCue: [19, "wasn't"] }),
   engine: checks([{ s: "Steam: shut off", mark: "check" }, { s: "Lever: in reverse", cue: [23, "lever"], mark: "check" }], { top: "What the engine showed", topCol: INK, size: 96 }),
   // ---------------- the river ----------------
-  miles: num("4", "miles to the nearest telegraph", { col: INK, m: 2 }),
-  count: checks([{ s: "The railroad's notice: 21 dead" }, { s: "Other reports: as many as 28", cue: [30, "other"] }, { s: "9 came out alive", cue: [30, "9"], mark: "check" }], { top: "Never settled", topCol: RED, size: 84 }),
+  miles: num("4", "miles to a telegraph", { col: INK, m: 2 }),
+  count: checks([{ s: "The railroad's notice: 21 dead" }, { s: "Other reports: as many as 28", cue: [30, "other"] }], { top: "The count was never settled", topCol: RED, size: 70 }),
   hanburyfam: card("Henry Hanbury", "survived", "person", { col: C.blue, stamp: "HIS FAMILY DID NOT", stampCue: [31, "wife"] }),
   second: say([{ s: "The same day", size: 100 }, { s: "a second wreck", cue: [32, "second"], col: RED, size: 160 }, { s: "on the same line", cue: [32, "ran"], size: 90 }], { m: 4 }),
   twowrecks: num("2", "wrecks, one railroad, one day", { dark: true, col: GOLD, m: 0 }),
   // ---------------- fiends in human form ----------------
-  quote: say([{ s: "“Men came down", size: 110 }, { s: "and robbed the wreck”", size: 110, cue: [36, "robbed"] }, { s: "one injured survivor, through his doctor", size: 60, cue: [36, "doctor"] }], { stamp: { s: "NOT CONFIRMED", cue: [36, "admitted"], y: 660 }, m: 2 }),
+  quote: say([{ s: "“Men came down", size: 110 }, { s: "and robbed the wreck”", size: 110 }, { s: "one injured survivor, through his doctor", size: 60, cue: [36, "doctor"] }], { m: 2 }),
+  unconfirmed: say([{ s: "The same report:", size: 100 }, { s: "“not confirmed”", cue: [36, "admitted"], col: RED, size: 170 }], { m: 4 }),
   scare: say([{ s: "Days earlier", size: 100 }, { s: "another trestle", cue: [39, "another"], size: 120 }, { s: "a rail really was removed", cue: [39, "rail"], col: RED, size: 100 }], { m: 0 }),
   jailed: checks([{ s: "2 men jailed on suspicion" }, { s: "No conviction on record", cue: [42, "we"], mark: "x" }], { top: "January 1897, Birmingham", topCol: INK, size: 92 }),
   // ---------------- the people who didn't believe it ----------------
@@ -35,15 +36,15 @@ export const BOARDS: Record<string, React.FC<G>> = {
   // ---------------- why a railroad needs a villain ----------------
   real: say([{ s: "He was describing", size: 100 }, { s: "something real", cue: [51, "something"], col: RED, size: 160 }], { m: 0 }),
   n1890: num("1890s", "Southern railroads", { col: INK, sub: "the same move, again and again", subCue: [52, "again"] }),
-  question: checks([{ s: "“What was wrong with the track?”", mark: "x", strike: true, cue: [53, "what"] }, { s: "“Who are the criminals?”", cue: [53, "who"], mark: "check" }], { top: "The question changes", topCol: RED, size: 78 }),
+  question: checks([{ s: "“What was wrong with the track?”", mark: "x", strike: true, cue: [53, "what"] }, { s: "“Who are the criminals?”", cue: [53, "who"], mark: "check" }], { top: "The question changes", topCol: RED, size: 60 }),
   money: say([{ s: "The difference", size: 110 }, { s: "was money", cue: [54, "money"], col: GOLD, size: 190 }], { dark: true, m: 4 }),
   // ---------------- what the records say ----------------
   n100: num("100+", "years", { dark: true, col: GOLD, sub: "the robber story was the story", subCue: [57, "robber"] }),
   whitegrave: card("J. Frank White", "engineer of train No. 40", "person", { col: C.blue, extra: "buried at Oak Hill Cemetery, Birmingham", extraCue: [58, "buried"] }),
   title: say([{ s: "“The Robbery", size: 140, col: RED }, { s: "That Never Was”", size: 140, col: RED, cue: [59, "robbery"] }, { s: "Terri Hicks, 2012", size: 70, cue: [59, "never"] }], { glyph: "journal", m: 0 }),
-  case: checks([{ s: "Construction errors in the bridge" }, { s: "Investigators worked out the cause", cue: [60, "investigators"] }, { s: "Nobody admitted it for decades", cue: [60, "nobody"], mark: "x" }], { top: "Her case", topCol: INK, size: 76 }),
+  case: checks([{ s: "Errors in how the bridge was built" }, { s: "The company's men found the cause", cue: [60, "investigators"] }, { s: "Nobody admitted it for decades", cue: [60, "nobody"], mark: "x" }], { top: "Her case", topCol: INK, size: 62 }),
   concealed: say([{ s: "“deliberately", size: 150, col: RED }, { s: "concealed”", size: 150, col: RED, cue: [61, "concealed"] }, { s: "Scott Huffard, historian", size: 66, cue: [61, "errors"] }], { m: 4 }),
-  sure: checks([{ s: "Built from company files" }, { s: "Long after everyone involved had died", cue: [62, "long"] }, { s: "No court ever ruled on it", cue: [62, "court"], mark: "x" }], { top: "How sure is it?", topCol: INK, size: 74 }),
+  sure: checks([{ s: "Built from company files" }, { s: "Long after everyone involved had died", cue: [62, "long"] }, { s: "No court ever ruled on it", cue: [62, "court"], mark: "x" }], { top: "How sure is it?", topCol: INK, size: 58 }),
   // ---------------- the strange part ----------------
   strange: say([{ s: "Here's the", size: 100 }, { s: "strange part", cue: [65, "strange"], col: GOLD, size: 180 }], { dark: true, m: 0 }),
   hanbury05: card("Henry Hanbury", "back at work as a conductor", "person", { col: C.blue, stamp: "KILLED IN A WRECK, 1905", stampCue: [69, "killed"] }),

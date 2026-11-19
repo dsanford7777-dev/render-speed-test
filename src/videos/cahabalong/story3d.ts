@@ -99,10 +99,10 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     cam: orbit(asF(s), f, Gg(14.7, 1.2, -4.7), [-26, -8], [9, 8], [0.5, 0.4], 30, [0.03, -0.03]), people: BANK3.map(([w, p], i) => P(w, p, "stern", i === 0 ? 1 : -1)) }),
   letter2: R("letter", undefined, (st) => far(st, 0.75)),
   // the company's lawyers point to wreckers: the lawyer at the desk, a finger on the newspaper
-  tells2: (s, f) => { const p = Of(0.3, 0, DESK.z + 0.85), np = Of(0.25, DESK.y + 0.42, DESK.z - 0.2);
+  tells2: (s, f) => { const p = Of(0.3, 0, DESK.z + 0.85), np = Of(-0.45, DESK.y + 0.36, DESK.z - 0.25);
     return { light: "rr", dof: 2, focus: Of(0.3, 1.2, DESK.z), key: Of(-0.7, 1.4, 1.0), news: [{ p: np, head: "did", s: 1.1, tilt: -0.5 }],
       cam: move({ pos: Of(-1.6, 1.7, -2.6), look: Of(0.3, 1.15, DESK.z), fov: 30, roll: 0.03 }, { pos: Of(-1.0, 1.5, -2.2), look: Of(0.3, 1.15, DESK.z), fov: 28, roll: -0.02 }, f, s.a, s.b, smooth, 0),
-      people: [P("lawyer", p, "smile", 0, { low: true, hw: [add(np, 0.28, 0.1, 0)] })] }; },
+      people: [P("lawyer", p, "smile", 0, { low: true, hw: [add(np, 0.3, 0.05, 0)] })] }; },
   // today: only the stone piers stand in the river
   piers: (s, f) => ({ light: "today", ruin: true, dof: 0, focus: Gg(0, 10, 0), cam: orbit(asF(s), f, Gg(8, 11, 0), [18, 2], [84, 74], [0, 4], 36, [0.03, -0.02]) }),
   piers2: (s, f) => ({ light: "today", ruin: true, dof: 0, focus: Gg(-17, 12, 0),
