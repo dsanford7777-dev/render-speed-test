@@ -97,7 +97,7 @@ export function buildGorge(): GorgeSet {
       b.add(boxGeo(V(-4.7, 1.0, -1.0), V(4.4, 1.25, 1.0)), red); b.add(boxGeo(V(-4.75, 2.95, -0.25), V(-4.35, 3.4, 0.25)), black);
       for (let k = 0; k < 7; k++) b.add(beamGeo(V(-4.7, 1.0, -1.0 + k * 0.33), V(-5.6, 0.12, -0.3 + k * 0.1), 0.06, 0.06), red);
       // the cab: floor, roof, back wall, the far side wall; the near (-z) side is open above a low panel so the crew show
-      b.add(boxGeo(V(1.7, 1.2, -1.3), V(4.4, 1.3, 1.3), 0, true), dkwood); b.add(boxGeo(V(1.5, 3.75, -1.45), V(4.6, 3.9, 1.45), 0, true), black); b.add(boxGeo(V(1.7, 1.3, 1.2), V(4.4, 3.75, 1.3)), M("caCabIn", "#5a3a2a"));
+      b.add(boxGeo(V(1.7, 1.2, -1.3), V(4.4, 1.3, 1.3), 0, true), dkwood); b.add(boxGeo(V(1.5, 3.75, -1.45), V(4.6, 3.9, 1.45), 0, true), black); b.add(boxGeo(V(1.7, 1.3, 1.2), V(4.4, 3.75, 1.3)), M("caCabIn", "#7a5236"));
       b.add(boxGeo(V(1.7, 1.3, -1.3), V(4.4, 2.05, -1.2)), black); for (const x of [1.7, 4.3]) b.add(boxGeo(V(x, 2.05, -1.3), V(x + 0.1, 3.75, -1.2)), black);
       b.add(boxGeo(V(1.7, 1.3, -1.2), V(1.82, 3.75, 1.2)), M("caBackhead", "#34343a")); b.add(new THREE.CylinderGeometry(0.34, 0.34, 0.08, 14).rotateZ(Math.PI / 2).translate(1.86, 1.75, 0.2), new THREE.MeshBasicMaterial({ color: new THREE.Color(2.4, 1.1, 0.4) }));
       for (const [y, z] of [[2.7, -0.4], [2.9, 0.3], [2.5, 0.6]]) b.add(new THREE.CylinderGeometry(0.11, 0.11, 0.05, 12).rotateZ(Math.PI / 2).translate(1.86, y, z), brass);

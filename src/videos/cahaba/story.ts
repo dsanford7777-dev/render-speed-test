@@ -147,42 +147,42 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: move({ pos: Gg(88, H + 1.1, -3.6), look: Gg(110, H + 2.4, 0), fov: 52, roll: 0.06 }, { pos: Gg(86.5, H + 0.9, -3.2), look: Gg(100, H + 2.6, 0), fov: 56, roll: -0.04 }, f, s.a, s.b, smooth, 0),
       subjects: [["the engine", Gg(x - 4.4, H + 2.2, -0.2), 1.2]] }; },
   // a passenger train rolled onto an iron bridge: the whole crossing, the train coming out over the river
-  bridge: (s, f) => { const u = U(s, f), x = 74 - 30 * u;
-    return { light: "morn", train: { x, speed: 9 }, dof: 0, focus: Gg(10, H - 6, 0),
-      cam: orbit(s, f, Gg(12, 15, 0), [16, 6], [92, 84], [-3, 1], 56, [0.05, -0.03]), subjects: [["the bridge", Gg(0, H - 3, -1.5), 2.5]] }; },
+  bridge: (s, f) => { const u = U(s, f), x = 68 - 22 * u;
+    return { light: "morn", train: { x, speed: 9 }, dof: 0, focus: Gg(34, H - 6, 0),
+      cam: orbit(s, f, Gg(34, 15, 0), [-24, -14], [86, 80], [-3, 1], 56, [0.05, -0.03]), subjects: [["the bridge", Gg(34, H - 3, -1.5), 2.5]] }; },
   // 110 feet above: down the pier from the rails to the water
-  height: (s, f) => { const u = smooth(U(s, f)), x = 44 - 16 * U(s, f);
+  height: (s, f) => { const u = smooth(U(s, f)), x = 46 - 3 * U(s, f);
     return { light: "morn", train: { x, speed: 9 }, dof: 0, focus: Gg(-17, 12, 0),
       cam: move({ pos: Gg(-26, H + 4, -30), look: Gg(-8, H - 2, 0), fov: 58, roll: 0.07 }, { pos: Gg(-22, 4.5, -34), look: Gg(-10, 13, 0), fov: 62, roll: -0.05 }, f, s.a, s.b, smooth, 0),
       subjects: u < 0.5 ? [["the span", Gg(-8, H - 3, -1.5), 2]] : [["the pier", Gg(-17, 12, -4.4), 0.5]] }; },
   // ...the Cahaba River: from the water, looking up at the train going over
-  river: (s, f) => { const x = 26 - 16 * U(s, f);
-    return { light: "morn", train: { x, speed: 9 }, dof: 0, focus: Gg(0, H, 0),
-      cam: move({ pos: Gg(4.5, 1.3, -24), look: Gg(2, 17, 0), fov: 70, roll: -0.06 }, { pos: Gg(3.6, 1.1, -21), look: Gg(1, 19, 0), fov: 72, roll: 0.03 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the span from below", Gg(0, H - 5.6, -1.5), 0.5]] }; },
+  river: (s, f) => { const x = 43 - 5 * U(s, f);
+    return { light: "morn", train: { x, speed: 9 }, dof: 0, focus: Gg(27, H, 0),
+      cam: move({ pos: Gg(7.5, 1.3, -25), look: Gg(27, 18, 0), fov: 70, roll: -0.06 }, { pos: Gg(7, 1.1, -22), look: Gg(26, 20, 0), fov: 72, roll: 0.03 }, f, s.a, s.b, smooth, 0),
+      subjects: [["the span from below", Gg(30, H - 5.6, -1.5), 0.5]] }; },
   // it was full of coal miners and their families: faces at two coach windows, the camera riding alongside
-  families: (s, f) => { const u = U(s, f), tt = t(f - s.a), x = 20 - 9 * u, c = carPose(x, 3, 0).p, cx = c[0];
+  families: (s, f) => { const u = U(s, f), tt = t(f - s.a), x = 38 - 6 * u, c = carPose(x, 3, 0).p, cx = c[0];
     return { light: "morn", train: { x, speed: 6 }, dof: 1, focus: Gg(cx, H + 2.5, -1.3),
       cam: move({ pos: Gg(cx + 1.1, H + 2.9, -8.4), look: Gg(cx - 0.1, H + 2.3, -1.3), fov: 40, roll: 0.03 }, { pos: Gg(cx - 0.9, H + 2.6, -8.0), look: Gg(cx - 0.1, H + 2.3, -1.3), fov: 40, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       people: [P("m1", ride(x, 3, 0.65, -0.8, 1.1), "smile", -1, { low: true }), P("wife", ride(x, 3, -0.45, -0.8, 1.1), "smile", 1, { low: true }), P("kid", ride(x, 3, -1.0, -0.95, 1.72), tt % 1.2 < 0.6 ? "grin" : "laugh", 1, { low: true, wave: 0.5 + 0.5 * Math.sin(tt * 9) })] }; },
   // the engineer saw something wrong: his face in the cab window
-  engineer: (s, f) => { const u = U(s, f), tt = t(f - s.a), x = 52 - 5 * u, p = ride(x, 0, 3.0, 0.1, 1.3);
+  engineer: (s, f) => { const u = U(s, f), tt = t(f - s.a), x = 32 - 2 * u, p = ride(x, 0, 3.0, 0.1, 1.3);
     return { light: "morn", train: { x, speed: 9 }, cab: true, dof: 2, closeup: true, focus: add(p, 0, 1.5, 0),
       cam: move({ pos: add(p, -1.3, 1.75, -5.2), look: add(p, 0.05, 1.5, 0), fov: 32, roll: 0.05 }, { pos: add(p, -1.0, 1.65, -4.6), look: add(p, 0.05, 1.5, 0), fov: 30, roll: -0.03 }, f, s.a, s.b, smooth, 0),
       people: [P("engineer", p, tt > 0.55 ? "shock" : "stern", -1, { low: true })] }; },
   // ...something wrong: riding the boiler, the track running out onto the bridge ahead
-  ahead: (s, f) => { const u = U(s, f), x = 46 - 7 * u;
+  ahead: (s, f) => { const u = U(s, f), x = 28 - 8 * u;
     return { light: "morn", train: { x, speed: 9 }, dof: 0, focus: Gg(x - 30, H, 0),
       cam: kick(move({ pos: Gg(x - 0.6, H + 4.5, -0.9), look: Gg(x - 30, H + 0.4, 0), fov: 62, roll: 0.02 }, { pos: Gg(x - 1.0, H + 4.3, -0.7), look: Gg(x - 26, H - 0.2, 0), fov: 58, roll: -0.05 }, f, s.a, s.b, smooth, 0), f, W(3, "wrong"), 1.0),
       subjects: [["the track ahead", Gg(x - 22, H, 0), 1.5]] }; },
   // he shut off the steam: the driving wheels lock and slide, sparks off the rail
-  wheels: (s, f) => { const u = U(s, f), tt = t(f - s.a), x = 37 - 3.2 * u;
+  wheels: (s, f) => { const u = U(s, f), tt = t(f - s.a), x = 16 - 5 * u;
     return { light: "morn", train: { x, locked: true, speed: 2 }, dof: 2, closeup: true, focus: Gg(x + 0.75, H + 0.5, -0.8),
       cam: kick(move({ pos: Gg(x - 2.6, H + 0.75, -3.4), look: Gg(x + 0.6, H + 0.75, -0.8), fov: 50, roll: -0.07 }, { pos: Gg(x - 2.2, H + 0.65, -3.0), look: Gg(x + 0.6, H + 0.7, -0.8), fov: 48, roll: 0.03 }, f, s.a, s.b, smooth, 0), f, s.a + 3, 0.8),
       cards: [-0.9, 0.75, 2.4].flatMap((wx, j) => Array.from({ length: 6 }, (_, i) => { const v = (tt * 2.6 + i / 6 + j * 0.2) % 1; return { kind: "spark" as const, p: Gg(x + wx + 0.5 + 1.8 * v, H + 0.02 + 0.7 * v * (1 - v) * (1 + (i % 3)), -0.75 - 0.25 * v * (i % 2 ? 1 : 2.4)), spin: i + v * 5, s: 1.2 * (1 - v) + 0.3 }; })),
       subjects: [["the locked wheels", Gg(x + 0.75, H + 0.86, -0.9), 0.3]] }; },
   // ...and threw the engine into reverse: both hands haul the lever back
-  lever: (s, f) => { const u = expo(U(s, f) * 1.8), x = 33, p = ride(x, 0, 3.15, 0.2, 1.3), foot = add(p, 0.62, 0, -0.3), grip = add(foot, -0.45 + 0.7 * u, 1.12, -0.05);
+  lever: (s, f) => { const u = expo(U(s, f) * 1.8), x = 6, p = ride(x, 0, 3.15, 0.2, 1.3), foot = add(p, 0.62, 0, -0.3), grip = add(foot, -0.45 + 0.7 * u, 1.12, -0.05);
     return { light: "morn", train: { x, locked: true, speed: 1 }, cab: true, dof: 2, closeup: true, focus: add(p, -0.3, 1.4, -0.4),
       cam: kick(move({ pos: add(p, -1.9, 1.5, -4.6), look: add(p, -0.25, 1.38, -0.2), fov: 34, roll: -0.06 }, { pos: add(p, -1.5, 1.6, -4.3), look: add(p, -0.2, 1.4, -0.2), fov: 33, roll: 0.03 }, f, s.a, s.b, smooth, 0), f, W(3, "reverse"), 1.0),
       people: [P("engineer", p, "shock", -1, { low: true, hw: [grip, add(grip, 0, -0.16, 0)] })], tools: [{ kind: "lever", g: grip, b: foot }] }; },
@@ -250,11 +250,11 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "townD", poster: "reward", dof: 1, focus: Tw(0.1, 1.3, -1.0),
       cam: orbit(s, f, Tw(0.1, 1.2, -1.0), [14, -10], [6.4, 5.8], [0.4, 0.3], 46, [-0.04, 0.04]),
       people: [P("m2", Tw(1.0, 0, -0.9), "stern", -1), P("wife2", Tw(0.05, 0, -1.2), "stern", 0, { headTilt: 0.1 * Math.sin(tt * 5) }), P("old", Tw(-0.9, 0, -0.8), "stern", 1)] }; },
-  // ...never believed it: the old miner shakes his head
-  doubt: (s, f) => { const tt = t(f - s.a), p = Tw(-0.9, 0, -0.8);
+  // ...never believed it: the miner shakes his head
+  doubt: (s, f) => { const tt = t(f - s.a), p = Tw(1.0, 0, -0.9);
     return { light: "townD", poster: "reward", dof: 3, closeup: true, focus: add(p, 0, 1.5, 0),
       cam: kick(snap(add(p, 0.35, 1.55, -2.4), add(p, 0, 1.5, 0), f, s.a, { fov: 34, roll: -0.06 }, 1.5, 5), f, W(10, "never"), 0.8),
-      people: [P("old", p, "stern", 0, { headTilt: 0.16 * Math.sin(tt * 7) })] }; },
+      people: [P("m2", p, "stern", 0, { headTilt: 0.16 * Math.sin(tt * 7) })] }; },
   // they said the three men were local miners: the same three on the bank, in daylight, faces you can see
   miners: (s, f) => { const tt = t(f - s.a);
     return { light: "morn", wreck: true, dof: 1, focus: Gg(14.7, 1.4, -4.6),
