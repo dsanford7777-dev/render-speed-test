@@ -1,9 +1,9 @@
 [
   {
-    "channel": "shorts",
-    "videoId": "ADwkrWTZxwY",
+    "channel": "explained",
+    "videoId": "drlD0nZ6D3A",
     "action": "replace_text",
-    "find": "LONGFORM_LINK_PENDING",
-    "replace": "https://youtu.be/-3zx2e145yU"
+    "find": "#history #alabama #trainwreck",
+    "replace": "The 60-second version: https://youtu.be/oA_uPh13Yqk\n\n#history #alabama #trainwreck"
   }
 ]
