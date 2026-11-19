@@ -16,26 +16,26 @@ import { snowTex, screeTex, earthTex, iceEarthTex, mudCutTex, tundraTex, skyTex,
 import { glowTex, labelTex } from "./paint";
 
 export const M = (key: string, col: string, extra: THREE.MeshLambertMaterialParameters = {}) => lam(key, () => ({ color: col, ...extra }));
-const T = (key: string, tex: () => THREE.Texture, extra: THREE.MeshLambertMaterialParameters = {}) => lam(key, () => ({ map: tex(), ...extra }));
+export const T = (key: string, tex: () => THREE.Texture, extra: THREE.MeshLambertMaterialParameters = {}) => lam(key, () => ({ map: tex(), ...extra }));
 export const noInk = <O extends THREE.Object3D>(o: O) => { o.traverse((c) => { c.layers.set(NOINK); }); return o; };
 type Put = (g: THREE.BufferGeometry, m: THREE.Material, x: number, y: number, z: number, cast?: boolean) => THREE.Mesh;
-const putter = (G: THREE.Object3D, ox: number): Put => (g, m, x, y, z, cast = true) => { const ms = new THREE.Mesh(g, m); ms.position.set(ox + x, y, z); ms.castShadow = cast; ms.receiveShadow = true; G.add(ms); return ms; };
-const shadowAll = <O extends THREE.Object3D>(o: O) => { o.traverse((m) => { m.castShadow = true; m.receiveShadow = true; }); return o; };
-const glow = (col: THREE.Color, s: number) => { const h = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: col, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false })); h.scale.setScalar(s); return h; };
-const flame = (G: THREE.Object3D, p: THREE.Vector3, s = 0.05) => { const f = new THREE.Mesh(new THREE.SphereGeometry(s, 10, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color(3.2, 2.2, 0.9), fog: false })); f.scale.y = 1.7; f.position.copy(p); G.add(f); const h = glow(new THREE.Color(1.4, 0.85, 0.35), s * 16); h.position.copy(p); G.add(h); return { f, h }; };
+export const putter = (G: THREE.Object3D, ox: number): Put => (g, m, x, y, z, cast = true) => { const ms = new THREE.Mesh(g, m); ms.position.set(ox + x, y, z); ms.castShadow = cast; ms.receiveShadow = true; G.add(ms); return ms; };
+export const shadowAll = <O extends THREE.Object3D>(o: O) => { o.traverse((m) => { m.castShadow = true; m.receiveShadow = true; }); return o; };
+export const glow = (col: THREE.Color, s: number) => { const h = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: col, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false })); h.scale.setScalar(s); return h; };
+export const flame = (G: THREE.Object3D, p: THREE.Vector3, s = 0.05) => { const f = new THREE.Mesh(new THREE.SphereGeometry(s, 10, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color(3.2, 2.2, 0.9), fog: false })); f.scale.y = 1.7; f.position.copy(p); G.add(f); const h = glow(new THREE.Color(1.4, 0.85, 0.35), s * 16); h.position.copy(p); G.add(h); return { f, h }; };
 /** a ground sheet over x0..x1, z0..z1 following y(x, z), with UVs in metres / tile */
-const sheet = (x0: number, x1: number, z0: number, z1: number, nx: number, nz: number, y: (x: number, z: number) => number, tile: number) => {
+export const sheet = (x0: number, x1: number, z0: number, z1: number, nx: number, nz: number, y: (x: number, z: number) => number, tile: number) => {
   const g = new THREE.PlaneGeometry(x1 - x0, z1 - z0, nx, nz); g.rotateX(-Math.PI / 2); g.translate((x0 + x1) / 2, 0, (z0 + z1) / 2);
   const p = g.attributes.position as THREE.BufferAttribute, uv = g.attributes.uv as THREE.BufferAttribute;
   for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i); p.setY(i, y(x, z)); uv.setXY(i, x / tile, z / tile); }
   g.computeVertexNormals(); return g;
 };
-const nz = (x: number, z: number) => 0.06 * Math.sin(x * 1.7 + z * 0.9) + 0.04 * Math.sin(x * 3.1 - z * 2.3);
+export const nz = (x: number, z: number) => 0.06 * Math.sin(x * 1.7 + z * 0.9) + 0.04 * Math.sin(x * 3.1 - z * 2.3);
 /** a backdrop sky that never lights or casts */
-const skyPlane = (G: THREE.Object3D, kind: Parameters<typeof skyTex>[0], ox: number, z: number, w: number, h: number, y0: number) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: skyTex(kind), fog: false, depthWrite: false })); m.rotation.y = Math.PI; m.position.set(ox, y0 + h / 2, z); m.renderOrder = -5; G.add(m); return m; };
+export const skyPlane = (G: THREE.Object3D, kind: Parameters<typeof skyTex>[0], ox: number, z: number, w: number, h: number, y0: number) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: skyTex(kind), fog: false, depthWrite: false })); m.rotation.y = Math.PI; m.position.set(ox, y0 + h / 2, z); m.renderOrder = -5; G.add(m); return m; };
 /** a faceted mountain face: each facet coloured between rock and snow by how much it faces up and how high it is
  *  (with a little noise), so snow lies in streaks and on ledges; quiet contrast, the fog does the rest */
-const mountain = (G: THREE.Object3D, key: string, ox: number, y0: number, z: number, W: number, H: number, seed: number, lean: number, snowK: number, base = "#6e6258") => {
+export const mountain = (G: THREE.Object3D, key: string, ox: number, y0: number, z: number, W: number, H: number, seed: number, lean: number, snowK: number, base = "#6e6258") => {
   const g = rockWall(W, H, Math.max(2.5, W / 34), W / 46, seed, 9, (u, v) => 0.5 + 0.5 * Math.sin(u * 7 + seed) * v), rot = new THREE.Matrix4().makeRotationX(-lean).premultiply(new THREE.Matrix4().makeRotationY(Math.PI));
   g.applyMatrix4(rot); g.translate(ox, y0, z);
   const p = g.attributes.position as THREE.BufferAttribute, col = g.attributes.color as THREE.BufferAttribute, a = V(0, 0, 0), b = V(0, 0, 0), c = V(0, 0, 0), n = V(0, 0, 0);
@@ -61,9 +61,9 @@ const trestle = (b: Batch, mat: THREE.Material, x: number, y: number, z: number,
   b.add(boxGeo(V(x - 1.6, y + h, z - 0.3), V(x + 1.6, y + h + 0.35, z + 0.3)), mat);
 };
 /** a thin rod from a to b */
-const rodGeo = (a: THREE.Vector3, c: THREE.Vector3, r: number) => { const d = c.clone().sub(a), g = new THREE.CylinderGeometry(r, r, d.length(), 6); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), d.clone().normalize())); g.translate((a.x + c.x) / 2, (a.y + c.y) / 2, (a.z + c.z) / 2); return g; };
+export const rodGeo = (a: THREE.Vector3, c: THREE.Vector3, r: number) => { const d = c.clone().sub(a), g = new THREE.CylinderGeometry(r, r, d.length(), 6); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), d.clone().normalize())); g.translate((a.x + c.x) / 2, (a.y + c.y) / 2, (a.z + c.z) / 2); return g; };
 /** a gabled house: walls of colour col, a roof (snow on it if snowy), windows (lit or dark) */
-const houseAt = (b: Batch, G: THREE.Object3D, x: number, z: number, w: number, d: number, h: number, col: string, roof: string, lit: boolean, yaw = 0, y0 = 0) => {
+export const houseAt = (b: Batch, G: THREE.Object3D, x: number, z: number, w: number, d: number, h: number, col: string, roof: string, lit: boolean, yaw = 0, y0 = 0) => {
   const g = new THREE.Group(), wall = lam("frWall" + col, () => ({ map: planksHD(), color: col })), rf = M("frRoof" + roof, roof), win = new THREE.MeshBasicMaterial({ color: lit ? new THREE.Color(2.2, 1.6, 0.8) : new THREE.Color(0.18, 0.22, 0.3), fog: true });
   const bx = new THREE.Mesh(boxGeo(V(-w / 2, 0, -d / 2), V(w / 2, h, d / 2), 2), wall); g.add(bx);
   const sh = new THREE.Shape([new THREE.Vector2(-w / 2 - 0.25, h), new THREE.Vector2(0, h + w * 0.42), new THREE.Vector2(w / 2 + 0.25, h)]), rg = new THREE.ExtrudeGeometry(sh, { depth: d + 0.5, bevelEnabled: false }); rg.translate(0, 0, -d / 2 - 0.25);

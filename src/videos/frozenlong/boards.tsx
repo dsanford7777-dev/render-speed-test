@@ -61,7 +61,7 @@ const Disc: React.FC<{ dark?: boolean; children: React.ReactNode }> = ({ dark, c
 type Ln = { s: string; col?: string; size?: number; cue?: Cue };
 type SayOpts = { dark?: boolean; tone?: string; m?: number; top?: string; topCol?: string; stamp?: { s: string; cue: Cue; x?: number; y?: number; size?: number; col?: string; r?: number }; glyph?: string; y?: number };
 /** big statement: lines that pop in one after another, an optional banner, glyph and stamp */
-const say = (lines: Ln[], o: SayOpts = {}): React.FC<G> => ({ t, d, c }) => {
+export const say = (lines: Ln[], o: SayOpts = {}): React.FC<G> => ({ t, d, c }) => {
   const fg = o.dark ? "#fff" : INK;
   const sz = lines.map((ln) => Math.min(ln.size ?? 120, 1640 / (ln.s.length * 0.68)));
   const y0 = (o.y ?? (o.glyph ? 500 : 430)) - sz.reduce((a, x) => a + x * 1.16, 0) / 2;
@@ -79,7 +79,7 @@ const say = (lines: Ln[], o: SayOpts = {}): React.FC<G> => ({ t, d, c }) => {
   );
 };
 /** a giant number with a banner above and a label below */
-const num = (n: string, label: string, o: { top?: string; col?: string; dark?: boolean; m?: number; cue?: Cue; size?: number; sub?: string; subCue?: Cue; glyph?: string } = {}): React.FC<G> => ({ t, d, c }) => (
+export const num = (n: string, label: string, o: { top?: string; col?: string; dark?: boolean; m?: number; cue?: Cue; size?: number; sub?: string; subCue?: Cue; glyph?: string } = {}): React.FC<G> => ({ t, d, c }) => (
   <Bg dark={o.dark}><Mv t={t} d={d} m={o.m ?? 4}>
     {o.top ? <Banner text={o.top} t={t} at={0} col={o.col ?? INK} y={150} /> : null}
     {o.glyph ? <At x={Math.max(170, 960 - (n.length * Math.min(o.size ?? 330, 1500 / (n.length * 0.62)) * 0.62) / 2 - 190)} y={440} s={pop(t, 4)} r={-8}><Disc dark={o.dark}><Glyph kind={o.glyph} s={200} /></Disc></At> : null}
@@ -87,7 +87,7 @@ const num = (n: string, label: string, o: { top?: string; col?: string; dark?: b
     {o.sub ? <At x={960} y={735} s={pop(t, at(o.subCue ?? 10, c))}><T size={52} w={800} col={o.dark ? C.gold : C.grey} up={false}>{o.sub}</T></At> : null}
   </Mv></Bg>
 );
-const card = (name: string, role: string, glyph: string, o: { col?: string; extra?: string; extraCue?: Cue; m?: number; stamp?: string; stampCue?: Cue } = {}): React.FC<G> => ({ t, d, c }) => (
+export const card = (name: string, role: string, glyph: string, o: { col?: string; extra?: string; extraCue?: Cue; m?: number; stamp?: string; stampCue?: Cue } = {}): React.FC<G> => ({ t, d, c }) => (
   <Paper><Mv t={t} d={d} m={o.m ?? 0}>
     <AbsoluteFill style={{ transform: `scale(${Math.min(1, 1640 / (Math.max(name.length * 66, role.length * 33) + 520))})`, transformOrigin: "50% 39%" }}>
       <NameCard name={name} role={role} t={t} at={0} x={960} y={420} col={o.col ?? ICE} icon={<Glyph kind={glyph} s={230} />} extra={o.extra} extraAt={o.extra ? at(o.extraCue ?? 12, c) : undefined} />
@@ -96,7 +96,7 @@ const card = (name: string, role: string, glyph: string, o: { col?: string; extr
   </Mv></Paper>
 );
 /** a row of glyphs with labels, each popping on its word */
-const icons = (items: { g: string; label: string; cue?: Cue; col?: string; mark?: "x" | "check" }[], o: { top?: string; topCol?: string; m?: number; foot?: string; footCue?: Cue; dark?: boolean } = {}): React.FC<G> => ({ t, d, c }) => {
+export const icons = (items: { g: string; label: string; cue?: Cue; col?: string; mark?: "x" | "check" }[], o: { top?: string; topCol?: string; m?: number; foot?: string; footCue?: Cue; dark?: boolean } = {}): React.FC<G> => ({ t, d, c }) => {
   const w = Math.min(520, 1640 / items.length), x0 = 960 - (w * (items.length - 1)) / 2;
   return (
     <Bg dark={o.dark}><Mv t={t} d={d} m={o.m ?? 2}>
@@ -113,7 +113,7 @@ const icons = (items: { g: string; label: string; cue?: Cue; col?: string; mark?
   );
 };
 /** a checklist: rows that appear on their words, each ticked or crossed */
-const checks = (rows: { s: string; cue?: Cue; mark?: "x" | "check"; strike?: boolean }[], o: { top?: string; topCol?: string; m?: number; size?: number; stamp?: { s: string; cue: Cue; col?: string } } = {}): React.FC<G> => ({ t, d, c }) => (
+export const checks = (rows: { s: string; cue?: Cue; mark?: "x" | "check"; strike?: boolean }[], o: { top?: string; topCol?: string; m?: number; size?: number; stamp?: { s: string; cue: Cue; col?: string } } = {}): React.FC<G> => ({ t, d, c }) => (
   <Paper><Mv t={t} d={d} m={o.m ?? 0}>
     {o.top ? <Banner text={o.top} t={t} at={0} col={o.topCol ?? INK} /> : null}
     <div style={{ position: "absolute", left: 0, right: 0, top: o.top ? 250 : 200, display: "flex", justifyContent: "center" }}><div>
