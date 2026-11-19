@@ -59,7 +59,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   trestle: (s, f) => ({ light: "morn", dof: 0, focus: Gg(60, H - 8, 0),
     cam: orbit(asF(s), f, Gg(60, H - 9, 0), [30, 14], [44, 38], [-8, -4], 38, [0.04, -0.03]) }),
   trestle2: (s, f) => ({ light: "morn", dof: 0, focus: Gg(64, H - 10, 0),
-    cam: move({ pos: Gg(58, 12, -14), look: Gg(66, H - 4, 0), fov: 44, roll: -0.05 }, { pos: Gg(56, 10, -16), look: Gg(66, H - 2, 0), fov: 46, roll: 0.03 }, f, s.a, s.b, smooth, 0) }),
+    cam: move({ pos: Gg(40, H - 5, -20), look: Gg(62, H - 8, 0), fov: 40, roll: -0.03 }, { pos: Gg(44, H - 6, -16), look: Gg(64, H - 8, 0), fov: 38, roll: 0.02 }, f, s.a, s.b, smooth, 0) }),
   // Frank White at the throttle, calm
   white: (s, f) => { const u = U(asF(s), f), x = 70 - 8 * u, p = ride(x, 0, 3.0, 0.1, 1.3);
     return { light: "morn", train: { x, speed: 9 }, cab: true, dof: 2, closeup: true, focus: add(p, 0, 1.5, 0),

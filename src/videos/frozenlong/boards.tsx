@@ -87,12 +87,12 @@ export const num = (n: string, label: string, o: { top?: string; col?: string; d
     {o.sub ? <At x={960} y={735} s={pop(t, at(o.subCue ?? 10, c))}><T size={52} w={800} col={o.dark ? C.gold : C.grey} up={false}>{o.sub}</T></At> : null}
   </Mv></Bg>
 );
-export const card = (name: string, role: string, glyph: string, o: { col?: string; extra?: string; extraCue?: Cue; m?: number; stamp?: string; stampCue?: Cue } = {}): React.FC<G> => ({ t, d, c }) => (
+export const card = (name: string, role: string, glyph: string, o: { col?: string; extra?: string; extraCue?: Cue; m?: number; stamp?: string; stampCue?: Cue; stampX?: number; stampY?: number; stampSize?: number } = {}): React.FC<G> => ({ t, d, c }) => (
   <Paper><Mv t={t} d={d} m={o.m ?? 0}>
     <AbsoluteFill style={{ transform: `scale(${Math.min(1, 1640 / (Math.max(name.length * 66, role.length * 33) + 520))})`, transformOrigin: "50% 39%" }}>
       <NameCard name={name} role={role} t={t} at={0} x={960} y={420} col={o.col ?? ICE} icon={<Glyph kind={glyph} s={230} />} extra={o.extra} extraAt={o.extra ? at(o.extraCue ?? 12, c) : undefined} />
     </AbsoluteFill>
-    {o.stamp ? <Stamp text={o.stamp} t={t} at={at(o.stampCue ?? 12, c)} x={1420} y={680} size={90} /> : null}
+    {o.stamp ? <Stamp text={o.stamp} t={t} at={at(o.stampCue ?? 12, c)} x={o.stampX ?? 1420} y={o.stampY ?? 680} size={o.stampSize ?? 90} /> : null}
   </Mv></Paper>
 );
 /** a row of glyphs with labels, each popping on its word */
