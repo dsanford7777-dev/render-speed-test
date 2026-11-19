@@ -24,6 +24,7 @@ import { Stink, STINK_FRAMES } from "./videos/stink/Stink";
 import { Frozen, FROZEN_FRAMES } from "./videos/frozen/Frozen";
 import { FrozenLong, FrozenThumb, FROZENLONG_FRAMES } from "./videos/frozenlong/FrozenLong";
 import { Cahaba, CAHABA_FRAMES } from "./videos/cahaba/Cahaba";
+import { CahabaLong, CahabaThumb, CAHABALONG_FRAMES } from "./videos/cahabalong/CahabaLong";
 import { SubscribeTag } from "./videos/shared/SubscribeTag";
 import { AbsoluteFill as AF } from "remotion";
 const SubDemo: React.FC = () => <AF><Genin /><SubscribeTag total={GENIN_FRAMES} /></AF>;
@@ -62,6 +63,8 @@ const StinkPadded = padded(Stink);
 const FrozenPadded = padded(Frozen);
 const FrozenLongPadded = padded(FrozenLong);
 const CahabaPadded = padded(Cahaba);
+const CahabaLongPadded = padded(CahabaLong);
+const CahabaThumbPadded = padded(CahabaThumb);
 const FrozenThumbPadded = padded(FrozenThumb);
 const SubDemoPadded = padded(SubDemo);
 const SubDemoWidePadded = padded(SubDemoWide);
@@ -122,6 +125,10 @@ export const Root: React.FC = () => (<>
   <Composition id="FrozenPadded" component={FrozenPadded} durationInFrames={FROZEN_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="Cahaba" component={Cahaba} durationInFrames={CAHABA_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="CahabaPadded" component={CahabaPadded} durationInFrames={CAHABA_FRAMES + PAD} fps={30} width={1080} height={1920} />
+  <Composition id="CahabaLong" component={CahabaLong} durationInFrames={CAHABALONG_FRAMES} fps={30} width={1920} height={1080} />
+  <Composition id="CahabaLongPadded" component={CahabaLongPadded} durationInFrames={CAHABALONG_FRAMES + PAD} fps={30} width={1920} height={1080} />
+  <Composition id="CahabaThumb" component={CahabaThumb} durationInFrames={10} fps={30} width={1920} height={1080} />
+  <Composition id="CahabaThumbPadded" component={CahabaThumbPadded} durationInFrames={10 + PAD} fps={30} width={1920} height={1080} />
   <Composition id="FrozenLong" component={FrozenLong} durationInFrames={FROZENLONG_FRAMES} fps={30} width={1920} height={1080} />
   <Composition id="FrozenLongPadded" component={FrozenLongPadded} durationInFrames={FROZENLONG_FRAMES + PAD} fps={30} width={1920} height={1080} />
   <Composition id="FrozenThumb" component={FrozenThumb} durationInFrames={10} fps={30} width={1920} height={1080} />
