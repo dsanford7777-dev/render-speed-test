@@ -22,7 +22,7 @@ const far = (st: St3, k: number): St3 => ({ ...st, cam: { ...st.cam, pos: [st.ca
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ---------------- straight from the Short ----------------
-  hook: R("hook"), reward: R("reward", 0.3), gang: R("gang"), never: R("never", 0.4),
+  hook: R("hook"), reward: R("reward", 0.3), gang: R("gang", undefined, (st) => far(st, 1.3)), never: R("never", 0.4),
   gave: (s, f) => { const u = U(asF(s), f), fall = 0.5 * clamp01((u - 0.25) / 0.75) ** 1.6;
     return { light: "morn", train: { x: ON_SPAN, fall, locked: true }, dof: 0, focus: Gg(10, H - 6, 0),
       cam: kick(move({ pos: Gg(20, H - 4, -78), look: Gg(14, H - 7, 0), fov: 36, roll: 0.03 }, { pos: Gg(15, H - 9, -72), look: Gg(12, H - 11, 0), fov: 38, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, s.a + Math.round(0.25 * (s.b - s.a)), 1.5) }; },
