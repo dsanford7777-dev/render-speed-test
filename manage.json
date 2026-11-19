@@ -1,9 +1,8 @@
 [
   {
-    "channel": "explained",
-    "videoId": "drlD0nZ6D3A",
-    "action": "replace_text",
-    "find": "#history #alabama #trainwreck",
-    "replace": "The 60-second version: https://youtu.be/oA_uPh13Yqk\n\n#history #alabama #trainwreck"
+    "channel": "shorts",
+    "videoId": "oA_uPh13Yqk",
+    "action": "delete",
+    "title": "Why a Railroad Blamed Robbers for Its Own Broken Bridge #history #shorts"
   }
 ]
