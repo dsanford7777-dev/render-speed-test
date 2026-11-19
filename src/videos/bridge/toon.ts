@@ -20,7 +20,7 @@ const SH_FELT: C3 = [0.62, 0.62, 0.7];
 export type Build = "adult" | "stout" | "kid";
 export type Outfit = {
   jacket: string; pants: string; boots: string; hat?: string | null; belt?: string | null; buttons?: string; rifle?: boolean;
-  sash?: string; sword?: boolean; moustache?: string; skin?: string; head?: number; cap?: string; hair?: string; dress?: string;
+  sash?: string; sword?: boolean; moustache?: string; /** a kerchief tied over the nose and mouth (colour) */ bandana?: string; skin?: string; head?: number; cap?: string; hair?: string; dress?: string;
   build?: Build;
   /** costume detail (front view): shirt front + lapels, tie, plaid lines, braces */
   shirt?: string; tie?: string; plaid?: string; braces?: string;
@@ -339,6 +339,19 @@ const faceFront = (p: Pen, cx: number, cy: number, W: number, expr: Expr, facing
   if (moustache) for (const s of [-1, 1])
     taper(p, [mx + s * 1.5 * u, cy + 12.5 * u], [mx + s * (stout ? 19 : 15) * u, cy + (stout ? 10.5 : 15) * u], stout ? 5.5 * u : 4.5 * u, 1.6 * u, moustache);
   if (expr === "nervous") p.ell(cx + 40 * u * (facing || 1), cy - 22 * u, 3 * u, 5 * u, "#9fd4ff", 2 * u);
+};
+
+/** a kerchief over the lower face: the part of the head outline below the eyes, plus a point hanging under the chin */
+const bandana = (p: Pen, hp: P2[], cx: number, cy: number, W: number, col: string, facing: number) => {
+  const u = (W / 100) * LOOK.face, yb = cy + 10.5 * u, low = hp.filter((q) => q[1] > yb);
+  if (low.length < 3) return;
+  const ymax = Math.max(...low.map((q) => q[1])), xs = low.map((q) => q[0]), x0 = Math.min(...xs), x1 = Math.max(...xs), mx = cx + 7 * u * facing, dk = mul(col, [0.72, 0.7, 0.72]);
+  p.poly([[mx - 24 * u, ymax - 9 * u], [mx + 24 * u, ymax - 9 * u], [mx + 3 * u * (facing || 1), ymax + 17 * u]], dk, 3 * u);
+  const i0 = hp.findIndex((q, i) => q[1] > yb && hp[(i + hp.length - 1) % hp.length][1] <= yb), arc: P2[] = [];
+  for (let k = 0; k < hp.length; k++) { const q = hp[(Math.max(0, i0) + k) % hp.length]; if (q[1] <= yb) break; arc.push(q); }
+  p.poly(arc.length >= 3 ? arc : low, col, 3.2 * u);
+  p.stroke([[x0 + 1.5 * u, yb], [x1 - 1.5 * u, yb]], 3.2 * u);
+  p.stroke([[mx - 13 * u, yb + 9 * u], [mx - 3 * u, yb + 15 * u]], 2 * u, dk); p.stroke([[mx + 15 * u, yb + 8 * u], [mx + 6 * u, yb + 16 * u]], 2 * u, dk);
 };
 
 /** profile face (facing screen-right): one eye, brow, nose tick, mouth near the front edge; no skin bump nose, no ear */
@@ -664,6 +677,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
   hatOn(p, o, hp, H, 300, hc, light, seed, facing, false);
   const brim = !!o.hat && o.hat !== "hair" && o.hat !== "bonnet" && o.hat !== "cap";
   faceFront(p, 300, hc, W, expr, facing, look, lid, brim, skin, o.moustache, o.build === "stout");
+  if (o.bandana) bandana(p, hp, 300, hc, W, o.bandana, facing);
   p.rot = null;
 };
 
@@ -803,6 +817,7 @@ export const bodySide = (p: Pen, o: Outfit, opts: SideOpts) => {
   hatOn(p, o, hp, H, hx, hc, light, seed, 1, true);
   const brim = !!o.hat && o.hat !== "hair" && o.hat !== "bonnet" && o.hat !== "cap";
   faceSide(p, hx, hc, W, expr, lid, brim, skin, o.moustache, o.build === "stout");
+  if (o.bandana) bandana(p, hp, hx + 22 * (W / 100), hc, W, o.bandana, 1);
   p.rot = null;
 };
 

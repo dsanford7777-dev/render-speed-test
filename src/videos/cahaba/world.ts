@@ -65,6 +65,11 @@ const OUT: Record<string, Who> = {
   m2: who(MINER("#6a4a3a", { cap: "#2e2a2c", skin: "#e0b48c", build: "stout" }), 106, "m2"),
   m3: who(MINER("#3e4a3a", { hat: "hair", hair: "#c9a060", skin: "#f5c9a0" }), 107, "m3"),
   m4: who(MINER("#5a5248", { moustache: "#8a5a30", plaid: "#3a3430", skin: "#c8946a" }), 108, "m4"),
+  // the same four as the newspapers drew them: "fiends", a kerchief over the face
+  b1: who(MINER("#4a5a6a", { moustache: "#3a2a20", bandana: "#b3262b" }), 105, "b1"),
+  b2: who(MINER("#6a4a3a", { cap: "#2e2a2c", skin: "#e0b48c", build: "stout", bandana: "#b3262b" }), 106, "b2"),
+  b3: who(MINER("#3e4a3a", { hat: "hair", hair: "#c9a060", skin: "#f5c9a0", bandana: "#2e4a7a" }), 107, "b3"),
+  b4: who(MINER("#5a5248", { moustache: "#8a5a30", plaid: "#3a3430", skin: "#c8946a", bandana: "#b3262b" }), 108, "b4"),
   wife: who({ jacket: "#7a4a5a", pants: "#3a3a44", boots: "#1e1a20", hat: "bonnet", cap: "#e9e2d2", dress: "#5a3a4a", buttons: "#7a4a5a", skin: "#f5d2b4", hair: "#6a4a2a" }, 109, "wife"),
   wife2: who({ jacket: "#4a6a6a", pants: "#3a3a44", boots: "#1e1a20", hat: "bonnet", cap: "#d9cfb4", dress: "#3a5a5a", buttons: "#4a6a6a", skin: "#e8c4a0", hair: "#3a2a20" }, 110, "wife2"),
   kid: who({ jacket: "#8a6a3a", pants: "#4a4a52", boots: "#2a221c", hat: "cap", cap: "#5a4a3a", buttons: "#8a6a3a", skin: "#f5d2b4", build: "kid" }, 111, "kid"),

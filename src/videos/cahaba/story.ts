@@ -120,7 +120,7 @@ const TKEY: V3 = Tw(-2.3, 3.1, 1.7);
 const ON_SPAN = -10;
 /** the three "wreckers" of the newspaper story, on the deck by night with a crowbar */
 const wreckers = (tt: number) => { const k = 0.5 + 0.5 * Math.sin(tt * 6), g = Gg(0.55, H + 1.0 + 0.25 * k, -0.35), b = Gg(0.1, H - 0.02, -0.72);
-  return { people: [P("m2", Gg(0.95, H, -0.1), "stern", -1, { hw: [g, L3(g, b, 0.4)] }), P("m4", Gg(-0.75, H, 0.55), "nervous", 1), P("m1", Gg(2.3, H, 0.6), "stern", -1)], tool: { kind: "bar" as const, g, b }, tip: b }; };
+  return { people: [P("b2", Gg(0.95, H, -0.1), "stern", -1, { hw: [g, L3(g, b, 0.4)] }), P("b4", Gg(-0.75, H, 0.55), "nervous", 1), P("b1", Gg(2.3, H, 0.6), "stern", -1)], tool: { kind: "bar" as const, g, b }, tip: b }; };
 /** a rider in car i at local (x, z), feet on that car's floor */
 const ride = (trainX: number, i: number, lx: number, lz: number, floor: number): V3 => { const c = carPose(trainX, i, 0).p; return Gg(c[0] + lx, c[1] + floor, lz); };
 /** water thrown up where the train went in */
@@ -236,7 +236,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // three strange men had been seen at the river: across the water at dusk, three dark figures on the bank
   three: (s, f) => ({ light: "dusk", wreck: true, dof: 1, focus: Gg(14.7, 1.4, -4.6),
     cam: move({ pos: Gg(-7.5, 1.7, -27), look: Gg(14.7, 1.35, -4.7), fov: 17, roll: 0.04 }, { pos: Gg(-6.5, 1.6, -26), look: Gg(14.7, 1.35, -4.7), fov: 15.5, roll: -0.02 }, f, s.a, s.b, smooth, 0),
-    people: BANK3.map(([w, p], i) => P(w, p, "stern", i === 0 ? 1 : -1)) }),
+    people: BANK3.map(([w, p], i) => P("b" + w.slice(1), p, "stern", i === 0 ? 1 : -1)) }),
   // so the railroad posted a reward: the brush goes over the notice
   posted: (s, f) => { const d = paste(t(f));
     return { light: "townN", poster: "reward", dof: 1, focus: Tw(-0.2, 1.9, 2.9), key: TKEY, tools: [d.tool], people: [d.man("stern")],

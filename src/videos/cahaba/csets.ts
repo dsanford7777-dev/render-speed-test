@@ -26,14 +26,14 @@ const track = (b: Batch, tie: THREE.Material, rail: THREE.Material, x0: number, 
   for (const z of [-0.72, 0.72]) b.add(boxGeo(V(x0, y - 0.14, z - 0.045), V(x1, y, z + 0.045)), rail);
 };
 /** an iron deck-truss span of length len, centred on x = 0, rail top at y = 0: two trusses 3 m apart under the track */
-const trussSpan = (len: number, iron: THREE.Material, tie: THREE.Material, rail: THREE.Material) => {
+const trussSpan = (len: number, iron: THREE.Material, tie: THREE.Material, rail: THREE.Material, ends = true) => {
   const G = new THREE.Group(), b = new Batch(), n = 8, D = 5.2, yT = -0.5, yB = yT - D, hl = len / 2;
   for (const z of [-1.5, 1.5]) {
-    b.add(boxGeo(V(-hl, yT - 0.38, z - 0.17), V(hl, yT, z + 0.17), 2), iron); b.add(boxGeo(V(-hl + len / n, yB, z - 0.17), V(hl - len / n, yB + 0.34, z + 0.17), 2), iron);
-    for (let k = 0; k <= n; k++) { const x = -hl + (len * k) / n; if (k > 0 && k < n) b.add(boxGeo(V(x - 0.12, yB, z - 0.12), V(x + 0.12, yT, z + 0.12), 2), iron);
+    b.add(boxGeo(V(-hl, yT - 0.38, z - 0.17), V(hl, yT, z + 0.17), 2), iron); { const q = ends ? 0 : len / n; b.add(boxGeo(V(-hl + q, yB, z - 0.17), V(hl - q, yB + 0.34, z + 0.17), 2), iron); }
+    for (let k = 0; k <= n; k++) { const x = -hl + (len * k) / n; if (ends || (k > 0 && k < n)) { const e = k === 0 ? 0.16 : k === n ? -0.16 : 0, w = e ? 0.16 : 0.12; b.add(boxGeo(V(x + e - w, yB, z - w), V(x + e + w, yT, z + w), 2), iron); }
       if (k < n) { const xn = x + len / n, up = k < n / 2; b.add(beamGeo(V(up ? x : xn, yT - 0.2, z), V(up ? xn : x, yB + 0.17, z), 0.2, 0.16), iron); } }
   }
-  for (let k = 0; k <= n; k++) { const x = -hl + (len * k) / n; b.add(boxGeo(V(x - 0.09, yT - 0.3, -1.5), V(x + 0.09, yT - 0.1, 1.5)), iron); if (k > 0 && k < n) { b.add(boxGeo(V(x - 0.08, yB + 0.05, -1.5), V(x + 0.08, yB + 0.22, 1.5)), iron); b.add(beamGeo(V(x, yT - 0.2, -1.5), V(x, yB + 0.14, 1.5), 0.1, 0.1), iron); } }
+  for (let k = 0; k <= n; k++) { const x = -hl + (len * k) / n; b.add(boxGeo(V(x - 0.09, yT - 0.3, -1.5), V(x + 0.09, yT - 0.1, 1.5)), iron); if (ends || (k > 0 && k < n)) b.add(boxGeo(V(x - 0.08, yB + 0.05, -1.5), V(x + 0.08, yB + 0.22, 1.5)), iron); if (k > 0 && k < n) { b.add(beamGeo(V(x, yT - 0.2, -1.5), V(x, yB + 0.14, 1.5), 0.1, 0.1), iron); } }
   track(b, tie, rail, -hl, hl); b.build(G, true); return G;
 };
 
@@ -66,7 +66,7 @@ export function buildGorge(): GorgeSet {
     const mk = (l: typeof fol, key: string, col: string) => { const ms = new THREE.Mesh(mergeFacets(l), lam(key, () => ({ color: col, vertexColors: true, flatShading: true }))); ms.castShadow = true; ms.receiveShadow = true; G.add(ms); };
     mk(fol, "caPine", "#3f5a40"); mk(tr, "caTrunk", "#4a3a2c"); mk(bare, "caBare", "#5a4a3e"); mk(brush, "caBrush", "#8a6a44"); }
   // ---- the three stone piers (all that stands today) ----
-  for (const x of PIER_X) { const y0 = groundY(x) - 1.5, y1 = H - 5.8, g = new THREE.CylinderGeometry(1.75, 2.9, y1 - y0, 4, 1); g.rotateY(Math.PI / 4); g.scale(1, 1, 1.45);
+  for (const x of PIER_X) { const y0 = groundY(x) - 1.5, y1 = H - 6.15, g = new THREE.CylinderGeometry(1.75, 2.9, y1 - y0, 4, 1); g.rotateY(Math.PI / 4); g.scale(1, 1, 1.45);
     const uv = g.attributes.uv as THREE.BufferAttribute; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 3, uv.getY(i) * ((y1 - y0) / 4));
     const m = new THREE.Mesh(g, pier); m.position.set(ox + x, (y0 + y1) / 2, 0); m.castShadow = true; m.receiveShadow = true; G.add(m);
     const cap = new THREE.Mesh(boxGeo(V(-1.6, 0, -2.5), V(1.6, 0.45, 2.5), 2), pier); cap.position.set(ox + x, y1, 0); cap.castShadow = true; G.add(cap); if (Math.abs(x) < 20) ring(x, 0, 9); }
@@ -126,8 +126,8 @@ export function buildGorge(): GorgeSet {
   const steam = spr(12, new THREE.Color(0.6, 0.6, 0.64)), smoke = spr(18, new THREE.Color(0.2, 0.19, 0.2));
   // ---- the wreck, afterwards: the fallen spans in the river, the cars under them, fire in it (no people are shown) ----
   const wreck = new THREE.Group(); wreck.visible = false; G.add(wreck);
-  { const a = trussSpan(34, iron, tie, rail); a.position.set(ox + 9, 9.5, 0.6); a.rotation.set(0.12, 0.05, -1.02); wreck.add(a);
-    const c = trussSpan(34, iron, tie, rail); c.position.set(ox - 3, 2.0, -1.5); c.rotation.set(0.5, 0.22, 0.1); wreck.add(c);
+  { const a = trussSpan(34, iron, tie, rail, false); a.position.set(ox + 9, 9.5, 0.6); a.rotation.set(0.12, 0.05, -1.02); wreck.add(a);
+    const c = trussSpan(34, iron, tie, rail, false); c.position.set(ox - 3, 2.0, -1.5); c.rotation.set(0.5, 0.22, 0.1); wreck.add(c);
     const charred = M("caChar", "#2a2422"); for (const [x, y, z, rx, rz, l] of [[-2, 1.2, 1.2, 0.3, 0.2, 12], [6, 2.0, -0.8, -0.4, 0.5, 12], [-9, 0.9, 0.4, 0.1, -0.3, 10]]) { const m = new THREE.Mesh(boxGeo(V(-l / 2, -1.2, -1.3), V(l / 2, 1.2, 1.3), 0, true), charred); m.position.set(ox + x, y, z); m.rotation.set(rx, 0.3 * rz, rz); m.castShadow = true; wreck.add(m); }
     const eng = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.85, 7, 14).rotateZ(Math.PI / 2), black); eng.position.set(ox - 6, 1.0, -2.6); eng.rotation.set(0, 0.5, 0.25); eng.castShadow = true; wreck.add(eng);
     for (const [x, z] of [[-6, 0], [4, 1], [-1, -3], [9, -1]]) ring(x, z, 7); }
