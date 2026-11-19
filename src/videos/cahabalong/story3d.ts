@@ -27,7 +27,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "morn", train: { x: ON_SPAN, fall, locked: true }, dof: 0, focus: Gg(10, H - 6, 0),
       cam: kick(move({ pos: Gg(20, H - 4, -78), look: Gg(14, H - 7, 0), fov: 36, roll: 0.03 }, { pos: Gg(15, H - 9, -72), look: Gg(12, H - 11, 0), fov: 38, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, s.a + Math.round(0.25 * (s.b - s.a)), 1.5) }; },
   drop: R("drop", 0.1), splash: R("splash", 0.05), jump: R("jump", 0.2), lived: R("lived"), dead: R("dead"),
-  papers: R("papers"), fiends: R("fiends", 0.2), rail: R("rail", 0.5), three: R("three"), posted: R("posted"),
+  papers: R("papers"), fiends: R("fiends", 0.2, (st) => far(st, 1.45)), rail: R("rail", 0.5), three: R("three"), posted: R("posted"),
   locals: R("locals"), doubt: R("doubt", 0.3), miners: R("miners"), help: R("help"),
   letter: R("letter"), pay: R("pay", 0.4), tells: R("tells"), did: R("did", 0.3),
   young: R("young"), archive: R("archive"), records: R("records", 0.3), errors: R("errors", 0.5), story: R("story", 0.4),
