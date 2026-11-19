@@ -1,8 +1,15 @@
 [
   {
     "channel": "shorts",
-    "videoId": "oA_uPh13Yqk",
+    "videoId": "fvVrfDQuuVo",
+    "action": "replace_text",
+    "find": "LONGFORM_LINK_PENDING",
+    "replace": "https://youtu.be/F6UFalhajcY"
+  },
+  {
+    "channel": "explained",
+    "videoId": "drlD0nZ6D3A",
     "action": "delete",
-    "title": "Why a Railroad Blamed Robbers for Its Own Broken Bridge #history #shorts"
+    "title": "The Train Wreck a Railroad Blamed on Robbers Nobody Could Find"
   }
 ]
