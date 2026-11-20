@@ -243,7 +243,7 @@ export function buildRoom(): RoomSet {
     jb.add(new THREE.CylinderGeometry(0.2, 0.17, 0.12, 16).translate(ox + COUNTER.x - 0.2, COUNTER.y + 0.11, COUNTER.z), M("kpCapF", "#26304a")); jb.add(new THREE.CylinderGeometry(0.175, 0.175, 0.05, 16).translate(ox + COUNTER.x - 0.2, COUNTER.y + 0.08, COUNTER.z), M("kpCapB", "#c0353a"));
     jb.add(boxGeo(V(ox + COUNTER.x - 1.4, COUNTER.y + 0.05, COUNTER.z - 0.05), V(ox + COUNTER.x - 0.5, COUNTER.y + 0.09, COUNTER.z + 0.03)), M("kpBlade", "#c9ccd2"));
     jb.build(dress[d], true);
-    for (const [x, t] of [[0.9, "8 M"], [-0.2, "2 M"], [-1.0, "3 M"]] as [number, string][]) { const tg = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.17), lam("kpTag" + t, () => ({ map: labelTex(t, "#f3ecd8", "rgba(30,20,20,0.9)", 1) }))); tg.rotation.set(-1.0, Math.PI, 0); tg.position.set(ox + COUNTER.x + x, COUNTER.y + 0.25, COUNTER.z - 0.32); dress[d].add(tg); } }
+    for (const [x, t] of [[0.9, "8 M"], [-0.2, "2 M"], [-1.0, "3 M"]] as [number, string][]) { const tg = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.17), lam("kpTag" + t, () => ({ map: labelTex(t, "#f3ecd8", "rgba(30,20,20,0.9)", 1) }))); tg.rotation.set(-0.45, Math.PI, 0); tg.position.set(ox + COUNTER.x + x, COUNTER.y + 0.27, COUNTER.z - 0.34); dress[d].add(tg); } }
 
   // ---- beer hall: dark panelling, a bar with taps and barrels, the long table and benches, antlers, hanging lamps ----
   { const d = "pub" as Dressing, pb = new Batch(); walls(d, lam("kpPubWall", () => ({ map: repK(panelTex(), 5, 1.6), color: "#7a5a3e" })), lam("kpPubDado", () => ({ map: repK(panelTex(), 5, 1), color: "#5a3e2a" })), false);

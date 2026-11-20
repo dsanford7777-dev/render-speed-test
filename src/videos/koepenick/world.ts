@@ -26,7 +26,7 @@ const LP: Record<Light, LightPreset> = {
   // Koepenick at a quarter to three: lower, warmer sun across the square
   aft: { ...D, fogNear: 60, fogFar: 520, lit: [1.38, 1.22, 1.0], shade: [0.42, 0.42, 0.56], lift: [0.06, 0.05, 0.08], charTint: [1.04, 0.96, 0.88], sideTint: [0.92, 0.88, 0.92], hemiI: 0.6, sunI: 2.4, sunCol: "#ffdcae", sky: "#b0c6dc", ground: "#7a6a58", fog: "#cfd2d4" },
   // the junk shop: one window, a hanging lamp
-  junk: { ...D, fogNear: 30, fogFar: 200, lit: [0.72, 0.64, 0.52], shade: [0.2, 0.18, 0.18], lift: [0.04, 0.03, 0.04], charTint: [1.02, 0.94, 0.84], sideTint: [0.92, 0.86, 0.8], hemiI: 0.34, sunI: 0, sunCol: "#ffe0b0", sky: "#8a7a64", ground: "#3a2e24", fog: "#1a1410" },
+  junk: { ...D, fogNear: 30, fogFar: 200, lit: [0.72, 0.64, 0.52], shade: [0.2, 0.18, 0.18], lift: [0.06, 0.05, 0.05], charTint: [1.02, 0.94, 0.84], sideTint: [0.92, 0.86, 0.8], hemiI: 0.55, sunI: 0, sunCol: "#ffe0b0", sky: "#8a7a64", ground: "#3a2e24", fog: "#1a1410" },
   // the beer hall: warm lamplight, dark wood
   pub: { ...D, fogNear: 30, fogFar: 200, lit: [0.66, 0.52, 0.38], shade: [0.16, 0.12, 0.11], lift: [0.04, 0.03, 0.03], charTint: [1.06, 0.92, 0.78], sideTint: [0.94, 0.84, 0.74], hemiI: 0.3, sunI: 0, sunCol: "#ffd0a0", sky: "#6a5040", ground: "#2a1e16", fog: "#0e0a08" },
   // the mayor's office in the afternoon: window light and a lamp

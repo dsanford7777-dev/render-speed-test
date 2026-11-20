@@ -161,7 +161,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "junk", dof: 1, people: [P("dealer", dp, "smile", -1, { hw: [Rm(-0.2, COUNTER.y + 0.08, COUNTER.z)] }), P("voigt", vp, "grin", 1)],
       cam: move({ pos: Rm(-1.4, 1.75, -2.6), look: Rm(0, 1.3, COUNTER.z), fov: 50, roll: 0.04 }, { pos: Rm(-0.9, 1.65, -2.3), look: Rm(0, 1.3, COUNTER.z), fov: 50, roll: -0.02 }, f, s.a, s.b, smooth, 0), subjects: [["the cap on the counter", Rm(COUNTER.x - 0.2, COUNTER.y + 0.12, COUNTER.z), 0.2]] }; },
   // "piece by piece": a long-lens slide along the counter, coat, cap, sword, each with its price tag
-  pieces: (s, f) => { const cam = move({ pos: Rm(1.7, COUNTER.y + 0.55, COUNTER.z - 1.25), look: Rm(1.3, COUNTER.y + 0.12, COUNTER.z), fov: 34, roll: 0.05 }, { pos: Rm(-1.0, COUNTER.y + 0.55, COUNTER.z - 1.25), look: Rm(-0.9, COUNTER.y + 0.1, COUNTER.z), fov: 34, roll: -0.04 }, f, s.a, s.b, smooth, 0);
+  pieces: (s, f) => { const tags = [1.3, 0.2, -0.6], u = U(s, f) * 3, i = Math.min(2, Math.floor(u)), k = smooth(clamp01((u - i) / 0.3)), x = i === 0 ? tags[0] : tags[i - 1] + (tags[i] - tags[i - 1]) * k;
+    const tx = COUNTER.x + x - 0.4, cam: Cam = { pos: Rm(tx + 0.25, COUNTER.y + 0.62, COUNTER.z - 1.05), look: Rm(tx, COUNTER.y + 0.14, COUNTER.z - 0.2), fov: 44, roll: 0.05 - 0.04 * i };
     return { light: "junk", dof: 1.6, closeup: true, cam, subjects: [["the price tags", [cam.look[0], COUNTER.y + 0.25, COUNTER.z - 0.32], 0.3]] }; },
   // "from junk shops": outside the TROEDLER, he comes out with a bundle wrapped in newspaper
   shops: (s, f) => { const tt = t(f - s.a); return { light: "noon", dof: 0.6, people: [walker("voigt", St(JUNK_X - 0.5, 0, 0)[0], PAVE, WZ - 1.2, -1.0, tt, "grin", { side: undefined })].map((q) => ({ ...q, side: { phase: ((tt * 1.0 / 1.6) % 1), mirror: true, stride: 0.62, carry: add(q.p, -0.25, 1.05, -0.1) } })),
@@ -273,8 +274,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "noon", dof: 0.8, people: row.map(([w, p, e], i) => P(w, p, e, 0, i === 0 || i === 2 || i === 3 ? { hw: [add(papers[i === 0 ? 0 : i === 2 ? 1 : 2].p, 0, -0.2, 0)] } : {})), news: papers,
       cam: move({ pos: St(6.7, 1.7, WZ - LA[0]), look: St(6.4, 1.4, WZ - 1.6), fov: 46, roll: -0.04 }, { pos: St(6.2, 1.65, WZ - LA[0] + 0.7), look: St(6.4, 1.4, WZ - 1.6), fov: 46, roll: 0.03 }, f, s.a, s.b, smooth, 0), subjects: [["the papers", add(row[0][1], -0.2, 1.25, -0.35), 0.2]] }; },
   // "In the end, even the Kaiser let him go.": the Kaiser at his desk, the paper in his hand, laughing
-  kaiser: (s, f) => { const p = Rm(0, 0, DESK.z + DESK.hd + 0.35), pp: V3 = add(p, 0.3, 1.25, -0.5);
-    return { light: "palace", dof: 1, people: [P("kaiser", p, "laugh", 0, { hw: [add(pp, 0.1, -0.18, 0)] })], news: [{ p: pp, head: "fake", s: 0.8, roll: 0.05 * Math.sin(t(f) * 12) }],
+  kaiser: (s, f) => { const p = Rm(0, 0, DESK.z + DESK.hd + 0.35), pp: V3 = add(p, 0.5, 1.02, -0.5);
+    return { light: "palace", dof: 1, people: [P("kaiser", p, "laugh", 0, { hw: [add(pp, 0.1, -0.18, 0)] })], news: [{ p: pp, head: "fake", s: 0.62, roll: 0.05 * Math.sin(t(f) * 12) }],
       cam: kick(move({ pos: Rm(0.3, 1.4, -1.4), look: add(p, 0, 1.45, 0), fov: 46, roll: 0.06 }, { pos: Rm(0.15, 1.45, -1.0), look: add(p, 0, 1.5, 0), fov: 46, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, W(11, "go"), 0.6), subjects: [["the Kaiser", add(p, 0, 1.5, 0), 0.3]] }; },
   // --- 12: "He'd later swear he only did it to get a passport.": in his new suit, hand up as if under oath ---
   swear: (s, f) => { const p = St(TAILOR_X + 2.2, PAVE, WZ - 1.6); return { light: "noon", dof: 1.1, people: [P("suit", p, "smile_closed", 0, { hw: [add(p, -0.42, 1.7, -0.15)] })],
@@ -285,7 +286,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["the board", Sq(BOARD[0], BOARD[1], BOARD[2]), 0.2]] }),
   // "That town hall couldn't issue passports.": the whole board in shot, no passport office on it (the stamp says so)
   nopass: (s, f) => ({ light: "aft", dof: 1.2, closeup: true, gate: 0,
-    cam: kick(move({ pos: Sq(BOARD[0] - 0.3, BOARD[1] + 0.05, BOARD[2] - 2.6), look: Sq(BOARD[0], BOARD[1] + 0.05, BOARD[2]), fov: 40, roll: -0.04 }, { pos: Sq(BOARD[0] - 0.25, BOARD[1] + 0.05, BOARD[2] - 2.3), look: Sq(BOARD[0], BOARD[1] + 0.05, BOARD[2]), fov: 40, roll: 0.02 }, f, s.a, s.b, smooth, 0), f, W(12, "passports"), 0.7),
+    cam: kick(move({ pos: Sq(BOARD[0] - 0.3, BOARD[1] - 0.45, BOARD[2] - 3.9), look: Sq(BOARD[0], BOARD[1] - 0.57, BOARD[2]), fov: 40, roll: -0.04 }, { pos: Sq(BOARD[0] - 0.25, BOARD[1] - 0.45, BOARD[2] - 3.6), look: Sq(BOARD[0], BOARD[1] - 0.57, BOARD[2]), fov: 40, roll: 0.02 }, f, s.a, s.b, smooth, 0), f, W(12, "passports"), 0.7),
     subjects: [["the board", Sq(BOARD[0], BOARD[1], BOARD[2]), 0.2]] }),
   // --- 13: "Four years later, he finally got one...": the Luxembourg counter, the clerk hands over the passport ---
   lux: (s, f) => { const u = U(s, f), cp = Rm(-1.7, 0, DESK.z + 0.25), vp = Rm(-1.1, 0, DESK.z - DESK.hd - 0.45), pass: V3 = L3(add(cp, 0.3, 1.1, -0.6), add(vp, 0.25, 1.15, 0.45), smooth(u * 1.5));
@@ -300,7 +301,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
 };
 
 /** tilt these shots down a little (metres off the look point) so faces sit above the captions */
-const TILT: Record<string, number> = { gate: 0.8, shops: 0.5, baths: 1.3, order: 0.2, mine: 0.2, train: 2.5, suit: 0.5 };
+const TILT: Record<string, number> = { gate: 0.8, shops: 0.5, baths: 1.3, order: 0.2, mine: 0.2, train: 2.5, suit: 0.5, board: 0.3, notoff: 0.15, fit: 0.15, kaiser: 0.2 };
 export const specAt = (s: ShotDef, f: number): St3 => {
   const st0 = SPECS[s.g](s, f), st = TILT[s.g] ? { ...st0, cam: { ...st0.cam, look: [st0.cam.look[0], st0.cam.look[1] - TILT[s.g], st0.cam.look[2]] as V3 } } : st0, c = st.cam;
   const d = Math.hypot(c.pos[0] - c.look[0], c.pos[1] - c.look[1], c.pos[2] - c.look[2]), id = s.id, loop = s.g === "hook" ? clamp01(f / 20) : s.g === "end" ? 0 : 1, sw = 0.0032 * Math.min(d, 60) * loop;
