@@ -51,7 +51,7 @@ const GUARD = (skin: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket: 
 const CITY = (jacket: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#3a3640", boots: "#1e1a20", hat: "fedora", cap: "#4a4438", buttons: jacket, skin: "#f0d2b0", shirt: "#f6f2e8", tie: "#3a2a20", ...extra });
 const OUT: Record<string, Who> = {
   // Voigt: as the captain (peaked cap with the red band, greatcoat, sword, white moustache), as himself, in his new suit
-  cap: who({ jacket: "#26304a", pants: "#1d1b22", boots: "#141216", hat: "visor", cap: "#26304a", band: "#c0353a", buttons: "#e8c45a", sword: true, moustache: "#eeece6", skin: "#ecc8a4", belt: "#c9ccd2", shirt: "#f6f2e8" }, 201, "cap"),
+  cap: who({ jacket: "#26304a", pants: "#1d1b22", boots: "#141216", hat: "visor", cap: "#26304a", band: "#c0353a", buttons: "#e8c45a", sword: true, sash: "#c9ccd2", moustache: "#eeece6", skin: "#ecc8a4", belt: null, shirt: "#f6f2e8" }, 201, "cap"),
   voigt: who({ jacket: "#5a4a3a", pants: "#3a3430", boots: "#2a221c", hat: "cap", cap: "#4a4440", buttons: "#5a4a3a", moustache: "#eeece6", skin: "#ecc8a4", braces: "#3a2a20", shirt: "#c9c2b0" }, 201, "voigt"),
   suit: who({ jacket: "#3a3440", pants: "#3a3440", boots: "#141216", hat: "fedora", cap: "#2e2a34", buttons: "#3a3440", moustache: "#eeece6", skin: "#ecc8a4", shirt: "#f6f2e8", tie: "#7a1e1e" }, 201, "suit"),
   // ten guardsmen (g1-g4 are the swimmers, g5-g10 from the shooting range)
@@ -125,11 +125,11 @@ export class KWorld {
         const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.088, 0.088, 0.03, 14), M("kpPewter", "#9a9ea6")); lid.position.set(0, 0.12, 0); lid.visible = false; stein.add(lid); const hdl = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.014, 6, 12, Math.PI), M("kpSteinT", "#c9c2b0")); hdl.rotation.z = -Math.PI / 2; hdl.position.set(0.09, 0, 0); stein.add(hdl); }
       const quill = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.004, 0.17, 6), M("kpPenT", "#1a1a1e"));
       const hammer = new THREE.Group(); { const hd = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.05, 0.05), iron); hammer.add(hd); }
-      const boot = new THREE.Group(); { const leg = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.26, 0.12), M("kpBootT", "#3a2a22")); leg.position.y = 0.13; boot.add(leg); const foot = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.08, 0.12), M("kpBootT", "#3a2a22")); foot.position.set(0.06, 0.0, 0); boot.add(foot); }
+      const boot = new THREE.Group(); { const leg = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.26, 0.12), M("kpBootT", "#8a5a34")); leg.position.y = 0.13; boot.add(leg); const foot = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.08, 0.12), M("kpBootT", "#8a5a34")); foot.position.set(0.06, 0.0, 0); boot.add(foot); }
       const bread = new THREE.Mesh(new THREE.CapsuleGeometry(0.05, 0.14, 4, 8), M("kpBread", "#c98a4a")); bread.rotation.z = Math.PI / 2;
       const heads = { stein, quill, hammer, boot, bread }; for (const h of Object.values(heads)) g.add(h);
       shadowAll(g); g.visible = false; R.add(g); this.tools.push({ g, handle, heads }); }
-    this.cards = { paper: new CardPool(R, sheetTex(), 12, 0.24, 0.3, NOINK), coin: new CardPool(R, coinTex(), 30, 0.09, 0.09, AFTERINK), note: new CardPool(R, noteTex(), 20, 0.2, 0.12, NOINK), towel: new CardPool(R, towelTex(), 4, 0.3, 0.45, NOINK),
+    this.cards = { paper: new CardPool(R, sheetTex(), 12, 0.24, 0.3, NOINK), coin: new CardPool(R, coinTex(), 30, 0.09, 0.09, AFTERINK), note: new CardPool(R, noteTex(), 20, 0.2, 0.12, NOINK), towel: new CardPool(R, towelTex(), 4, 0.2, 0.32, NOINK),
       sausage: new CardPool(R, sausageTex(), 6, 0.2, 0.08, NOINK), passport: new CardPool(R, passportTex(), 2, 0.13, 0.18, NOINK) };
     const puffT = puffTex();
     for (let i = 0; i < 24; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: puffT, transparent: true, depthWrite: false, fog: false })); s.visible = false; s.layers.set(AFTERINK); R.add(s); this.puffs.push(s); }
@@ -208,7 +208,7 @@ export class KWorld {
       const onCard = (wp: THREE.Vector3): [number, number] => { const dir = wp.clone().sub(cam.position), tt = o3.clone().sub(cam.position).dot(n3) / dir.dot(n3), pc = cam.position.clone().addScaledVector(dir, tt); return [pc.clone().sub(o3).dot(crs) / ks, (pc.y - q.p[1]) / ks]; };
       const mirror = !!q.side && (q.side.mirror !== (right.x < 0));
       // a towel over the left shoulder: a card just in front of the body
-      if (q.towel) towels.push([q.p[0] + n3.x * 0.16 - crs.x * 0.16 * ks, q.p[1] + 1.18 * ks, q.p[2] + n3.z * 0.16 - crs.z * 0.16 * ks]);
+      if (q.towel) towels.push([q.p[0] + n3.x * 0.16 + crs.x * (mirror ? -1 : 1) * 0.22 * ks, q.p[1] + 0.92 * ks, q.p[2] + n3.z * 0.16 + crs.z * (mirror ? -1 : 1) * 0.22 * ks]);
       const lt = mirror ? Math.PI - lightA : lightA;
       if (q.side) {
         const ph = Math.round(q.side.phase * 16) / 16, cw3 = q.side.carry, cy = cw3 ? onCard(V(...cw3)) : null, carry = cy ? [300 + (mirror ? -cy[0] : cy[0]) / SUc, 975 - cy[1] / SUc] as [number, number] : undefined;

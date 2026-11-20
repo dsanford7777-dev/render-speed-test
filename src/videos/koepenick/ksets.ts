@@ -93,7 +93,7 @@ export function buildStreet(): StreetSet {
   { const brick = lam("kpStBrick", () => ({ map: repK(brickTex("kpStB", ["#a65e44", "#985440", "#b26a4e", "#8a4a38"], "#d9c8ae", 0.25), 5, 3) })), stone = M("kpStStone", "#d8cfbd"), x0 = STATION_X - 6.5, x1 = STATION_X + 6.5, ew = 2.2;
     b.add(boxGeo(V(ox + x0, 0, WZ), V(ox + STATION_X - ew, 11, WZ + 12), 1.4), brick); b.add(boxGeo(V(ox + STATION_X + ew, 0, WZ), V(ox + x1, 11, WZ + 12), 1.4), brick); b.add(boxGeo(V(ox + STATION_X - ew, 5.6, WZ), V(ox + STATION_X + ew, 11, WZ + 12), 1.4), brick);
     b.add(boxGeo(V(ox + STATION_X - ew, 0, WZ + 3), V(ox + STATION_X + ew, 5.6, WZ + 3.2)), M("kpStIn", "#3a2e28"));
-    front(G, ox, 3.6, 3.2, winLit(1.6), STATION_X, 3.6, WZ + 2.98);
+    front(G, ox, 3.6, 3.2, winLit(0.75), STATION_X, 3.6, WZ + 2.98);
     for (const sx of [-1, 1]) b.add(boxGeo(V(ox + STATION_X + sx * ew - 0.3, 0, WZ - 0.25), V(ox + STATION_X + sx * ew + 0.3, 5.8, WZ + 0.1)), stone);
     b.add(boxGeo(V(ox + STATION_X - ew - 0.3, 5.6, WZ - 0.25), V(ox + STATION_X + ew + 0.3, 6.1, WZ + 0.1)), stone);
     front(G, ox, 5.4, 1.0, lam("kpStSign", () => ({ map: signTex("BAHNHOF", "#2a2228", "#e9c876", 1024, 190) })), STATION_X, 6.7, WZ - 0.04, false);
@@ -163,7 +163,7 @@ export function buildSquare(): SquareSet {
   // two steps up to the gate
   for (let k = 0; k < 2; k++) b.add(boxGeo(V(ox + GATE.x - gw - 0.6 + k * 0.2, 0.12 + k * 0.12, TZ - 1.1 + k * 0.4), V(ox + GATE.x + gw + 0.6 - k * 0.2, 0.24 + k * 0.12, TZ)), stone);
   // the board of offices beside the gate (screen left of it), and a lamp bracket over it
-  { const bd = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 1.4), new THREE.MeshLambertMaterial({ map: boardTex() })); bd.rotation.y = Math.PI; bd.position.set(ox + BOARD[0], BOARD[1], BOARD[2] - 0.02); bd.receiveShadow = true; G.add(bd);
+  { const bd = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 1.4), new THREE.MeshLambertMaterial({ map: boardTex() })); bd.rotation.y = Math.PI; bd.position.set(ox + BOARD[0], BOARD[1], BOARD[2] - 0.12); bd.receiveShadow = true; G.add(bd);
     b.add(boxGeo(V(ox + BOARD[0] - 0.56, BOARD[1] - 0.76, BOARD[2] - 0.04), V(ox + BOARD[0] + 0.56, BOARD[1] + 0.76, BOARD[2] + 0.02)), stone); }
   // ---- the rest of the square: houses on three sides, lamps, lindens, a pump, benches, a cab with its horse missing ----
   const side = (x: number, z: number, yaw: number, w: number, h: number, col: string, key: string) => { const g = new THREE.Group(), fac = lam("kpSqF" + key, () => ({ map: facadeHD("kpSq" + key, w, h, { wall: col, shutter: "#4a5a4a", door: true }) }));
