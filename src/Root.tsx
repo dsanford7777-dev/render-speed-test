@@ -26,7 +26,7 @@ import { FrozenLong, FrozenThumb, FROZENLONG_FRAMES } from "./videos/frozenlong/
 import { Cahaba, CAHABA_FRAMES } from "./videos/cahaba/Cahaba";
 import { CahabaLong, CahabaThumb, CAHABALONG_FRAMES } from "./videos/cahabalong/CahabaLong";
 import { Koepenick, KOEPENICK_FRAMES } from "./videos/koepenick/Koepenick";
-import { KoepenickLong, KOEPENICKLONG_FRAMES } from "./videos/koepenicklong/KoepenickLong";
+import { KoepenickLong, KoepenickThumb, KOEPENICKLONG_FRAMES } from "./videos/koepenicklong/KoepenickLong";
 import { SubscribeTag } from "./videos/shared/SubscribeTag";
 import { AbsoluteFill as AF } from "remotion";
 const SubDemo: React.FC = () => <AF><Genin /><SubscribeTag total={GENIN_FRAMES} /></AF>;
@@ -67,6 +67,7 @@ const FrozenLongPadded = padded(FrozenLong);
 const CahabaPadded = padded(Cahaba);
 const KoepenickPadded = padded(Koepenick);
 const KoepenickLongPadded = padded(KoepenickLong);
+const KoepenickThumbPadded = padded(KoepenickThumb);
 const CahabaLongPadded = padded(CahabaLong);
 const CahabaThumbPadded = padded(CahabaThumb);
 const FrozenThumbPadded = padded(FrozenThumb);
@@ -131,6 +132,8 @@ export const Root: React.FC = () => (<>
   <Composition id="KoepenickPadded" component={KoepenickPadded} durationInFrames={KOEPENICK_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="KoepenickLong" component={KoepenickLong} durationInFrames={KOEPENICKLONG_FRAMES} fps={30} width={1920} height={1080} />
   <Composition id="KoepenickLongPadded" component={KoepenickLongPadded} durationInFrames={KOEPENICKLONG_FRAMES + PAD} fps={30} width={1920} height={1080} />
+  <Composition id="KoepenickThumb" component={KoepenickThumb} durationInFrames={10} fps={30} width={1920} height={1080} />
+  <Composition id="KoepenickThumbPadded" component={KoepenickThumbPadded} durationInFrames={10 + PAD} fps={30} width={1920} height={1080} />
   <Composition id="Cahaba" component={Cahaba} durationInFrames={CAHABA_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="CahabaPadded" component={CahabaPadded} durationInFrames={CAHABA_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="CahabaLong" component={CahabaLong} durationInFrames={CAHABALONG_FRAMES} fps={30} width={1920} height={1080} />

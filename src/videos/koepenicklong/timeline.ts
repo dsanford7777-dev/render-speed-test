@@ -138,3 +138,116 @@ export const wordAt = (seg: number, w: string, fallbackU = 0.5) => {
   return Math.round((hit ? hit.s : a + (b - a) * fallbackU) * FPS);
 };
 export const segAt = (seg: number) => Math.round(SEG_TIMES[seg][0] * FPS);
+
+export const CHAPTERS: { seg: number; num: string; title: string }[] = [
+  { seg: 8, num: "1", title: "A man with no papers" },
+  { seg: 18, num: "2", title: "Building a captain" },
+  { seg: 26, num: "3", title: "By order of the Kaiser" },
+  { seg: 33, num: "4", title: "The town hall" },
+  { seg: 48, num: "5", title: "The captain walks away" },
+  { seg: 56, num: "6", title: "Manhunt" },
+  { seg: 62, num: "7", title: "The world laughs" },
+  { seg: 74, num: "END", title: "The passport" },
+];
+
+// ---------------- shots ----------------
+/** k: "3d" = rendered scene (story3d.ts), "2d" = motion graphic (boards.tsx). A shot starts at segment `s` (or at word
+ *  `w` inside it) and runs until the next shot. g = graphic / shot key. */
+export type Kind = "3d" | "2d";
+type RawShot = { s: number; w: string | null; k: Kind; g: string };
+const raw: RawShot[] = [
+  { s: 0, w: null, k: "3d", g: "mine" },
+  { s: 1, w: null, k: "3d", g: "mayor" }, { s: 1, w: "pointed", k: "3d", g: "bayonets" },
+  { s: 2, w: null, k: "3d", g: "arrest" }, { s: 2, w: "cash", k: "3d", g: "count" }, { s: 2, w: "signed", k: "3d", g: "sign" },
+  { s: 3, w: null, k: "2d", g: "problem" }, { s: 3, w: "He", k: "3d", g: "notoff" },
+  { s: 4, w: null, k: "3d", g: "shoe" }, { s: 4, w: "wearing", k: "3d", g: "pieces" },
+  { s: 5, w: null, k: "3d", g: "laugh" }, { s: 5, w: "army", k: "3d", g: "salute" },
+  { s: 6, w: null, k: "2d", g: "title" },
+  { s: 7, w: null, k: "3d", g: "hook" },
+  { s: 8, w: null, k: "2d", g: "voigt" }, { s: 8, w: "1849", k: "2d", g: "born" },
+  { s: 9, w: null, k: "2d", g: "n14" },
+  { s: 10, w: null, k: "2d", g: "n29" },
+  { s: 11, w: null, k: "3d", g: "prison" }, { s: 11, w: "did", k: "3d", g: "shoe" },
+  { s: 12, w: null, k: "2d", g: "wismar" },
+  { s: 13, w: null, k: "2d", g: "police" },
+  { s: 14, w: null, k: "2d", g: "out" },
+  { s: 15, w: null, k: "3d", g: "streetwide" }, { s: 15, w: "police", k: "2d", g: "banned" },
+  { s: 16, w: null, k: "2d", g: "trap" },
+  { s: 17, w: null, k: "3d", g: "streetwide2" },
+  { s: 18, w: null, k: "3d", g: "soldiers" }, { s: 18, w: "uniform", k: "3d", g: "checked" },
+  { s: 19, w: null, k: "3d", g: "shops" },
+  { s: 20, w: null, k: "3d", g: "dealer" }, { s: 20, w: "put", k: "3d", g: "pieces" }, { s: 20, w: "captain", k: "2d", g: "guards" },
+  { s: 21, w: null, k: "3d", g: "fit" }, { s: 21, w: "Instead", k: "2d", g: "cap" },
+  { s: 22, w: null, k: "2d", g: "bundle" },
+  { s: 23, w: null, k: "2d", g: "oct15" },
+  { s: 24, w: null, k: "2d", g: "oct16" }, { s: 24, w: "Köpenick", k: "3d", g: "squarewide" },
+  { s: 25, w: null, k: "3d", g: "notoff" },
+  { s: 26, w: null, k: "3d", g: "swim" }, { s: 26, w: "swimming", k: "3d", g: "baths" },
+  { s: 27, w: null, k: "3d", g: "order" },
+  { s: 28, w: null, k: "3d", g: "salute" },
+  { s: 29, w: null, k: "3d", g: "six" },
+  { s: 30, w: null, k: "2d", g: "n10" },
+  { s: 31, w: null, k: "3d", g: "beer" }, { s: 31, w: "gave", k: "3d", g: "mark" },
+  { s: 32, w: null, k: "3d", g: "train" },
+  { s: 33, w: null, k: "2d", g: "t246" }, { s: 33, w: "reached", k: "3d", g: "hall" },
+  { s: 34, w: null, k: "3d", g: "gate" }, { s: 34, w: "local", k: "3d", g: "squarewide" },
+  { s: 35, w: null, k: "2d", g: "post" },
+  { s: 36, w: null, k: "3d", g: "mayor" }, { s: 36, w: "Doctor", k: "2d", g: "langerhans" },
+  { s: 37, w: null, k: "3d", g: "mayor2" },
+  { s: 38, w: null, k: "3d", g: "where" },
+  { s: 39, w: null, k: "3d", g: "bayonets" },
+  { s: 40, w: null, k: "3d", g: "mine" },
+  { s: 41, w: null, k: "3d", g: "arrest" }, { s: 41, w: "wife", k: "3d", g: "hauled" },
+  { s: 42, w: null, k: "3d", g: "count" }, { s: 42, w: "von", k: "2d", g: "wiltberg" },
+  { s: 43, w: null, k: "2d", g: "n4000" },
+  { s: 44, w: null, k: "2d", g: "n3500" },
+  { s: 45, w: null, k: "3d", g: "sign" },
+  { s: 46, w: null, k: "3d", g: "warden" },
+  { s: 47, w: null, k: "2d", g: "malzahn" },
+  { s: 48, w: null, k: "3d", g: "hauled" }, { s: 48, w: "Neue", k: "2d", g: "wache" },
+  { s: 49, w: null, k: "3d", g: "gate" },
+  { s: 50, w: null, k: "3d", g: "walk" },
+  { s: 51, w: null, k: "3d", g: "suit" }, { s: 51, w: "signed", k: "2d", g: "malzahn2" },
+  { s: 52, w: null, k: "2d", g: "gone" },
+  { s: 53, w: null, k: "3d", g: "restaurant" },
+  { s: 54, w: null, k: "2d", g: "noticed" },
+  { s: 55, w: null, k: "3d", g: "noid" },
+  { s: 56, w: null, k: "3d", g: "laugh" },
+  { s: 57, w: null, k: "2d", g: "reward" },
+  { s: 58, w: null, k: "2d", g: "innocent" },
+  { s: 59, w: null, k: "2d", g: "n10d" },
+  { s: 60, w: null, k: "3d", g: "caught" },
+  { s: 61, w: null, k: "2d", g: "n770" },
+  { s: 62, w: null, k: "2d", g: "n4y" },
+  { s: 63, w: null, k: "2d", g: "honest" },
+  { s: 64, w: null, k: "2d", g: "world" },
+  { s: 65, w: null, k: "3d", g: "laugh2" },
+  { s: 66, w: null, k: "2d", g: "sf" },
+  { s: 67, w: null, k: "3d", g: "kaiser" },
+  { s: 68, w: null, k: "2d", g: "pardon" },
+  { s: 69, w: null, k: "3d", g: "suit" },
+  { s: 70, w: null, k: "2d", g: "record" },
+  { s: 71, w: null, k: "2d", g: "tour" },
+  { s: 72, w: null, k: "2d", g: "ny" },
+  { s: 73, w: null, k: "2d", g: "banned2" },
+  { s: 74, w: null, k: "2d", g: "memoir" },
+  { s: 75, w: null, k: "3d", g: "swear" },
+  { s: 76, w: null, k: "2d", g: "problem2" },
+  { s: 77, w: null, k: "3d", g: "nopass" }, { s: 77, w: "different", k: "2d", g: "teltow" },
+  { s: 78, w: null, k: "2d", g: "money" },
+  { s: 79, w: null, k: "3d", g: "lux" },
+  { s: 80, w: null, k: "2d", g: "lux1909" }, { s: 80, w: "received", k: "3d", g: "luxpass" },
+  { s: 81, w: null, k: "2d", g: "n1922" },
+  { s: 82, w: null, k: "2d", g: "koepenickiade" },
+  { s: 83, w: null, k: "3d", g: "squarewide" },
+  { s: 84, w: null, k: "3d", g: "hook" },
+  { s: 85, w: null, k: "2d", g: "question" },
+];
+export type ShotDef = RawShot & { id: number; a: number; b: number };
+export const SHOTS: ShotDef[] = raw.map((r, i) => ({ ...r, id: i + 1, a: 0, b: 0 }));
+SHOTS.forEach((s, i) => { s.a = i === 0 ? 0 : (s.w ? wordAt(s.s, s.w) : segAt(s.s)) - 2; }); // cuts land ~2 f before the word
+SHOTS.forEach((s, i) => { s.b = i === SHOTS.length - 1 ? VOICE_END : SHOTS[i + 1].a; });
+export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? null;
+/** chapter-start crossfade (frames) */
+export const XFADE = 10;
+export const CHAPTER_SHOTS = new Set(CHAPTERS.map((c) => SHOTS.find((s) => s.s >= c.seg)!.id));

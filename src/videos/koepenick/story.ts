@@ -59,46 +59,47 @@ export type St3 = {
 };
 
 // ---------------- helpers (the house kit) ----------------
-const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
-const smooth = (x: number) => { const u = clamp01(x); return u * u * (3 - 2 * u); };
-const expo = (u: number) => { const x = clamp01(u); return x >= 1 ? 1 : 1 - Math.pow(2, -9 * x); };
+export const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
+export const smooth = (x: number) => { const u = clamp01(x); return u * u * (3 - 2 * u); };
+export const expo = (u: number) => { const x = clamp01(u); return x >= 1 ? 1 : 1 - Math.pow(2, -9 * x); };
 const rad = (d: number) => (d * Math.PI) / 180;
 const L3 = (a: V3, b: V3, k: number): V3 => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k];
 type Shot = Partial<Cam> & { pos: V3; look: V3 };
 const full = (c: Shot): Cam => ({ fov: 42, roll: 0, ...c });
 const mix = (a: Cam, b: Cam, k: number): Cam => ({ pos: L3(a.pos, b.pos, k), look: L3(a.look, b.look, k), fov: a.fov + (b.fov - a.fov) * k, roll: a.roll + (b.roll - a.roll) * k });
-const move = (a: Shot, b: Shot, f: number, f0: number, f1: number, ease: (u: number) => number = expo, creep = 0.0012): Cam => {
+export const move = (a: Shot, b: Shot, f: number, f0: number, f1: number, ease: (u: number) => number = expo, creep = 0.0012): Cam => {
   const c = mix(full(a), full(b), ease((f - f0) / Math.max(1, f1 - f0)));
   const k = 1 - Math.exp(-creep * Math.max(0, f - f1));
   return { ...c, pos: L3(c.pos, c.look, k) };
 };
 const orb = (c: V3, a: number, r: number, h: number, rest: Partial<Cam> = {}): Shot => ({ pos: [c[0] + r * Math.sin(rad(a)), c[1] + h, c[2] - r * Math.cos(rad(a))], look: c, ...rest });
-const orbit = (s: ShotDef, f: number, c: V3, a: [number, number], r: [number, number], h: [number, number], fov = 46, roll: [number, number] = [0.05, -0.04], ease = smooth): Cam => {
+export const orbit = (s: ShotDef, f: number, c: V3, a: [number, number], r: [number, number], h: [number, number], fov = 46, roll: [number, number] = [0.05, -0.04], ease = smooth): Cam => {
   const u = ease((f - s.a) / Math.max(1, s.b - s.a));
   return full(orb(c, a[0] + (a[1] - a[0]) * u, r[0] + (r[1] - r[0]) * u, h[0] + (h[1] - h[0]) * u, { fov, roll: roll[0] + (roll[1] - roll[0]) * u }));
 };
-const snap = (pos: V3, look: V3, f: number, f0: number, rest: Partial<Cam> = {}, back = 1.5, n = 5): Cam => {
+export const snap = (pos: V3, look: V3, f: number, f0: number, rest: Partial<Cam> = {}, back = 1.5, n = 5): Cam => {
   const far: V3 = [look[0] + (pos[0] - look[0]) * back, look[1] + (pos[1] - look[1]) * back, look[2] + (pos[2] - look[2]) * back];
   const fov = rest.fov ?? 42;
   return move({ pos: far, look, ...rest, fov: fov * 1.25 }, { pos, look, ...rest, fov }, f, f0, f0 + n, expo, 0.0015);
 };
-const kick = (c: Cam, f: number, f0: number, k = 1): Cam => {
+export const kick = (c: Cam, f: number, f0: number, k = 1): Cam => {
   if (f < f0 || f >= f0 + 7) return c;
   const e = f - f0, s = (e % 2 ? -1 : 1) * k * (1 - e / 7), d = Math.hypot(c.pos[0] - c.look[0], c.pos[1] - c.look[1], c.pos[2] - c.look[2]);
   const a = 0.012 * Math.max(1.2, Math.min(40, d));
   return { ...c, pos: [c.pos[0], c.pos[1] + a * s, c.pos[2] + 0.6 * a * s], roll: c.roll + 0.014 * s };
 };
 const t = (f: number) => f / FPS;
-const U = (s: ShotDef, f: number) => clamp01((f - s.a) / Math.max(1, s.b - s.a));
-const P = (who: string, p: V3, expr: Expr, look = 0, extra: Partial<Person3> = {}): Person3 => ({ who, p, expr, look, ...extra });
+export const secs = t;
+export const U = (s: ShotDef, f: number) => clamp01((f - s.a) / Math.max(1, s.b - s.a));
+export const P = (who: string, p: V3, expr: Expr, look = 0, extra: Partial<Person3> = {}): Person3 => ({ who, p, expr, look, ...extra });
 /** someone walking in profile along x from x0 (absolute) at v m/s */
-const walker = (who: string, x0: number, y: number, z: number, v: number, tt: number, expr: Expr = "neutral", extra: Partial<Person3> = {}): Person3 => {
+export const walker = (who: string, x0: number, y: number, z: number, v: number, tt: number, expr: Expr = "neutral", extra: Partial<Person3> = {}): Person3 => {
   const d = Math.abs(v) * tt, p: V3 = [x0 + v * tt, y, z];
   return { who, p, expr, side: { phase: ((d / 1.6) % 1 + 1) % 1, mirror: v < 0, stride: Math.min(1.25, Math.abs(v) / 1.6) }, ...extra };
 };
-const add = (p: V3, x: number, y: number, z: number): V3 => [p[0] + x, p[1] + y, p[2] + z];
+export const add = (p: V3, x: number, y: number, z: number): V3 => [p[0] + x, p[1] + y, p[2] + z];
 /** a salute: the hand at the helmet's brim, on the screen-right side of the face */
-const salute = (p: V3, s = 1): V3 => add(p, -0.2 * s, 1.66 * s, -0.12);
+export const salute = (p: V3, s = 1): V3 => add(p, -0.2 * s, 1.66 * s, -0.12);
 /** coins dropping from a hand into a palm */
 const coinDrop = (from: V3, to: V3, tt: number, n = 5): { kind: "coin"; p: V3; spin: number; s: number }[] => Array.from({ length: n }, (_, i) => { const u = clamp01(tt * 2.2 - i * 0.18); return { kind: "coin" as const, p: L3(from, to, u) .map((v, k) => (k === 1 ? v + 0.25 * Math.sin(Math.PI * u) : v)) as V3, spin: i * 1.3 + tt * 9, s: 1 }; }).filter((_, i) => tt * 2.2 - i * 0.18 > 0);
 
@@ -116,18 +117,30 @@ const hookState = (f: number): Partial<St3> => { const k = 0.8 + 0.2 * smooth(f 
     cards: [{ kind: "sausage", p: Rm(0.6, TABLE.y + 0.05, TABLE.z - 0.1), spin: 0.2, s: 1.1, flat: true }, { kind: "sausage", p: Rm(-0.4, TABLE.y + 0.05, TABLE.z), spin: -0.4, s: 1.1, flat: true }], key: Rm(0.6, 2.6, 0.3) }; };
 
 // ---------------- the square ----------------
-const AP = 0.12; // the stone apron in front of the town hall
+export const AP = 0.12; // the stone apron in front of the town hall
 const gateGuards = (expr: Expr = "stern"): Person3[] => [P("g1", Sq(GATE.x + 2.6, AP, TZ - 1.5), expr, 0), P("g2", Sq(GATE.x - 2.6, AP, TZ - 1.5), expr, 0), P("g3", Sq(GATE.x + 4.2, AP, TZ - 1.6), expr, 0, { extra: true }), P("g4", Sq(GATE.x - 4.2, AP, TZ - 1.6), expr, 0, { extra: true })];
 
 // ---------------- the office ----------------
-const MAYOR: V3 = Rm(0.15, 0, DESK.z + DESK.hd + 0.35), CAPO: V3 = Rm(-0.95, 0, DESK.z - DESK.hd - 0.55), TREAS: V3 = Rm(-0.4, 0, DESK.z + DESK.hd + 0.35);
+export const MAYOR: V3 = Rm(0.15, 0, DESK.z + DESK.hd + 0.35), CAPO: V3 = Rm(-0.95, 0, DESK.z - DESK.hd - 0.55), TREAS: V3 = Rm(-0.4, 0, DESK.z + DESK.hd + 0.35);
 const officeGuards = (): Person3[] => [P("g5", Rm(1.0, 0, 2.1), "stern", 0), P("g6", Rm(-1.6, 0, 1.9), "stern", 0)];
 
+const ROW = (k: number) => St(BATHS_X + RW[0] + RW[1] * k, 0, 3.2 + RW[2] * k), RW = [1.4, 0.6, 0.3], BA = [0.5, 2.5, -6.8, 1.7];
+const SA = [4.2, -2.4, 2.3];
+const SX = [5, 2.2, -7, 0.4];
+const HX = [-1.5, 0.8];
+const MK = [3.4];
+const TR = [-1.5, 3.0, -8, -0.5, 3.4];
+const HA = [0.6, -8];
+const MY = [-5.2, -0.1];
+const LA = [11.5, 7.9];
+const BY = [-1.3, -4.6, -1.6];
+const HLY = 6.5;
+const SWIM_CAM = [5, 1.8, -5.5, 0.4];
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // --- 0: "He bought ten soldiers a beer..." the clink in the beer hall (frame 0 already close) ---
   hook: (s, f) => ({ ...hookState(f), light: "pub", dof: 1, focus: Rm(0, 1.4, TABLE.z + 0.2), cam: kick(hookCam(f), f, W(0, "beer"), 0.9), subjects: [["the steins", Rm(0, 1.45, TABLE.z + 0.2), 0.3]] }),
   // "...then used them": the same men, rifles and bayonets, flanking the town hall gate (low, wide, a crane down)
-  gate: (s, f) => ({ light: "aft", dof: 0.6, gate: 0, people: [...gateGuards(), P("cap", Sq(GATE.x, AP, TZ - 2.6), "grin", 0)],
+  gate: (s, f) => ({ light: "aft", dof: 0.6, gate: 0, people: [...gateGuards().slice(0, 2), P("cap", Sq(GATE.x, AP, TZ - 2.6), "grin", 0)],
     cam: move({ pos: Sq(1.2, 5.0, TZ - 15), look: Sq(0, 2.6, TZ - 1), fov: 54, roll: -0.05 }, { pos: Sq(0.6, 1.4, TZ - 13.5), look: Sq(0, 2.4, TZ - 1), fov: 54, roll: 0.03 }, f, s.a, s.b, smooth, 0), subjects: [["the town hall gate", Sq(GATE.x, 2.4, TZ), 0.6]] }),
   // "...to arrest a mayor": the mayor behind his desk, hands up, a guard either side (snap zoom)
   arrest: (s, f) => ({ light: "office", dof: 1, people: [P("mayor", MAYOR, "shock", 0, { hw: [add(MAYOR, 0.32, 1.75, -0.2), add(MAYOR, -0.32, 1.75, -0.2)] }), P("g5", Rm(0.75, 0, 2.2), "stern", -1), P("g6", Rm(-0.65, 0, 2.2), "stern", 1)],
@@ -148,79 +161,78 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "junk", dof: 1, people: [P("dealer", dp, "smile", -1, { hw: [Rm(-0.2, COUNTER.y + 0.08, COUNTER.z)] }), P("voigt", vp, "grin", 1)],
       cam: move({ pos: Rm(-1.4, 1.75, -2.6), look: Rm(0, 1.3, COUNTER.z), fov: 50, roll: 0.04 }, { pos: Rm(-0.9, 1.65, -2.3), look: Rm(0, 1.3, COUNTER.z), fov: 50, roll: -0.02 }, f, s.a, s.b, smooth, 0), subjects: [["the cap on the counter", Rm(COUNTER.x - 0.2, COUNTER.y + 0.12, COUNTER.z), 0.2]] }; },
   // "piece by piece": a long-lens slide along the counter, coat, cap, sword, each with its price tag
-  pieces: (s, f) => ({ light: "junk", dof: 1.6, closeup: true,
-    cam: move({ pos: Rm(1.7, COUNTER.y + 0.55, COUNTER.z - 1.25), look: Rm(1.3, COUNTER.y + 0.12, COUNTER.z), fov: 34, roll: 0.05 }, { pos: Rm(-1.0, COUNTER.y + 0.55, COUNTER.z - 1.25), look: Rm(-0.9, COUNTER.y + 0.1, COUNTER.z), fov: 34, roll: -0.04 }, f, s.a, s.b, smooth, 0),
-    subjects: [["the price tags", Rm(0.4, COUNTER.y + 0.25, COUNTER.z - 0.32), 0.3]] }),
+  pieces: (s, f) => { const cam = move({ pos: Rm(1.7, COUNTER.y + 0.55, COUNTER.z - 1.25), look: Rm(1.3, COUNTER.y + 0.12, COUNTER.z), fov: 34, roll: 0.05 }, { pos: Rm(-1.0, COUNTER.y + 0.55, COUNTER.z - 1.25), look: Rm(-0.9, COUNTER.y + 0.1, COUNTER.z), fov: 34, roll: -0.04 }, f, s.a, s.b, smooth, 0);
+    return { light: "junk", dof: 1.6, closeup: true, cam, subjects: [["the price tags", [cam.look[0], COUNTER.y + 0.25, COUNTER.z - 0.32], 0.3]] }; },
   // "from junk shops": outside the TROEDLER, he comes out with a bundle wrapped in newspaper
   shops: (s, f) => { const tt = t(f - s.a); return { light: "noon", dof: 0.6, people: [walker("voigt", St(JUNK_X - 0.5, 0, 0)[0], PAVE, WZ - 1.2, -1.0, tt, "grin", { side: undefined })].map((q) => ({ ...q, side: { phase: ((tt * 1.0 / 1.6) % 1), mirror: true, stride: 0.62, carry: add(q.p, -0.25, 1.05, -0.1) } })),
     cards: [{ kind: "paper", p: add(St(JUNK_X - 0.5 - tt, PAVE, WZ - 1.2), -0.35, 1.05, -0.12), spin: 0.2, s: 1.6 }],
     cam: move({ pos: St(JUNK_X - 1, 2.6, WZ - 9.5), look: St(JUNK_X, 2.4, WZ), fov: 46, roll: -0.03 }, { pos: St(JUNK_X - 2, 1.9, WZ - 8.2), look: St(JUNK_X - 1, 2.2, WZ), fov: 46, roll: 0.02 }, f, s.a, s.b, smooth, 0), subjects: [["the junk shop sign", St(JUNK_X, 3.25, WZ - 0.16), 0.3]] }; },
   // --- 2: "It didn't even fit right." in the uniform, cap askew, in the junk shop's mirror light (tilt in) ---
-  fit: (s, f) => { const p = Rm(-0.6, 0, COUNTER.z - 0.9); return { light: "junk", dof: 1.2, people: [P("cap", p, "grin", 0, { headTilt: 0.12 }), P("dealer", Rm(0.6, 0, COUNTER.z + 0.75), "nervous", 1, { extra: true })],
+  fit: (s, f) => { const p = Rm(-0.6, 0, COUNTER.z - 0.9); return { light: "junk", dof: 1.2, people: [P("cap", p, "grin", 0, { headTilt: 0.12 })],
     cam: move({ pos: Rm(-0.9, 1.15, p[2] - 2.6), look: add(p, 0, 1.3, 0), fov: 44, roll: -0.12 }, { pos: Rm(-0.7, 1.3, p[2] - 2.1), look: add(p, 0, 1.4, 0), fov: 42, roll: 0.08 }, f, s.a, s.b, expo, 0), subjects: [["the captain", add(p, 0, 1.5, 0), 0.3]] }; },
   // "Nobody checked.": on the street a guardsman snaps a salute as the captain passes
   checked: (s, f) => { const tt = t(f - s.a), gp = St(2, PAVE, WZ - 1.0); return { light: "noon", dof: 0.8, people: [P("g7", gp, "stern", -1, { hw: [salute(gp)] }), walker("cap", St(4.2, 0, 0)[0], 0, 4.4, -1.1, tt, "smile")],
     cam: move({ pos: St(1.2, 1.5, 0.6), look: add(gp, 0, 1.4, 0), fov: 40, roll: 0.05 }, { pos: St(1.6, 1.55, 1.2), look: add(gp, 0, 1.45, 0), fov: 40, roll: -0.02 }, f, s.a, s.b, smooth, 0), subjects: [["the guardsman", add(gp, 0, 1.4, 0), 0.3]] }; },
   // --- 3: "He stopped four guardsmen on their way back from the army swimming baths." four with towels, marching ---
-  swim: (s, f) => { const tt = t(f - s.a), x0 = St(BATHS_X - 1, 0, 0)[0], v = 1.3, mk = (k: number, who: string) => ({ ...walker(who, x0 + 1.5 * k, 0, 3.0, v, tt, "neutral"), towel: true });
+  swim: (s, f) => { const tt = t(f - s.a), x0 = St(BATHS_X - 1, 0, 0)[0], v = 1.3, sp = 1.0, cx = x0 + 1.5 * sp + v * tt, mk = (k: number, who: string) => ({ ...walker(who, x0 + sp * k, 0, 3.0 - 0.15 * k, v, tt, "neutral"), towel: true });
+    const u = U(s, f);
     return { light: "noon", dof: 0.7, people: [mk(0, "g1"), mk(1, "g2"), mk(2, "g3"), mk(3, "g4")],
-      cam: move({ pos: St(BATHS_X + 5, 1.6, -4.0), look: St(BATHS_X + 2.5, 1.4, 3.0), fov: 44, roll: 0.04 }, { pos: St(BATHS_X + 7.5, 1.7, -3.6), look: St(BATHS_X + 5, 1.4, 3.0), fov: 44, roll: -0.02 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the four guardsmen", St(x0 + 2.2 + v * tt, 1.4, 3.0), 0.5]] }; },
+      cam: { pos: [cx + SWIM_CAM[0], SWIM_CAM[1], SWIM_CAM[2]], look: [cx + SWIM_CAM[3], 1.35, 3.0], fov: 44, roll: 0.04 - 0.06 * u },
+      subjects: [["the four guardsmen", [cx, 1.4, 3.0], 0.5]] }; },
   // "...the army swimming baths": the gate and its sign, the four halted in front of it, the captain stepping up
-  baths: (s, f) => { const mk = (k: number, who: string): Person3 => ({ ...P(who, St(BATHS_X + 2.6 + 1.0 * k, 0, 3.2), "neutral", 1), towel: true });
-    return { light: "noon", dof: 0.5, people: [mk(0, "g1"), mk(1, "g2"), mk(2, "g3"), mk(3, "g4"), P("cap", St(BATHS_X + 0.8, 0, 2.6), "stern", -1)],
-      cam: move({ pos: St(BATHS_X + 2.0, 2.2, -6.5), look: St(BATHS_X + 1.2, 3.0, WZ), fov: 50, roll: -0.03 }, { pos: St(BATHS_X + 1.6, 1.8, -5.4), look: St(BATHS_X + 1.0, 2.7, WZ), fov: 50, roll: 0.03 }, f, s.a, s.b, smooth, 0),
+  baths: (s, f) => { const mk = (k: number, who: string): Person3 => ({ ...P(who, ROW(k), "neutral", 1), towel: true });
+    return { light: "noon", dof: 0.5, people: [mk(0, "g1"), mk(1, "g2"), mk(2, "g3"), mk(3, "g4"), P("cap", St(BATHS_X + BA[0], 0, 2.4), "stern", -1)],
+      cam: move({ pos: St(BATHS_X + BA[1], 2.2, BA[2]), look: St(BATHS_X + BA[3], 3.0, WZ), fov: 50, roll: -0.03 }, { pos: St(BATHS_X + BA[1] - 0.4, 1.8, BA[2] + 1.1), look: St(BATHS_X + BA[3] - 0.2, 2.7, WZ), fov: 50, roll: 0.03 }, f, s.a, s.b, smooth, 0),
       subjects: [["the baths sign", St(BATHS_X, 4.75, WZ - 0.32), 0.3]] }; },
   // "By order of the Kaiser, you're with me.": the captain, low and close, finger up; one setup, a slow push (dialogue)
-  order: (s, f) => { const p = St(BATHS_X - 0.6, 0, 2.6), hand: V3 = add(p, -0.24, 1.78, -0.25);
+  order: (s, f) => { const p = St(BATHS_X - 2.2, 0, 2.6), hand: V3 = add(p, -0.24, 1.78, -0.25);
     return { light: "noon", dof: 1.2, people: [P("cap", p, "stern", 0, { hw: [hand] })],
       cam: move({ pos: add(p, 0.25, 0.95, -2.3), look: add(p, 0, 1.6, 0), fov: 42, roll: 0.07 }, { pos: add(p, 0.2, 1.0, -1.95), look: add(p, 0, 1.62, 0), fov: 42, roll: 0.06 }, f, s.a, s.b, smooth, 0), subjects: [["the captain's raised finger", hand, 0.15]] }; },
   // "They saluted.": the four in a row, hands to their helmets, towels still on their shoulders (a whip in)
-  salute: (s, f) => { const row = [0, 1, 2, 3].map((k) => St(BATHS_X + 2.4 + 0.95 * k, 0, 3.2)), sal = (k: number) => clamp01((f - s.a - k * 2) / 5);
+  salute: (s, f) => { const row = [0, 1, 2, 3].map((k) => ROW(k)), sal = (k: number) => clamp01((f - s.a - k * 2) / 5);
     return { light: "noon", dof: 0.9, people: row.map((p, k) => ({ ...P(`g${k + 1}`, p, "stern", 0, sal(k) > 0.5 ? { hw: [salute(p)] } : {}), towel: true })),
-      cam: kick(move({ pos: St(BATHS_X + 3.8, 1.55, -1.2), look: St(BATHS_X + 3.8, 1.45, 3.2), fov: 50, roll: -0.04 }, { pos: St(BATHS_X + 3.8, 1.5, -0.6), look: St(BATHS_X + 3.8, 1.45, 3.2), fov: 50, roll: 0.02 }, f, s.a, s.b, smooth, 0), f, W(3, "saluted"), 0.7),
-      subjects: [["the four saluting", St(BATHS_X + 3.8, 1.55, 3.2), 0.4]] }; },
+      cam: kick(move({ pos: St(BATHS_X + SA[0], 1.55, SA[1]), look: St(BATHS_X + SA[2], 1.45, 3.4), fov: 50, roll: -0.04 }, { pos: St(BATHS_X + SA[0], 1.5, SA[1] + 0.5), look: St(BATHS_X + SA[2], 1.45, 3.4), fov: 50, roll: 0.02 }, f, s.a, s.b, smooth, 0), f, W(3, "saluted"), 0.7),
+      subjects: [["the four saluting", St(BATHS_X + SA[2], 1.55, 3.4), 0.4]] }; },
   // --- 4: "Six more joined from the shooting range." six with rifles march in from the other side ---
-  six: (s, f) => { const tt = t(f - s.a), x0 = St(BATHS_X - 4.0, 0, 0)[0], v = 1.4;
-    return { light: "noon", dof: 0.6, people: [5, 6, 7, 8, 9, 10].map((n, k) => walker(`g${n}`, x0 - 1.1 * Math.floor(k / 2), 0, 1.4 + (k % 2) * 1.0, v, tt, "neutral")).concat([P("cap", St(BATHS_X - 0.6, 0, 2.6), "grin", 1), ...[0, 1, 2, 3].map((k) => ({ ...P(`g${k + 1}`, St(BATHS_X + 2.4 + 0.95 * k, 0, 3.2), "neutral", 1), towel: true, extra: true }))]),
-      cam: move({ pos: St(BATHS_X - 1, 2.4, -7.5), look: St(BATHS_X - 3, 1.3, 2.2), fov: 54, roll: 0.03 }, { pos: St(BATHS_X - 2, 2.0, -6.8), look: St(BATHS_X - 4, 1.3, 2.2), fov: 54, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the six", [x0 - 1.1 + v * tt, 1.4, 1.9], 0.6]] }; },
+  six: (s, f) => { const tt = t(f - s.a), x0 = St(BATHS_X - 4.0, 0, 0)[0], v = 1.4, cx = x0 - 1.1 + v * tt, u = U(s, f);
+    return { light: "noon", dof: 0.6, people: [5, 6, 7, 8, 9, 10].map((n, k) => walker(`g${n}`, x0 - 1.1 * Math.floor(k / 2), 0, 1.4 + (k % 2) * 1.0, v, tt, "neutral")),
+      cam: { pos: [cx + SX[0], SX[1] - 0.3 * u, SX[2]], look: [cx + SX[3], 1.3, 1.9], fov: 50, roll: 0.03 - 0.06 * u },
+      subjects: [["the six", [cx, 1.4, 1.9], 0.6]] }; },
   // "Beer, sausages,": the beer hall table, steins coming down, a sausage on a fork (macro, top-down tilt)
-  beer: (s, f) => { const st = hookState(f); return { ...st, light: "pub", dof: 1.6, closeup: true, people: [], tools: [],
-    cam: move({ pos: Rm(1.5, TABLE.y + 0.75, TABLE.z - 1.7), look: Rm(1.05, TABLE.y + 0.12, TABLE.z), fov: 44, roll: -0.08 }, { pos: Rm(0.9, TABLE.y + 0.7, TABLE.z - 1.6), look: Rm(0.65, TABLE.y + 0.1, TABLE.z), fov: 44, roll: 0.05 }, f, s.a, s.b, smooth, 0),
-    subjects: [["the steins", Rm(1.0, TABLE.y + 0.12, TABLE.z - 0.15), 0.1]] }; },
+  beer: (s, f) => { const st = hookState(f), cam = move({ pos: Rm(1.5, TABLE.y + 0.75, TABLE.z - 1.7), look: Rm(1.05, TABLE.y + 0.12, TABLE.z), fov: 44, roll: -0.08 }, { pos: Rm(0.9, TABLE.y + 0.7, TABLE.z - 1.6), look: Rm(0.65, TABLE.y + 0.1, TABLE.z), fov: 44, roll: 0.05 }, f, s.a, s.b, smooth, 0);
+    return { ...st, light: "pub", dof: 1.6, closeup: true, people: [], tools: [], cam, subjects: [["the steins", [cam.look[0] - 0.05, TABLE.y + 0.12, TABLE.z - 0.15], 0.1]] }; },
   // "and one mark each.": the captain's hand drops coins into a guardsman's open palm
   mark: (s, f) => { const tt = t(f - s.a), cp = Rm(0.45, 0, TABLE.z + 0.62), gp = Rm(-0.45, 0, TABLE.z + 0.6), from: V3 = Rm(0.12, 1.32, TABLE.z + 0.08), to: V3 = Rm(-0.12, 1.08, TABLE.z + 0.08);
     return { light: "pub", dof: 1.4, people: [P("cap", cp, "smile", -1, { hw: [from] }), P("b1", gp, "grin", 1, { hw: [to] })], cards: coinDrop(from, to, tt, 6), key: Rm(0.6, 2.6, 0.3),
-      cam: move({ pos: Rm(0.05, 1.5, TABLE.z - 2.6), look: Rm(0, 1.25, TABLE.z + 0.3), fov: 44, roll: 0.06 }, { pos: Rm(0, 1.48, TABLE.z - 2.3), look: Rm(0, 1.25, TABLE.z + 0.3), fov: 44, roll: -0.04 }, f, s.a, s.b, smooth, 0), subjects: [["the coins", L3(from, to, 0.6), 0.12]] }; },
+      cam: move({ pos: Rm(0.05, 1.5, TABLE.z - MK[0]), look: Rm(0, 1.25, TABLE.z + 0.3), fov: 44, roll: 0.06 }, { pos: Rm(0, 1.48, TABLE.z - MK[0] + 0.3), look: Rm(0, 1.25, TABLE.z + 0.3), fov: 44, roll: -0.04 }, f, s.a, s.b, smooth, 0), subjects: [["the coins", L3(from, to, 0.6), 0.12]] }; },
   // --- 5: "Then he took them by train": the column marches into the station (left to right on screen) ---
-  train: (s, f) => { const tt = t(f - s.a), x0 = St(STATION_X + 3.6, 0, 0)[0], v = -1.5;
-    return { light: "noon", dof: 0.5, people: [walker("cap", x0, 0, 4.2, v, tt, "grin"), ...[1, 2, 3, 4, 5, 6, 7, 8].map((n, k) => walker(`g${n}`, x0 + 1.3 + 1.1 * Math.floor(k / 2), 0, 3.4 + (k % 2) * 1.2, v, tt, "neutral"))],
-      cam: move({ pos: St(STATION_X + 2, 3.2, -9), look: St(STATION_X + 2, 3.4, WZ), fov: 54, roll: -0.03 }, { pos: St(STATION_X + 0.5, 2.6, -8), look: St(STATION_X + 0.5, 3.6, WZ), fov: 54, roll: 0.03 }, f, s.a, s.b, smooth, 0),
+  train: (s, f) => { const tt = t(f - s.a), x0 = St(STATION_X + 2.4, 0, 0)[0], v = -1.5, cx = x0 + 1.3 + v * tt, u = U(s, f);
+    return { light: "noon", dof: 0.5, people: [walker("cap", x0, 0, 4.2, v, tt, "grin"), ...[1, 2, 3, 4, 5, 6].map((n, k) => walker(`g${n}`, x0 + 1.0 + 0.9 * Math.floor(k / 2), 0, 3.5 + (k % 2) * 1.1, v, tt, "neutral"))],
+      cam: { pos: [cx + TR[0], TR[1] - 0.4 * u, TR[2]], look: [cx + TR[3], TR[4], WZ], fov: 54, roll: -0.03 + 0.06 * u },
       subjects: [["the station sign", St(STATION_X, 6.7, WZ - 0.04), 0.3]] }; },
   // "to a town hall outside Berlin.": a crane up the town hall's front to the tower, the squad marching in below
   hall: (s, f) => { const tt = t(f - s.a), v = 1.2;
-    return { light: "aft", dof: 0.4, gate: 0.2, people: [walker("cap", Sq(-7, 0, 0)[0], AP, TZ - 3.2, v, tt, "grin"), ...[1, 2, 3, 4].map((n, k) => walker(`g${n}`, Sq(-8.4 - 1.2 * k, 0, 0)[0], AP, TZ - 2.6 - (k % 2) * 0.9, v, tt, "neutral"))],
-      cam: move({ pos: Sq(1, 1.2, -9), look: Sq(-1, 3, TZ), fov: 56, roll: 0.03 }, { pos: Sq(0, 4.5, -13), look: Sq(-3, 10, TZ), fov: 56, roll: -0.02 }, f, s.a, s.b, smooth, 0),
+    return { light: "aft", dof: 0.4, gate: 0.2, people: [walker("cap", Sq(HX[0], 0, 0)[0], AP, TZ - 3.2, v, tt, "grin"), ...[1, 2, 3, 4].map((n, k) => walker(`g${n}`, Sq(HX[0] - 1.1 - HX[1] * k, 0, 0)[0], AP, TZ - 2.6 - (k % 2) * 0.9, v, tt, "neutral"))],
+      cam: move({ pos: Sq(1, 1.2, -9), look: Sq(-1, HLY, TZ), fov: 56, roll: 0.03 }, { pos: Sq(0, 4.5, -13), look: Sq(-3, 10, TZ), fov: 56, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       subjects: [["the town hall", Sq(0, 6, TZ), 0.8]] }; },
   // --- 6: "The mayor asked one question." the office: mayor behind the desk, the captain in front, two guards ---
   mayor: (s, f) => ({ light: "office", dof: 0.9, people: [P("mayor", MAYOR, "neutral", -1), P("cap", CAPO, "stern", 1), ...officeGuards()],
-    cam: move({ pos: Rm(0.6, 1.9, -4.0), look: Rm(-0.3, 1.3, 1.0), fov: 56, roll: -0.04 }, { pos: Rm(0.3, 1.8, -3.6), look: Rm(-0.3, 1.3, 1.0), fov: 56, roll: 0.03 }, f, s.a, s.b, smooth, 0), subjects: [["the mayor", add(MAYOR, 0, 1.5, 0), 0.3]] }),
+    cam: move({ pos: Rm(0.6, 1.9, MY[0]), look: Rm(MY[1], 1.3, 1.0), fov: 56, roll: -0.04 }, { pos: Rm(0.3, 1.8, MY[0] + 0.4), look: Rm(-0.3, 1.3, 1.0), fov: 56, roll: 0.03 }, f, s.a, s.b, smooth, 0), subjects: [["the mayor", add(MAYOR, 0, 1.5, 0), 0.3]] }),
   // "Where is your warrant?": the mayor, palm out; one setup, a slow push (dialogue)
   where: (s, f) => { const palm: V3 = add(MAYOR, -0.3, 1.18, -0.45);
     return { light: "office", dof: 1.3, people: [P("mayor", MAYOR, "stern", -1, { hw: [palm] })],
       cam: move({ pos: add(MAYOR, -0.35, 1.45, -2.4), look: add(MAYOR, 0, 1.45, 0), fov: 42, roll: -0.06 }, { pos: add(MAYOR, -0.3, 1.47, -2.05), look: add(MAYOR, 0, 1.47, 0), fov: 42, roll: -0.05 }, f, s.a, s.b, smooth, 0), subjects: [["the mayor's open palm", palm, 0.12]] }; },
   // "He pointed at the bayonets.": the captain points; the camera slides along two rifles, bayonets fixed
-  bayonets: (s, f) => { const u = U(s, f), pt: V3 = add(CAPO, 0.55, 1.45, 0.25), g1 = Rm(-2.0, 0, 1.4), g2 = Rm(-2.7, 0, 1.0);
-    return { light: "office", dof: 1.0, people: [P("cap", CAPO, "smile_closed", 1, { hw: [u < 0.45 ? pt : add(CAPO, -0.5, 1.45, 0.3)] }), P("g6", g1, "stern", 0), P("g5", g2, "stern", 0)],
-      cam: move({ pos: Rm(-0.6, 1.6, -1.8), look: Rm(-1.4, 1.5, 1.0), fov: 46, roll: 0.05 }, { pos: Rm(-1.5, 1.85, -1.4), look: Rm(-2.3, 1.85, 1.3), fov: 44, roll: -0.04 }, f, s.a, s.b, expo, 0), subjects: [["the rifles", Rm(-2.3, 1.7, 1.25), 0.4]] }; },
+  bayonets: (s, f) => { const u = U(s, f), pt: V3 = add(CAPO, 0.55, 1.45, 0.25), g1 = Rm(-2.0, 0, 1.4), g2 = Rm(-2.45, 0, 1.5);
+    return { light: "office", dof: 1.0, people: [P("cap", CAPO, "smile_closed", 1, { hw: [add(CAPO, -0.55, 1.45, 0.3)] }), P("g6", g1, "stern", 0), P("g5", g2, "stern", 0)],
+      cam: move({ pos: Rm(BY[0], 1.7, BY[1]), look: Rm(BY[2], 1.5, 0.9), fov: 46, roll: 0.05 }, { pos: Rm(BY[0], 1.75, BY[1] + 0.5), look: Rm(BY[2], 1.6, 1.0), fov: 46, roll: -0.04 }, f, s.a, s.b, smooth, 0), subjects: [["the rifles", Rm(-2.3, 1.7, 1.25), 0.4]] }; },
   // "These are my warrant.": the captain, low and close, the grin (punch on "warrant")
   mine: (s, f) => ({ light: "office", dof: 1.3, people: [P("cap", CAPO, "grin", 0)],
     cam: kick(move({ pos: add(CAPO, 0.4, 0.9, -2.1), look: add(CAPO, 0, 1.6, 0), fov: 42, roll: 0.09 }, { pos: add(CAPO, 0.3, 0.95, -1.85), look: add(CAPO, 0, 1.62, 0), fov: 42, roll: 0.07 }, f, s.a, s.b, smooth, 0), f, W(6, "warrant"), 1), subjects: [["the captain", add(CAPO, 0, 1.55, 0), 0.3]] }),
   // --- 7: "He had the mayor hauled off to Berlin under guard": out through the gate between two guards, his wife after ---
-  hauled: (s, f) => { const tt = t(f - s.a), v = -1.0, x0 = Sq(GATE.x + 0.4, 0, 0)[0];
-    return { light: "aft", dof: 0.7, gate: 1.4, people: [walker("g3", x0 + 1.2, AP, TZ - 2.6, v, tt, "stern"), walker("mayor", x0, AP, TZ - 2.6, v, tt, "shock"), walker("g4", x0 - 1.2, AP, TZ - 2.6, v, tt, "stern"), walker("wife", x0 + 2.6, AP, TZ - 2.2, v, tt, "nervous"), P("g1", Sq(GATE.x + 2.6, AP, TZ - 1.5), "stern", 0, { extra: true }), P("g2", Sq(GATE.x - 2.6, AP, TZ - 1.5), "stern", 0, { extra: true })],
-      cam: move({ pos: Sq(1.5, 1.6, TZ - 9.5), look: Sq(0.5, 1.6, TZ - 2.2), fov: 50, roll: 0.04 }, { pos: Sq(-0.5, 1.6, TZ - 9.0), look: Sq(-1.2, 1.6, TZ - 2.2), fov: 50, roll: -0.03 }, f, s.a, s.b, smooth, 0), subjects: [["the mayor", Sq(x0 + v * tt, 1.5, TZ - 2.6), 0.3]] }; },
+  hauled: (s, f) => { const tt = t(f - s.a), v = -1.0, x0 = Sq(GATE.x + 0.4, 0, 0)[0], z = Sq(0, 0, TZ - 2.6)[2], cx = x0 + v * tt + 0.4, u = U(s, f);
+    return { light: "aft", dof: 0.7, gate: 1.4, people: [walker("g3", x0 + 0.85, AP, TZ - 2.6, v, tt, "stern"), walker("mayor", x0, AP, TZ - 2.6, v, tt, "shock"), walker("g4", x0 - 0.85, AP, TZ - 2.6, v, tt, "stern"), walker("wife", x0 + 1.7, AP, TZ - 2.2, v, tt, "nervous")],
+      cam: { pos: [cx + HA[0], 1.6, z + HA[1]], look: [cx, 1.6, z + 0.4], fov: 50, roll: 0.04 - 0.07 * u }, subjects: [["the mayor", [x0 + v * tt, 1.5, z], 0.3]] }; },
   // "and the treasurer count out the town's cash": the cash box open, notes and coins on the desk, the captain's sacks
   count: (s, f) => { const tt = t(f - s.a), hand: V3 = Rm(-0.15, DESK.y + 0.22 + 0.06 * Math.abs(Math.sin(tt * 8)), DESK.z + 0.05);
     return { light: "office", dof: 1.2, cashbox: { open: 1 }, bills: true, people: [P("treas", TREAS, "nervous", 1, { hw: [hand] }), P("cap", Rm(0.75, 0, DESK.z - DESK.hd - 0.45), "grin", -1, { hw: [Rm(0.4, 1.05, DESK.z - DESK.hd - 0.35)] })],
@@ -238,7 +250,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["the signature", Rm(-0.35, DESK.y, DESK.z - 0.12), 0.1]] }),
   // --- 9: "He walked off with more than three and a half thousand marks": across the square, a mail sack in each hand ---
   walk: (s, f) => { const tt = t(f - s.a), v = -1.1, x0 = Sq(1.5, 0, 0)[0], w = walker("cap", x0, AP, TZ - 4.5, v, tt, "grin"), hp: V3 = add(w.p, 0, 0.82, -0.15);
-    return { light: "aft", dof: 0.6, gate: 1.4, people: [{ ...w, side: { ...w.side!, carry: hp } }, ...gateGuards("neutral").map((q) => ({ ...q, extra: true }))], sacks: [add(hp, 0.12, 0.05, -0.05), add(hp, -0.15, 0.05, -0.08)],
+    return { light: "aft", dof: 0.6, gate: 1.4, people: [{ ...w, side: { ...w.side!, carry: hp } }], sacks: [add(hp, 0.12, 0.05, -0.05), add(hp, -0.15, 0.05, -0.08)],
       cam: move({ pos: Sq(0.6, 1.4, TZ - 11.5), look: Sq(0.8, 1.4, TZ - 4.5), fov: 46, roll: -0.03 }, { pos: Sq(-1.6, 1.5, TZ - 11), look: Sq(-1.4, 1.4, TZ - 4.5), fov: 46, roll: 0.03 }, f, s.a, s.b, smooth, 0), subjects: [["the sacks", hp, 0.2]] }; },
   // "and bought himself a new suit.": out of the HERRENMODEN in a new suit, a turn for the camera
   suit: (s, f) => { const p = St(TAILOR_X - 0.2, PAVE, WZ - 1.3); return { light: "noon", dof: 0.9, people: [P("suit", p, "smile_closed", 0, { hw: [add(p, -0.3, 1.38, -0.2)] })], sacks: [add(p, 0.38, 0.82, -0.2)],
@@ -256,10 +268,10 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "pub", dof: 1, people: [P("voigt", p, "shock", 0, { hw: [br] }), P("cop1", Rm(0.7, 0, TABLE.z + 1.4), "stern", -1, { hw: [add(Rm(0.7, 0, TABLE.z + 1.4), -0.45, 1.35, -0.45)] }), P("cop2", Rm(-0.7, 0, TABLE.z + 1.4), "stern", 1)], tools: [{ kind: "bread", g: br, b: br }], key: Rm(0.6, 2.6, 0.3),
       cam: kick(snap(Rm(0.2, 1.65, -2.3), Rm(0, 1.45, TABLE.z + 0.9), f, s.a, { fov: 50, roll: 0.05 }), f, W(11, "caught"), 0.8), subjects: [["the man at breakfast", add(p, 0, 1.5, 0), 0.3]] }; },
   // "and the whole world laughed.": a Berlin pavement, people with the papers, laughing
-  laugh: (s, f) => { const tt = t(f - s.a), row: [string, V3, Expr][] = [["p1", St(7.3, PAVE, WZ - 1.8), "laugh"], ["p3", St(6.4, PAVE, WZ - 1.3), "laugh"], ["p2", St(5.5, PAVE, WZ - 1.9), "grin"], ["boy", St(4.7, PAVE, WZ - 1.5), "laugh"], ["p4", St(8.2, PAVE, WZ - 1.4), "laugh"]];
+  laugh: (s, f) => { const tt = t(f - s.a), row: [string, V3, Expr][] = [["p1", St(7.3, PAVE, WZ - 1.8), "laugh"], ["p3", St(6.4, PAVE, WZ - 1.3), "laugh"], ["p2", St(5.5, PAVE, WZ - 1.9), "grin"], ["boy", St(4.7, PAVE, WZ - 1.5), "laugh"], ["p4", St(LA[1], PAVE, WZ - 1.4), "laugh"]];
     const papers: { p: V3; head: NewsKey; s: number; roll: number }[] = [{ p: add(row[0][1], -0.2, 1.25, -0.35), head: "fake", s: 0.9, roll: 0.06 * Math.sin(tt * 9) }, { p: add(row[2][1], 0.15, 1.25, -0.35), head: "ha", s: 0.9, roll: -0.05 * Math.sin(tt * 8) }, { p: add(row[3][1], 0, 1.0, -0.3), head: "cap", s: 0.75, roll: 0.07 * Math.sin(tt * 10) }];
     return { light: "noon", dof: 0.8, people: row.map(([w, p, e], i) => P(w, p, e, 0, i === 0 || i === 2 || i === 3 ? { hw: [add(papers[i === 0 ? 0 : i === 2 ? 1 : 2].p, 0, -0.2, 0)] } : {})), news: papers,
-      cam: move({ pos: St(6.7, 1.7, WZ - 10.5), look: St(6.4, 1.4, WZ - 1.6), fov: 46, roll: -0.04 }, { pos: St(6.2, 1.65, WZ - 9.8), look: St(6.4, 1.4, WZ - 1.6), fov: 46, roll: 0.03 }, f, s.a, s.b, smooth, 0), subjects: [["the papers", add(row[0][1], -0.2, 1.25, -0.35), 0.2]] }; },
+      cam: move({ pos: St(6.7, 1.7, WZ - LA[0]), look: St(6.4, 1.4, WZ - 1.6), fov: 46, roll: -0.04 }, { pos: St(6.2, 1.65, WZ - LA[0] + 0.7), look: St(6.4, 1.4, WZ - 1.6), fov: 46, roll: 0.03 }, f, s.a, s.b, smooth, 0), subjects: [["the papers", add(row[0][1], -0.2, 1.25, -0.35), 0.2]] }; },
   // "In the end, even the Kaiser let him go.": the Kaiser at his desk, the paper in his hand, laughing
   kaiser: (s, f) => { const p = Rm(0, 0, DESK.z + DESK.hd + 0.35), pp: V3 = add(p, 0.3, 1.25, -0.5);
     return { light: "palace", dof: 1, people: [P("kaiser", p, "laugh", 0, { hw: [add(pp, 0.1, -0.18, 0)] })], news: [{ p: pp, head: "fake", s: 0.8, roll: 0.05 * Math.sin(t(f) * 12) }],
@@ -269,7 +281,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     cam: move({ pos: add(p, 0.6, 1.3, -2.8), look: add(p, 0, 1.55, 0), fov: 42, roll: 0.05 }, { pos: add(p, 0.4, 1.38, -2.4), look: add(p, 0, 1.58, 0), fov: 42, roll: -0.03 }, f, s.a, s.b, smooth, 0), subjects: [["the raised hand", add(p, -0.42, 1.7, -0.15), 0.12]] }; },
   // "Small problem.": the board by the town hall gate, the offices one by one (a tilt down the list)
   board: (s, f) => ({ light: "aft", dof: 1.4, closeup: true, gate: 0,
-    cam: move({ pos: Sq(BOARD[0] - 0.15, BOARD[1] + 0.55, BOARD[2] - 1.5), look: Sq(BOARD[0], BOARD[1] + 0.45, BOARD[2]), fov: 40, roll: 0.05 }, { pos: Sq(BOARD[0] - 0.15, BOARD[1] - 0.1, BOARD[2] - 1.6), look: Sq(BOARD[0], BOARD[1] - 0.15, BOARD[2]), fov: 40, roll: -0.03 }, f, s.a, s.b, smooth, 0),
+    cam: move({ pos: Sq(BOARD[0] - 0.15, BOARD[1] + 0.35, BOARD[2] - 1.5), look: Sq(BOARD[0], BOARD[1] + 0.22, BOARD[2]), fov: 40, roll: 0.05 }, { pos: Sq(BOARD[0] - 0.15, BOARD[1] - 0.1, BOARD[2] - 1.6), look: Sq(BOARD[0], BOARD[1] - 0.15, BOARD[2]), fov: 40, roll: -0.03 }, f, s.a, s.b, smooth, 0),
     subjects: [["the board", Sq(BOARD[0], BOARD[1], BOARD[2]), 0.2]] }),
   // "That town hall couldn't issue passports.": the whole board in shot, no passport office on it (the stamp says so)
   nopass: (s, f) => ({ light: "aft", dof: 1.2, closeup: true, gate: 0,
@@ -287,8 +299,10 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   end: (s, f) => ({ ...hookState(f - s.a + 30), light: "pub", dof: 1, focus: Rm(0, 1.4, TABLE.z + 0.2), cam: hookCam(0) }),
 };
 
+/** tilt these shots down a little (metres off the look point) so faces sit above the captions */
+const TILT: Record<string, number> = { gate: 0.8, shops: 0.5, baths: 1.3, order: 0.2, mine: 0.2, train: 2.5, suit: 0.5 };
 export const specAt = (s: ShotDef, f: number): St3 => {
-  const st = SPECS[s.g](s, f), c = st.cam;
+  const st0 = SPECS[s.g](s, f), st = TILT[s.g] ? { ...st0, cam: { ...st0.cam, look: [st0.cam.look[0], st0.cam.look[1] - TILT[s.g], st0.cam.look[2]] as V3 } } : st0, c = st.cam;
   const d = Math.hypot(c.pos[0] - c.look[0], c.pos[1] - c.look[1], c.pos[2] - c.look[2]), id = s.id, loop = s.g === "hook" ? clamp01(f / 20) : s.g === "end" ? 0 : 1, sw = 0.0032 * Math.min(d, 60) * loop;
   return { ...st, focus: st.focus ?? c.look, cam: { ...c, look: [c.look[0] + sw * Math.sin(f * 0.21 + id), c.look[1] + sw * 0.8 * Math.sin(f * 0.17 + 1.3 * id), c.look[2] + sw * Math.sin(f * 0.13 + 2.1 * id)] } };
 };
