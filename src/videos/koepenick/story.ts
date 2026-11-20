@@ -243,11 +243,11 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // --- 8: "Then he signed a receipt..." top down: the pen writing on the receipt ---
   sign: (s, f) => { const tt = t(f - s.a), x = -0.55 + 0.4 * clamp01(tt / 1.6), g: V3 = Rm(x + 0.05, DESK.y + 0.16, DESK.z - 0.2), b: V3 = Rm(x - 0.02, DESK.y + 0.005, DESK.z - 0.12 + 0.01 * Math.sin(tt * 20));
     return { light: "office", dof: 1.5, closeup: true, receipt: true, people: [P("cap", Rm(-0.3, 0, DESK.z - DESK.hd - 0.35), "smile_closed", 0, { hw: [g], extra: true })], tools: [{ kind: "quill", g, b }],
-      cam: move({ pos: Rm(-0.3, DESK.y + 1.1, DESK.z - 0.55), look: Rm(-0.35, DESK.y, DESK.z - 0.15), fov: 44, roll: 0.1 }, { pos: Rm(-0.35, DESK.y + 0.9, DESK.z - 0.45), look: Rm(-0.35, DESK.y, DESK.z - 0.15), fov: 44, roll: -0.05 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Rm(-0.3, DESK.y + 1.1, DESK.z - 0.55), look: Rm(-0.35, DESK.y, DESK.z - 0.29), fov: 44, roll: 0.1 }, { pos: Rm(-0.35, DESK.y + 0.9, DESK.z - 0.45), look: Rm(-0.35, DESK.y, DESK.z - 0.29), fov: 44, roll: -0.05 }, f, s.a, s.b, smooth, 0),
       subjects: [["the receipt", Rm(-0.35, DESK.y, DESK.z - 0.15), 0.1]] }; },
   // "...with the name of his old prison warden.": the signature, close (the pill overlay names him)
   warden: (s, f) => ({ light: "office", dof: 1.6, closeup: true, receipt: true,
-    cam: kick(move({ pos: Rm(-0.32, DESK.y + 0.62, DESK.z - 0.42), look: Rm(-0.35, DESK.y, DESK.z - 0.12), fov: 40, roll: -0.06 }, { pos: Rm(-0.34, DESK.y + 0.52, DESK.z - 0.36), look: Rm(-0.35, DESK.y, DESK.z - 0.12), fov: 40, roll: 0.04 }, f, s.a, s.b, smooth, 0), f, W(8, "warden"), 0.6),
+    cam: kick(move({ pos: Rm(-0.32, DESK.y + 0.62, DESK.z - 0.42), look: Rm(-0.35, DESK.y, DESK.z - 0.22), fov: 40, roll: -0.06 }, { pos: Rm(-0.34, DESK.y + 0.52, DESK.z - 0.36), look: Rm(-0.35, DESK.y, DESK.z - 0.22), fov: 40, roll: 0.04 }, f, s.a, s.b, smooth, 0), f, W(8, "warden"), 0.6),
     subjects: [["the signature", Rm(-0.35, DESK.y, DESK.z - 0.12), 0.1]] }),
   // --- 9: "He walked off with more than three and a half thousand marks": across the square, a mail sack in each hand ---
   walk: (s, f) => { const tt = t(f - s.a), v = -1.1, x0 = Sq(1.5, 0, 0)[0], w = walker("cap", x0, AP, TZ - 4.5, v, tt, "grin"), hp: V3 = add(w.p, 0, 0.82, -0.15);
@@ -282,7 +282,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     cam: move({ pos: add(p, 0.6, 1.3, -2.8), look: add(p, 0, 1.55, 0), fov: 42, roll: 0.05 }, { pos: add(p, 0.4, 1.38, -2.4), look: add(p, 0, 1.58, 0), fov: 42, roll: -0.03 }, f, s.a, s.b, smooth, 0), subjects: [["the raised hand", add(p, -0.42, 1.7, -0.15), 0.12]] }; },
   // "Small problem.": the board by the town hall gate, the offices one by one (a tilt down the list)
   board: (s, f) => ({ light: "aft", dof: 1.4, closeup: true, gate: 0,
-    cam: move({ pos: Sq(BOARD[0] - 0.15, BOARD[1] + 0.35, BOARD[2] - 1.5), look: Sq(BOARD[0], BOARD[1] + 0.22, BOARD[2]), fov: 40, roll: 0.05 }, { pos: Sq(BOARD[0] - 0.15, BOARD[1] - 0.1, BOARD[2] - 1.6), look: Sq(BOARD[0], BOARD[1] - 0.15, BOARD[2]), fov: 40, roll: -0.03 }, f, s.a, s.b, smooth, 0),
+    cam: move({ pos: Sq(BOARD[0] - 1.6, BOARD[1] - 0.2, BOARD[2] - 7.5), look: Sq(BOARD[0] - 0.9, BOARD[1] - 0.5, BOARD[2]), fov: 40, roll: 0.04 }, { pos: Sq(BOARD[0] - 0.35, BOARD[1] - 0.45, BOARD[2] - 4.3), look: Sq(BOARD[0], BOARD[1] - 0.57, BOARD[2]), fov: 40, roll: -0.03 }, f, s.a, s.b, smooth, 0),
     subjects: [["the board", Sq(BOARD[0], BOARD[1], BOARD[2]), 0.2]] }),
   // "That town hall couldn't issue passports.": the whole board in shot, no passport office on it (the stamp says so)
   nopass: (s, f) => ({ light: "aft", dof: 1.2, closeup: true, gate: 0,
@@ -301,7 +301,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
 };
 
 /** tilt these shots down a little (metres off the look point) so faces sit above the captions */
-const TILT: Record<string, number> = { gate: 0.8, shops: 0.5, baths: 1.3, order: 0.2, mine: 0.2, train: 2.5, suit: 0.5, board: 0.3, notoff: 0.15, fit: 0.15, kaiser: 0.2 };
+const TILT: Record<string, number> = { gate: 0.8, shops: 0.5, baths: 1.3, order: 0.2, mine: 0.2, train: 2.5, suit: 0.5, notoff: 0.15, fit: 0.15, kaiser: 0.2 };
 export const specAt = (s: ShotDef, f: number): St3 => {
   const st0 = SPECS[s.g](s, f), st = TILT[s.g] ? { ...st0, cam: { ...st0.cam, look: [st0.cam.look[0], st0.cam.look[1] - TILT[s.g], st0.cam.look[2]] as V3 } } : st0, c = st.cam;
   const d = Math.hypot(c.pos[0] - c.look[0], c.pos[1] - c.look[1], c.pos[2] - c.look[2]), id = s.id, loop = s.g === "hook" ? clamp01(f / 20) : s.g === "end" ? 0 : 1, sw = 0.0032 * Math.min(d, 60) * loop;
