@@ -17,15 +17,17 @@ const R = (k: string, kickAt?: number, mod?: (st: St3, s: ShotDef, f: number) =>
   return mod ? mod(w, s, f) : w;
 };
 const tt = (s: ShotDef, f: number) => secs(f - s.a);
+/** tilt down (look point lowered by dy metres), so low details clear the subtitles */
+const down = (dy: number) => (st: St3): St3 => ({ ...st, cam: { ...st.cam, look: [st.cam.look[0], st.cam.look[1] - dy, st.cam.look[2]] as V3 } });
 const far = (st: St3, k: number): St3 => ({ ...st, cam: { ...st.cam, pos: [st.cam.look[0] + (st.cam.pos[0] - st.cam.look[0]) * k, st.cam.look[1] + (st.cam.pos[1] - st.cam.look[1]) * k, st.cam.look[2] + (st.cam.pos[2] - st.cam.look[2]) * k] as V3 } });
 void fSpecAt;
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ---------------- straight from the Short ----------------
   mine: R("mine", 0.6), mayor: R("mayor"), bayonets: R("bayonets"), arrest: R("arrest", 0.3), count: R("count"), sign: R("sign"), warden: R("warden", 0.5),
-  notoff: R("notoff"), shoe: R("shoe"), pieces: R("pieces"), laugh: R("laugh"), salute: R("salute", 0.4), hook: R("hook"), prison: R("prison"),
+  notoff: R("notoff"), shoe: R("shoe", undefined, (st) => far(down(0.3)(st), 1.4)), pieces: R("pieces"), laugh: R("laugh"), salute: R("salute", 0.4), hook: R("hook"), prison: R("prison"),
   checked: R("checked"), shops: R("shops"), dealer: R("dealer"), fit: R("fit"), swim: R("swim"), baths: R("baths"), order: R("order"), six: R("six"),
-  beer: R("beer"), mark: R("mark"), train: R("train"), hall: R("hall"), gate: R("gate"), where: R("where"), hauled: R("hauled"), walk: R("walk"), suit: R("suit"),
+  beer: R("beer"), mark: R("mark"), train: R("train"), hall: R("hall"), gate: R("gate"), where: R("where", undefined, (st) => far(down(0.3)(st), 1.4)), hauled: R("hauled"), walk: R("walk"), suit: R("suit"),
   noid: R("noid"), caught: R("caught", 0.4), kaiser: R("kaiser", 0.8), swear: R("swear"), nopass: R("nopass", 0.5), lux: R("lux"), luxpass: R("luxpass"),
   // ---------------- the long-form's own ----------------
   // a Berlin street at noon: people going about, a wide slow pan along the fronts
