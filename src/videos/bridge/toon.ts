@@ -20,7 +20,7 @@ const SH_FELT: C3 = [0.62, 0.62, 0.7];
 export type Build = "adult" | "stout" | "kid";
 export type Outfit = {
   jacket: string; pants: string; boots: string; hat?: string | null; belt?: string | null; buttons?: string; rifle?: boolean;
-  sash?: string; sword?: boolean; moustache?: string; /** a kerchief tied over the nose and mouth (colour) */ bandana?: string; skin?: string; head?: number; cap?: string; hair?: string; dress?: string;
+  sash?: string; sword?: boolean; moustache?: string; /** visor cap: the coloured band round it */ band?: string; /** a kerchief tied over the nose and mouth (colour) */ bandana?: string; skin?: string; head?: number; cap?: string; hair?: string; dress?: string;
   build?: Build;
   /** costume detail (front view): shirt front + lapels, tie, plaid lines, braces */
   shirt?: string; tie?: string; plaid?: string; braces?: string;
@@ -452,6 +452,21 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
     p.poly(body, null, ow);
     const [bx, by] = R([[hx, yb + 1 * u]])[0];
     p.ell(bx, by, 0.64 * W, 0.06 * HH, shade(col, 0.82), ow, 0, 360, (a * 180) / Math.PI);
+  } else if (o.hat === "visor") {
+    // officer's peaked cap (Schirmmuetze): a flat crown wider than the head, a coloured band, a cockade, a black peak (colour = o.cap)
+    const hx = cx + 0.5 * H.asym * H.a, yb = crown + 0.3 * HH, ht = 0.34 * HH, wb = 0.43 * W, wt = 0.56 * W, col = o.cap ?? "#26304a", bandH = 0.11 * HH;
+    const body = R([...sag(yb, wb).map(([x, y]) => [x + hx - cx, y] as P2).reverse(), [hx - wt, yb - ht + 0.05 * HH], [hx - wt + 4 * u, yb - ht], [hx + wt - 4 * u, yb - ht], [hx + wt, yb - ht + 0.05 * HH]]);
+    p.shadedFill(body, col, mul(col, SH_FELT), light, wt, 0.4);
+    p.clip(body, () => p.band(R([[hx - wt - 4 * u, yb - bandH / 2 + 1 * u], [hx + wt + 4 * u, yb - bandH / 2 + 1 * u]]), o.band ?? "#c0353a", bandH, 0.8 * u));
+    p.poly(body, null, ow);
+    const deg = (a * 180) / Math.PI;
+    if (side) p.poly(R([[hx + 30 * u, yb - 2 * u], [hx + 66 * u, yb + 6 * u], [hx + 30 * u, yb + 5 * u]]), "#16171b", ow);
+    else {
+      const [kx, ky] = R([[hx, yb - bandH / 2 + 1 * u]])[0];
+      p.ell(kx, ky, 4.5 * u, 4.5 * u, o.buttons ?? "#e8c45a", 1.6 * u, 0, 360, deg);
+      const [px, py] = R([[hx + 3 * u * facing, yb + 1.5 * u]])[0];
+      p.ell(px, py, 33 * u, 0.06 * HH, "#16171b", ow, 0, 180, deg);
+    }
   } else if (o.hat === "spike") {
     // Prussian spiked helmet (Pickelhaube): black leather dome, brass spike on a cross base, brass front plate, peak
     const yb = crown + 0.3 * HH, wb = 0.53 * W, hd = 0.5 * HH, col = "#1d1b22", brass = "#e8c45a";
@@ -675,7 +690,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
   p.shadedFill(hp, skin, mul(skin, SH_SKIN), light, H.a);
   p.inkRing(hp, ow, thick);
   hatOn(p, o, hp, H, 300, hc, light, seed, facing, false);
-  const brim = !!o.hat && o.hat !== "hair" && o.hat !== "bonnet" && o.hat !== "cap";
+  const brim = !!o.hat && o.hat !== "hair" && o.hat !== "bonnet" && o.hat !== "cap" && o.hat !== "visor";
   faceFront(p, 300, hc, W, expr, facing, look, lid, brim, skin, o.moustache, o.build === "stout");
   if (o.bandana) bandana(p, hp, 300, hc, W, o.bandana, facing);
   p.rot = null;
@@ -815,7 +830,7 @@ export const bodySide = (p: Pen, o: Outfit, opts: SideOpts) => {
   p.shadedFill(hp, skin, mul(skin, SH_SKIN), light, H.a);
   p.inkRing(hp, ow, thick);
   hatOn(p, o, hp, H, hx, hc, light, seed, 1, true);
-  const brim = !!o.hat && o.hat !== "hair" && o.hat !== "bonnet" && o.hat !== "cap";
+  const brim = !!o.hat && o.hat !== "hair" && o.hat !== "bonnet" && o.hat !== "cap" && o.hat !== "visor";
   faceSide(p, hx, hc, W, expr, lid, brim, skin, o.moustache, o.build === "stout");
   if (o.bandana) bandana(p, hp, hx + 22 * (W / 100), hc, W, o.bandana, 1);
   p.rot = null;
