@@ -202,7 +202,7 @@ export function buildLake(): LakeSet {
   const slump = new THREE.Group(); G.add(slump);
   { const sf: typeof fol = [], sb: typeof fol = [], sm2: THREE.Vector3[] = [];
     for (let i = 0; i < 9; i++) { const x = HOLE.x + RC - 10 + (i % 3) * 9, z = HOLE.z - 16 + Math.floor(i / 3) * 14, y = Math.max(islandY(x, z), 1.5); oak(sf, sb, sm2, ox + x, y, z, 0.9 + (i % 3) * 0.1, 50 + i); }
-    const chunk = new THREE.Mesh(rockGeo(16, 7, 2, 0.35), M("pgChunk", "#4a6a2e", { flatShading: true })); chunk.position.set(ox + HOLE.x + RC, -1.6, HOLE.z + 2); chunk.scale.set(1.4, 0.7, 1.6); chunk.castShadow = true; chunk.receiveShadow = true; slump.add(chunk);
+    const chunk = new THREE.Mesh(rockGeo(16, 7, 2, 0.35), M("pgChunk", "#4a6a2e", { flatShading: true })); chunk.position.set(ox + HOLE.x + RC, -2.6, HOLE.z + 2); chunk.scale.set(1.4, 0.8, 1.6); chunk.castShadow = true; chunk.receiveShadow = true; slump.add(chunk);
     const ms = new THREE.Mesh(mergeFacets(sf), lam("pgOakS", () => ({ color: "#3e5a30", vertexColors: true, flatShading: true }))), mb = new THREE.Mesh(mergeFacets(sb), lam("pgBarkS", () => ({ color: "#4a3c30", vertexColors: true, flatShading: true })));
     shadowAll(ms); shadowAll(mb); slump.add(ms, mb); slump.visible = false; slump.userData.home = new THREE.Vector3(); }
   for (let i = 0; i < 300; i++) { const a = (i / 300) * 6.283 + Math.sin(i * 3.1) * 0.02, e = 1.02 + ((i * 13) % 9) * 0.012, x = LC.x + Math.cos(a) * AX * Math.sqrt(e), z = LC.z + Math.sin(a) * AZ * Math.sqrt(e), y = groundY(x, z);

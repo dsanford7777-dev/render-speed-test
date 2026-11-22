@@ -144,11 +144,11 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ...on an entire lake: high and wide, the whole lake turning round the hole
   entire: (s, f) => { const hole = 70;
     return { light: "dawn", lake: { lv: 0, hole, depth: 40, spin: 0.5 }, rig: null, barges: BARGES.map((b, i) => sucked(b, 0.3 + 0.04 * i, hole, 40)), tug: sucked(TUGQ, 0.25, hole, 40), dof: 0, focus: Lk(HX, 0, HZ),
-      cam: orbit(s, f, Lk(HX + 20, -10, HZ + 20), [-30, -12], [330, 300], [260, 240], 52, [0.05, -0.03]), subjects: [["the whirlpool", Lk(HX, -6, HZ), 6]] }; },
+      cam: orbit(s, f, Lk(HX + 20, -10, HZ + 20), [-30, -12], [330, 300], [260, 240], 52, [0.05, -0.03]), subjects: [["the whirlpool", Lk(HX, -0.5, HZ), 6]] }; },
   // you see, in 1980, Lake Peigneur: the calm lake at dawn from the near shore, the island and the rig across the water
   calm: (s, f) => ({ light: "dawn", lake: { lv: 0 }, rig: { spin: true }, skiff: [...SKIFF], dof: 0, focus: Lk(HX, 10, HZ),
     cam: move({ pos: Lk(-40, 4.5, -96), look: Lk(70, 9, 160), fov: 50, roll: 0.04 }, { pos: Lk(-20, 9, -92), look: Lk(80, 10, 160), fov: 48, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-    people: [P("local1", onGround(-34, -98), "smile", 1), P("local2", onGround(-31, -97), "smile", -1)], subjects: [["the rig", Rg(0, 20, 0), 3], ["the island", Lk(220, 16, 190), 10]] }),
+    people: [P("local1", onGround(-24, -84), "smile", 1), P("local2", onGround(-21, -83), "smile", -1)], subjects: [["the rig", Rg(0, 20, 0), 3]] }),
   // ...about 10 feet deep: at the waterline by the rig's hull; the water barely covers a man's head
   ten: (s, f) => { const tt = t(f - s.a);
     return { light: "dawn", lake: { lv: 0 }, rig: { spin: true }, dof: 1, focus: Rg(-18, 1.5, -8),
@@ -167,7 +167,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ...and a rig drilling for oil: the drill floor, the pipe turning, the driller on the brake
   drilling: (s, f) => { const b = brake(0.5 + 0.5 * Math.sin(t(f) * 2));
     return { light: "dawn", lake: { lv: 0 }, rig: { spin: true }, tools: [b.tool], dof: 1, focus: Rg(0.5, FL + 2, -2),
-      cam: orbit(s, f, Rg(1.2, FL + 1.6, -2.5), [-34, -14], [9.5, 8.5], [0.6, 1.4], 50, [0.06, -0.03]),
+      cam: orbit(s, f, Rg(1.2, FL + 1.6, -2.5), [-34, -14], [11.5, 10.5], [0.9, 1.6], 50, [0.06, -0.03]),
       people: [P("driller", DRILLER, "smile", -1, { hw: [b.knob] }), P("hand1", Rg(-3.6, FL, -4.6), "neutral", 1), P("hand2", Rg(-1.5, FL, 3.5), "neutral", 0)], subjects: [["the drill pipe", Rg(0, FL + 4, 0), 0.4]] }; },
   // what the drillers didn't know: close on the driller, cheerful, the pipe turning behind him
   know: (s, f) => { const b = brake(0.5 + 0.5 * Math.sin(t(f) * 2));
@@ -176,17 +176,17 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: [P("driller", DRILLER, "smile", -1, { hw: [b.knob] })] }; },
   // right under the lake: down the pipe, from the derrick to the water where it goes in
   under: (s, f) => ({ light: "dawn", lake: { lv: 0 }, rig: { spin: true }, dof: 0, focus: Rg(0, 2, 0),
-    cam: move({ pos: Rg(-5, 30, -14), look: Rg(0, 12, 0), fov: 52, roll: 0.05 }, { pos: Rg(-3.5, 6, -9), look: Rg(0, -2, 0), fov: 58, roll: -0.08 }, f, s.a, s.b, expo, 0),
+    cam: move({ pos: Rg(-5, 30, -14), look: Rg(0, 12, 0), fov: 52, roll: 0.05 }, { pos: Rg(-3.5, 6, -9), look: Rg(0, 1.5, 0), fov: 58, roll: -0.08 }, f, s.a, s.b, expo, 0),
     subjects: [["the drill pipe", Rg(0, 4, 0), 0.4]] }),
   // ...a salt mine: a vast white room, pillars of salt, lamps; men at work far off
   mine: (s, f) => ({ light: "mine", dof: 0, focus: Mn(0, 4, -40), key: Mn(0, 12.6, -36),
     cam: kick(move({ pos: Mn(-6, 2.2, 22), look: Mn(-2, 5.5, -40), fov: 62, roll: 0.05 }, { pos: Mn(-4, 3.6, 14), look: Mn(0, 5, -40), fov: 60, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, W(2, "salt"), 0.7),
     people: [P("m1", Mn(-2.5, 0, -14), "neutral", 1, { hw: [Mn(-2.1, 1.2, -14.4)] }), P("m3", Mn(2.4, 0, -20), "smile", -1), P("m4", Mn(-1, 0, -28), "neutral", 0)],
-    tools: [{ kind: "shovel", g: Mn(-2.1, 1.2, -14.4), b: Mn(-1.6, 0.15, -14.9) }], subjects: [["the pillars", Mn(-17, 6, -17), 4]] }),
+    tools: [{ kind: "shovel", g: Mn(-2.1, 1.2, -14.4), b: Mn(-1.6, 0.15, -14.9) }], subjects: [["the salt room", Mn(0, 5, -40), 6]] }),
   // ...about 50 men working inside: a crew at the face, the loader behind
   fifty: (s, f) => { const tt = t(f - s.a), sw = 0.5 + 0.5 * Math.sin(tt * 6);
     return { light: "mine", dof: 1, focus: Mn(30, 1.6, -28), key: Mn(30, 12.6, -24),
-      cam: orbit(s, f, Mn(31, 1.6, -27), [-24, -4], [10.5, 9.0], [0.7, 1.2], 50, [0.05, -0.04]),
+      cam: orbit(s, f, Mn(31, 1.6, -27), [-24, -4], [12.5, 11.0], [0.9, 1.4], 50, [0.05, -0.04]),
       people: [P("m2", Mn(28.6, 0, -26.2), "smile", 1, { hw: [Mn(29.1, 1.4 + 0.3 * sw, -26.6)] }), P("m5", Mn(31, 0, -25.4), "neutral", -1), P("m6", Mn(33.2, 0, -26.6), "smile", 0), P("foreman", Mn(26.5, 0, -24.6), "neutral", 1)],
       tools: [{ kind: "pick", g: Mn(29.1, 1.4 + 0.3 * sw, -26.6), b: Mn(29.7, 1.9 + 0.4 * sw, -27.3) }],
       cards: Array.from({ length: 6 }, (_, i) => { const v = (tt * 2 + i / 6) % 1; return { kind: "salt" as const, p: Mn(29.9 + 0.6 * v * Math.cos(i), 1.8 + 0.6 * v - 2 * v * v, -27.4 - 0.3 * v), spin: i + v * 5, s: 1 - 0.5 * v }; }),
@@ -244,7 +244,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   coming: (s, f) => { const u = U(s, f);
     return { light: "mine", mine: { front: -40 + 18 * u, level: 0.08 }, dof: 1, focus: Mn(0, 1.5, -12), key: Mn(0, 12.6, -10),
       cam: move({ pos: Mn(1.2, 1.5, -2), look: Mn(0, 1.2, -40), fov: 52, roll: -0.05 }, { pos: Mn(1.0, 1.4, -4.5), look: Mn(0, 1.0, -40), fov: 54, roll: 0.04 }, f, s.a, s.b, smooth, 0),
-      people: [P("m1", Mn(-1.6, 0, -11), "shock", 1, { facing: 0 }), P("m3", Mn(1.4, 0, -13.5), "shock", -1), P("m4", Mn(-0.2, 0, -17), "nervous", 0)], subjects: [["the water", Mn(0, 0.2, -25), 1]] }; },
+      people: [P("m1", Mn(-0.9, 0, -11), "shock", 1, { facing: 0 }), P("m3", Mn(1.4, 0, -13.5), "shock", -1), P("m4", Mn(-0.2, 0, -17), "nervous", 0)], subjects: [["the water", Mn(0, 0.2, -25), 1]] }; },
   // one elevator: the cage at the shaft station, gate open
   cage: (s, f) => ({ light: "mine", mine: { gate: 0, front: -10, level: 0.08 }, dof: 1, focus: Mn(CAGE.x, 1.6, CAGE.z), key: Mn(0, 12.6, END_Z - 6),
     cam: kick(snap(Mn(CAGE.x + 1.5, 1.9, CAGE.z - 9), Mn(CAGE.x, 1.7, CAGE.z), f, s.a, { fov: 44, roll: 0.05 }, 1.6, 5), f, W(6, "1"), 0.8),
@@ -252,7 +252,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ...8 men at a time: eight in the cage, the gate shuts, it goes up
   eight: (s, f) => { const u = U(s, f), g = clamp01((u - 0.15) * 3), up = Math.max(0, u - 0.6) * 9;
     return { light: "mine", mine: { gate: g, cageY: up, front: -4 + 6 * u, level: 0.1 }, dof: 1, focus: Mn(CAGE.x, 1.6 + up, CAGE.z), key: Mn(0, 12.6, END_Z - 6),
-      cam: move({ pos: Mn(CAGE.x - 1.2, 1.7, CAGE.z - 6.4), look: Mn(CAGE.x, 1.6, CAGE.z), fov: 46, roll: -0.04 }, { pos: Mn(CAGE.x - 0.8, 1.4, CAGE.z - 5.6), look: Mn(CAGE.x, 2.6, CAGE.z), fov: 48, roll: 0.03 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Mn(CAGE.x - 1.2, 1.8, CAGE.z - 8.2), look: Mn(CAGE.x, 1.6, CAGE.z), fov: 46, roll: -0.04 }, { pos: Mn(CAGE.x - 0.8, 1.6, CAGE.z - 7.4), look: Mn(CAGE.x, 2.6, CAGE.z), fov: 48, roll: 0.03 }, f, s.a, s.b, smooth, 0),
       people: inCage((i) => (i % 3 ? "nervous" : "stern"), 0.15 + up), subjects: [["the cage", Mn(CAGE.x, 1.4 + up, CAGE.z), 0.4]] }; },
   // up top, the lake became a whirlpool: overhead, barges circling the hole
   whirl: (s, f) => { const u = U(s, f), hole = 50 + 10 * u;
@@ -314,19 +314,19 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // and here's the crazy part: the crew and locals on the shore, stunned
   crazy: (s, f) => { const c = onGround(-8, -96);
     return { light: "morn", lake: { lv: -60, crater: true }, rig: null, tug: null, barges: BARGES.map(() => null), slump: 1, dof: 1, focus: add(c, 0, 1.5, 0),
-      cam: orbit(s, f, add(c, 0, 1.4, 0), [-14, 10], [7.5, 6.6], [0.3, 0.1], 44, [0.05, -0.04]),
+      cam: orbit(s, f, add(c, 0, 1.4, 0), [-14, 10], [9.2, 8.4], [0.4, 0.2], 44, [0.05, -0.04]),
       people: [P("pusher", onGround(-9.4, -95.6), "shock", 1), P("local1", onGround(-7.8, -96.4), "shock", 0), P("hand1", onGround(-6.4, -95.8), "shock", -1)], subjects: [["the crew", add(c, 0, 1.5, 0), 0.6]] }; },
   // not one person died: up top by the headframe, the miners out in the daylight
   nobody: (s, f) => { const c = Lk(HEADFRAME.x + 1, PADY, HEADFRAME.z - 9);
     return { light: "morn", lake: { lv: -60, crater: true }, rig: null, tug: null, barges: BARGES.map(() => null), slump: 1, dof: 1, focus: add(c, 0, 1.5, 0),
-      cam: move({ pos: add(c, -2.5, 2.2, -8.5), look: add(c, 0, 1.5, 0), fov: 46, roll: 0.05 }, { pos: add(c, -1.8, 1.9, -7.4), look: add(c, 0, 1.5, 0), fov: 46, roll: -0.03 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: add(c, -3, 2.4, -10.5), look: add(c, 0, 1.5, 0), fov: 46, roll: 0.05 }, { pos: add(c, -2.4, 2.1, -9.4), look: add(c, 0, 1.5, 0), fov: 46, roll: -0.03 }, f, s.a, s.b, smooth, 0),
       people: [P("m1", add(c, -1.6, 0, 0.4), "relief", 1), P("m2", add(c, 0, 0, -0.2), "relief_open", 0, { wave: 0.6 + 0.4 * Math.sin(t(f) * 8) }), P("m3", add(c, 1.6, 0, 0.5), "relief", -1)], subjects: [["the miners", add(c, 0, 1.5, 0), 0.5]] }; },
   // every miner got out: wider, the whole crew round the headframe, the foreman counting
   out: (s, f) => { const c = Lk(HEADFRAME.x + 3, PADY, HEADFRAME.z - 8);
     return { light: "morn", lake: { lv: -60, crater: true }, rig: null, tug: null, barges: BARGES.map(() => null), slump: 1, dof: 1, focus: add(c, 0, 1.6, 0),
       cam: orbit(s, f, add(c, 0.6, 1.6, 0), [-26, -16], [15.5, 14.5], [2.6, 3], 50, [0.04, -0.04]),
       people: [...MINERS.map((m, i) => P(m, add(c, -5 + (i % 4) * 2.6, 0, -1 + Math.floor(i / 4) * 2.2), i % 2 ? "relief" : "smile", 0)), P("foreman", add(c, 6.5, 0, -1.6), "relief_open", 1, { wave: 1 })],
-      subjects: [["the headframe", Lk(HEADFRAME.x, PADY + 14, HEADFRAME.z), 2]] }; },
+      subjects: [["the miners", add(c, 0.6, 1.6, 0), 4]] }; },
   // but the lake that came back was salt water: today, calm, a brick chimney standing in it
   today: (s, f) => ({ light: "today", today: true, lake: { lv: 0, crater: true }, rig: null, tug: null, barges: BARGES.map(() => null), slump: 1, dof: 0, focus: Lk(CHIMNEY.x, 5, CHIMNEY.z),
     cam: orbit(s, f, Lk(CHIMNEY.x, 4, CHIMNEY.z), [-40, -20], [44, 38], [6, 3], 46, [0.04, -0.04]), subjects: [["the chimney", Lk(CHIMNEY.x, 6, CHIMNEY.z), 1]] }),
