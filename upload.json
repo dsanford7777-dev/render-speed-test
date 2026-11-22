@@ -1,21 +1,28 @@
 {
-  "release": "Peigneur-20261122-0301",
-  "asset": "Peigneur.mp4",
-  "channel": "shorts",
-  "channelId": "UCl-QfCSpuFSXpego91Z5i7A",
-  "title": "The Oil Rig That Pulled the Plug on a Lake #history #shorts",
-  "description": "In 1980, an oil rig drilling in a 10-foot-deep Louisiana lake hit a salt mine. The rig vanished, the lake became a whirlpool, and in about 3 hours Lake Peigneur was gone. Not one person died.\n\nFull story: LONGFORM_LINK_PENDING\n\nThe scenes are an animated dramatization.\n\n#history #shorts #louisiana",
+  "release": "PeigneurLong-20261122-0516-patch",
+  "asset": "PeigneurLong.mp4",
+  "channel": "explained",
+  "channelId": "UCx1xmhy5MastJ1ug1-KqygA",
+  "title": "How One Oil Rig Drained an Entire Lake",
+  "description": "On the morning of November 20, 1980, an oil rig on Lake Peigneur, Louisiana, began to lean. The crew got off. Then the whole rig, as tall as a 15-story building, rolled over and sank into a lake that was only about 10 feet deep. By late morning the entire lake was gone.\n\nThis is the true story of the day a lake went down the drain: the salt mine under it, the whirlpool, the canal that ran backwards, the barges that popped back up, and why, officially, nobody knows whose fault it was.\n\nChapters\n0:00 Cold open\n0:31 A lake on a mountain of salt\n1:36 Two companies, one lake\n1:51 The drill gets stuck\n2:41 On the lake\n3:00 1,500 feet down\n3:40 The whirlpool\n4:13 The canal runs backwards\n5:00 Who was to blame?\n5:35 The lake today\n\nFacts used: In 1980 Lake Peigneur, about 10 miles west of New Iberia, Louisiana, was a shallow freshwater lake (around 10 feet deep) beside Jefferson Island, the top of a salt dome. The actor Joseph Jefferson, famous as Rip Van Winkle, bought the island in 1869, and by 1980 its grounds were a well-known garden of live oaks. Diamond Crystal's salt mine ran under the island and out under the lake, with levels down to about 1,500 feet. Texaco had hired the contractor Wilson Brothers to drill an exploratory oil well from a rig in the lake. Early on November 20, 1980, at about 1,230 feet down, the drill bit stuck; the crew heard loud pops, the rig tilted, the 7 men got off, and the rig (worth about $5 million) sank. The most widely accepted explanation is that the drill pierced the mine's roof and fresh water began dissolving the salt, widening the hole. Fisherman Leonce Viator Jr. and his nephew were on the lake and reached the shore. About 50 miners were underground; they left by the one elevator, 8 at a time, with maintenance foreman Randy LaSalle warning men in far corners, and every one got out; 6 were later given awards. The lake became a whirlpool about a quarter of a mile wide and pulled in 11 barges, a tugboat, another drilling platform, trees, trucks, a parking lot and about 65 acres of Jefferson Island; air forced out of the mine blew geysers up the shafts. In about 3 hours the lake was drained. The Delcambre Canal then flowed backwards from the Gulf of Mexico, making a waterfall about 150 feet tall into the crater for a few days, and the hole refilled in about 2 days. 9 of the 11 barges floated back up; the rig and the tugboat did not. Texaco blamed the mine and the salt company blamed the drillers; the federal mine investigators' 1981 report said the precise cause would be extremely difficult to determine. In 1983 Texaco and Wilson Brothers paid the salt company $32 million out of court, and the island's gardens received $12.8 million. The mine closed in 1986. The lake came back as salt water, up to about 200 feet deep in places, and the salt dome has been used to store natural gas since the 1990s. A brick chimney still sticks out of the water. No one was killed; the only confirmed losses were 3 dogs.\n\nThe scenes are an animated dramatization.\n\nThe 60-second version: https://youtu.be/qJSfQmwb8EE\n\n#history #louisiana #engineering",
   "tags": [
     "history",
     "lake peigneur",
+    "lake peigneur disaster",
     "1980",
     "louisiana",
+    "jefferson island",
     "salt mine",
+    "texaco",
     "oil rig",
     "whirlpool",
+    "sinkhole",
+    "engineering disaster",
     "weird history",
-    "shorts"
+    "animated history",
+    "paradox town explained"
   ],
-  "publishAt": "2026-11-22T10:00:00-06:00",
-  "comment": "Whose fault was it: the drillers or the mine?"
+  "thumbnail": "public/peigneurlong/thumb.jpg",
+  "publishAt": "2026-11-22T12:00:00-06:00",
+  "comment": "Who do you think was to blame: Texaco's drillers or the salt mine?"
 }
