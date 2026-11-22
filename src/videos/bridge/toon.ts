@@ -484,6 +484,27 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
       const [px, py] = R([[cx + 3 * u * facing, yb + 2 * u]])[0];
       p.ell(px, py, 36 * u, 0.05 * HH, "#16171b", 2.5 * u, 0, 180, deg);
     } else p.poly(R([[cx + 36 * u, yb - 1 * u], [cx + 62 * u, yb + 7 * u], [cx + 34 * u, yb + 6 * u]]), "#16171b", 2.5 * u);
+  } else if (o.hat === "hardhat" || o.hat === "minerhat") {
+    // a work hard hat (colour = o.cap): a smooth dome with a raised ridge and a brim all round; "minerhat" adds the
+    // cap lamp on the front (Lake Peigneur, Nov 21)
+    const hx = cx + 0.5 * H.asym * H.a, yb = crown + 0.3 * HH, wb = 0.52 * W, hd = 0.48 * HH, col = o.cap ?? "#e8c43a";
+    const dome: P2[] = [];
+    for (let i = 0; i <= 16; i++) { const t = (i / 16) * Math.PI; dome.push([hx - wb * Math.cos(t), yb - hd * Math.sin(t)]); }
+    const body = R(dome);
+    p.shadedFill(body, col, mul(col, SH_FELT), light, wb, 0.4);
+    p.poly(body, null, ow);
+    const deg = (a * 180) / Math.PI;
+    if (side) {
+      p.stroke(R([[hx - 0.2 * wb, yb - hd + 1 * u], [hx + 0.55 * wb, yb - 0.55 * hd]]), 2.2 * u);
+      p.poly(R([[hx + wb - 2 * u, yb - 3 * u], [hx + wb + 22 * u, yb + 4 * u], [hx + wb - 2 * u, yb + 4 * u]]), shade(col, 0.82), ow);
+      p.poly(R([[hx - wb + 2 * u, yb - 2 * u], [hx - wb - 8 * u, yb + 3 * u], [hx - wb + 2 * u, yb + 3 * u]]), shade(col, 0.82), ow);
+      if (o.hat === "minerhat") { const [lx, ly] = R([[hx + 0.78 * wb, yb - 0.42 * hd]])[0]; p.ell(lx, ly, 6 * u, 7 * u, "#fff3b8", 2 * u, 0, 360, deg); }
+    } else {
+      p.stroke(R([[hx, yb - hd], [hx, yb - 0.12 * hd]]), 2.2 * u);
+      const [bx, by] = R([[hx, yb + 1.5 * u]])[0];
+      p.ell(bx, by, 0.64 * W, 0.055 * HH, shade(col, 0.82), ow, 0, 360, deg);
+      if (o.hat === "minerhat") { const [lx, ly] = R([[hx + 3 * u * facing, yb - 0.38 * hd]])[0]; p.ell(lx, ly, 9 * u, 8 * u, "#fff3b8", 2.2 * u, 0, 360, deg); p.ell(lx, ly, 4.5 * u, 4 * u, "#ffffff", 0, 0, 360, deg); }
+    }
   } else if (o.hat === "bonnet") {
     const [bx, by] = R([[cx + (side ? 6 * u : 0), crown + 0.16 * HH]])[0];
     p.arc(bx, by, 0.5 * W, 0.2 * HH, 200, 340, 7 * u, BONNET_BRIM);

@@ -1,4 +1,4 @@
-// "How One Oil Rig Drained an Entire Lake" (Paradox Town Explained, long-form #10): Lake Peigneur, Louisiana, November 20, 1980.
+// "How One Oil Rig Drained an Entire Lake" (Paradox Town Explained, long-form #10), 1920 x 1080: Lake Peigneur, Louisiana, November 20, 1980.
 // Everything is timed from SEGMENTS (seconds); scripts/align.py rewrites SEG_TIMES and WORDS from the voice.
 export const FPS = 30;
 
@@ -75,9 +75,14 @@ const est = (): [number, number][] => { let t = 0; return SEGMENTS.map((s) => { 
 // __SEG_TIMES__
 export const SEG_TIMES: [number, number][] = est();
 // __END_SEG_TIMES__
-export const TOTAL = Math.ceil((SEG_TIMES[SEG_TIMES.length - 1][1] + 0.9) * FPS);
 
-/** caption words with times (seconds). Estimated: each segment's span shared by word length; align.py swaps in real ones */
+
+/** seconds of end card after the last line (room for YouTube end-screen elements) */
+export const TAIL = 8;
+export const VOICE_END = Math.ceil((SEG_TIMES[SEG_TIMES.length - 1][1] + 0.6) * FPS);
+export const TOTAL = VOICE_END + TAIL * FPS;
+
+/** caption words with times (seconds) */
 export type Word = { w: string; s: number; e: number; seg: number };
 // __WORDS__
 export const WORDS: Word[] | null = null;
@@ -94,11 +99,105 @@ export const words = (): Word[] => {
   });
   return out;
 };
-/** frame of a word's onset inside a segment (first match of `w`, case-insensitive), for cuts and reaction timing */
+let _W: Word[] | null = null;
+const allWords = () => (_W ??= words());
+
+/** frame of a word's onset inside a segment (first match of `w` in the caption text, case-insensitive) */
 const norm = (s: string) => s.toLowerCase().replace(/[^\w.]/g, "").replace(/\.+$/, "");
 export const wordAt = (seg: number, w: string, fallbackU = 0.5) => {
-  const ws = words().filter((x) => x.seg === seg), k = norm(w);
+  const ws = allWords().filter((x) => x.seg === seg), k = norm(w);
   const hit = ws.find((x) => norm(x.w) === k) ?? ws.find((x) => norm(x.w).startsWith(k));
   const [a, b] = SEG_TIMES[seg];
   return Math.round((hit ? hit.s : a + (b - a) * fallbackU) * FPS);
 };
+export const segAt = (seg: number) => Math.round(SEG_TIMES[seg][0] * FPS);
+
+export const CHAPTERS: { seg: number; num: string; title: string }[] = [
+  { seg: 5, num: "1", title: "A lake on a mountain of salt" },
+  { seg: 12, num: "2", title: "Two companies, one lake" },
+  { seg: 14, num: "3", title: "The drill gets stuck" },
+  { seg: 22, num: "4", title: "On the lake" },
+  { seg: 25, num: "5", title: "1,500 feet down" },
+  { seg: 32, num: "6", title: "The whirlpool" },
+  { seg: 37, num: "7", title: "The canal runs backwards" },
+  { seg: 46, num: "8", title: "Who was to blame?" },
+  { seg: 52, num: "END", title: "The lake today" },
+];
+
+// ---------------- shots ----------------
+/** k: "3d" = rendered scene (story3d.ts), "2d" = motion graphic (boards.tsx). A shot starts at segment `s` (or at word
+ *  `w` inside it) and runs until the next shot. g = graphic / shot key. */
+export type Kind = "3d" | "2d";
+type RawShot = { s: number; w: string | null; k: Kind; g: string };
+const D3 = (s: number, w: string | null, g: string): RawShot => ({ s, w, k: "3d", g }), D2 = (s: number, w: string | null, g: string): RawShot => ({ s, w, k: "2d", g });
+const raw: RawShot[] = [
+  D3(0, null, "tilt"), D3(0, "lean", "tiltclose"),
+  D3(1, null, "off"), D3(1, "whole", "flip"), D3(1, "disappeared", "vanish"),
+  D3(2, null, "gone"),
+  D2(3, null, "title"), D3(3, "strangest", "entire"), D3(3, "walked", "out"),
+  D3(4, null, "calm"),
+  D3(5, null, "under"),
+  D2(6, null, "map"), D3(6, "1980", "ten"), D3(6, "fished", "fisher"),
+  D3(7, null, "garden"), D2(7, "salt", "dome"),
+  D2(8, null, "jefferson"), D3(8, "grounds", "garden2"),
+  D3(9, null, "mine"),
+  D2(10, null, "levels"), D3(10, "rooms", "mineroom"),
+  D3(11, null, "fifty"),
+  D2(12, null, "texaco"), D3(12, "rig", "drilling"),
+  D2(13, null, "both"),
+  D3(14, null, "know"), D2(14, "1,230", "n1230"), D3(14, "stuck", "jam"),
+  D3(15, null, "crewwork"), D3(15, "pops", "pops"), D3(15, "tilt", "tilt2"),
+  D3(16, null, "off"),
+  D3(17, null, "rigwide"), D2(17, "$5", "n5m"), D3(17, "tip", "flip"), D3(17, "lake", "vanish"),
+  D2(18, null, "nobottom"), D2(18, "unless", "unless"),
+  D2(19, null, "pierce"),
+  D3(20, null, "bit"), D2(20, "dissolves", "dissolve"),
+  D3(21, "bigger", "pour"),
+  D2(22, null, "viator"), D3(22, "nephew", "fisher"), D3(22, "wrong", "fisherlook"),
+  D3(23, null, "swirlstart"),
+  D3(24, null, "flee"),
+  D3(25, null, "coming"),
+  D3(26, null, "pour2"), D2(26, "salt", "enemy"),
+  D3(27, null, "cage"), D2(27, "one", "n1"), D3(27, "8", "eight"),
+  D2(28, null, "lasalle"), D3(28, "drove", "loader"),
+  D3(29, null, "wade"),
+  D3(30, null, "eight2"), D3(30, "every", "nobody"),
+  D2(31, null, "n6"),
+  D3(32, null, "whirl"),
+  D3(33, null, "entire2"), D2(33, "quarter", "quarter"),
+  D3(34, null, "barges"), D3(34, "tugboat", "tug"), D3(34, "trees", "trees"), D3(34, "65", "acres"),
+  D3(35, null, "geyser"),
+  D3(36, null, "gone"), D3(36, "crater", "crater"),
+  D2(37, null, "notover"),
+  D2(38, null, "mapout"),
+  D2(39, null, "mapin"),
+  D3(40, null, "canal"),
+  D3(41, null, "falls"), D2(41, "tallest", "n150"),
+  D3(42, null, "fill"),
+  D2(43, null, "andthen"),
+  D3(44, null, "pop"), D3(44, "corks", "corks"),
+  D2(45, null, "never"),
+  D2(46, null, "who"),
+  D2(47, null, "sides"), D3(47, "wrong", "blame"),
+  D2(48, null, "report"),
+  D2(49, null, "nobody"),
+  D3(50, null, "paid"), D2(50, "$32", "n32"), D2(50, "gardens", "n128"),
+  D2(51, null, "n1986"),
+  D3(52, null, "today"),
+  D2(53, null, "compare"), D3(53, "deepest", "deep200"),
+  D3(54, null, "todaywide"),
+  D2(55, null, "gas"),
+  D3(56, null, "chimney"),
+  D3(57, null, "out"), D3(57, "7", "crazy"),
+  D2(58, null, "losses"),
+  D3(59, null, "calm2"),
+  D2(60, null, "question"),
+];
+export type ShotDef = RawShot & { id: number; a: number; b: number };
+export const SHOTS: ShotDef[] = raw.map((r, i) => ({ ...r, id: i + 1, a: 0, b: 0 }));
+SHOTS.forEach((s, i) => { s.a = i === 0 ? 0 : (s.w ? wordAt(s.s, s.w) : segAt(s.s)) - 2; }); // cuts land ~2 f before the word
+SHOTS.forEach((s, i) => { s.b = i === SHOTS.length - 1 ? VOICE_END : SHOTS[i + 1].a; });
+export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? null;
+/** chapter-start crossfade (frames) */
+export const XFADE = 10;
+export const CHAPTER_SHOTS = new Set(CHAPTERS.map((c) => SHOTS.find((s) => s.s >= c.seg)!.id));
