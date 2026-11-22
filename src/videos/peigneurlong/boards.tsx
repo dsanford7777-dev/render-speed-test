@@ -129,7 +129,7 @@ const Compare: React.FC<G> = ({ t, d, c }) => (
 const W1 = "#26304a";
 export const BOARDS: Record<string, React.FC<G>> = {
   // ---------------- cold open ----------------
-  title: say([{ s: "The day a lake", size: 130 }, { s: "went down the drain", cue: [3, "drain"], col: RED, size: 140 }], { m: 0 }),
+  title: say([{ s: "The day a lake", size: 104 }, { s: "went down the drain", cue: [3, "drain"], col: RED, size: 104 }], { m: 0 }),
   // ---------------- a lake on a mountain of salt ----------------
   map: (g) => <LakeMap {...g} v={0} />,
   dome: (g) => <Section {...g} v={0} />,
@@ -160,11 +160,11 @@ export const BOARDS: Record<string, React.FC<G>> = {
   mapin: (g) => <LakeMap {...g} v={2} />,
   n150: num("~150 ft", "a waterfall into the crater", { col: C.blue, sub: "for a few days, Louisiana's tallest", subCue: [41, "few"], m: 4 }),
   andthen: say([{ s: "And then", size: 150 }, { s: "the strangest thing", cue: [43, "strangest"], col: RED, size: 120 }], { dark: true, m: 0 }),
-  never: checks([{ s: "The rig: never came back", mark: "x" }, { s: "The tugboat: never came back", cue: [45, "tugboat"], mark: "x" }], { top: "Still down there", topCol: INK, size: 80 }),
+  never: checks([{ s: "The rig: never came back", mark: "x" }, { s: "The tugboat: never came back", cue: [45, "tugboat"], mark: "x" }], { top: "Still down there", topCol: INK, size: 64 }),
   // ---------------- who was to blame? ----------------
   who: say([{ s: "So who", size: 150 }, { s: "was to blame?", cue: [46, "blame"], col: RED, size: 150 }], { dark: true, glyph: "question", m: 4 }),
   sides: checks([{ s: "Texaco: “they kept the mine a secret”", mark: "x" }, { s: "Salt company: “they drilled in the wrong place”", cue: [47, "crew"], mark: "x" }], { top: "Two stories", topCol: INK, size: 48 }),
-  report: say([{ s: "The 1981 report:", size: 100 }, { s: "“extremely difficult", cue: [48, "extremely"], col: RED, size: 110 }, { s: "to determine the precise cause”", cue: [48, "precise"], size: 86 }], { m: 2 }),
+  report: say([{ s: "The 1981 report:", size: 100 }, { s: "“extremely difficult", cue: [48, "extremely"], col: RED, size: 96 }, { s: "to determine the precise cause”", cue: [48, "precise"], size: 62 }], { m: 2 }),
   nobody: say([{ s: "Officially:", size: 120 }, { s: "nobody knows", cue: [49, "nobody"], col: RED, size: 150 }], { m: 0 }),
   n32: num("$32M", "paid to the salt company", { dark: true, col: GOLD, sub: "by Texaco & Wilson Brothers, 1983, out of court", m: 4, size: 300 }),
   n128: num("$12.8M", "more, to the island's gardens", { col: C.green, m: 2, size: 280 }),
