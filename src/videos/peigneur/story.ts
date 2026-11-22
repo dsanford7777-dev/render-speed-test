@@ -168,7 +168,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   drilling: (s, f) => { const b = brake(0.5 + 0.5 * Math.sin(t(f) * 2));
     return { light: "dawn", lake: { lv: 0 }, rig: { spin: true }, tools: [b.tool], dof: 1, focus: Rg(0.5, FL + 2, -2),
       cam: orbit(s, f, Rg(1.2, FL + 1.6, -2.5), [-34, -14], [11.5, 10.5], [0.9, 1.6], 50, [0.06, -0.03]),
-      people: [P("driller", DRILLER, "smile", -1, { hw: [b.knob] }), P("hand1", Rg(-3.6, FL, -4.6), "neutral", 1), P("hand2", Rg(-1.5, FL, 3.5), "neutral", 0)], subjects: [["the drill pipe", Rg(0, FL + 4, 0), 0.4]] }; },
+      people: [P("driller", DRILLER, "smile", -1, { hw: [b.knob] }), P("hand1", Rg(-3.6, FL, -4.6), "neutral", 1), P("hand2", Rg(-0.6, FL, 2.4), "neutral", 0)], subjects: [["the drill pipe", Rg(0, FL + 4, 0), 0.4]] }; },
   // what the drillers didn't know: close on the driller, cheerful, the pipe turning behind him
   know: (s, f) => { const b = brake(0.5 + 0.5 * Math.sin(t(f) * 2));
     return { light: "dawn", lake: { lv: 0 }, rig: { spin: true }, tools: [b.tool], dof: 2, closeup: true, focus: add(DRILLER, 0, 1.5, 0),
@@ -243,8 +243,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // down below, the miners saw the water coming: they turn; the water runs along the floor toward them
   coming: (s, f) => { const u = U(s, f);
     return { light: "mine", mine: { front: -40 + 18 * u, level: 0.08 }, dof: 1, focus: Mn(0, 1.5, -12), key: Mn(0, 12.6, -10),
-      cam: move({ pos: Mn(1.2, 1.5, -2), look: Mn(0, 1.2, -40), fov: 52, roll: -0.05 }, { pos: Mn(1.0, 1.4, -4.5), look: Mn(0, 1.0, -40), fov: 54, roll: 0.04 }, f, s.a, s.b, smooth, 0),
-      people: [P("m1", Mn(-0.9, 0, -11), "shock", 1, { facing: 0 }), P("m3", Mn(1.4, 0, -13.5), "shock", -1), P("m4", Mn(-0.2, 0, -17), "nervous", 0)], subjects: [["the water", Mn(0, 0.2, -25), 1]] }; },
+      cam: move({ pos: Mn(1.2, 1.5, -2), look: Mn(0, 1.2, -40), fov: 52, roll: -0.05 }, { pos: Mn(1.0, 1.5, -3.2), look: Mn(0, 1.0, -40), fov: 54, roll: 0.04 }, f, s.a, s.b, smooth, 0),
+      people: [P("m1", Mn(-0.4, 0, -11.5), "shock", 1, { facing: 0 }), P("m3", Mn(1.4, 0, -13.5), "shock", -1), P("m4", Mn(-0.2, 0, -17), "nervous", 0)], subjects: [["the water", Mn(0, 0.2, -25), 1]] }; },
   // one elevator: the cage at the shaft station, gate open
   cage: (s, f) => ({ light: "mine", mine: { gate: 0, front: -10, level: 0.08 }, dof: 1, focus: Mn(CAGE.x, 1.6, CAGE.z), key: Mn(0, 12.6, END_Z - 6),
     cam: kick(snap(Mn(CAGE.x + 1.5, 1.9, CAGE.z - 9), Mn(CAGE.x, 1.7, CAGE.z), f, s.a, { fov: 44, roll: 0.05 }, 1.6, 5), f, W(6, "1"), 0.8),
