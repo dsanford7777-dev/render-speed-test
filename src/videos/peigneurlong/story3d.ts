@@ -112,8 +112,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: move({ pos: add(c, -2, 2.2, -6), look: Lk(100, 6, 150), fov: 40, roll: 0.02 }, { pos: add(c, 2, 2.4, -5), look: Lk(110, 6, 150), fov: 40, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       people: [P("local1", add(c, 1.2, 0, 0), "smile", 0), P("local2", add(c, -1.0, 0, 0.3), "smile", 0)] }; },
   // the thumbnail: the rig going over into the whirlpool, low and dramatic
-  thumb: () => ({ light: "dawn", lake: { lv: 0, hole: 40, depth: 26, spin: 0.7 }, rig: { tilt: 0.55, roll: 0.15, sink: 9, dz: 3 }, barges: BARGES.map((b, i) => sucked(b, 0.2 + 0.02 * i, 40, 26)), dof: 0, focus: Rg(0, 8, 0),
-    cam: { pos: Rg(-40, 26, -78), look: Rg(0, 6, 4), fov: 42, roll: 0.06 } }),
+  thumb: () => ({ light: "dawn", lake: { lv: 0, hole: 52, depth: 30, spin: 0.7 }, rig: { tilt: 0.42, roll: 0.12, sink: 6, dz: 2 }, barges: BARGES.map((b, i) => (i === 1 ? sucked(b, 0.15, 52, 30) : i === 4 ? sucked(b, 0.45, 52, 30) : i === 7 ? sucked(b, 0.3, 52, 30) : null)), dof: 0, focus: Rg(0, 8, 0),
+    cam: { pos: Rg(30, 22, -84), look: Rg(24, 8, 4), fov: 40, roll: -0.05 } }),
 };
 void RC; void BREACH; void MINERS; void home; void mistAt; void expo; void TUGQ;
 
