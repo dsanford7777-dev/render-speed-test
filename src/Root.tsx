@@ -27,6 +27,7 @@ import { Cahaba, CAHABA_FRAMES } from "./videos/cahaba/Cahaba";
 import { CahabaLong, CahabaThumb, CAHABALONG_FRAMES } from "./videos/cahabalong/CahabaLong";
 import { Koepenick, KOEPENICK_FRAMES } from "./videos/koepenick/Koepenick";
 import { KoepenickLong, KoepenickThumb, KOEPENICKLONG_FRAMES } from "./videos/koepenicklong/KoepenickLong";
+import { Peigneur, PEIGNEUR_FRAMES } from "./videos/peigneur/Peigneur";
 import { SubscribeTag } from "./videos/shared/SubscribeTag";
 import { AbsoluteFill as AF } from "remotion";
 const SubDemo: React.FC = () => <AF><Genin /><SubscribeTag total={GENIN_FRAMES} /></AF>;
@@ -66,6 +67,7 @@ const FrozenPadded = padded(Frozen);
 const FrozenLongPadded = padded(FrozenLong);
 const CahabaPadded = padded(Cahaba);
 const KoepenickPadded = padded(Koepenick);
+const PeigneurPadded = padded(Peigneur);
 const KoepenickLongPadded = padded(KoepenickLong);
 const KoepenickThumbPadded = padded(KoepenickThumb);
 const CahabaLongPadded = padded(CahabaLong);
@@ -128,6 +130,8 @@ export const Root: React.FC = () => (<>
   <Composition id="StinkPadded" component={StinkPadded} durationInFrames={STINK_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="Frozen" component={Frozen} durationInFrames={FROZEN_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="FrozenPadded" component={FrozenPadded} durationInFrames={FROZEN_FRAMES + PAD} fps={30} width={1080} height={1920} />
+  <Composition id="Peigneur" component={Peigneur} durationInFrames={PEIGNEUR_FRAMES} fps={30} width={1080} height={1920} />
+  <Composition id="PeigneurPadded" component={PeigneurPadded} durationInFrames={PEIGNEUR_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="Koepenick" component={Koepenick} durationInFrames={KOEPENICK_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="KoepenickPadded" component={KoepenickPadded} durationInFrames={KOEPENICK_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="KoepenickLong" component={KoepenickLong} durationInFrames={KOEPENICKLONG_FRAMES} fps={30} width={1920} height={1080} />
