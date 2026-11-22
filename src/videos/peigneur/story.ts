@@ -152,7 +152,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ...about 10 feet deep: at the waterline by the rig's hull; the water barely covers a man's head
   ten: (s, f) => { const tt = t(f - s.a);
     return { light: "dawn", lake: { lv: 0 }, rig: { spin: true }, dof: 1, focus: Rg(-18, 1.5, -8),
-      cam: move({ pos: Rg(-30, 1.2, -30), look: Rg(-16, 2.4, -6), fov: 44, roll: -0.05 }, { pos: Rg(-27, 1.6, -27), look: Rg(-16, 2.6, -6), fov: 44, roll: 0.03 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Rg(-6, 1.6, -42), look: Rg(-16, 2.4, -6), fov: 44, roll: -0.05 }, { pos: Rg(-7, 1.8, -38), look: Rg(-16, 2.6, -6), fov: 44, roll: 0.03 }, f, s.a, s.b, smooth, 0),
       puffs: [0, 1, 2].map((i) => ({ p: Rg(-18.4 + i * 0.3, 0.3, -8 - i * 4), s: 1.4 + 0.4 * Math.sin(tt * 3 + i), c: WHITE, a: 0.5 })), subjects: [["the hull at the waterline", Rg(-18, 0.8, -8), 1]] }; },
   // fishermen: Leonce Viator Jr. and his nephew in their skiff
   fisher: (s, f) => { const fp = onSkiff(-0.6, 0.15), np = onSkiff(1.0, -0.1);
@@ -161,7 +161,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: [P("fisher", fp, "smile", -1, { low: true, hw: [add(fp, 0.35, 0.55, -0.55), add(fp, -0.3, 0.55, -0.55)] }), P("nephew", np, "grin", 1, { low: true })], subjects: [["the fisherman", add(fp, 0, 1.5, 0), 0.3]] }; },
   // a garden on an island: the Jefferson house among the live oaks, the crane rising over the trees
   garden: (s, f) => { const hy = islandY(HOUSE.x, HOUSE.z);
-    return { light: "dawn", lake: { lv: 0 }, rig: { spin: true }, dof: 0, focus: Lk(HOUSE.x, hy + 6, HOUSE.z),
+    return { light: "dawn", lake: { lv: 0 }, rig: null, /* out of shot; its derrick's long dawn shadows read as wires across the lawn */ dof: 0, focus: Lk(HOUSE.x, hy + 6, HOUSE.z),
       cam: move({ pos: Lk(HOUSE.x - 26, hy + 3, HOUSE.z - 52), look: Lk(HOUSE.x, hy + 7, HOUSE.z), fov: 50, roll: 0.04 }, { pos: Lk(HOUSE.x - 18, hy + 14, HOUSE.z - 48), look: Lk(HOUSE.x, hy + 7, HOUSE.z), fov: 48, roll: -0.03 }, f, s.a, s.b, smooth, 0),
       subjects: [["the house", Lk(HOUSE.x, hy + 6, HOUSE.z - 6), 1]] }; },
   // ...and a rig drilling for oil: the drill floor, the pipe turning, the driller on the brake
@@ -176,7 +176,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: [P("driller", DRILLER, "smile", -1, { hw: [b.knob] })] }; },
   // right under the lake: down the pipe, from the derrick to the water where it goes in
   under: (s, f) => ({ light: "dawn", lake: { lv: 0 }, rig: { spin: true }, dof: 0, focus: Rg(0, 2, 0),
-    cam: move({ pos: Rg(-5, 30, -14), look: Rg(0, 12, 0), fov: 52, roll: 0.05 }, { pos: Rg(-3.5, 6, -9), look: Rg(0, 1.5, 0), fov: 58, roll: -0.08 }, f, s.a, s.b, expo, 0),
+    cam: move({ pos: Rg(-5, 30, -14), look: Rg(0, 12, 0), fov: 52, roll: 0.05 }, { pos: Rg(-4, 12, -12), look: Rg(0, FL, 0), fov: 54, roll: -0.08 }, f, s.a, s.b, expo, 0),
     subjects: [["the drill pipe", Rg(0, 4, 0), 0.4]] }),
   // ...a salt mine: a vast white room, pillars of salt, lamps; men at work far off
   mine: (s, f) => ({ light: "mine", dof: 0, focus: Mn(0, 4, -40), key: Mn(0, 12.6, -36),
@@ -200,7 +200,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   pops: (s, f) => { const tt = t(f - s.a), pops = [W(3, "loud"), W(3, "pops"), W(3, "rig") - 4];
     const near = pops.map((p) => clamp01((f - p) / 12)).filter((u) => u > 0 && u < 1);
     return { light: "dawn", lake: { lv: 0 }, rig: { spin: false, tilt: 0.01 * Math.sin(tt * 30) * (near.length ? 1 : 0) }, dof: 0, focus: Rg(-14, 2, -10),
-      cam: kick(kick(move({ pos: Rg(-26, 1.0, -26), look: Rg(-12, 3, -8), fov: 56, roll: -0.08 }, { pos: Rg(-24, 1.2, -24), look: Rg(-12, 3.2, -8), fov: 56, roll: 0.05 }, f, s.a, s.b, smooth, 0), f, pops[0], 1.4), f, pops[1], 1.4),
+      cam: kick(kick(move({ pos: Rg(-6, 1.4, -42), look: Rg(-13, 3, -8), fov: 56, roll: -0.08 }, { pos: Rg(-7, 1.6, -38), look: Rg(-13, 3.2, -8), fov: 56, roll: 0.05 }, f, s.a, s.b, smooth, 0), f, pops[0], 1.4), f, pops[1], 1.4),
       puffs: near.flatMap((u, i) => splash(Rg(-16 + 6 * i, 0, -11 + 2 * i), u, 0.5, 8)), subjects: [["the hull", Rg(-16, 1.2, -11), 1]] }; },
   // ...and it started to tilt: the whole rig leaning, the crew grabbing the rail
   tilt: (s, f) => { const u = U(s, f), tl = 0.02 + 0.08 * smooth(u);

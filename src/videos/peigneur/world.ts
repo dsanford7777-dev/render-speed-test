@@ -15,7 +15,7 @@ import { ctex } from "../bridge/paint";
 import { Grass } from "../bridge/grass";
 import { M } from "../frozen/fsets";
 import { puffTex, sheetTex, hankyTex } from "../frozen/paint";
-import { V3, FPS, SET, LAKE_SUN, HOLE, BED, BARGES, TUG, FISH, funnelY } from "./place";
+import { V3, FPS, SET, LAKE_SUN, HOLE, RC, BED, BARGES, TUG, FISH, funnelY } from "./place";
 import { buildLake, buildMine, LakeSet, MineSet } from "./psets";
 import type { St3, CardKind } from "./story";
 type Light = St3["light"];
@@ -176,7 +176,7 @@ export class PWorld {
       const tq = st.tug === undefined ? (today ? null : [...TUG, 0, 0]) : st.tug;
       K.tug.visible = !!tq; if (tq) { K.tug.position.set(ox + tq[0], tq[3] ?? 0, tq[1]); K.tug.rotation.set(tq[4] ?? 0, tq[2], 0, "YXZ"); }
       const sq = st.skiff; K.skiff.visible = !!sq; if (sq) { K.skiff.position.set(ox + sq[0], (sq[3] ?? 0) + 0.12 + 0.06 * Math.sin(t * 2.1), sq[1]); K.skiff.rotation.set(0.02 * Math.sin(t * 1.7), sq[2], 0.03 * Math.sin(t * 1.3)); }
-      const sl = st.slump ?? 0; K.slump.visible = !today; K.slump.position.set(-sl * 34, -sl * 30, sl * 2); K.slump.rotation.set(0, 0, sl * 0.5);
+      const sl = st.slump ?? 0; K.slump.visible = !today; { const r = sl * 0.5, px = HOLE.x + RC; /* tip about the island edge, not the world origin */ K.slump.position.set(-sl * 34 + px * (1 - Math.cos(r)), -sl * 30 - px * Math.sin(r), sl * 2); K.slump.rotation.set(0, 0, r); /* the earth block only once it moves: at rest it would poke through the island */ K.slump.children[0].visible = sl > 0.01; }
       K.chimney.visible = today; K.today.visible = today;
       // foam rings: round the rig's hull, the barges in the water, the chimney (only where something meets water)
       let fr = 0; const ring = (x: number, z: number, s: number) => { const m = K.foam[fr++]; if (!m) return; m.visible = true; m.position.set(ox + x, lv + 0.07, z); m.scale.setScalar(s / 10); m.rotation.z = t * 0.2 + fr; };

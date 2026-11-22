@@ -71,9 +71,9 @@ const Section: React.FC<G & { v: number }> = ({ t, d, v }) => {
         {v >= 2 && v < 5 ? <Lab x={rigX - 100} y={wl - 110} s="TEXACO RIG" size={40} col={RED} o={pop(t, 2)} anchor="end" /> : null}
         {v === 2 ? <Lab x={rigX + 40} y={(pipeTo + bed) / 2 + 40} s="DRILL PIPE" size={36} o={pop(t, 10)} /> : null}
         {v >= 4 ? <Lab x={rigX - hole - 40} y={bed + 110} px={rigX - hole * 0.6} py={bed + 60} s="SALT DISSOLVING" size={38} col={WATER} o={pop(t, 14)} anchor="end" /> : null}
-        {v === 5 ? <Lab x={1810} y={380} px={1360} py={520} s="NATURAL GAS STORAGE" size={42} col={RED} o={pop(t, 10)} anchor="end" /> : null}
+        {v === 5 ? <Lab x={720} y={790} px={720} py={680} s="NATURAL GAS STORAGE" size={42} col={RED} o={pop(t, 10)} anchor="middle" /> : null}
       </svg>
-      {v === 3 ? <Stamp text="THROUGH THE ROOF" t={t} at={8} x={1460} y={420} size={70} col={RED} r={-6} /> : null}
+      {v === 3 ? <Stamp text="THROUGH THE ROOF" t={t} at={8} x={820} y={770} size={64} col={RED} r={-6} /> : null}
     </Mv></Paper>
   );
 };
@@ -163,11 +163,11 @@ export const BOARDS: Record<string, React.FC<G>> = {
   never: checks([{ s: "The rig: never came back", mark: "x" }, { s: "The tugboat: never came back", cue: [45, "tugboat"], mark: "x" }], { top: "Still down there", topCol: INK, size: 80 }),
   // ---------------- who was to blame? ----------------
   who: say([{ s: "So who", size: 150 }, { s: "was to blame?", cue: [46, "blame"], col: RED, size: 150 }], { dark: true, glyph: "question", m: 4 }),
-  sides: checks([{ s: "Texaco: “they kept the mine a secret”", mark: "x" }, { s: "Salt company: “they drilled in the wrong place”", cue: [47, "crew"], mark: "x" }], { top: "Two stories", topCol: INK, size: 62 }),
+  sides: checks([{ s: "Texaco: “they kept the mine a secret”", mark: "x" }, { s: "Salt company: “they drilled in the wrong place”", cue: [47, "crew"], mark: "x" }], { top: "Two stories", topCol: INK, size: 48 }),
   report: say([{ s: "The 1981 report:", size: 100 }, { s: "“extremely difficult", cue: [48, "extremely"], col: RED, size: 110 }, { s: "to determine the precise cause”", cue: [48, "precise"], size: 86 }], { m: 2 }),
   nobody: say([{ s: "Officially:", size: 120 }, { s: "nobody knows", cue: [49, "nobody"], col: RED, size: 150 }], { m: 0 }),
-  n32: num("$32M", "Texaco & Wilson Brothers to the salt company", { dark: true, col: GOLD, sub: "1983, out of court", m: 4, size: 300 }),
-  n128: num("$12.8M", "more, to the gardens on the island", { col: C.green, m: 2, size: 280 }),
+  n32: num("$32M", "paid to the salt company", { dark: true, col: GOLD, sub: "by Texaco & Wilson Brothers, 1983, out of court", m: 4, size: 300 }),
+  n128: num("$12.8M", "more, to the island's gardens", { col: C.green, m: 2, size: 280 }),
   n1986: num("1986", "the salt mine closes for good", { col: INK, m: 0 }),
   // ---------------- the lake today ----------------
   compare: Compare,

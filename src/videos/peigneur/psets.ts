@@ -20,7 +20,12 @@ import { saltTex, swirlTex, flowTex, groundTex, hullTex, mudTex, mossTex } from 
 const M4 = (x: number, y: number, z: number, ry = 0, s = 1) => new THREE.Matrix4().compose(V(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, ry, 0)), V(s, s, s));
 const beamGeo = (a: THREE.Vector3, c: THREE.Vector3, w: number, t: number) => { const d = c.clone().sub(a), g = new THREE.BoxGeometry(w, d.length(), t); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), d.clone().normalize())); g.translate((a.x + c.x) / 2, (a.y + c.y) / 2, (a.z + c.z) / 2); return g; };
 /** a sky all the way round (an open cylinder seen from inside), so every camera direction has a backdrop */
-const skyPl = (G: THREE.Object3D, kind: Parameters<typeof caSkyTex>[0], x: number, z: number, r: number, h: number, y0: number) => { const tx = caSkyTex(kind).clone(); tx.wrapS = THREE.RepeatWrapping; tx.repeat.set(4, 1); tx.needsUpdate = true; const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 64, 1, true), new THREE.MeshBasicMaterial({ map: tx, fog: false, depthWrite: false, side: THREE.BackSide })); m.position.set(x, y0 + h / 2, z); m.renderOrder = -5; G.add(m); return m; };
+const skyPl = (G: THREE.Object3D, kind: Parameters<typeof caSkyTex>[0], x: number, z: number, r: number, h: number, y0: number) => { const tx = caSkyTex(kind).clone(); tx.wrapS = THREE.RepeatWrapping; tx.repeat.set(4, 1); tx.needsUpdate = true; const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 64, 1, true), new THREE.MeshBasicMaterial({ map: tx, fog: false, depthWrite: false, side: THREE.BackSide })); m.position.set(x, y0 + h / 2, z); m.renderOrder = -5;
+  // a lid in the sky's top colour, so a camera tilted up never sees past the cylinder's rim
+  let top = new THREE.Color("#7fb0dc"); const im = tx.image as HTMLCanvasElement | undefined;
+  try { const d = im?.getContext?.("2d")?.getImageData(Math.floor(im.width / 2), 1, 1, 1).data; if (d) top = new THREE.Color(d[0] / 255, d[1] / 255, d[2] / 255).convertSRGBToLinear(); } catch { /* keep the default */ }
+  const lid = new THREE.Mesh(new THREE.CircleGeometry(r, 64), new THREE.MeshBasicMaterial({ color: top, fog: false, depthWrite: false, side: THREE.DoubleSide }));
+  lid.rotation.x = Math.PI / 2; lid.position.y = h / 2 - 0.5; lid.renderOrder = -5; m.add(lid); G.add(m); return m; };
 
 // =====================================================================================================================
 /** lake water: moving waves, glints, fresnel to the sky; a round hole (the whirlpool) and a front (mine water running
@@ -85,7 +90,10 @@ const derrick = (bt: Batch, steel: THREE.Material, y0: number, y1: number, b: nu
   for (let k = 0; k <= bays; k++) { const y = y0 + ((y1 - y0) * k) / bays;
     for (const [a, c] of [[[-1, -1], [1, -1]], [[1, -1], [1, 1]], [[1, 1], [-1, 1]], [[-1, 1], [-1, -1]]] as [number, number][][]) bt.add(beamGeo(corner(a[0], a[1], y), corner(c[0], c[1], y), 0.3, 0.3), steel);
     if (k < bays) { const yn = y0 + ((y1 - y0) * (k + 1)) / bays;
-      for (const [a, c] of [[[-1, -1], [1, -1]], [[1, -1], [1, 1]], [[1, 1], [-1, 1]], [[-1, 1], [-1, -1]]] as [number, number][][]) { bt.add(beamGeo(corner(a[0], a[1], y), corner(c[0], c[1], yn), 0.18, 0.18), steel); bt.add(beamGeo(corner(c[0], c[1], y), corner(a[0], a[1], yn), 0.18, 0.18), steel); } } }
+      for (const [a, c] of [[[-1, -1], [1, -1]], [[1, -1], [1, 1]], [[1, 1], [-1, 1]], [[-1, 1], [-1, -1]]] as [number, number][][]) {
+        // the bottom bay is open on the -z and -x faces (the V-door side), so the crew on the floor can be seen
+        if (k === 0 && (a[1] === -1 && c[1] === -1 || a[0] === -1 && c[0] === -1)) continue;
+        bt.add(beamGeo(corner(a[0], a[1], y), corner(c[0], c[1], yn), 0.18, 0.18), steel); bt.add(beamGeo(corner(c[0], c[1], y), corner(a[0], a[1], yn), 0.18, 0.18), steel); } } }
   // the crown block and its frame on top
   bt.add(boxGeo(V(-t - 0.6, y1, -t - 0.6), V(t + 0.6, y1 + 0.6, t + 0.6), 0, true), steel); bt.add(boxGeo(V(-1.1, y1 + 0.6, -0.8), V(1.1, y1 + 2.2, 0.8), 0, true), steel);
 };
@@ -164,7 +172,7 @@ export function buildLake(): LakeSet {
     return new THREE.Color().setRGB((0.3 - 0.04 * isl) * k, (0.48 - 0.03 * isl) * k, (0.2 - 0.02 * isl) * k);   // grass
   };
   const mkGround = (fy: (x: number, z: number) => number, after: boolean) => {
-    const g = sheet(ox - 720, ox + 720, -320, 720, 300, 220, (x, z) => fy(x - ox, z) + (fy(x - ox, z) > 0.7 ? nz(x, z) * 3 : 0), 7);
+    const g = sheet(ox - 720, ox + 720, -320, 720, 300, 220, (x, z) => { const h = fy(x - ox, z), w = Math.min(1, Math.max(0, (h - 0.7) / 3.3)); return h + nz(x, z) * 3 * w * w * (3 - 2 * w); }, 7);  // the bumps fade in: a hard step at the 0.7 contour drew ink lines across the lawns
     const p = g.attributes.position as THREE.BufferAttribute, cols = new Float32Array(p.count * 3);
     for (let i = 0; i < p.count; i++) { const c = colorAt(p.getX(i) - ox, p.getZ(i), p.getY(i), after); cols[i * 3] = c.r; cols[i * 3 + 1] = c.g; cols[i * 3 + 2] = c.b; }
     g.setAttribute("color", new THREE.BufferAttribute(cols, 3));
@@ -196,13 +204,13 @@ export function buildLake(): LakeSet {
   // ---- trees: live oaks on the island, cypress and scrub round the shores, a far tree line; none inside the clear
   //      radius of any structure (the rig, the house, the headframe, the barges) ----
   const fol: { g: THREE.BufferGeometry; m: THREE.Matrix4; tint?: number }[] = [], bark: typeof fol = [], cyF: typeof fol = [], cyB: typeof fol = [], scrub: typeof fol = [], moss: THREE.Vector3[] = [];
-  const clear = (x: number, z: number, r: number) => [[HOUSE.x, HOUSE.z, 26], [HEADFRAME.x, HEADFRAME.z, 22], [HOLE.x, HOLE.z, RC + 6], [CHIMNEY.x, CHIMNEY.z, 10]].every(([a, b, c]) => Math.hypot(x - a, z - b) > c + r);
+  const clear = (x: number, z: number, r: number) => [[HOUSE.x, HOUSE.z, 26], [HEADFRAME.x, HEADFRAME.z, 22], [HOLE.x, HOLE.z, RC + 6], [CHIMNEY.x, CHIMNEY.z, 10], [HOUSE.x - 28, HOUSE.z - 48, 32] /* the garden cameras stand here: no oak (or its moss) in front of the lens */].every(([a, b, c]) => Math.hypot(x - a, z - b) > c + r);
   for (let i = 0; i < 70; i++) { const a = i * 2.4, d = 20 + ((i * 37) % 95), x = IC.x + Math.cos(a) * d, z = IC.z + Math.sin(a) * d * 0.9, y = islandY(x, z); if (y < 2 || !clear(x, z, 8)) continue; oak(fol, bark, moss, ox + x, y, z, 1.0 + ((i * 7) % 5) * 0.12, i); }
   // the slump: the island's edge nearest the hole, with its oaks, as one piece that can slide into the crater
   const slump = new THREE.Group(); G.add(slump);
   { const sf: typeof fol = [], sb: typeof fol = [], sm2: THREE.Vector3[] = [];
     for (let i = 0; i < 9; i++) { const x = HOLE.x + RC - 10 + (i % 3) * 9, z = HOLE.z - 16 + Math.floor(i / 3) * 14, y = Math.max(islandY(x, z), 1.5); oak(sf, sb, sm2, ox + x, y, z, 0.9 + (i % 3) * 0.1, 50 + i); }
-    const chunk = new THREE.Mesh(rockGeo(16, 7, 2, 0.35), M("pgChunk", "#4a6a2e", { flatShading: true })); chunk.position.set(ox + HOLE.x + RC, -2.6, HOLE.z + 2); chunk.scale.set(1.4, 0.8, 1.6); chunk.castShadow = true; chunk.receiveShadow = true; slump.add(chunk);
+    const chunk = new THREE.Mesh(rockGeo(16, 7, 2, 0.35), M("pgChunk", "#4a6a2e", { flatShading: true })); chunk.position.set(ox + HOLE.x + RC, -2, HOLE.z + 2); chunk.scale.set(1.4, 3.5, 1.6); chunk.castShadow = true; chunk.receiveShadow = true; slump.add(chunk);
     const ms = new THREE.Mesh(mergeFacets(sf), lam("pgOakS", () => ({ color: "#3e5a30", vertexColors: true, flatShading: true }))), mb = new THREE.Mesh(mergeFacets(sb), lam("pgBarkS", () => ({ color: "#4a3c30", vertexColors: true, flatShading: true })));
     shadowAll(ms); shadowAll(mb); slump.add(ms, mb); slump.visible = false; slump.userData.home = new THREE.Vector3(); }
   for (let i = 0; i < 300; i++) { const a = (i / 300) * 6.283 + Math.sin(i * 3.1) * 0.02, e = 1.02 + ((i * 13) % 9) * 0.012, x = LC.x + Math.cos(a) * AX * Math.sqrt(e), z = LC.z + Math.sin(a) * AZ * Math.sqrt(e), y = groundY(x, z);

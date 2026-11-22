@@ -67,7 +67,7 @@ export const BARGES: [number, number, number][] = [
   [HOLE.x - 52, HOLE.z + 46, 0.9], [HOLE.x + 4, HOLE.z - 44, 1.6], [HOLE.x - 56, HOLE.z - 34, 0.4], [HOLE.x + 58, HOLE.z + 10, -1.2], [HOLE.x + 52, HOLE.z - 40, -0.8], [HOLE.x - 30, HOLE.z + 70, 1.1],
 ];
 export const TUG: [number, number, number] = [HOLE.x + 44, HOLE.z - 78, 0.4];
-export const LAKE_SUN: V3 = [0.55, 0.3, -0.78];
+export const LAKE_SUN: V3 = [0.52, 0.48, -0.71];
 
 // ---- the mine ----
 /** a room-and-pillar level: floor at 0, roof at ROOF; square pillars PIL wide, centred at x, z = +-17, +-51, +-85

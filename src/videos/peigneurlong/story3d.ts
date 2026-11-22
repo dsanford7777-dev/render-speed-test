@@ -23,7 +23,7 @@ const none = BARGES.map(() => null);
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ---------------- straight from the Short ----------------
-  tilt: R("tilt"), off: R("off"), flip: R("flip", 1.2), vanish: R("vanish"), gone: R("gone"), entire: R("entire"), out: R("out"), calm: R("calm"), under: R("under"),
+  tilt: R("tilt"), off: R("off", undefined, (st) => ({ ...st, cam: { ...st.cam, pos: [st.cam.pos[0] - 3.2, st.cam.pos[1], st.cam.pos[2] + 0.6] as V3 } })), flip: R("flip", 1.2), vanish: R("vanish"), gone: R("gone"), entire: R("entire"), out: R("out"), calm: R("calm"), under: R("under", undefined, (st, s, f) => ({ ...st, cam: wide(move({ pos: Rg(-6, 30, -16), look: Rg(0, 12, 0), fov: 52, roll: 0.05 }, { pos: Rg(-6, 15, -17), look: Rg(0, FL, 0), fov: 50, roll: -0.06 }, f, s.a, s.b, expo, 0)) })),
   ten: R("ten"), fisher: R("fisher"), garden: R("garden"), mine: R("mine", 0.4), fifty: R("fifty"), drilling: R("drilling"), know: R("know"), jam: R("jam", 0.5),
   bit: R("bit", 0.8), pour: R("pour", 0.5), coming: R("coming"), cage: R("cage"), eight: R("eight"), nobody: R("nobody"), whirl: R("whirl"), barges: R("barges"),
   tug: R("tug", 0.5), trees: R("trees"), acres: R("acres", 0.6), crater: R("crater"), canal: R("canal"), falls: R("falls", 0.6), fill: R("fill"),
@@ -39,8 +39,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: [P("driller", DRILLER, "shock", -1, { hw: [b.knob] }), P("hand1", Rg(-1.4, FL, -4.6), "shock", 1, { wave: 1 })] }; },
   // the Jefferson house, round the other side, the oaks and moss
   garden2: (s, f) => { const hy = islandY(HOUSE.x, HOUSE.z);
-    return { light: "dawn", lake: { lv: 0 }, rig: { spin: true }, dof: 0, focus: Lk(HOUSE.x, hy + 6, HOUSE.z),
-      cam: orbit(s, f, Lk(HOUSE.x, hy + 6, HOUSE.z), [-38, -18], [58, 52], [6, 10], 34, [0.04, -0.03]), subjects: [["the house", Lk(HOUSE.x, hy + 6, HOUSE.z - 6), 1]] }; },
+    return { light: "dawn", lake: { lv: 0 }, rig: null, /* out of shot; its derrick's long dawn shadows read as wires across the lawn */ dof: 0, focus: Lk(HOUSE.x, hy + 6, HOUSE.z),
+      cam: orbit(s, f, Lk(HOUSE.x, hy + 5, HOUSE.z), [-38, -18], [60, 54], [17, 22], 34, [0.04, -0.03]), subjects: [["the house", Lk(HOUSE.x, hy + 6, HOUSE.z - 6), 1]] }; },
   // the rooms: down a drift between the pillars, the lamps going off into the dark
   mineroom: (s, f) => ({ light: "mine", dof: 0, focus: Mn(-34, 6, -60), key: Mn(-34, 12.6, -40),
     cam: move({ pos: Mn(-34, 3, 26), look: Mn(-34, 7, -60), fov: 46, roll: 0.03 }, { pos: Mn(-34, 5, 14), look: Mn(-34, 6.5, -60), fov: 46, roll: -0.03 }, f, s.a, s.b, smooth, 0),
@@ -85,7 +85,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: move({ pos: Mn(1.5, 1.6, 24), look: Mn(0, 1.2, 4), fov: 46, roll: -0.04 }, { pos: Mn(1.2, 1.5, 22), look: Mn(0, 1.2, 4), fov: 46, roll: 0.03 }, f, s.a, s.b, smooth, 0),
       people: [P("m7", Mn(-1.2, 0, 12 - 4 * u), "nervous", 0, { low: true }), P("m8", Mn(1.0, 0, 8 - 4 * u), "stern", 0, { low: true }), P("m4", Mn(-0.4, 0, 4 - 4 * u), "nervous", 0, { low: true })], subjects: [["the miners", Mn(0, 1.4, 8), 0.4]] }; },
   // they went up, eight at a time: the cage rising out of the room
-  eight2: (s, f) => { const u = U(s, f), up = 3 + 8 * u;
+  eight2: (s, f) => { const u = U(s, f), up = 0.6 + 3 * u;
     return { light: "mine", mine: { gate: 1, cageY: up, front: 20, level: 0.2 }, dof: 1, focus: Mn(CAGE.x, 1.6 + up, CAGE.z), key: Mn(0, 12.6, END_Z - 6),
       cam: move({ pos: Mn(CAGE.x - 2, 1.4, CAGE.z - 9), look: Mn(CAGE.x, 3 + up * 0.6, CAGE.z), fov: 46, roll: -0.03 }, { pos: Mn(CAGE.x - 1.6, 1.2, CAGE.z - 8), look: Mn(CAGE.x, 4 + up * 0.7, CAGE.z), fov: 48, roll: 0.03 }, f, s.a, s.b, smooth, 0),
       people: inCage((i) => (i % 2 ? "relief" : "nervous"), 0.15 + up), subjects: [["the cage", Mn(CAGE.x, 1.4 + up, CAGE.z), 0.4]] }; },
