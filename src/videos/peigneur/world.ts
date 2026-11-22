@@ -189,7 +189,7 @@ export class PWorld {
     // ---------------- the mine ----------------
     if (set === "mine") { const N = this.mine, ox = SET.mine[0], mn = st.mine ?? {};
       N.water.U.uTime.value = t; N.water.U.uFront.value = mn.front ?? -1e4; N.waterMesh.position.y = mn.level ?? 0.05; N.waterMesh.visible = (mn.front ?? -1e4) > -150;
-      N.jet.visible = !!mn.jet; N.jetT.offset.y = t * 1.6;
+      N.jet.visible = !!mn.jet; N.hole.visible = !!mn.jet || (mn.bit ?? 0) > 0.55; N.jetT.offset.y = t * 1.6;
       N.bit.visible = mn.bit !== undefined; if (mn.bit !== undefined) N.bit.position.y = 18.5 - mn.bit * 6;
       N.gate.position.x = ox + 0 + (1 - (mn.gate ?? 0)) * -3.4; N.cage.position.y = mn.cageY ?? 0; N.gate.position.y = mn.cageY && (mn.gate ?? 0) > 0.5 ? mn.cageY : 0;
       N.lamps.forEach((l, i) => { l.intensity = 9 * (1 + 0.04 * Math.sin(t * 9 + i)); });
@@ -213,7 +213,8 @@ export class PWorld {
     const right = V(0, 0, 0).setFromMatrixColumn(cam.matrixWorld, 0);
     const lightA = Math.round(Math.atan2(-sunDir.y, sunDir.dot(right)) / (Math.PI / 4)) * (Math.PI / 4);
     const blink = (seed: number) => { const n2 = Math.floor((t + seed * 0.37) / 2.3), ph = (t + seed * 0.37) - n2 * 2.3; return ph < 0.13 ? 1 : 0; };
-    const people = (st.people ?? []).map((q) => ({ q, w: OUT[q.who] ?? OUT.m1 }));
+    // checklist (Nov 21): a shock mouth never sits on a moustache; moustached faces show alarm with the wavy mouth
+    const people = (st.people ?? []).map((q) => { const w = OUT[q.who] ?? OUT.m1; return { q: w.o.moustache && q.expr === "shock" ? { ...q, expr: "nervous" as const } : q, w }; });
     this.lastPeople = people.map(({ q }) => ({ name: q.who, p: q.p, low: !!q.low, extra: !!q.extra || !!q.side, s: q.s ?? 1 }));
     const key = st.key ?? [focus.x, focus.y + 2.2, focus.z - 1.5] as V3;
     let ai = 0;

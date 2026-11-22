@@ -66,7 +66,7 @@ export const BARGES: [number, number, number][] = [
   [HOLE.x - 34, HOLE.z - 20, 0.2], [HOLE.x - 36, HOLE.z + 4, 0.15], [HOLE.x + 36, HOLE.z - 12, -0.3], [HOLE.x + 30, HOLE.z + 28, -0.5], [HOLE.x - 10, HOLE.z + 40, 1.5],
   [HOLE.x - 52, HOLE.z + 46, 0.9], [HOLE.x + 4, HOLE.z - 44, 1.6], [HOLE.x - 56, HOLE.z - 34, 0.4], [HOLE.x + 58, HOLE.z + 10, -1.2], [HOLE.x + 52, HOLE.z - 40, -0.8], [HOLE.x - 30, HOLE.z + 70, 1.1],
 ];
-export const TUG: [number, number, number] = [HOLE.x + 12, HOLE.z - 58, 0.4];
+export const TUG: [number, number, number] = [HOLE.x + 44, HOLE.z - 78, 0.4];
 export const LAKE_SUN: V3 = [0.55, 0.3, -0.78];
 
 // ---- the mine ----

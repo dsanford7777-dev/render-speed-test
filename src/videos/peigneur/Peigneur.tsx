@@ -21,7 +21,7 @@ const Overlays: React.FC = () => {
       {all.filter((i) => f >= i.f0 && f < i.f1).map((i) => {
         const d = f - i.f0, u = Math.min(1, d / 4), n = i.text.length;
         // fit every label inside the 1080 px width (stamps carry a border and padding, calls a thick outline)
-        const fit = i.kind === "stamp" ? Math.min(i.size ?? 160, 820 / (n * 0.7)) : i.kind === "pill" ? Math.min(i.size ?? 66, 840 / (n * 0.68)) : Math.min(i.size ?? 130, 960 / (n * 0.7));
+        const fit = i.kind === "stamp" ? Math.min(i.size ?? 160, 820 / (n * 0.7)) : i.kind === "pill" ? Math.min(i.size ?? 66, 840 / (n * 0.68)) : Math.min(i.size ?? 130, 860 / (n * 0.74));
         const sc = i.kind === "stamp" ? 2.3 - 1.3 * u + (d >= 4 && d < 8 ? 0.06 * Math.sin((d - 4) * 1.6) : 0) : 0.3 + 0.7 * u + 0.14 * Math.sin(Math.min(1, d / 9) * Math.PI);
         const base: React.CSSProperties = {
           position: "absolute", left: "50%", top: `${i.y}%`, transform: `translate(-50%, -50%) rotate(${i.rot ?? 0}deg) scale(${sc})`,

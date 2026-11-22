@@ -19,7 +19,8 @@ import { saltTex, swirlTex, flowTex, groundTex, hullTex, mudTex, mossTex } from 
 
 const M4 = (x: number, y: number, z: number, ry = 0, s = 1) => new THREE.Matrix4().compose(V(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, ry, 0)), V(s, s, s));
 const beamGeo = (a: THREE.Vector3, c: THREE.Vector3, w: number, t: number) => { const d = c.clone().sub(a), g = new THREE.BoxGeometry(w, d.length(), t); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), d.clone().normalize())); g.translate((a.x + c.x) / 2, (a.y + c.y) / 2, (a.z + c.z) / 2); return g; };
-const skyPl = (G: THREE.Object3D, kind: Parameters<typeof caSkyTex>[0], x: number, z: number, w: number, h: number, y0: number) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: caSkyTex(kind), fog: false, depthWrite: false })); m.rotation.y = Math.PI; m.position.set(x, y0 + h / 2, z); m.renderOrder = -5; G.add(m); return m; };
+/** a sky all the way round (an open cylinder seen from inside), so every camera direction has a backdrop */
+const skyPl = (G: THREE.Object3D, kind: Parameters<typeof caSkyTex>[0], x: number, z: number, r: number, h: number, y0: number) => { const tx = caSkyTex(kind).clone(); tx.wrapS = THREE.RepeatWrapping; tx.repeat.set(4, 1); tx.needsUpdate = true; const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 64, 1, true), new THREE.MeshBasicMaterial({ map: tx, fog: false, depthWrite: false, side: THREE.BackSide })); m.position.set(x, y0 + h / 2, z); m.renderOrder = -5; G.add(m); return m; };
 
 // =====================================================================================================================
 /** lake water: moving waves, glints, fresnel to the sky; a round hole (the whirlpool) and a front (mine water running
@@ -187,7 +188,7 @@ export function buildLake(): LakeSet {
   const funnel = new THREE.Mesh(lathe, new THREE.MeshLambertMaterial({ map: funnelTex, side: THREE.DoubleSide })); funnel.layers.set(NOINK); funnel.visible = false; G.add(funnel);
   const flowA = flowTex("stream", "#5e6e60", "rgba(220,226,220,0.8)"), flowB = flowTex("fall", "#7a8e8a", "rgba(240,244,244,0.9)");
   for (const t2 of [flowA, flowB]) { t2.wrapS = t2.wrapT = THREE.RepeatWrapping; }
-  const stream = ribbon([V(ox + CANAL_X1 + 10, BED + 0.4, CANAL_Z), V(ox - 300, BED + 0.3, CANAL_Z - 10), V(ox - 160, BED + 0.25, W0.z + 20), V(ox + W0.x - 6, BED + 0.2, W0.z)], 16, flowA); stream.visible = false; G.add(stream);
+  const stream = ribbon([V(ox + CANAL_X1 + 36, -0.05, CANAL_Z), V(ox + CANAL_X1 + 48, BED + 0.4, CANAL_Z), V(ox - 300, BED + 0.3, CANAL_Z - 10), V(ox - 160, BED + 0.25, W0.z + 20), V(ox + W0.x - 6, BED + 0.2, W0.z)], 16, flowA); stream.visible = false; G.add(stream);
   const fallPts: THREE.Vector3[] = []; for (let i = 0; i <= 12; i++) { const u = i / 12, x = W0.x + 2 + u * 30, z = W0.z - 2 * u; fallPts.push(V(ox + x, Math.max(craterY(x, z), BED - 45) + 0.6 + (1 - u) * 1.2 * (1 - u), z)); }
   const fall = ribbon(fallPts, 14, flowB, 60); fall.visible = false; G.add(fall);
   const foam: THREE.Mesh[] = [], foamM = new THREE.MeshBasicMaterial({ map: foamTex(), transparent: true, depthWrite: false, opacity: 0.75, fog: true, color: new THREE.Color(0.92, 0.94, 0.95) });
@@ -201,7 +202,7 @@ export function buildLake(): LakeSet {
   const slump = new THREE.Group(); G.add(slump);
   { const sf: typeof fol = [], sb: typeof fol = [], sm2: THREE.Vector3[] = [];
     for (let i = 0; i < 9; i++) { const x = HOLE.x + RC - 10 + (i % 3) * 9, z = HOLE.z - 16 + Math.floor(i / 3) * 14, y = Math.max(islandY(x, z), 1.5); oak(sf, sb, sm2, ox + x, y, z, 0.9 + (i % 3) * 0.1, 50 + i); }
-    const chunk = new THREE.Mesh(rockGeo(16, 7, 2, 0.35), M("pgChunk", "#4a6a2e", { flatShading: true })); chunk.position.set(ox + HOLE.x + RC, 0.5, HOLE.z + 2); chunk.scale.set(1.4, 0.5, 1.6); chunk.castShadow = true; chunk.receiveShadow = true; slump.add(chunk);
+    const chunk = new THREE.Mesh(rockGeo(16, 7, 2, 0.35), M("pgChunk", "#4a6a2e", { flatShading: true })); chunk.position.set(ox + HOLE.x + RC, -1.6, HOLE.z + 2); chunk.scale.set(1.4, 0.7, 1.6); chunk.castShadow = true; chunk.receiveShadow = true; slump.add(chunk);
     const ms = new THREE.Mesh(mergeFacets(sf), lam("pgOakS", () => ({ color: "#3e5a30", vertexColors: true, flatShading: true }))), mb = new THREE.Mesh(mergeFacets(sb), lam("pgBarkS", () => ({ color: "#4a3c30", vertexColors: true, flatShading: true })));
     shadowAll(ms); shadowAll(mb); slump.add(ms, mb); slump.visible = false; slump.userData.home = new THREE.Vector3(); }
   for (let i = 0; i < 300; i++) { const a = (i / 300) * 6.283 + Math.sin(i * 3.1) * 0.02, e = 1.02 + ((i * 13) % 9) * 0.012, x = LC.x + Math.cos(a) * AX * Math.sqrt(e), z = LC.z + Math.sin(a) * AZ * Math.sqrt(e), y = groundY(x, z);
@@ -285,14 +286,14 @@ export function buildLake(): LakeSet {
   // foam rings where the water meets things (rig hull, chimney, barges' bows) -- posed by the world
   for (let i = 0; i < 14; i++) ring(0, 0, 10);
   // ---- skies and air ----
-  const skies = { morn: skyPl(G, "morn", ox, 1400, 5200, 1500, -200), day: skyPl(G, "day", ox, 1400, 5200, 1500, -200) };
+  const skies = { morn: skyPl(G, "morn", ox, 170, 2400, 1700, -300), day: skyPl(G, "day", ox, 170, 2400, 1700, -300) };
   const mist = dustMotes(V(ox, 3, 40), V(240, 8, 200), 260, new THREE.Color(0.95, 0.9, 0.8), 0.12, 0.35); G.add(mist.points);
   const turf = (x: number, z: number) => { const y = groundY(x - ox, z); if (y < 0.75) return null; for (const [a, b, r] of [[HOUSE.x, HOUSE.z, 14], [HEADFRAME.x, HEADFRAME.z, 16], [HEADFRAME.x + 30, HEADFRAME.z - 18, 16]] as [number, number, number][]) if (Math.hypot(x - ox - a, z - b) < r) return null; return y + 0.02; };
   return { group: G, pre, post, water, waterMesh, canal, funnel, funnelTex, stream, fall, flowT: [flowA, flowB], rig, pipe, barges, tug: tg, skiff: sk, slump, chimney, today, skies, foam, mist, drift: (t: number) => mist.drift(t), turf };
 }
 
 // =====================================================================================================================
-export type MineSet = { group: THREE.Group; water: ReturnType<typeof pWater>; waterMesh: THREE.Mesh; jet: THREE.Mesh; jetT: THREE.Texture; bit: THREE.Group; gate: THREE.Group; cage: THREE.Group;
+export type MineSet = { group: THREE.Group; water: ReturnType<typeof pWater>; waterMesh: THREE.Mesh; jet: THREE.Mesh; hole: THREE.Mesh; jetT: THREE.Texture; bit: THREE.Group; gate: THREE.Group; cage: THREE.Group;
   lamps: THREE.PointLight[]; heads: THREE.Sprite[]; dust: ReturnType<typeof dustMotes>; drift: (t: number) => void };
 export function buildMine(): MineSet {
   const G = new THREE.Group(), [ox] = SET.mine, salt = T("pgSaltM", () => saltTex()), b = new Batch();
@@ -325,7 +326,7 @@ export function buildMine(): MineSet {
   { const ld = new THREE.Group(), lb = new Batch(), body = M("pgLoader", "#d98a2a"), dark = M("pgLoaderD", "#2a2a30");
     lb.add(boxGeo(V(-3.2, 0.9, -1.4), V(2.2, 2.4, 1.4)), body); lb.add(boxGeo(V(0.4, 2.4, -1.2), V(2.0, 3.6, 1.2)), dark); lb.add(boxGeo(V(-5.0, 0.4, -1.6), V(-3.2, 1.8, 1.6)), body);
     for (const [x, z] of [[-2.4, -1.4], [1.4, -1.4], [-2.4, 1.4], [1.4, 1.4]]) lb.add(new THREE.CylinderGeometry(0.85, 0.85, 0.6, 14).rotateX(Math.PI / 2).translate(x, 0.85, z), dark);
-    lb.build(ld, true); ld.position.set(ox + 34, 0, -30); ld.rotation.y = 1.2; G.add(ld); }
+    lb.build(ld, true); ld.position.set(ox + 62, 0, -66); ld.rotation.y = 1.2; G.add(ld); }
   const lamps: THREE.PointLight[] = [], lampM = new THREE.MeshBasicMaterial({ color: new THREE.Color(2.4, 2.1, 1.5), fog: true });
   for (const [x0, z0, x1, z1] of [[0, -140, 0, END_Z - 4], [-100, -34, 100, -34], [-100, -68, 100, -68], [-100, 26, 100, 26]] as [number, number, number, number][]) {
     const n = Math.round(Math.hypot(x1 - x0, z1 - z0) / 12);
@@ -342,9 +343,9 @@ export function buildMine(): MineSet {
   jet.position.set(ox + BREACH.x, ROOF / 2, BREACH.z); jet.visible = false; G.add(jet);
   const bit = new THREE.Group(); { const pp = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 8, 10), M("pgPipe", "#6a6e76")); pp.position.y = 4; bit.add(pp); const cone = new THREE.Mesh(new THREE.ConeGeometry(0.5, 0.9, 8), M("pgBit", "#c9a23a")); cone.rotation.x = Math.PI; bit.add(cone); shadowAll(bit); bit.position.set(ox + BREACH.x, ROOF + 4, BREACH.z); bit.visible = false; G.add(bit); }
   // a ragged hole in the roof round the breach
-  { const hole = new THREE.Mesh(new THREE.CircleGeometry(2.6, 12), new THREE.MeshBasicMaterial({ color: "#121214" })); hole.rotation.x = Math.PI / 2; hole.position.set(ox + BREACH.x, ROOF - 0.02, BREACH.z); G.add(hole); }
+  const hole = new THREE.Mesh(new THREE.CircleGeometry(2.6, 12), new THREE.MeshBasicMaterial({ color: "#121214" })); hole.rotation.x = Math.PI / 2; hole.position.set(ox + BREACH.x, ROOF - 0.02, BREACH.z); hole.visible = false; G.add(hole);
   const heads: THREE.Sprite[] = []; for (let i = 0; i < 12; i++) { const h = glow(new THREE.Color(1.6, 1.5, 1.1), 0.9); h.visible = false; G.add(h); heads.push(h); }
   const dust = dustMotes(V(ox, 6, -20), V(80, 6, 60), 220, new THREE.Color(1, 0.97, 0.9), 0.05, 0.45); G.add(dust.points);
   void puffTex; void rockTex;
-  return { group: G, water, waterMesh, jet, jetT, bit, gate, cage, lamps, heads, dust, drift: (t: number) => dust.drift(t) };
+  return { group: G, water, waterMesh, jet, hole, jetT, bit, gate, cage, lamps, heads, dust, drift: (t: number) => dust.drift(t) };
 }
