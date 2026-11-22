@@ -153,7 +153,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   ten: (s, f) => { const tt = t(f - s.a);
     return { light: "dawn", lake: { lv: 0 }, rig: { spin: true }, dof: 1, focus: Rg(-18, 1.5, -8),
       cam: move({ pos: Rg(-6, 1.6, -42), look: Rg(-16, 2.4, -6), fov: 44, roll: -0.05 }, { pos: Rg(-7, 1.8, -38), look: Rg(-16, 2.6, -6), fov: 44, roll: 0.03 }, f, s.a, s.b, smooth, 0),
-      puffs: [0, 1, 2].map((i) => ({ p: Rg(-18.4 + i * 0.3, 0.3, -8 - i * 4), s: 1.4 + 0.4 * Math.sin(tt * 3 + i), c: WHITE, a: 0.5 })), subjects: [["the hull at the waterline", Rg(-18, 0.8, -8), 1]] }; },
+      puffs: [0, 1, 2].map((i) => ({ p: Rg(-18.4 + i * 0.3, 0.3, -8 - i * 4), s: 1.4 + 0.4 * Math.sin(tt * 3 + i), c: WHITE, a: 0.5 })), subjects: [["the hull at the waterline", Rg(-16.4, 0.8, -12.5), 1]] }; },
   // fishermen: Leonce Viator Jr. and his nephew in their skiff
   fisher: (s, f) => { const fp = onSkiff(-0.6, 0.15), np = onSkiff(1.0, -0.1);
     return { light: "dawn", lake: { lv: 0 }, rig: { spin: true }, skiff: [...SKIFF], dof: 2, focus: add(fp, 0, 1.4, 0),
@@ -168,7 +168,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   drilling: (s, f) => { const b = brake(0.5 + 0.5 * Math.sin(t(f) * 2));
     return { light: "dawn", lake: { lv: 0 }, rig: { spin: true }, tools: [b.tool], dof: 1, focus: Rg(0.5, FL + 2, -2),
       cam: orbit(s, f, Rg(1.2, FL + 1.6, -2.5), [-34, -14], [11.5, 10.5], [0.9, 1.6], 50, [0.06, -0.03]),
-      people: [P("driller", DRILLER, "smile", -1, { hw: [b.knob] }), P("hand1", Rg(-3.6, FL, -4.6), "neutral", 1), P("hand2", Rg(-0.6, FL, 2.4), "neutral", 0)], subjects: [["the drill pipe", Rg(0, FL + 4, 0), 0.4]] }; },
+      people: [P("driller", DRILLER, "smile", -1, { hw: [b.knob] }), P("hand1", Rg(-3.6, FL, -4.6), "neutral", 1)], subjects: [["the drill pipe", Rg(0, FL + 4, 0), 0.4]] }; },
   // what the drillers didn't know: close on the driller, cheerful, the pipe turning behind him
   know: (s, f) => { const b = brake(0.5 + 0.5 * Math.sin(t(f) * 2));
     return { light: "dawn", lake: { lv: 0 }, rig: { spin: true }, tools: [b.tool], dof: 2, closeup: true, focus: add(DRILLER, 0, 1.5, 0),
@@ -176,8 +176,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: [P("driller", DRILLER, "smile", -1, { hw: [b.knob] })] }; },
   // right under the lake: down the pipe, from the derrick to the water where it goes in
   under: (s, f) => ({ light: "dawn", lake: { lv: 0 }, rig: { spin: true }, dof: 0, focus: Rg(0, 2, 0),
-    cam: move({ pos: Rg(-5, 30, -14), look: Rg(0, 12, 0), fov: 52, roll: 0.05 }, { pos: Rg(-4, 12, -12), look: Rg(0, FL, 0), fov: 54, roll: -0.08 }, f, s.a, s.b, expo, 0),
-    subjects: [["the drill pipe", Rg(0, 4, 0), 0.4]] }),
+    cam: move({ pos: Rg(-5, 30, -14), look: Rg(0, 12, 0), fov: 52, roll: 0.05 }, { pos: Rg(-4, 12, -12), look: Rg(0, FL - 3, 0), fov: 54, roll: -0.08 }, f, s.a, s.b, expo, 0),
+    subjects: [["the drill pipe", Rg(0, FL + 3, 0), 0.4]] }),
   // ...a salt mine: a vast white room, pillars of salt, lamps; men at work far off
   mine: (s, f) => ({ light: "mine", dof: 0, focus: Mn(0, 4, -40), key: Mn(0, 12.6, -36),
     cam: kick(move({ pos: Mn(-6, 2.2, 22), look: Mn(-2, 5.5, -40), fov: 62, roll: 0.05 }, { pos: Mn(-4, 3.6, 14), look: Mn(0, 5, -40), fov: 60, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, W(2, "salt"), 0.7),
@@ -201,7 +201,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     const near = pops.map((p) => clamp01((f - p) / 12)).filter((u) => u > 0 && u < 1);
     return { light: "dawn", lake: { lv: 0 }, rig: { spin: false, tilt: 0.01 * Math.sin(tt * 30) * (near.length ? 1 : 0) }, dof: 0, focus: Rg(-14, 2, -10),
       cam: kick(kick(move({ pos: Rg(-6, 1.4, -42), look: Rg(-13, 3, -8), fov: 56, roll: -0.08 }, { pos: Rg(-7, 1.6, -38), look: Rg(-13, 3.2, -8), fov: 56, roll: 0.05 }, f, s.a, s.b, smooth, 0), f, pops[0], 1.4), f, pops[1], 1.4),
-      puffs: near.flatMap((u, i) => splash(Rg(-16 + 6 * i, 0, -11 + 2 * i), u, 0.5, 8)), subjects: [["the hull", Rg(-16, 1.2, -11), 1]] }; },
+      puffs: near.flatMap((u, i) => splash(Rg(-16 + 6 * i, 0, -11 + 2 * i), u, 0.5, 8)), subjects: [["the hull", Rg(-15.5, 1.2, -12.5), 1]] }; },
   // ...and it started to tilt: the whole rig leaning, the crew grabbing the rail
   tilt: (s, f) => { const u = U(s, f), tl = 0.02 + 0.08 * smooth(u);
     return { light: "dawn", lake: { lv: 0, hole: 6 + 4 * u, depth: 4, spin: 1 }, rig: { tilt: tl, roll: 0.02 * u, sink: 0.5 * u }, dof: 0, focus: Rg(0, 18, 0),
