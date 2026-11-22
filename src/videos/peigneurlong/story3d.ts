@@ -23,7 +23,7 @@ const none = BARGES.map(() => null);
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ---------------- straight from the Short ----------------
-  tilt: R("tilt"), off: R("off", undefined, (st) => ({ ...st, cam: { ...st.cam, pos: [st.cam.pos[0] - 3.2, st.cam.pos[1], st.cam.pos[2] + 0.6] as V3 } })), flip: R("flip", 1.2), vanish: R("vanish"), gone: R("gone"), entire: R("entire"), out: R("out"), calm: R("calm"), under: R("under", undefined, (st, s, f) => ({ ...st, cam: wide(move({ pos: Rg(-6, 30, -16), look: Rg(0, 12, 0), fov: 52, roll: 0.05 }, { pos: Rg(-6, 15, -17), look: Rg(0, FL, 0), fov: 50, roll: -0.06 }, f, s.a, s.b, expo, 0)) })),
+  tilt: R("tilt"), off: R("off", undefined, (st) => ({ ...st, cam: { ...st.cam, pos: [st.cam.pos[0] - 3.2, st.cam.pos[1], st.cam.pos[2] + 0.6] as V3 } })), flip: R("flip", 1.2), vanish: R("vanish"), gone: R("gone"), entire: R("entire"), out: R("out"), calm: R("calm"), under: R("under", undefined, (st, s, f) => ({ ...st, cam: wide(move({ pos: Rg(-6, 30, -16), look: Rg(0, 12, 0), fov: 52, roll: 0.05 }, { pos: Rg(-3, 16, -12), look: Rg(0, FL, 0), fov: 50, roll: -0.06 }, f, s.a, s.b, expo, 0)) })),
   ten: R("ten"), fisher: R("fisher"), garden: R("garden"), mine: R("mine", 0.4), fifty: R("fifty"), drilling: R("drilling"), know: R("know"), jam: R("jam", 0.5),
   bit: R("bit", 0.8), pour: R("pour", 0.5), coming: R("coming"), cage: R("cage"), eight: R("eight"), nobody: R("nobody"), whirl: R("whirl"), barges: R("barges"),
   tug: R("tug", 0.5), trees: R("trees"), acres: R("acres", 0.6), crater: R("crater"), canal: R("canal"), falls: R("falls", 0.6), fill: R("fill"),
@@ -44,7 +44,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // the rooms: down a drift between the pillars, the lamps going off into the dark
   mineroom: (s, f) => ({ light: "mine", dof: 0, focus: Mn(-34, 6, -60), key: Mn(-34, 12.6, -40),
     cam: move({ pos: Mn(-34, 3, 26), look: Mn(-34, 7, -60), fov: 46, roll: 0.03 }, { pos: Mn(-34, 5, 14), look: Mn(-34, 6.5, -60), fov: 46, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-    subjects: [["the pillars", Mn(-17, 6, -17), 4]] }),
+    subjects: [["the drift", Mn(-34, 6, -60), 6]] }),
   // the crew at work on the floor, before
   crewwork: (s, f) => far(R("drilling")(s, f), 1.2),
   // ...and the rig began to tilt (from the other side)
@@ -64,8 +64,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // the water was moving, toward one spot: past the skiff, the water starting to turn round the rig
   swirlstart: (s, f) => { const u = U(s, f);
     return { light: "dawn", lake: { lv: 0, hole: 14 + 8 * u, depth: 8, spin: 1.4, pull: 1 }, rig: { tilt: 0.14 + 0.1 * u, sink: 2 + 3 * u }, skiff: [...SKIFF], dof: 0, focus: Rg(0, 4, 0),
-      cam: move({ pos: Lk(SKIFF[0] - 6, 3, SKIFF[1] - 14), look: Rg(0, 4, 0), fov: 34, roll: 0.04 }, { pos: Lk(SKIFF[0] - 4, 2.6, SKIFF[1] - 12), look: Rg(0, 2, 0), fov: 32, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      people: [P("fisher", onSkiff(-0.6, 0.15), "shock", 1, { low: true }), P("nephew", onSkiff(1.0, -0.1), "shock", 0, { low: true })], subjects: [["the turning water", Rg(0, 0, 0), 4]] }; },
+      cam: move({ pos: Lk(SKIFF[0] - 9, 3.4, SKIFF[1] - 19), look: Lk((SKIFF[0] + HOLE.x) / 2, 3, (SKIFF[1] + HOLE.z) / 2), fov: 34, roll: 0.04 }, { pos: Lk(SKIFF[0] - 8.5, 3.6, SKIFF[1] - 21), look: Lk((SKIFF[0] + HOLE.x) / 2, 2, (SKIFF[1] + HOLE.z) / 2), fov: 32, roll: -0.03 }, f, s.a, s.b, smooth, 0),
+      people: [P("fisher", onSkiff(-0.6, 0.15), "shock", 1, { low: true }), P("nephew", onSkiff(1.0, -0.1), "shock", 0, { low: true })], subjects: [["the turning water", Rg(-14, 0, -22), 4]] }; },
   // they pointed their little boat at the shore: the skiff running for the bank
   flee: (s, f) => { const u = U(s, f), x = SKIFF[0] - 40 * u, z = SKIFF[1] - 70 * u, yaw = 2.1, c = Math.cos(yaw), sn = Math.sin(yaw), on = (lx: number, lz: number): V3 => Lk(x + lx * c + lz * sn, 0.02, z - lx * sn + lz * c);
     return { light: "dawn", lake: { lv: 0, hole: 20, depth: 10, spin: 1.5 }, rig: { tilt: 0.3, sink: 6 }, skiff: [x, z, yaw], dof: 0, focus: on(0, 0),

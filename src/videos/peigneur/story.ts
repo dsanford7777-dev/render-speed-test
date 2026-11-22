@@ -222,7 +222,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   vanish: (s, f) => { const u = U(s, f);
     return { light: "dawn", lake: { lv: 0, hole: 20 + 6 * u, depth: 14, spin: 1.6 }, rig: null, barges: home(), dof: 0, focus: Rg(0, -2, 0),
       cam: move({ pos: Rg(-26, 18, -42), look: Rg(0, -3, 2), fov: 52, roll: 0.07 }, { pos: Rg(-20, 14, -36), look: Rg(0, -4, 2), fov: 54, roll: -0.04 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the hole", Rg(0, -3, 0), 3]] }; },
+      subjects: [["the hole", Rg(0, -0.5, 0), 3]] }; },
   // ...into water 10 feet deep: the crew on the tug, staring
   deep: (s, f) => { const q: [number, number, number] = [TUGQ[0] - 3, TUGQ[1] - 8, TUGQ[2]];
     return { light: "dawn", lake: { lv: 0, hole: 26, depth: 16, spin: 1.6 }, rig: null, tug: [q[0], q[1], q[2], 0, 0], dof: 2, focus: onTug(q, -6.6, 3.2, 0),
@@ -267,7 +267,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ...11 barges: the barges going round and down
   barges: (s, f) => { const u = U(s, f), hole = 66;
     return { light: "morn", lake: { lv: 0, hole, depth: 36, spin: 1.0 }, rig: null, tug: null, barges: BARGES.map((b, i) => sucked(b, 0.55 + 0.35 * u + 0.015 * i, hole, 36)), dof: 0, focus: Lk(HX, -10, HZ),
-      cam: orbit(s, f, Lk(HX, -8, HZ), [-50, -26], [150, 135], [70, 62], 50, [0.06, -0.05]), subjects: [["the barges", Lk(HX - 20, -6, HZ - 20), 4]] }; },
+      cam: orbit(s, f, Lk(HX, -8, HZ), [-50, -26], [150, 135], [70, 62], 50, [0.06, -0.05]), subjects: [["the barges", Lk(HX - 20, -1, HZ - 20), 4]] }; },
   // ...trees: the oaks on the island's edge start to go
   trees: (s, f) => { const u = U(s, f), hole = 72;
     return { light: "morn", lake: { lv: -0.5, hole, depth: 38, spin: 0.9 }, rig: null, tug: null, barges: BARGES.map(() => null), slump: 0.25 * smooth(u), dof: 0, focus: Lk(HX + RC - 2, 4, HZ),
