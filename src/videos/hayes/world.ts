@@ -194,8 +194,9 @@ export class HWorld {
       const lt0 = lightA;
       if (q.ride) {
         mirror = q.ride.mirror; rz = q.ride.tilt ?? 0; const lt = mirror ? Math.PI - lt0 : lt0, pose = Math.round((q.ride.pose ?? 0) * 8) / 8;
-        const kkey = `R|${w.key}|${q.expr}|${pose}|${bl}|${lt.toFixed(2)}`;
-        act.r = this.pool.req(kkey, cw, ch, kk, (p: Pen) => bodySide(p, w.o, { mode: "ride", pose, expr: q.expr, blink: bl, light: lt, seed: w.seed }));
+        // lying still on the turf: the straight standing side view laid flat (the folded riding pose read as a tumble)
+        const lie = !!q.ride.lying, kkey = `${lie ? "L" : "R"}|${w.key}|${q.expr}|${pose}|${bl}|${lt.toFixed(2)}`;
+        act.r = this.pool.req(kkey, cw, ch, kk, (p: Pen) => bodySide(p, w.o, { mode: lie ? "stand" : "ride", pose, expr: q.expr, blink: bl, light: lt, seed: w.seed }));
       } else if (q.side) {
         mirror = !!q.side && (q.side.mirror !== (right.x < 0)); const lt = mirror ? Math.PI - lt0 : lt0;
         const ph = Math.round(q.side.phase * 16) / 16, cw3 = q.side.carry, cy = cw3 ? onCard(V(...cw3)) : null, carry = cy ? [300 + (mirror ? -cy[0] : cy[0]) / SUc, 975 - cy[1] / SUc] as [number, number] : undefined;
