@@ -1,7 +1,7 @@
 // The Lake Peigneur long-form's 3D shots: the Peigneur Short's sets, cast and props (../peigneur), re-shot for 16:9.
 // Short specs are reused through R(): the camera's vertical field of view is narrowed so the framing matches the
 // portrait shot's width. Shots of its own are written out below with the same house kit (move/orbit/kick).
-import { SPECS as FS, St3, Cam, ShotDef as FShot, V3, smooth, expo, move, orbit, kick, snap, secs, U, P, add, Rg, Lk, Mn, onGround, brake, home, sucked, onSkiff, splash, mistAt, inCage, TUGQ, SKIFF, DRILLER, FL, PADY, MINERS, clamp01 } from "../peigneur/story";
+import { SPECS as FS, St3, Cam, ShotDef as FShot, V3, smooth, expo, move, orbit, kick, snap, secs, U, P, add, Rg, Lk, Mn, onGround, brake, home, sucked, onSkiff, FISHER_AT, NEPHEW_AT, splash, mistAt, inCage, TUGQ, SKIFF, DRILLER, FL, PADY, MINERS, clamp01 } from "../peigneur/story";
 import { FPS, HOLE, RC, BARGES, HEADFRAME, CHIMNEY, HOUSE, CAGE, END_Z, BREACH, islandY } from "../peigneur/place";
 import { ShotDef } from "./timeline";
 
@@ -20,6 +20,8 @@ const tt = (s: ShotDef, f: number) => secs(f - s.a);
 const far = (st: St3, k: number): St3 => ({ ...st, cam: { ...st.cam, pos: [st.cam.look[0] + (st.cam.pos[0] - st.cam.look[0]) * k, st.cam.look[1] + (st.cam.pos[1] - st.cam.look[1]) * k, st.cam.look[2] + (st.cam.pos[2] - st.cam.look[2]) * k] as V3 } });
 const HX = HOLE.x, HZ = HOLE.z;
 const none = BARGES.map(() => null);
+/** a point in a mine vehicle's own frame (forward = local +x; the tub floor is 0.75 up): its pose q = [x, z, yaw] */
+const onCart = (q: [number, number, number], lx: number, lz: number, ly = 0.75): V3 => { const c = Math.cos(q[2]), sn = Math.sin(q[2]); return Mn(q[0] + lx * c + lz * sn, ly, q[1] - lx * sn + lz * c); };
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ---------------- straight from the Short ----------------
@@ -57,38 +59,44 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: move({ pos: add(c, -6, 2.2, -8), look: Rg(0, 18, 0), fov: 30, roll: 0.03 }, { pos: add(c, -4, 2.0, -7), look: Rg(0, 16, 0), fov: 28, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       people: [P("pusher", add(c, -1.2, 0, 0), "shock", 0), P("hand2", add(c, 1.2, 0, 0.4), "nervous", 0)], subjects: [["the rig", Rg(0, 18, 0), 3]] }; },
   // he looked around and thought, something is wrong: close on Leonce Viator
-  fisherlook: (s, f) => { const fp = onSkiff(-0.6, 0.15);
+  fisherlook: (s, f) => { const fp = onSkiff(FISHER_AT, 0.15);
     return { light: "dawn", lake: { lv: 0, hole: 10, depth: 5, spin: 1.2 }, rig: { tilt: 0.1, sink: 1 }, skiff: [...SKIFF], dof: 2, closeup: true, focus: add(fp, 0, 1.45, 0),
       cam: kick(snap(add(fp, 1.6, 1.6, -3.6), add(fp, 0, 1.45, 0), f, s.a, { fov: 38, roll: -0.05 }, 1.5, 5), f, s.a + T(0.4), 0.7),
-      people: [P("fisher", fp, "nervous", 1, { low: true, hw: [add(fp, 0.35, 0.55, -0.55), add(fp, -0.3, 0.55, -0.55)] })] }; },
+      people: [P("fisher", fp, "nervous", 1, { low: true, ride: "skiff" })] }; },
   // the water was moving, toward one spot: past the skiff, the water starting to turn round the rig
   swirlstart: (s, f) => { const u = U(s, f);
     return { light: "dawn", lake: { lv: 0, hole: 14 + 8 * u, depth: 8, spin: 1.4, pull: 1 }, rig: { tilt: 0.14 + 0.1 * u, sink: 2 + 3 * u }, skiff: [...SKIFF], dof: 0, focus: Rg(0, 4, 0),
       cam: move({ pos: Lk(SKIFF[0] - 9, 3.4, SKIFF[1] - 19), look: Lk((SKIFF[0] + HOLE.x) / 2, 3, (SKIFF[1] + HOLE.z) / 2), fov: 34, roll: 0.04 }, { pos: Lk(SKIFF[0] - 8.5, 3.6, SKIFF[1] - 21), look: Lk((SKIFF[0] + HOLE.x) / 2, 2, (SKIFF[1] + HOLE.z) / 2), fov: 32, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      people: [P("fisher", onSkiff(-0.6, 0.15), "shock", 1, { low: true }), P("nephew", onSkiff(1.0, -0.1), "shock", 0, { low: true })], subjects: [["the turning water", Rg(-14, 0, -22), 4]] }; },
+      people: [P("fisher", onSkiff(FISHER_AT, 0.15), "shock", 1, { low: true, ride: "skiff" }), P("nephew", onSkiff(NEPHEW_AT, -0.1), "shock", 0, { low: true, ride: "skiff" })], subjects: [["the turning water", Rg(-14, 0, -22), 4]] }; },
   // they pointed their little boat at the shore: the skiff running for the bank
   flee: (s, f) => { const u = U(s, f), x = SKIFF[0] - 40 * u, z = SKIFF[1] - 70 * u, yaw = 2.1, c = Math.cos(yaw), sn = Math.sin(yaw), on = (lx: number, lz: number): V3 => Lk(x + lx * c + lz * sn, 0.02, z - lx * sn + lz * c);
     return { light: "dawn", lake: { lv: 0, hole: 20, depth: 10, spin: 1.5 }, rig: { tilt: 0.3, sink: 6 }, skiff: [x, z, yaw], dof: 0, focus: on(0, 0),
       cam: move({ pos: Lk(x - 20, 5, z - 28), look: on(0, 0), fov: 34, roll: 0.05 }, { pos: Lk(x - 14, 4, z - 22), look: on(0, 0), fov: 34, roll: -0.04 }, f, s.a, s.b, smooth, 0),
-      people: [P("fisher", on(-1.8, 0), "nervous", 0, { low: true }), P("nephew", on(0.8, 0), "shock", 0, { low: true })],
+      people: [P("fisher", on(-1.8, 0), "nervous", 0, { low: true, ride: "skiff" }), P("nephew", on(0.2, 0), "shock", 0, { low: true, ride: "skiff" })],
       puffs: [0, 1, 2, 3].map((i) => ({ p: on(-3.2 - i * 1.4, 0.3 * Math.sin(i * 2)), s: 1.2 + i * 0.6, c: [0.95, 0.96, 0.97] as [number, number, number], a: 0.6 - i * 0.12 })) }; },
   // water coming into the mine: wider, the jet and the room filling
   pour2: (s, f) => far(R("pour")(s, f), 1.5),
-  // Randy LaSalle drove round the far corners: the foreman by the loader in a side drift, waving men out
-  loader: (s, f) => { const c = Mn(30, 0, -36);
-    return { light: "mine", mine: { front: -50, level: 0.08 }, dof: 1, focus: add(c, 0, 1.5, 0), key: Mn(34, 12.6, -34),
-      cam: move({ pos: add(c, -4, 1.9, 9), look: add(c, 0, 1.6, 0), fov: 44, roll: 0.04 }, { pos: add(c, -3, 1.8, 8), look: add(c, 0, 1.6, 0), fov: 44, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      people: [P("foreman", c, "stern", 1, { wave: 1 }), P("m5", add(c, 3.2, 0, -2.5), "shock", -1), P("m6", add(c, 4.4, 0, -3.6), "nervous", -1)], subjects: [["the foreman", add(c, 0, 1.5, 0), 0.4]] }; },
-  // some had to get past water on the lower level: men wading toward the shaft, the water rising
-  wade: (s, f) => { const u = U(s, f), lv = 0.3 + 0.3 * u;
-    return { light: "mine", mine: { front: 30, level: lv }, dof: 1, focus: Mn(0, 1.5, 10), key: Mn(0, 12.6, 14),
-      cam: move({ pos: Mn(1.5, 1.6, 24), look: Mn(0, 1.2, 4), fov: 46, roll: -0.04 }, { pos: Mn(1.2, 1.5, 22), look: Mn(0, 1.2, 4), fov: 46, roll: 0.03 }, f, s.a, s.b, smooth, 0),
-      people: [P("m7", Mn(-1.2, 0, 12 - 4 * u), "nervous", 0, { low: true }), P("m8", Mn(1.0, 0, 8 - 4 * u), "stern", 0, { low: true }), P("m4", Mn(-0.4, 0, 4 - 4 * u), "nervous", 0, { low: true })], subjects: [["the miners", Mn(0, 1.4, 8), 0.4]] }; },
+  // Randy LaSalle drove round the far corners: the foreman at the wheel of the jeep, coming down the side drift, waving men
+  // out (Nov 22: he used to stand on foot by the loader while the narration said he drove)
+  loader: (s, f) => { const u = U(s, f), c = Mn(30, 0, -36), q: [number, number, number] = [38 - 9 * smooth(u), -36, Math.PI];
+    return { light: "mine", mine: { front: -50, level: 0.08, carts: [null, null, q] }, dof: 1, focus: onCart(q, 0.3, 0, 1.6), key: Mn(34, 12.6, -34),
+      cam: move({ pos: add(c, -4, 1.9, 9), look: add(c, 2, 1.4, 0), fov: 44, roll: 0.04 }, { pos: add(c, -3, 1.8, 8), look: add(c, 0, 1.4, 0), fov: 44, roll: -0.03 }, f, s.a, s.b, smooth, 0),
+      people: [P("foreman", onCart(q, 0.35, 0), "stern", 1, { wave: 1, low: true, ride: 2 }), P("m5", add(c, 3.2, 0, -2.6), "shock", -1), P("m6", add(c, 4.4, 0, -3.6), "nervous", -1)],
+      subjects: [["the foreman", onCart(q, 0.35, 0, 1.5), 0.4], ["the jeep", onCart(q, 1.2, 0, 1.6), 0.6]] }; },
+  // some had to get past water on the lower level, in carts and vehicles: two personnel carriers ploughing through the
+  // water toward the shaft, men standing in the tubs, a wake off the wheels (Nov 22: they used to wade on foot)
+  wade: (s, f) => { const u = U(s, f), lv = 0.3 + 0.3 * u, tn = tt(s, f), q0: [number, number, number] = [-1.6, 1 + 10 * u, -Math.PI / 2], q1: [number, number, number] = [2.0, -9 + 10 * u, -Math.PI / 2];
+    const wake = (q: [number, number, number], k: number) => [0, 1, 2, 3].map((i) => { const v = (tn * 1.4 + i / 4) % 1; return { p: onCart(q, 2.4 - 3.2 * v, (i % 2 ? 1 : -1) * (1.3 + 0.9 * v), lv + 0.1), s: 0.8 + 1.6 * v, c: [0.92, 0.94, 0.95] as [number, number, number], a: 0.55 * (1 - v) * k }; });
+    return { light: "mine", mine: { front: 30, level: lv, carts: [q0, q1, null] }, dof: 1, focus: onCart(q0, 0, 0, 1.5), key: Mn(0, 12.6, 14),
+      cam: move({ pos: Mn(1.5, 1.8, 24), look: Mn(0, 1.4, 4), fov: 46, roll: -0.04 }, { pos: Mn(1.2, 1.7, 22.5), look: Mn(0, 1.4, 6), fov: 46, roll: 0.03 }, f, s.a, s.b, smooth, 0),
+      people: [P("m7", onCart(q0, 0.45, 0), "stern", 0, { low: true, ride: 0 }), P("m8", onCart(q0, -0.7, -0.5), "nervous", 1, { low: true, ride: 0 }), P("m4", onCart(q0, -1.6, 0.5), "nervous", -1, { low: true, ride: 0 }),
+        P("m3", onCart(q1, 0.45, 0), "stern", 0, { low: true, ride: 1 }), P("m1", onCart(q1, -1.0, 0.3), "nervous", 1, { low: true, ride: 1 })],
+      puffs: [...wake(q0, 1), ...wake(q1, 0.8)], /* on the hood: a point inside the tub is hidden by the cart itself */ subjects: [["the carts", onCart(q0, 1.2, 0, 1.6), 0.8]] }; },
   // they went up, eight at a time: the cage rising out of the room
   eight2: (s, f) => { const u = U(s, f), up = 0.6 + 3 * u;
     return { light: "mine", mine: { gate: 1, cageY: up, front: 20, level: 0.2 }, dof: 1, focus: Mn(CAGE.x, 1.6 + up, CAGE.z), key: Mn(0, 12.6, END_Z - 6),
-      cam: move({ pos: Mn(CAGE.x - 2, 1.4, CAGE.z - 9), look: Mn(CAGE.x, 3 + up * 0.6, CAGE.z), fov: 46, roll: -0.03 }, { pos: Mn(CAGE.x - 1.6, 1.2, CAGE.z - 8), look: Mn(CAGE.x, 4 + up * 0.7, CAGE.z), fov: 48, roll: 0.03 }, f, s.a, s.b, smooth, 0),
-      people: inCage((i) => (i % 2 ? "relief" : "nervous"), 0.15 + up), subjects: [["the cage", Mn(CAGE.x, 1.4 + up, CAGE.z), 0.4]] }; },
+      cam: move({ pos: Mn(CAGE.x - 2, 1.4, CAGE.z - 12.4), look: Mn(CAGE.x, 3 + up * 0.6, CAGE.z), fov: 46, roll: -0.03 }, { pos: Mn(CAGE.x - 1.6, 1.2, CAGE.z - 11.4), look: Mn(CAGE.x, 4 + up * 0.7, CAGE.z), fov: 48, roll: 0.03 }, f, s.a, s.b, smooth, 0),
+      people: inCage((i) => (i % 2 ? "relief" : "nervous"), 0.15 + up), subjects: up < 1.2 ? [["the cage", Mn(CAGE.x, 1.4 + up, CAGE.z), 0.4]] : [] }; },
   // a quarter of a mile wide: high and wide over the whirlpool
   entire2: (s, f) => { const hole = 74;
     return { light: "morn", lake: { lv: 0, hole, depth: 40, spin: 0.6 }, rig: null, barges: BARGES.map((b, i) => sucked(b, 0.5 + 0.03 * i, hole, 40)), tug: null, dof: 0, focus: Lk(HX, -8, HZ),

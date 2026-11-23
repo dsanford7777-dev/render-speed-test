@@ -4,7 +4,7 @@
 // shot: nobody died that day (three dogs did; they are not shown).
 import { Expr } from "../bridge/toon";
 import { nz } from "../frozen/fsets";
-import { V3, FPS, Lk, Mn, HOLE, RC, BED, RIG, BARGES, TUG, FISH, HOUSE, HEADFRAME, CHIMNEY, CANAL_Z, CANAL_X1, W0, CAGE, BREACH, END_Z, groundY, islandY, craterY, funnelY } from "./place";
+import { PAD_Y, V3, FPS, Lk, Mn, HOLE, RC, BED, RIG, BARGES, TUG, FISH, HOUSE, HEADFRAME, CHIMNEY, CANAL_Z, CANAL_X1, W0, CAGE, BREACH, END_Z, groundY, islandY, craterY, funnelY } from "./place";
 import { SEG_TIMES, TOTAL, wordAt } from "./timeline";
 export type { V3 };
 
@@ -33,6 +33,8 @@ export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? S
 export type Cam = { pos: V3; look: V3; fov: number; roll: number };
 export type Person3 = { who: string; p: V3; expr: Expr; look?: number; headTilt?: number; facing?: -1 | 0 | 1; wave?: number; low?: boolean; extra?: boolean;
   march?: number; hw?: V3[]; s?: number; air?: boolean;
+  /** rides the skiff or mine vehicle k: placed in its frame each frame, so they bob, rock and turn with it */
+  ride?: "skiff" | number;
   side?: { phase: number; mirror: boolean; stride?: number; carry?: V3 } };
 export type Tool = { kind: "knob" | "pick" | "pen" | "shovel"; g: V3; b: V3 };
 export type Puff = { p: V3; s: number; c: [number, number, number]; a: number; add?: boolean };
@@ -50,7 +52,7 @@ export type St3 = {
   barges?: Boat[]; tug?: Boat; skiff?: [number, number, number, number?] | null; slump?: number; today?: boolean;
   /** the mine: where the water front has got to (z), its depth, the roof breach jet, the drill bit (0 above the roof .. 1
    *  through it), the cage gate (0 open .. 1 shut), the cage's height (it goes up the shaft) */
-  mine?: { front?: number; level?: number; jet?: boolean; bit?: number; gate?: number; cageY?: number };
+  mine?: { front?: number; level?: number; jet?: boolean; bit?: number; gate?: number; cageY?: number; carts?: ([number, number, number, number?] | null)[] };
 };
 
 // ---------------- helpers (the house kit) ----------------
@@ -118,6 +120,9 @@ const sucked = (b: [number, number, number], u: number, hole: number, depth: num
 const onTug = (q: [number, number, number], lx: number, ly: number, lz: number): V3 => { const c = Math.cos(q[2]), s = Math.sin(q[2]); return Lk(q[0] + lx * c + lz * s, ly, q[1] - lx * s + lz * c); };
 const TUGQ: [number, number, number] = [TUG[0], TUG[1], TUG[2]];
 const SKIFF: [number, number, number] = [FISH.x, FISH.z, 0.9];
+/** where the two stand in the skiff: in the gaps between the thwarts (x -0.6 and 1.0), never on one (Nov 22: they stood
+ *  on the seats, which read as orange blocks under their feet) */
+const FISHER_AT = 0.2, NEPHEW_AT = 1.75;
 const onSkiff = (lx: number, lz: number): V3 => { const c = Math.cos(SKIFF[2]), s = Math.sin(SKIFF[2]); return Lk(SKIFF[0] + lx * c + lz * s, 0.02, SKIFF[1] - lx * s + lz * c); };
 
 // ---------------- splash and spray ----------------
@@ -131,7 +136,9 @@ const MINERS = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8"];
 /** the eight men in the cage, three rows deep */
 const inCage = (expr: (i: number) => Expr, y = 0.15): Person3[] => MINERS.map((m, i) => { const row = i < 3 ? 0 : i < 6 ? 1 : 2, k = row === 2 ? i - 6 : i - row * 3, n = row === 2 ? 2 : 3;
   return P(m, Mn(CAGE.x + (k - (n - 1) / 2) * 0.95, y, CAGE.z - 0.9 + row * 0.75), expr(i), (k - 1) * 0.3, { low: row > 0 }); });
-const PADY = islandY(HEADFRAME.x, HEADFRAME.z) + 0.15;
+const PADY = PAD_Y;
+/** a point on the waterfall ribbon's surface (psets fallPts), u 0 at the rim .. 1 at the foot */
+const fallAt = (u: number): V3 => { const x = W0.x + 2 + u * 30, z = W0.z - 2 * u; return Lk(x, Math.max(craterY(x, z), BED - 45) + 0.8 + (1 - u) * 1.2 * (1 - u), z); };   // the pad's level top (place.ts terraces)
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // this oil rig: low off the water at dawn, the derrick filling the frame (frame 0 is already close)
@@ -155,10 +162,10 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: move({ pos: Rg(-6, 1.6, -42), look: Rg(-16, 2.4, -6), fov: 44, roll: -0.05 }, { pos: Rg(-7, 1.8, -38), look: Rg(-16, 2.6, -6), fov: 44, roll: 0.03 }, f, s.a, s.b, smooth, 0),
       puffs: [0, 1, 2].map((i) => ({ p: Rg(-18.4 + i * 0.3, 0.3, -8 - i * 4), s: 1.4 + 0.4 * Math.sin(tt * 3 + i), c: WHITE, a: 0.5 })), subjects: [["the hull at the waterline", Rg(-16.4, 0.8, -12.5), 1]] }; },
   // fishermen: Leonce Viator Jr. and his nephew in their skiff
-  fisher: (s, f) => { const fp = onSkiff(-0.6, 0.15), np = onSkiff(1.0, -0.1);
+  fisher: (s, f) => { const fp = onSkiff(FISHER_AT, 0.15), np = onSkiff(NEPHEW_AT, -0.1);
     return { light: "dawn", lake: { lv: 0 }, rig: { spin: true }, skiff: [...SKIFF], dof: 2, focus: add(fp, 0, 1.4, 0),
       cam: orbit(s, f, add(fp, 0.6, 1.25, 0), [-28, -12], [6.6, 5.8], [0.4, 0.2], 42, [0.05, -0.04]),
-      people: [P("fisher", fp, "smile", -1, { low: true, hw: [add(fp, 0.35, 0.55, -0.55), add(fp, -0.3, 0.55, -0.55)] }), P("nephew", np, "grin", 1, { low: true })], subjects: [["the fisherman", add(fp, 0, 1.5, 0), 0.3]] }; },
+      people: [P("fisher", fp, "smile", -1, { low: true, ride: "skiff" }), P("nephew", np, "grin", 1, { low: true, ride: "skiff" })], subjects: [["the fisherman", add(fp, 0, 1.5, 0), 0.3]] }; },
   // a garden on an island: the Jefferson house among the live oaks, the crane rising over the trees
   garden: (s, f) => { const hy = islandY(HOUSE.x, HOUSE.z);
     return { light: "dawn", lake: { lv: 0 }, rig: null, /* out of shot; its derrick's long dawn shadows read as wires across the lawn */ dof: 0, focus: Lk(HOUSE.x, hy + 6, HOUSE.z),
@@ -183,14 +190,18 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     cam: kick(move({ pos: Mn(-6, 2.2, 22), look: Mn(-2, 5.5, -40), fov: 62, roll: 0.05 }, { pos: Mn(-4, 3.6, 14), look: Mn(0, 5, -40), fov: 60, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, W(2, "salt"), 0.7),
     people: [P("m1", Mn(-2.5, 0, -14), "neutral", 1, { hw: [Mn(-2.1, 1.2, -14.4)] }), P("m3", Mn(2.4, 0, -20), "smile", -1), P("m4", Mn(-1, 0, -28), "neutral", 0)],
     tools: [{ kind: "shovel", g: Mn(-2.1, 1.2, -14.4), b: Mn(-1.6, 0.15, -14.9) }], subjects: [["the salt room", Mn(0, 5, -40), 6]] }),
-  // ...about 50 men working inside: a crew at the face, the loader behind
-  fifty: (s, f) => { const tt = t(f - s.a), sw = 0.5 + 0.5 * Math.sin(tt * 6);
-    return { light: "mine", dof: 1, focus: Mn(30, 1.6, -28), key: Mn(30, 12.6, -24),
-      cam: orbit(s, f, Mn(31, 1.6, -27), [-24, -4], [12.5, 11.0], [0.9, 1.4], 50, [0.05, -0.04]),
-      people: [P("m2", Mn(28.6, 0, -26.2), "smile", 1, { hw: [Mn(29.1, 1.4 + 0.3 * sw, -26.6)] }), P("m5", Mn(31, 0, -25.4), "neutral", -1), P("m6", Mn(33.2, 0, -26.6), "smile", 0), P("foreman", Mn(26.5, 0, -24.6), "neutral", 1)],
-      tools: [{ kind: "pick", g: Mn(29.1, 1.4 + 0.3 * sw, -26.6), b: Mn(29.7, 1.9 + 0.4 * sw, -27.3) }],
-      cards: Array.from({ length: 6 }, (_, i) => { const v = (tt * 2 + i / 6) % 1; return { kind: "salt" as const, p: Mn(29.9 + 0.6 * v * Math.cos(i), 1.8 + 0.6 * v - 2 * v * v, -27.4 - 0.3 * v), spin: i + v * 5, s: 1 - 0.5 * v }; }),
-      subjects: [["the miners", Mn(31, 1.4, -26), 0.4]] }; },
+  // ...about 50 men working inside: a crew at the salt face (Nov 22, Daniel: the pick used to swing at empty air in the
+  // middle of the room). The face is the east side of the pillar at (17, -17), x = 25; the pick bites into it and the
+  // chips fly off the face at each blow; a second man shovels the broken salt off the heap at its foot.
+  fifty: (s, f) => { const tt = t(f - s.a), ph = (((tt * 6 + Math.PI / 2) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / (2 * Math.PI), sw = 0.5 - 0.5 * Math.cos(ph * 2 * Math.PI);
+    const th = -0.2 + 1.6 * sw, hand = Mn(25.85, 1.25 + 0.25 * sw, -17.6), head = Mn(25.85 - 0.75 * Math.cos(th), 1.25 + 0.25 * sw + 0.75 * Math.sin(th), -17.6), hit = Mn(25.08, 1.1, -17.6);
+    const dig = 0.5 + 0.5 * Math.sin(tt * 4), sg: V3 = Mn(26.75, 1.0 + 0.15 * dig, -14.6), sb: V3 = Mn(25.95, 0.2 + 0.4 * dig, -14.7 - 0.1 * dig);
+    return { light: "mine", dof: 1, focus: Mn(26.6, 1.4, -17), key: Mn(30, 12.6, -18),
+      cam: orbit(s, f, Mn(26.2, 1.4, -16.0), [2, 10], [10.2, 9.6], [0.6, 1.0], 52, [0.05, -0.04]),
+      people: [P("m2", Mn(26.0, 0, -17.6), "stern", 1, { hw: [hand] }), P("m5", Mn(27.1, 0, -14.6), "neutral", 1, { hw: [sg] }), P("m6", Mn(28.7, 0, -12.4), "smile", 1), P("foreman", Mn(30.5, 0, -11.4), "neutral", 1)],
+      tools: [{ kind: "pick", g: hand, b: head }, { kind: "shovel", g: sg, b: sb }],
+      cards: ph < 0.45 ? Array.from({ length: 7 }, (_, i) => { const v = ph / 0.45; return { kind: "salt" as const, p: add(hit, 0.15 + 1.1 * v * (0.6 + 0.1 * i), 0.15 + 0.9 * v - 1.6 * v * v, (i - 3) * 0.14 * v), spin: i + v * 6, s: 1 - 0.4 * v }; }) : [],
+      subjects: [["the miners", Mn(26.8, 1.4, -17), 0.4], ["the salt face", Mn(25.0, 1.3, -17.6), 0.5]] }; },
   // that morning, the drill jammed: the table stops; the driller hauls on the brake
   jam: (s, f) => { const u = expo(U(s, f) * 1.6), b = brake(u);
     return { light: "dawn", lake: { lv: 0 }, rig: { spin: false }, tools: [b.tool], dof: 2, closeup: true, focus: add(DRILLER, 0, 1.3, 0),
@@ -247,13 +258,13 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: [P("m1", Mn(-0.4, 0, -11.5), "shock", 1, { facing: 0 }), P("m3", Mn(1.4, 0, -13.5), "shock", -1), P("m4", Mn(-0.2, 0, -17), "nervous", 0)], subjects: [["the water", Mn(0, 0.2, -25), 1]] }; },
   // one elevator: the cage at the shaft station, gate open
   cage: (s, f) => ({ light: "mine", mine: { gate: 0, front: -10, level: 0.08 }, dof: 1, focus: Mn(CAGE.x, 1.6, CAGE.z), key: Mn(0, 12.6, END_Z - 6),
-    cam: kick(snap(Mn(CAGE.x + 1.5, 1.9, CAGE.z - 9), Mn(CAGE.x, 1.7, CAGE.z), f, s.a, { fov: 44, roll: 0.05 }, 1.6, 5), f, W(6, "1"), 0.8),
+    cam: kick(snap(Mn(CAGE.x + 1.5, 1.9, CAGE.z - 12.4), Mn(CAGE.x, 1.7, CAGE.z), f, s.a, { fov: 44, roll: 0.05 }, 1.6, 5), f, W(6, "1"), 0.8),
     people: [P("foreman", Mn(CAGE.x + 3.6, 0, CAGE.z - 3.2), "stern", -1, { wave: 1 })], subjects: [["the cage", Mn(CAGE.x, 1.4, CAGE.z), 0.4]] }),
   // ...8 men at a time: eight in the cage, the gate shuts, it goes up
   eight: (s, f) => { const u = U(s, f), g = clamp01((u - 0.15) * 3), up = Math.max(0, u - 0.6) * 9;
     return { light: "mine", mine: { gate: g, cageY: up, front: -4 + 6 * u, level: 0.1 }, dof: 1, focus: Mn(CAGE.x, 1.6 + up, CAGE.z), key: Mn(0, 12.6, END_Z - 6),
-      cam: move({ pos: Mn(CAGE.x - 1.2, 1.8, CAGE.z - 8.2), look: Mn(CAGE.x, 1.6, CAGE.z), fov: 46, roll: -0.04 }, { pos: Mn(CAGE.x - 0.8, 1.6, CAGE.z - 7.4), look: Mn(CAGE.x, 2.6, CAGE.z), fov: 48, roll: 0.03 }, f, s.a, s.b, smooth, 0),
-      people: inCage((i) => (i % 3 ? "nervous" : "stern"), 0.15 + up), subjects: [["the cage", Mn(CAGE.x, 1.4 + up, CAGE.z), 0.4]] }; },
+      cam: move({ pos: Mn(CAGE.x - 1.2, 1.8, CAGE.z - 11.6), look: Mn(CAGE.x, 1.6, CAGE.z), fov: 46, roll: -0.04 }, { pos: Mn(CAGE.x - 0.8, 1.6, CAGE.z - 10.8), look: Mn(CAGE.x, 2.6, CAGE.z), fov: 48, roll: 0.03 }, f, s.a, s.b, smooth, 0),
+      people: inCage((i) => (i % 3 ? "nervous" : "stern"), 0.15 + up), subjects: up < 1.2 ? [["the cage", Mn(CAGE.x, 1.4 + up, CAGE.z), 0.4]] : [] }; },
   // up top, the lake became a whirlpool: overhead, barges circling the hole
   whirl: (s, f) => { const u = U(s, f), hole = 50 + 10 * u;
     return { light: "morn", lake: { lv: 0, hole, depth: 32, spin: 0.9 }, rig: null, barges: BARGES.map((b, i) => sucked(b, 0.1 + 0.25 * u + 0.02 * i, hole, 32)), tug: sucked(TUGQ, 0.15 + 0.2 * u, hole, 32), dof: 0, focus: Lk(HX, -8, HZ),
@@ -295,11 +306,13 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   falls: (s, f) => { const tt = t(f - s.a), lv = -44;
     return { light: "day", lake: { lv, crater: true, stream: true, fall: true }, rig: null, tug: null, barges: BARGES.map(() => null), slump: 1, dof: 0, focus: Lk(W0.x + 10, -24, W0.z),
       cam: kick(move({ pos: Lk(W0.x + 70, lv + 3, W0.z - 34), look: Lk(W0.x + 6, -18, W0.z), fov: 58, roll: -0.06 }, { pos: Lk(W0.x + 64, lv + 2, W0.z - 30), look: Lk(W0.x + 6, -14, W0.z), fov: 60, roll: 0.04 }, f, s.a, s.b, smooth, 0), f, W(9, "waterfall"), 1.0),
-      puffs: mistAt(Lk(W0.x + 28, lv, W0.z), tt, 1.2, 12), subjects: [["the waterfall", Lk(W0.x + 14, -20, W0.z), 3]] }; },
+      puffs: mistAt(Lk(W0.x + 28, lv, W0.z), tt, 1.2, 12), subjects: [["the waterfall", fallAt(0.4), 2]] }; },
   // ...poured into the hole: from above the rim, the crater filling
   fill: (s, f) => { const u = U(s, f), tt = t(f - s.a), lv = -44 + 14 * smooth(u);
     return { light: "day", lake: { lv, crater: true, stream: true, fall: true }, rig: null, tug: null, barges: BARGES.map(() => null), slump: 1, dof: 0, focus: Lk(HX, lv, HZ),
-      cam: orbit(s, f, Lk(HX, lv + 4, HZ), [-40, -24], [150, 140], [90, 80], 50, [0.04, -0.04]), puffs: mistAt(Lk(W0.x + 28, lv, W0.z), tt, 1.2, 8), subjects: [["the crater", Lk(HX, lv, HZ), 6]] }; },
+      cam: orbit(s, f, Lk(HX - 48, lv + 4, HZ + 14), [-40, -24], [150, 140], [90, 80], 50, [0.04, -0.04]), puffs: mistAt(Lk(W0.x + 28, lv, W0.z), tt, 1.2, 8),
+      // Nov 22: "the waterfall poured into the hole" played over a crater with no waterfall in it; the fall is a subject now
+      subjects: [["the crater", Lk(HX - 40, lv, HZ + 10), 6], ["the waterfall", fallAt(0.4), 2]] }; },
   // days later, 9 of the barges popped back up: the lake full again, barges bursting out of the water
   pop: (s, f) => { const u = U(s, f), tt = t(f - s.a);
     const bs: Boat[] = BARGES.map((b, i) => { if (i > 8) return null; const k = clamp01((u - i * 0.06) * 3), r = 20 + i * 6, a = i * 0.7; return k <= 0 ? null : [HX + Math.cos(a) * r, HZ + Math.sin(a) * r, a, -6 + 6.2 * Math.sin(Math.min(1, k) * Math.PI * 0.62) / Math.sin(Math.PI * 0.62), 0.3 * Math.sin(k * 9) * (1 - k)]; });
@@ -366,30 +379,32 @@ export const whipAt = (s: ShotDef, f: number) => (WHIP.has(s.g) ? Math.max(0, 1 
 export type Item = { key: string; kind: "stamp" | "pill" | "call"; text: string; sub?: string; f0: number; f1: number; y: number; rot?: number; bg?: string; fg?: string; size?: number };
 const B = (g: string) => SHOTS.find((x) => x.g === g)!.b;
 const S0 = (g: string) => SHOTS.find((x) => x.g === g)!.a;
+// Nov 22: every callout sits at 19-20 % from the top, below the YouTube Shorts buttons (Subscriptions / Live / Trends
+// cover roughly 7-13 %); "3 HOURS" and the canal pill were hidden under them at 12-14 %
 export const ITEMS = (): Item[] => ([
-  { key: "1980", kind: "pill", text: "NOV. 20, 1980", sub: "Lake Peigneur, Louisiana", f0: W(1, "lake"), f1: B("calm"), y: 12, size: 80 },
-  { key: "10ft", kind: "call", text: "10 FEET DEEP", f0: W(1, "10"), f1: B("ten"), y: 14, fg: "#ffd166", size: 130 },
-  { key: "fisher", kind: "pill", text: "LEONCE VIATOR JR.", sub: "and his nephew", f0: S0("fisher") + 4, f1: B("fisher"), y: 12, size: 64 },
-  { key: "texaco", kind: "pill", text: "A TEXACO RIG", sub: "drilling for oil", f0: S0("drilling") + 3, f1: B("drilling"), y: 12, size: 80 },
-  { key: "mine", kind: "pill", text: "A SALT MINE", sub: "1,500 feet down", f0: W(2, "salt"), f1: B("mine"), y: 12, size: 90 },
-  { key: "50", kind: "call", text: "ABOUT 50 MEN", f0: W(2, "50"), f1: B("fifty"), y: 14, fg: "#ffd166", size: 120 },
-  { key: "jam", kind: "stamp", text: "STUCK!", f0: W(3, "jammed"), f1: B("jam"), y: 14, rot: -5, bg: "#e0332e", fg: "#ffffff", size: 150 },
-  { key: "pop", kind: "call", text: "POP! POP!", f0: W(3, "pops"), f1: B("pops"), y: 14, fg: "#ffffff", size: 140, rot: 5 },
-  { key: "10b", kind: "stamp", text: "10 FEET DEEP?!", f0: W(4, "10"), f1: B("deep"), y: 13, rot: 4, bg: "#2f2a3a", fg: "#ffffff", size: 96 },
-  { key: "1el", kind: "call", text: "1 ELEVATOR", f0: W(6, "1"), f1: B("cage"), y: 14, fg: "#ffd166", size: 130 },
-  { key: "8", kind: "stamp", text: "8 MEN AT A TIME", f0: W(6, "8"), f1: B("eight"), y: 13, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 90 },
-  { key: "11", kind: "call", text: "11 BARGES", f0: W(7, "11"), f1: B("barges"), y: 14, fg: "#ffd166", size: 140 },
-  { key: "65", kind: "stamp", text: "65 ACRES", f0: W(7, "65"), f1: B("acres"), y: 13, rot: 4, bg: "#2f2a3a", fg: "#ffffff", size: 130 },
-  { key: "3h", kind: "call", text: "3 HOURS", f0: W(8, "3"), f1: B("gone"), y: 14, fg: "#ffd166", size: 150 },
-  { key: "gulf", kind: "pill", text: "THE DELCAMBRE CANAL", sub: "running backwards", f0: W(9, "canal"), f1: B("canal"), y: 12, size: 64 },
-  { key: "fall", kind: "call", text: "~150 FT WATERFALL", f0: W(9, "waterfall"), f1: B("falls"), y: 14, fg: "#ffffff", size: 96 },
-  { key: "9", kind: "call", text: "9 BARGES", f0: W(10, "9"), f1: B("pop"), y: 14, fg: "#ffd166", size: 140 },
-  { key: "0", kind: "stamp", text: "0 PEOPLE DIED", f0: W(11, "died"), f1: B("nobody"), y: 13, rot: -4, bg: "#2f9a57", fg: "#ffffff", size: 100 },
-  { key: "200", kind: "call", text: "200 FEET DEEP", f0: W(12, "200"), f1: B("deep200"), y: 14, fg: "#ffd166", size: 130 },
-  { key: "fault", kind: "call", text: "WHOSE FAULT?", f0: W(13, "fault"), f1: B("blame"), y: 14, fg: "#ffffff", size: 130, rot: -4 },
-  { key: "32m", kind: "stamp", text: "$32 MILLION", f0: W(13, "32"), f1: B("paid"), y: 13, rot: 4, bg: "#2f9a57", fg: "#ffffff", size: 120 },
+  { key: "1980", kind: "pill", text: "NOV. 20, 1980", sub: "Lake Peigneur, Louisiana", f0: W(1, "lake"), f1: B("calm"), y: 19, size: 80 },
+  { key: "10ft", kind: "call", text: "10 FEET DEEP", f0: W(1, "10"), f1: B("ten"), y: 20, fg: "#ffd166", size: 130 },
+  { key: "fisher", kind: "pill", text: "LEONCE VIATOR JR.", sub: "and his nephew", f0: S0("fisher") + 4, f1: B("fisher"), y: 19, size: 64 },
+  { key: "texaco", kind: "pill", text: "A TEXACO RIG", sub: "drilling for oil", f0: S0("drilling") + 3, f1: B("drilling"), y: 19, size: 80 },
+  { key: "mine", kind: "pill", text: "A SALT MINE", sub: "1,500 feet down", f0: W(2, "salt"), f1: B("mine"), y: 19, size: 90 },
+  { key: "50", kind: "call", text: "ABOUT 50 MEN", f0: W(2, "50"), f1: B("fifty"), y: 20, fg: "#ffd166", size: 120 },
+  { key: "jam", kind: "stamp", text: "STUCK!", f0: W(3, "jammed"), f1: B("jam"), y: 20, rot: -5, bg: "#e0332e", fg: "#ffffff", size: 150 },
+  { key: "pop", kind: "call", text: "POP! POP!", f0: W(3, "pops"), f1: B("pops"), y: 20, fg: "#ffffff", size: 140, rot: 5 },
+  { key: "10b", kind: "stamp", text: "10 FEET DEEP?!", f0: W(4, "10"), f1: B("deep"), y: 20, rot: 4, bg: "#2f2a3a", fg: "#ffffff", size: 96 },
+  { key: "1el", kind: "call", text: "1 ELEVATOR", f0: W(6, "1"), f1: B("cage"), y: 20, fg: "#ffd166", size: 130 },
+  { key: "8", kind: "stamp", text: "8 MEN AT A TIME", f0: W(6, "8"), f1: B("eight"), y: 20, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 90 },
+  { key: "11", kind: "call", text: "11 BARGES", f0: W(7, "11"), f1: B("barges"), y: 20, fg: "#ffd166", size: 140 },
+  { key: "65", kind: "stamp", text: "65 ACRES", f0: W(7, "65"), f1: B("acres"), y: 20, rot: 4, bg: "#2f2a3a", fg: "#ffffff", size: 130 },
+  { key: "3h", kind: "call", text: "3 HOURS", f0: W(8, "3"), f1: B("gone"), y: 20, fg: "#ffd166", size: 150 },
+  { key: "gulf", kind: "pill", text: "THE DELCAMBRE CANAL", sub: "running backwards", f0: W(9, "canal"), f1: B("canal"), y: 19, size: 64 },
+  { key: "fall", kind: "call", text: "~150 FT WATERFALL", f0: W(9, "waterfall"), f1: B("falls"), y: 20, fg: "#ffffff", size: 96 },
+  { key: "9", kind: "call", text: "9 BARGES", f0: W(10, "9"), f1: B("pop"), y: 20, fg: "#ffd166", size: 140 },
+  { key: "0", kind: "stamp", text: "0 PEOPLE DIED", f0: W(11, "died"), f1: B("nobody"), y: 20, rot: -4, bg: "#2f9a57", fg: "#ffffff", size: 100 },
+  { key: "200", kind: "call", text: "200 FEET DEEP", f0: W(12, "200"), f1: B("deep200"), y: 20, fg: "#ffd166", size: 130 },
+  { key: "fault", kind: "call", text: "WHOSE FAULT?", f0: W(13, "fault"), f1: B("blame"), y: 20, fg: "#ffffff", size: 130, rot: -4 },
+  { key: "32m", kind: "stamp", text: "$32 MILLION", f0: W(13, "32"), f1: B("paid"), y: 20, rot: 4, bg: "#2f9a57", fg: "#ffffff", size: 120 },
 ] as Item[]).filter((i) => i.f1 > i.f0);
 
 /** the house kit, for the long-form (peigneurlong/story3d.ts) */
-export { clamp01, smooth, expo, L3, move, orb, orbit, snap, kick, t as secs, U, P, add, Rg, Lk, Mn, gy, onGround, brake, hookState, hookCam, home, sucked, onTug, onSkiff, splash, mistAt, inCage, TUGQ, SKIFF, DRILLER, FL, PADY, MINERS };
+export { clamp01, smooth, expo, L3, move, orb, orbit, snap, kick, t as secs, U, P, add, Rg, Lk, Mn, gy, onGround, brake, hookState, hookCam, home, sucked, onTug, onSkiff, FISHER_AT, NEPHEW_AT, splash, mistAt, inCage, TUGQ, SKIFF, DRILLER, FL, PADY, MINERS };
 export { HOOK_POS, HOOK_LOOK };

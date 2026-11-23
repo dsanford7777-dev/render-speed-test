@@ -12,18 +12,33 @@ export const saltTex = () => ctex("pgSalt", 1024, 1024, (g, r) => {
   // drill-face scoring from the mining machines
   for (let i = 0; i < 70; i++) { const x = r() * 1024, y = r() * 1024; g.strokeStyle = "rgba(110,100,92,0.18)"; g.lineWidth = 3 + r() * 4; g.beginPath(); g.arc(x, y, 60 + r() * 120, 0.2, 1.2 + r()); g.stroke(); }
 });
-/** the whirlpool seen from above: spiral streaks of foam on brown-green water (rotated by the world each frame) */
-export const swirlTex = () => ctex("pgSwirl", 1024, 1024, (g, r) => {
-  const c = 512; const gr = g.createRadialGradient(c, c, 20, c, c, 512); gr.addColorStop(0, "#1a1a16"); gr.addColorStop(0.25, "#3a3a2c"); gr.addColorStop(0.6, "#4e5a44"); gr.addColorStop(1, "#5e6e56");
+/** the whirlpool seen from above, in the LAKE's own colours (Nov 22, Daniel: the striped tan/brown funnel didn't read as
+ *  water). The rim is the lake's colour where the pull darkens it (pWater: lake x 0.82), so funnel and lake meet without a
+ *  seam; it darkens to deep green toward the throat; thin broken light streaks spiral in (rotated by the world). */
+export const swirlTex = () => ctex("pgSwirl2", 1024, 1024, (g, r) => {
+  const c = 512; const gr = g.createRadialGradient(c, c, 10, c, c, 512);
+  gr.addColorStop(0, "#0e1512"); gr.addColorStop(0.18, "#1c2924"); gr.addColorStop(0.5, "#3e524a"); gr.addColorStop(0.85, "#62756d"); gr.addColorStop(1, "#6f817a");
   g.fillStyle = gr; g.fillRect(0, 0, 1024, 1024);
-  for (let k = 0; k < 90; k++) { const a0 = r() * 6.283, w = 3 + r() * 9, al = 0.25 + 0.55 * r(); g.strokeStyle = r() > 0.3 ? `rgba(240,238,226,${al.toFixed(2)})` : `rgba(120,100,70,${al.toFixed(2)})`; g.lineWidth = w; g.lineCap = "round"; g.beginPath();
-    for (let s = 0; s <= 60; s++) { const u = s / 60, rr = 500 * (1 - u) + 20, a = a0 + u * 7.5; const x = c + Math.cos(a) * rr, y = c + Math.sin(a) * rr; if (s) g.lineTo(x, y); else g.moveTo(x, y); } g.stroke(); }
+  g.lineCap = "round"; g.filter = "blur(1.5px)";
+  for (let k = 0; k < 170; k++) { const a0 = r() * 6.283, w = 1.5 + r() * 3.5, al = 0.12 + 0.3 * r(), u0 = r() * 0.5, u1 = u0 + 0.25 + r() * 0.45;
+    g.strokeStyle = r() > 0.25 ? `rgba(196,212,206,${al.toFixed(2)})` : `rgba(20,30,26,${(al * 0.8).toFixed(2)})`; g.lineWidth = w; g.beginPath();
+    for (let s = 0; s <= 40; s++) { const u = u0 + (u1 - u0) * (s / 40), rr = 500 * (1 - u) + 14, a = a0 + u * 6.5; const x = c + Math.cos(a) * rr, y = c + Math.sin(a) * rr; if (s) g.lineTo(x, y); else g.moveTo(x, y); } g.stroke(); }
+  g.filter = "none";
 });
-/** running water for ribbons (stream, waterfall, roof breach): streaks along v, scrolled by the world */
-export const flowTex = (key: string, base: string, streak: string) => ctex("pgFlow_" + key, 256, 1024, (g, r) => {
+/** running water for ribbons (stream, waterfall, roof breach): soft wavy streaks and foam along v, scrolled by the world.
+ *  Nov 22 (Daniel: the canal water looked blocky, like pixels): no hard rectangles any more, everything is drawn round and
+ *  blurred; with `edges` the sides fade out, so a ribbon blends into the ground instead of lying on it like a slab. */
+export const flowTex = (key: string, base: string, streak: string, edges = true) => ctex("pgFlow2_" + key, 256, 1024, (g, r) => {
   g.fillStyle = base; g.fillRect(0, 0, 256, 1024);
-  for (let i = 0; i < 260; i++) { const x = r() * 256, y = r() * 1024, l = 40 + r() * 220, w = 2 + r() * 10; g.fillStyle = r() > 0.35 ? streak : "rgba(255,255,255,0.85)"; g.globalAlpha = 0.25 + 0.6 * r(); g.fillRect(x, y, w, l); g.fillRect(x, y - 1024, w, l); }
-  g.globalAlpha = 1;
+  g.lineCap = "round"; g.filter = "blur(2px)";
+  for (let i = 0; i < 120; i++) { const x = 12 + r() * 232, y = r() * 1024, l = 60 + r() * 260, w = 2 + r() * 6, ph = r() * 6;
+    g.strokeStyle = r() > 0.4 ? streak : "rgba(255,255,255,0.7)"; g.globalAlpha = 0.25 + 0.5 * r(); g.lineWidth = w;
+    for (const oy of [0, -1024, 1024]) { g.beginPath(); for (let s = 0; s <= 12; s++) { const yy = y + oy + (l * s) / 12, xx = x + 5 * Math.sin(ph + s * 0.7); if (s) g.lineTo(xx, yy); else g.moveTo(xx, yy); } g.stroke(); } }
+  // foam patches
+  for (let i = 0; i < 40; i++) { const x = r() * 256, y = r() * 1024, rx = 6 + r() * 16, ry = 10 + r() * 30; g.fillStyle = "rgba(240,244,244,0.5)"; g.globalAlpha = 0.3 + 0.4 * r();
+    for (const oy of [0, -1024, 1024]) { g.beginPath(); g.ellipse(x, y + oy, rx, ry, 0, 0, 6.283); g.fill(); } }
+  g.globalAlpha = 1; g.filter = "none";
+  if (edges) { g.globalCompositeOperation = "destination-in"; const e = g.createLinearGradient(0, 0, 256, 0); e.addColorStop(0, "rgba(0,0,0,0)"); e.addColorStop(0.16, "rgba(0,0,0,1)"); e.addColorStop(0.84, "rgba(0,0,0,1)"); e.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = e; g.fillRect(0, 0, 256, 1024); g.globalCompositeOperation = "source-over"; }
 });
 /** the ground: one neutral detail texture (grit, pebbles, cracks); the colour comes from vertex colours */
 export const groundTex = () => ctex("pgGround", 1024, 1024, (g, r) => {

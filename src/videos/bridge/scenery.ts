@@ -98,6 +98,9 @@ export const bushGeo = (rad: number, seed: number, n = 5) => {
 
 /** merge geometries that carry position + colour (+ normal) into one, each moved by its matrix */
 export const mergeFacets = (list: { g: THREE.BufferGeometry; m: THREE.Matrix4; tint?: number }[]) => {
+  // indexed parts (cylinder trunks, rods) are expanded first: copied as a triangle soup they stitched long slivers across
+  // the scene (Nov 22: the "wires" on the Peigneur lawns and the black line across the lake were trunk triangles)
+  list = list.map((e) => (e.g.index ? { ...e, g: e.g.toNonIndexed() } : e));
   let n = 0; for (const { g } of list) n += g.attributes.position.count;
   const pos = new Float32Array(n * 3), col = new Float32Array(n * 3), uv = new Float32Array(n * 2), v = new THREE.Vector3(); let o = 0;
   for (const { g, m, tint = 1 } of list) { const p = g.attributes.position, c = g.attributes.color, u = g.attributes.uv;

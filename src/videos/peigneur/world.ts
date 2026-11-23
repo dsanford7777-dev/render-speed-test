@@ -17,7 +17,7 @@ import { M } from "../frozen/fsets";
 import { puffTex, sheetTex, hankyTex } from "../frozen/paint";
 import { V3, FPS, SET, LAKE_SUN, HOLE, RC, BED, BARGES, TUG, FISH, funnelY } from "./place";
 import { buildLake, buildMine, LakeSet, MineSet } from "./psets";
-import type { St3, CardKind } from "./story";
+import type { St3, CardKind, Person3 } from "./story";
 type Light = St3["light"];
 
 const D = LIGHTS.day;
@@ -166,7 +166,7 @@ export class PWorld {
       K.water.U.uTime.value = t; K.water.U.uSun.value.set(...SUN[light]); K.water.U.uHoleR.value = hole; K.water.U.uPull.value = lk.pull ?? (hole > 0 ? 1 : 0);
       K.waterMesh.visible = lk.lv === undefined || lv > BED - 0.05 || lv < BED - 0.5; K.waterMesh.position.y = lv;
       K.funnel.visible = hole > 0.5; if (hole > 0.5) { K.funnel.position.set(ox + HOLE.x, lv + 0.02, HOLE.z); K.funnel.scale.set(hole, depth, hole); K.funnel.rotation.y = t * (lk.spin ?? 0.5); }
-      K.stream.visible = !!lk.stream; K.fall.visible = !!lk.fall; K.flowT[0].offset.y = -t * 0.35; K.flowT[1].offset.y = t * 0.9;
+      K.stream.visible = !!lk.stream; K.fall.visible = !!lk.fall; K.flowT[0].offset.y = -t * 0.35; K.flowT[1].offset.y = -t * 0.9;   // both run downhill along the ribbon (Nov 22: the waterfall's sign was flipped, so it ran UP the fall)
       // the rig: tilted about an axis through its hull, sinking; gone once it's down
       const rg = st.rig === undefined ? (today ? null : { tilt: 0, sink: 0 }) : st.rig;
       K.rig.visible = !!rg; if (rg) { K.rig.position.set(ox + HOLE.x + (rg.dx ?? 0), -(rg.sink ?? 0), HOLE.z + (rg.dz ?? 0)); K.rig.rotation.set(rg.tilt ?? 0, rg.yaw ?? 0, rg.roll ?? 0, "YXZ"); K.pipe.rotation.y = rg.spin ? t * 6 : 0; }
@@ -175,7 +175,7 @@ export class PWorld {
         b.visible = !!q; if (q) { b.position.set(ox + q[0], q[3] ?? 0, q[1]); b.rotation.set(q[4] ?? 0, q[2], 0, "YXZ"); } });
       const tq = st.tug === undefined ? (today ? null : [...TUG, 0, 0]) : st.tug;
       K.tug.visible = !!tq; if (tq) { K.tug.position.set(ox + tq[0], tq[3] ?? 0, tq[1]); K.tug.rotation.set(tq[4] ?? 0, tq[2], 0, "YXZ"); }
-      const sq = st.skiff; K.skiff.visible = !!sq; if (sq) { K.skiff.position.set(ox + sq[0], (sq[3] ?? 0) + 0.12 + 0.06 * Math.sin(t * 2.1), sq[1]); K.skiff.rotation.set(0.02 * Math.sin(t * 1.7), sq[2], 0.03 * Math.sin(t * 1.3)); }
+      const sq = st.skiff; K.skiff.visible = !!sq; if (sq) { K.skiff.position.set(ox + sq[0], (sq[3] ?? 0) + 0.12 + 0.06 * Math.sin(t * 2.1), sq[1]); K.skiff.rotation.set(0.02 * Math.sin(t * 1.7), sq[2], 0.03 * Math.sin(t * 1.3)); K.skiff.updateMatrixWorld(true); }
       const sl = st.slump ?? 0; K.slump.visible = !today; { const r = sl * 0.5, px = HOLE.x + RC; /* tip about the island edge, not the world origin */ K.slump.position.set(-sl * 34 + px * (1 - Math.cos(r)), -sl * 30 - px * Math.sin(r), sl * 2); K.slump.rotation.set(0, 0, r); /* the earth block only once it moves: at rest it would poke through the island */ K.slump.children[0].visible = sl > 0.01; }
       K.chimney.visible = today; K.today.visible = today;
       // foam rings: round the rig's hull, the barges in the water, the chimney (only where something meets water)
@@ -192,6 +192,7 @@ export class PWorld {
       N.jet.visible = !!mn.jet; N.hole.visible = !!mn.jet || (mn.bit ?? 0) > 0.55; N.jetT.offset.y = t * 1.6;
       N.bit.visible = mn.bit !== undefined; if (mn.bit !== undefined) N.bit.position.y = 18.5 - mn.bit * 6;
       N.gate.position.x = ox + 0 + (1 - (mn.gate ?? 0)) * -3.4; N.cage.position.y = mn.cageY ?? 0; N.gate.position.y = mn.cageY && (mn.gate ?? 0) > 0.5 ? mn.cageY : 0;
+      N.carts.forEach((g, i) => { const q = mn.carts?.[i]; g.visible = !!q; if (q) { g.position.set(ox + q[0], (q[3] ?? 0) + 0.03 * Math.sin(t * 9 + i), q[1]); g.rotation.set(0, q[2], 0.015 * Math.sin(t * 7 + i)); g.updateMatrixWorld(true); } });
       N.lamps.forEach((l, i) => { l.intensity = 9 * (1 + 0.04 * Math.sin(t * 9 + i)); });
       N.drift(t); }
 
@@ -214,11 +215,21 @@ export class PWorld {
     const lightA = Math.round(Math.atan2(-sunDir.y, sunDir.dot(right)) / (Math.PI / 4)) * (Math.PI / 4);
     const blink = (seed: number) => { const n2 = Math.floor((t + seed * 0.37) / 2.3), ph = (t + seed * 0.37) - n2 * 2.3; return ph < 0.13 ? 1 : 0; };
     // checklist (Nov 21): a shock mouth never sits on a moustache; moustached faces show alarm with the wavy mouth
-    const people = (st.people ?? []).map((q) => { const w = OUT[q.who] ?? OUT.m1; return { q: w.o.moustache && q.expr === "shock" ? { ...q, expr: "nervous" as const } : q, w }; });
+    // riders (Nov 22: the skiff rocked and the men in it stood still): a person with `ride` is placed in that boat's or
+    // vehicle's own frame, so they bob, rock and turn with it; their card leans with it too (tilt, below)
+    const rideOn = (q: Person3): { p: V3; tilt: THREE.Vector3 | null } => {
+      const host = q.ride === "skiff" ? (set === "lake" && st.skiff ? this.lake.skiff : null) : q.ride !== undefined && set === "mine" ? this.mine.carts[q.ride] : null;
+      if (!host || !host.visible) return { p: q.p, tilt: null };
+      const base = q.ride === "skiff" ? { x: SET.lake[0] + st.skiff![0], y: st.skiff![3] ?? 0, z: st.skiff![1], yaw: st.skiff![2], fl: -0.1 } : { x: SET.mine[0] + st.mine!.carts![q.ride as number]![0], y: st.mine!.carts![q.ride as number]![3] ?? 0, z: st.mine!.carts![q.ride as number]![1], yaw: st.mine!.carts![q.ride as number]![2], fl: 0.75 };
+      const c = Math.cos(base.yaw), sn = Math.sin(base.yaw), dx = q.p[0] - base.x, dz = q.p[2] - base.z;
+      const lp = V(dx * c - dz * sn, base.fl + (q.p[1] - base.y - (q.ride === "skiff" ? 0.02 : 0.75)), dx * sn + dz * c).applyMatrix4(host.matrixWorld);
+      return { p: [lp.x, lp.y, lp.z], tilt: V(0, 1, 0).applyQuaternion(host.getWorldQuaternion(new THREE.Quaternion())) };
+    };
+    const people = (st.people ?? []).map((q0) => { const w = OUT[q0.who] ?? OUT.m1, r = rideOn(q0), q1 = { ...q0, p: r.p }; return { q: w.o.moustache && q1.expr === "shock" ? { ...q1, expr: "nervous" as const } : q1, w, tilt: r.tilt }; });
     this.lastPeople = people.map(({ q }) => ({ name: q.who, p: q.p, low: !!q.low, extra: !!q.extra || !!q.side, s: q.s ?? 1 }));
     const key = st.key ?? [focus.x, focus.y + 2.2, focus.z - 1.5] as V3;
     let ai = 0;
-    for (const { q, w } of people) {
+    for (const { q, w, tilt } of people) {
       if (!this.frustum.intersectsSphere(this.sph.set(this.v.set(q.p[0], q.p[1] + 1.1, q.p[2]), 3.5))) continue;
       const d = cam.position.distanceTo(this.v.set(q.p[0], q.p[1] + 1.2, q.p[2]));
       const [cw, ch, kk] = tier(d), act = this.actor(ai++), bl = blink(w.seed), ks = q.s ?? 1;
@@ -241,7 +252,7 @@ export class PWorld {
       }
       act.mesh.visible = true;
       act.mesh.position.set(...q.p);
-      act.mesh.rotation.set(0, Math.atan2(cam.position.x - q.p[0], cam.position.z - q.p[2]), 0);
+      { const ry = Math.atan2(cam.position.x - q.p[0], cam.position.z - q.p[2]), rz = tilt ? Math.atan2(-(tilt.x * Math.cos(ry) - tilt.z * Math.sin(ry)), tilt.y) : 0; act.mesh.rotation.set(0, ry, rz, "YXZ"); }
       act.mesh.scale.set((mirror ? -1 : 1) * ks, ks, 1);
       act.mesh.castShadow = false; act.mesh.receiveShadow = false;
       act.caster.visible = true; act.caster.position.set(...q.p); act.caster.scale.copy(act.mesh.scale);
