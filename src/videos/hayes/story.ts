@@ -215,7 +215,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   starve: (s, f) => { const u = U(s, f), fp = Sb(-1.2, 0.5, 27.6), pl: V3 = Sb(-0.4 + 0.3 * smooth(u * 2), 0.51, 27.95);
     return { light: "barn", horses: otherStalls(), dof: 2, focus: add(fp, 0, 0.9, 0),
       people: [P("frank", fp, "stern", 1, { mode: "sit", hw: [add(pl, -0.12, 0.04, 0)] })], props: { plate: { p: pl } },
-      cam: move({ pos: Sb(-0.55, 1.15, 24.0), look: Sb(-0.6, 0.95, 27.9), fov: 46, roll: 0.03 }, { pos: Sb(-0.55, 1.1, 24.4), look: Sb(-0.6, 0.95, 27.9), fov: 44, roll: -0.02 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Sb(-0.95, 1.15, 23.8), look: Sb(-0.8, 0.95, 27.9), fov: 46, roll: 0.03 }, { pos: Sb(-0.95, 1.1, 24.2), look: Sb(-0.8, 0.95, 27.9), fov: 44, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       subjects: [["Frank", add(fp, 0, 1.0, 0), 0.3], ["the plate", add(pl, 0, 0.05, 0), 0.05]] }; },
   // He ran for hours: dawn on the dirt track, Frank jogging along the rail in a heavy sweater
   ran: (s, f) => { const tt = t(f - s.a), x = 30 - 3.4 * tt, fp = IN(x, DIRT.z0 + 1.2);
@@ -274,7 +274,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // The track doctor ran over: wide, the doctor running with his bag, two attendants behind; Frank lying still, the mare by him
   doctor: (s, f) => { const tt = t(f - s.a), lie = Tk(FALL.x + 0.2, 0.22, LANE(2) - 1.0), dx = FALL.x + 4.6 - 3.0 * tt, dp = IN(Math.max(dx, FALL.x + 1.4), LANE(2) - 2.2);
     return { light: "day", horses: [run(0, FALL.x, "stand", 2, { off: lie, expr: "neutral" }, { head: -0.6 })], dof: 0.8, focus: add(lie, 2, 1, 0),
-      people: [P("doctor", dp, "nervous", 0, { side: { phase: (tt * 2.8) % 1, mirror: false, stride: 1.2 } }), P("att1", IN(dx + 2.6, LANE(2) - 3.0), "nervous", 0, { side: { phase: (tt * 2.8 + 0.3) % 1, mirror: false, stride: 1.2 } }), P("att2", IN(dx + 4.0, LANE(2) - 1.6), "nervous", 0, { side: { phase: (tt * 2.8 + 0.6) % 1, mirror: false, stride: 1.2 } })],
+      people: [P("doctor", dp, "nervous", 0, { side: { phase: (tt * 2.8) % 1, mirror: false, stride: 1.2 } }), P("att1", IN(dx + 1.6, LANE(2) - 3.4), "nervous", 0, { side: { phase: (tt * 2.8 + 0.3) % 1, mirror: false, stride: 1.2 } }), P("att2", IN(dx + 2.6, LANE(2) - 1.2), "nervous", 0, { side: { phase: (tt * 2.8 + 0.6) % 1, mirror: false, stride: 1.2 } })],
       props: { bag: { p: add(dp, -0.3, 0.6, -0.2) } },
       cam: move({ pos: IN(FALL.x + 3.5, 2.6, LANE(2) - 15), look: IN(FALL.x + 2.2, 0.9, LANE(2) - 1.5), fov: 46, roll: 0.03 }, { pos: IN(FALL.x + 3.0, 2.5, LANE(2) - 14), look: IN(FALL.x + 1.8, 0.9, LANE(2) - 1.5), fov: 46, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       subjects: [["the doctor", add(dp, 0, 1.4, 0), 0.4], ["Sweet Kiss", Tk(FALL.x, 1.4, LANE(2)), 1]] }; },
