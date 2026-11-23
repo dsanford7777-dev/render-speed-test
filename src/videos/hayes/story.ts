@@ -120,7 +120,7 @@ export const swayAt = (s: { a: number; b: number }, f: number, tip: number, up: 
     return { light: "day", horses: h, dof: 1.2, focus: add(h[0].p, 0, 2.0, 0),
       cam: move({ pos: add(h[0].p, -9.0, 2.5, -6.8), look: add(h[0].p, -0.6, 1.35, 0), fov: 40, roll: 0.02 }, { pos: add(h[0].p, -8.2, 2.4, -6.6), look: add(h[0].p, -0.6, 1.4, 0), fov: 40, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       subjects: [["Frank", add(h[0].p, 0.1, 2.2, 0.3), 0.4]] }; };
-export const finishAt = (s: { a: number; b: number }, f: number, cross: number): St3 => { const tt = t(f - s.a), fl = cross - s.a, x = V_RACE * (fl / FPS) - V_RACE * tt + 1.2, h = field(x, 3.0, [{ pose: 0.4, expr: "neutral" }]), k0 = h[0];
+export const finishAt = (s: { a: number; b: number }, f: number, cross: number): St3 => { const tt = t(f - s.a), fl = cross - s.a, x = V_RACE * (fl / FPS) - V_RACE * tt + 1.2, h = field(x, 5.6, [{ pose: 0.4, expr: "neutral" }]), k0 = h[0];
     return { light: "day", horses: h, dof: 1, focus: add(k0.p, 0, 1.8, 0), puffs: kickUp(h[0], tt),
       cam: move({ pos: add(k0.p, 0.4, 1.9, -11.0), look: add(k0.p, -0.2, 1.05, 0), fov: 44, roll: -0.02 }, { pos: add(k0.p, 0.0, 1.8, -10.4), look: add(k0.p, -0.4, 1.05, 0), fov: 44, roll: 0.02 }, f, s.a, s.b, smooth, 0),
       subjects: [["Sweet Kiss", add(k0.p, 0, 1.5, 0), 1]] }; };
@@ -264,11 +264,11 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: move({ pos: add(h.p, -1.2, 2.3, -7.0), look: add(h.p, -0.3, 1.45, 0), fov: 40, roll: 0.03 }, { pos: add(h.p, -1.8, 2.25, -6.4), look: add(h.p, -0.3, 1.5, 0), fov: 38, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       subjects: [["Frank", add(h.p, 0.3, 2.1, 0.3), 0.3]] }; },
   // Then, near the judges' stand: wide, Sweet Kiss coming down to a walk by the stand, Frank slumped
-  judges: (s, f) => { const tt = t(f - s.a), x = -58 - coast(tt, 7, 1.4, 3.2), g: Gait = tt < 1.2 ? "canter" : tt < 2.4 ? "trot" : "walk", h = run(0, x, g, 2, { pose: 0.9, expr: "neutral" });
+  judges: (s, f) => { const tt = t(f - s.a), x = -60 - coast(tt, 7, 1.4, 3.2), g: Gait = tt < 1.2 ? "canter" : tt < 2.4 ? "trot" : "walk", h = run(0, x, g, 2, { pose: 0.9, expr: "neutral" });
     return { light: "day", horses: [h], dof: 0.6, focus: add(h.p, 0, 1.6, 0), board: false,
       people: [P("judge1", IN(JUDGES.x - 0.6, 3.6, JUDGES.z - 0.4), "nervous", 0, { low: true }), P("judge2", IN(JUDGES.x + 0.7, 3.6, JUDGES.z - 0.3), "shock", 0, { low: true })],
       cam: move({ pos: IN(-63, 3.6, -46), look: IN(-68, 2.2, -4), fov: 48, roll: 0.03 }, { pos: IN(-63.5, 3.4, -44), look: IN(-68.5, 2.2, -4), fov: 48, roll: -0.02 }, f, s.a, s.b, smooth, 0),
-      subjects: [["Sweet Kiss", add(h.p, 0, 1.4, 0), 1], ["the judges' stand", IN(JUDGES.x, 4.6, JUDGES.z), 1]] }; },
+      subjects: [["Sweet Kiss", add(h.p, 0, 1.4, 0), 1], ["the judges' stand", IN(JUDGES.x, 6.6, JUDGES.z), 0.6]] }; },
   // Frank slid out of the saddle... and hit the ground: medium; she stops; he slides off her near side onto the turf
   slid: (s, f) => slidAt(s, f, W(8, "slid") - 1, W(8, "hit") + 2),
   // The track doctor ran over: wide, the doctor running with his bag, two attendants behind; Frank lying still, the mare by him
@@ -317,14 +317,14 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // 3 days later, they buried him: Holy Cross Cemetery, the mourners round the grave
   grave: (s, f) => { const gy = HILL(GRAVE.x, GRAVE.z), at = (x: number, z: number): V3 => Gv(GRAVE.x + x, HILL(GRAVE.x + x, GRAVE.z + z), GRAVE.z + z);
     return { light: "grey", dof: 1, focus: Gv(GRAVE.x, gy + 1, GRAVE.z),
-      people: [P("mother", at(-1.6, -0.6), "nervous", 1), P("mourn1", at(-2.2, 0.4), "nervous", 1), P("mourn2", at(1.6, -0.4), "nervous", -1), P("mourn3", at(2.2, 0.7), "nervous", -1), P("boss", at(0.9, -1.6), "nervous", 0)],
+      people: [P("mother", at(-1.6, -0.6), "nervous", 1), P("mourn1", at(-1.9, 0.7), "nervous", 1), P("mourn2", at(1.6, -0.4), "nervous", -1), P("mourn3", at(2.2, 0.7), "nervous", -1), P("boss", at(0.9, -1.6), "nervous", 0)],
       cam: move({ pos: Gv(GRAVE.x - 3, gy + 2.6, GRAVE.z - 11), look: Gv(GRAVE.x, gy + 1.0, GRAVE.z + 0.6), fov: 46, roll: 0.03 }, { pos: Gv(GRAVE.x - 2.4, gy + 2.3, GRAVE.z - 9.6), look: Gv(GRAVE.x, gy + 1.0, GRAVE.z + 0.6), fov: 46, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       subjects: [["the grave", Gv(GRAVE.x, gy + 0.5, GRAVE.z + 1), 0.6]] }; },
   // ...in the racing silks he won in: close on the stone, the wreath in blue and yellow, his silk cap on the mound
   silks: (s, f) => { const gy = HILL(GRAVE.x, GRAVE.z), cap = Gv(GRAVE.x - 0.1, gy + 0.33, GRAVE.z - 0.2);
     return { light: "grey", dof: 2, focus: Gv(GRAVE.x, gy + 0.6, GRAVE.z + 0.6), closeup: true, props: { cap: { p: cap, r: [0, 2.2, 0.08] } },
       cam: move({ pos: Gv(GRAVE.x - 1.2, gy + 1.5, GRAVE.z - 3.2), look: Gv(GRAVE.x, gy + 0.6, GRAVE.z + 0.6), fov: 42, roll: 0.03 }, { pos: Gv(GRAVE.x - 1.0, gy + 1.45, GRAVE.z - 2.7), look: Gv(GRAVE.x, gy + 0.6, GRAVE.z + 0.6), fov: 40, roll: -0.02 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the wreath", Gv(GRAVE.x, gy + 0.88, GRAVE.z + 1.3), 0.1], ["the silk cap", add(cap, 0, 0.07, 0), 0.05]] }; },
+      subjects: [["the wreath", Gv(GRAVE.x, gy + 0.88, GRAVE.z + 1.3), 0.1], ["the silk cap", add(cap, 0, 0.12, 0), 0.05]] }; },
   // (after the words) back to the race: the hook's own framing, so the loop lands; the subscribe card plays over it
   end: (s, f) => SPECS.hook({ ...s, a: 0, b: 79 }, f - END + 1),
 };
