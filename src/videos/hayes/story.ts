@@ -129,7 +129,7 @@ export const slidAt = (s: { a: number; b: number }, f: number, f0: number, f1: n
     const thud = f - f1;
     return { light: "day", horses: [h], dof: 1.4, focus: add(h.p, 0, 1.4, -0.6),
       puffs: thud >= 0 && thud < 18 ? [0, 1, 2, 3].map((i) => ({ p: add(lieAt, -0.6 + i * 0.4, 0.1 + 0.02 * thud, 0.1), s: 0.4 + 0.05 * thud, c: TURF_C, a: 0.5 * (1 - thud / 18) })) : [],
-      cam: move({ pos: add(h.p, -0.6, 1.9, -9.6), look: add(h.p, 0.0, 1.0, -0.6), fov: 44, roll: -0.03 }, { pos: add(h.p, -0.8, 1.8, -9.0), look: add(h.p, 0.0, 0.9, -0.6), fov: 44, roll: 0.02 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: add(h.p, -0.6, 1.6, -9.6), look: add(h.p, 0.0, 0.45, -0.6), fov: 44, roll: -0.03 }, { pos: add(h.p, -0.8, 1.5, -9.0), look: add(h.p, 0.0, 0.35, -0.6), fov: 44, roll: 0.02 }, f, s.a, s.b, smooth, 0),
       subjects: [["Sweet Kiss", add(h.p, 0, 1.4, 0), 1]] }; };
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {

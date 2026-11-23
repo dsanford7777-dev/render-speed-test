@@ -37,8 +37,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ---------------- straight from the Short ----------------
   hook: R("hook"), never: R("never"), firstwin: R("firstwin"), dead: R("dead"), when: R("when"), strange: R("strange"),
   barn: R("barn"), frank: R("frank"), trained: R("trained"), stalls: R("stalls"), dream: R("dream"), longshot: R("longshot"), boss: R("boss"),
-  fences: R("fences"), belmont: R("belmont"), problem: R("problem"), carry: R("carry"), heavy: R("heavy"), starve: R("starve"), ran: R("ran"), water: R("water"),
-  made: R("made"), start: R("start", 0.3), judges: R("judges"), doctor: R("doctor"), heart: R("heart"), before: R("before"), after: R("after"),
+  fences: R("fences", undefined, (st) => ({ ...st, horses: st.horses?.slice(0, 1) })), belmont: R("belmont"), problem: R("problem"), carry: R("carry"), heavy: R("heavy", undefined, (st) => far(st, 1.3)), starve: R("starve", undefined, (st) => far({ ...st, cam: { ...st.cam, look: [st.cam.look[0], st.cam.look[1] + 0.12, st.cam.look[2]] as V3 } }, 1.45)), ran: R("ran"), water: R("water"),
+  made: R("made", undefined, (st) => far(st, 1.25)), start: R("start", 0.3), judges: R("judges"), doctor: R("doctor"), heart: R("heart"), before: R("before"), after: R("after"),
   grave: R("grave"), silks: R("silks"), jump: R("jump"),
   // ---------------- re-timed to this narration ----------------
   lead: (s, f) => W16(leadAt(s, f, wordAt(25, "ahead"))),
@@ -91,7 +91,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: [P("frank", add(hb, 0, 0.36, 0), "nervous", -1, { low: true })],
       puffs: Array.from({ length: 8 }, (_, i) => { const u = (t0 * 0.5 + i / 8) % 1; return { p: add(hb, (i % 3 - 1) * 0.3 + 0.1 * u, 1.6 + 0.9 * u, (i % 2 ? 0.25 : -0.25)), s: 0.25 + 0.5 * u, c: [0.95, 0.95, 0.95] as [number, number, number], a: 0.45 * (1 - u) }; }),
       cam: wide(move({ pos: add(hb, -1.6, 1.7, -3.4), look: add(hb, 0, 1.3, 0), fov: 46, roll: 0.03 }, { pos: add(hb, -1.3, 1.7, -3.0), look: add(hb, 0, 1.35, 0), fov: 46, roll: -0.02 }, f, s.a, s.b, smooth, 0)),
-      subjects: [["Frank's head", add(hb, 0, 1.55, 0), 0.2]] }; },
+      subjects: [["Frank's head", add(hb, 0, 2.0, 0), 0.2]] }; },
   // Nobody can say exactly when his heart stopped: the post again, from the other side of the course
   strange2: (s, f) => W16({ light: "day", dof: 1, focus: IN(POST.x, 3.6, POST.z), cam: orbit(s, f, IN(POST.x, 3.0, POST.z), [20, 6], [13, 12], [0.8, 1.2], 44, [-0.03, 0.02]), subjects: [["the finish post", IN(POST.x, 4.5, POST.z), 0.4]] }),
   // Tell me in the comments: the empty course at evening, the post and the stand
@@ -109,7 +109,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   thumb: (s, f) => { const x = 3.4, h = field(x, 3.0, [{ pose: 0.75, expr: "neutral" }]), k0 = h[0];
     return { light: "day", horses: h, dof: 1.2, focus: add(k0.p, 0, 1.8, 0), cam: { pos: add(k0.p, -2.2, 2.0, -8.6), look: add(k0.p, -1.6, 1.75, 0), fov: 30, roll: -0.02 } }; },
 };
-void clamp01; void U; void otherStalls; void AIS; void SC; void Tk; void LAST; void TURF; void V_RACE; void far;
+void clamp01; void U; void otherStalls; void AIS; void SC; void Tk; void LAST; void TURF; void V_RACE;
 
 /** every shot is hand-held: a slow sway on top of its move */
 export const specAt = (s: ShotDef, f: number): St3 => {
