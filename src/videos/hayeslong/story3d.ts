@@ -45,7 +45,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   sway: (s, f) => W16(swayAt(s, f, 1e9, 1e9)),
   dip: (s, f) => W16(swayAt({ a: s.a - T(1.2), b: s.b }, f, wordAt(28, "dipped"), wordAt(28, "recovered"))),
   finish: (s, f) => W16(finishAt(s, f, wordAt(29, "first"))),
-  slid: (s, f) => W16(slidAt(s, f, wordAt(33, "toppled") - 1, wordAt(33, "onto") + 4)),
+  slid: (s, f) => { const st = slidAt(s, f, wordAt(33, "toppled") - 1, wordAt(33, "onto") + 4); return far(W16({ ...st, cam: { ...st.cam, look: [st.cam.look[0], st.cam.look[1] + 0.45, st.cam.look[2]] as V3 } }), 1.2); },
   // ---------------- the long-form's own ----------------
   // walked them cool after somebody else rode them to a win: the yard outside the barn, evening
   coolwalk: (s, f) => coolWalk(s, f, 0, 6), coolwalk2: (s, f) => coolWalk(s, f, 0.4, 7),
