@@ -155,7 +155,7 @@ const raw: RawShot[] = [
   D3(35, null, "heart"), D2(35, "failure", "failure"),
   D2(36, null, "nyt"),
   D2(37, null, "grow"),
-  D3(38, null, "when"), D3(38, "body", "never"),
+  D3(38, null, "legendride"), D3(38, "body", "never"),
   D2(39, null, "reports"),
   D3(40, null, "strange2"), D3(40, "before", "before"), D3(40, "after", "after"),
   D2(41, null, "age"),

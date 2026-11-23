@@ -39,7 +39,7 @@ export type Person3 = { who: string; p: V3; expr: Expr; look?: number; headTilt?
   side?: { phase: number; mirror: boolean; stride?: number; carry?: V3; mode?: "march" | "stand" }; ride?: Ride };
 /** a rider on a horse: pose 0 crouched .. 1 slumped; tilt sways the card sideways; slide 0..1 comes off the saddle; off = lying there */
 export type Rider = { who: string; expr: Expr; pose?: number; tilt?: number; slide?: number; off?: V3 };
-export type HorseSt = { k: number; p: V3; yaw: number; gait: Gait; phase: number; jump?: number; head?: number; rider?: Rider };
+export type HorseSt = { k: number; p: V3; yaw: number; gait: Gait; phase: number; jump?: number; head?: number; rider?: Rider; tack?: boolean };
 export type Prop = { p: V3; r?: [number, number, number] };
 export type Puff = { p: V3; s: number; c: [number, number, number]; a: number };
 export type St3 = {
@@ -116,7 +116,7 @@ export const leadAt = (s: { a: number; b: number }, f: number, took: number): St
       subjects: [["Sweet Kiss", add(h[0].p, 0, 1.5, 0), 1], ["Gimme", add(h[1].p, 0, 1.5, 0), 1]] }; };
 export const swayAt = (s: { a: number; b: number }, f: number, tip: number, up: number): St3 => { const tt = t(f - s.a), x = 70 - 13.5 * tt;
     const tilt = 0.08 * Math.sin(tt * 5) + 0.42 * smooth((f - tip + 2) / 8) * (1 - smooth((f - up + 2) / 10));
-    const h = [run(0, x, "gallop", 2, { pose: 0.35, tilt, expr: "neutral" }), run(1, x + 7, "gallop", 3)];
+    const h = [run(0, x, "gallop", 2, { pose: 0.35, tilt, expr: "neutral" }), run(1, x + 14, "gallop", 3)];
     return { light: "day", horses: h, dof: 1.2, focus: add(h[0].p, 0, 2.0, 0),
       cam: move({ pos: add(h[0].p, -9.0, 2.5, -6.8), look: add(h[0].p, -0.6, 1.35, 0), fov: 40, roll: 0.02 }, { pos: add(h[0].p, -8.2, 2.4, -6.6), look: add(h[0].p, -0.6, 1.4, 0), fov: 40, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       subjects: [["Frank", add(h[0].p, 0.1, 2.2, 0.3), 0.4]] }; };
@@ -134,9 +134,9 @@ export const slidAt = (s: { a: number; b: number }, f: number, f0: number, f1: n
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // This jockey won his very first race: tracking beside Sweet Kiss on the run-in, Gimme at her quarters, the post going by
-  hook: (s, f) => { const tt = t(f), x = 40 - V_RACE * tt, h = field(x, 2.2), k0 = h[0];
+  hook: (s, f) => { const tt = t(f), x = 40 - V_RACE * tt, h = field(x, 1.7), k0 = h[0];
     return { light: "day", horses: h, dof: 1, focus: add(k0.p, 0, 1.8, 0), puffs: [...kickUp(h[0], tt), ...kickUp(h[1], tt + 0.3)],
-      cam: move({ pos: add(k0.p, -1.0, 2.0, -10.6), look: add(k0.p, -0.6, 1.05, 0), fov: 44, roll: 0.03 }, { pos: add(k0.p, -1.6, 1.9, -10.0), look: add(k0.p, -0.8, 1.05, 0), fov: 44, roll: -0.02 }, f, 0, s.b, smooth, 0),
+      cam: move({ pos: add(k0.p, -1.0, 2.0, -11.6), look: add(k0.p, -0.6, 1.05, 0), fov: 44, roll: 0.03 }, { pos: add(k0.p, -1.6, 1.9, -11.0), look: add(k0.p, -0.8, 1.05, 0), fov: 44, roll: -0.02 }, f, 0, s.b, smooth, 0),
       subjects: [["Sweet Kiss", add(k0.p, 0, 1.4, 0), 1.2], ["Frank", add(k0.p, 0, 2.2, 0.3), 0.6]] }; },
   // ...and never got off the horse alive: past the post she eases to a canter; Frank folds forward over her neck
   never: (s, f) => { const tt = t(f - s.a), u = U(s, f), x = -6 - coast(tt, 13, 6, 1.4), k0 = run(0, x, u < 0.4 ? "gallop" : "canter", 2, { pose: 0.3 + 0.7 * smooth(u * 1.6), expr: "neutral" });
@@ -154,19 +154,19 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   frank: (s, f) => { const fp = AIS(-0.6, KISS_STALL - 1.3);
     return { light: "barn", horses: [kissInStall(0.25), ...otherStalls()], dof: 2, focus: add(fp, 0, 1.6, 0),
       people: [P("frank", fp, "smile", -1, { hw: [add(fp, 0.42, 1.0, -0.1)] })], props: { fork: { p: add(fp, 0.45, 1.0, -0.12), r: [0, 0, 0.05] } },
-      cam: orbit(s, f, add(fp, -0.4, 1.5, 0.3), [-20, -8], [4.6, 4.0], [0.2, 0.1], 42, [0.03, -0.02]), subjects: [["Frank", add(fp, 0, 1.6, 0), 0.3], ["Sweet Kiss's head", Sb(-1.5, 1.9, KISS_STALL), 0.4]] }; },
+      cam: orbit(s, f, add(fp, -0.4, 1.4, 0.3), [12, 24], [4.4, 3.9], [0.2, 0.1], 42, [0.03, -0.02]), subjects: [["Frank", add(fp, 0, 1.6, 0), 0.3], ["Sweet Kiss's head", Sb(-1.5, 1.9, KISS_STALL), 0.4]] }; },
   // He trained horses: Frank leads a horse down the aisle by its halter, walking with it
   trained: (s, f) => { const tt = t(f - s.a), z = 24 - 1.25 * tt, h: HorseSt = { k: 5, p: AIS(-0.45, z), yaw: Math.PI / 2, gait: "walk", phase: (24 - z) / 1.7, head: 0.1 };
     return { light: "barn", horses: [h, kissInStall(0), { k: 6, p: Sb(-3.0, 0, STALL_Z(4)), yaw: 0, gait: "stand", phase: 0 }], dof: 1.5, focus: AIS(0.3, 1.6, z - 1.2),
       people: [P("frank", AIS(0.5, z - 1.3), "smile", 1, { march: ((24 - z) / 1.6) % 1, hw: [AIS(0.05, 1.5, z - 1.4)] })],
       cam: move({ pos: AIS(0.9, 1.5, z - 7.6), look: AIS(-0.1, 1.5, z - 0.6), fov: 46, roll: -0.03 }, { pos: AIS(1.0, 1.6, z - 6.9), look: AIS(-0.1, 1.5, z - 0.6), fov: 46, roll: 0.02 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the horse", AIS(-0.45, 1.6, z), 0.8], ["Frank", AIS(0.5, 1.6, z - 1.3), 0.3]] }; },
+      subjects: [["the horse's head", AIS(-0.45, 2.0, z - 1.55), 0.6], ["Frank", AIS(0.5, 1.6, z - 1.3), 0.3]] }; },
   // cleaned out stalls: in an empty stall, forking dirty straw into the barrow, a horse looking in next door
   stalls: (s, f) => { const tt = t(f - s.a), z = STALL_Z(3) - 0.6, fp = AIS(0.9, z), sw = 0.5 + 0.5 * Math.sin(tt * 4.2), fork: V3 = add(fp, -0.45 - 0.25 * sw, 0.75 + 0.35 * sw, -0.2);
     return { light: "barn", horses: otherStalls(), dof: 1.5, focus: add(fp, 0, 1.3, 0),
       people: [P("frank", fp, "neutral", -1, { hw: [fork, add(fork, 0.25, 0.3, 0)] })], props: { fork: { p: fork, r: [0, 0, 0.5 - 0.5 * sw] }, barrow: { p: AIS(-0.5, z - 0.2), r: [0, 0.3, 0] } },
       cam: move({ pos: AIS(0.2, 1.5, z - 4.6), look: AIS(0.3, 1.0, z), fov: 46, roll: 0.04 }, { pos: AIS(0.3, 1.45, z - 4.0), look: AIS(0.3, 1.0, z), fov: 46, roll: -0.02 }, f, s.a, s.b, smooth, 0),
-      subjects: [["Frank forking straw", add(fp, 0, 1.4, 0), 0.4], ["the barrow", AIS(-0.5, 0.6, z - 0.2), 0.3]] }; },
+      subjects: [["Frank forking straw", add(fp, 0, 1.4, 0), 0.4], ["the barrow", AIS(-0.5, 0.95, z - 0.2), 0.5]] }; },
   // and dreamed of riding one in a real race: an evening at the rail, horses galloping past him on the turf
   dream: (s, f) => { const tt = t(f - s.a), fp = IN(4, TURF.z0 - 1.2), x = 22 - 9 * tt, h = [run(2, x, "gallop", 2), run(3, x + 4, "gallop", 3)];
     return { light: "eve", horses: h, dof: 1.2, focus: add(fp, 0, 1.6, 0),
@@ -183,7 +183,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   belmont: (s, f) => { const tt = t(f - s.a), x = 176 - V_RACE * tt, h = field(x, -1.5);
     return { light: "day", horses: h, dof: 0, focus: IN(120, 2, -8), board: false, puffs: kickUp(h[0], tt),
       cam: move({ pos: IN(108, 5.5, -46), look: IN(x - 4, 1.0, -6), fov: 52, roll: 0.03 }, { pos: IN(106, 5.0, -43), look: IN(x - 6, 1.0, -6), fov: 50, roll: -0.02 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the field", add(h[1].p, 0, 1.5, 0), 2], ["the last fence", IN(LAST, 1.2, -12), 1]] }; },
+      subjects: [["the field", add(h[1].p, 0, 1.5, 0), 2]] }; },
   // 2 miles, with fences to jump: low at a brush fence as a horse goes over it (not Sweet Kiss)
   fences: (s, f) => { const tt = t(f - s.a), fx = FENCES[1], x = fx + 9 - 9.5 * tt, h = [run(3, x, "gallop", 2), run(4, x + 7, "gallop", 3)];
     return { light: "day", horses: h, dof: 1.2, focus: IN(fx, 1.8, LANE(2)), puffs: kickUp(h[0], tt),
@@ -197,7 +197,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // One problem: the weighing room, Frank stepping up onto the scale, the clerk at his ledger
   problem: (s, f) => { const u = U(s, f);
     return { light: "room", needle: 141 * smooth((u - 0.4) * 3), dof: 1, focus: add(SC, 0, 1.4, 0),
-      people: [P("frank", add(SC, 0, 0, 0.0), "neutral", 0), P("clerk", Wr(-1.9, 0, 3.4), "stern", 1, { hw: [Wr(-1.7, 0.84, 2.6)] })],
+      people: [P("frank", add(SC, 0, 0, 0.0), "neutral", 0), P("clerk", Wr(-1.45, 0, 3.0), "stern", 1, { hw: [Wr(-1.55, 0.84, 2.6)] })],
       cam: move({ pos: Wr(-0.2, 1.7, -3.6), look: Wr(-0.2, 1.4, 2.4), fov: 48, roll: 0.03 }, { pos: Wr(0.0, 1.6, -3.0), look: Wr(-0.2, 1.4, 2.4), fov: 48, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       subjects: [["Frank on the scale", add(SC, 0, 1.4, 0), 0.4], ["the dial", DIAL, 0.2]] }; },
   // Sweet Kiss had to carry 130 pounds, rider included: on the dial, the red mark at 130
@@ -215,8 +215,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   starve: (s, f) => { const u = U(s, f), fp = Sb(-1.2, 0.5, 27.6), pl: V3 = Sb(-0.4 + 0.3 * smooth(u * 2), 0.51, 27.95);
     return { light: "barn", horses: otherStalls(), dof: 2, focus: add(fp, 0, 0.9, 0),
       people: [P("frank", fp, "stern", 1, { mode: "sit", hw: [add(pl, -0.12, 0.04, 0)] })], props: { plate: { p: pl } },
-      cam: move({ pos: Sb(-0.7, 1.05, 25.0), look: Sb(-0.75, 0.75, 27.9), fov: 46, roll: 0.03 }, { pos: Sb(-0.7, 1.0, 25.4), look: Sb(-0.75, 0.75, 27.9), fov: 44, roll: -0.02 }, f, s.a, s.b, smooth, 0),
-      subjects: [["Frank", add(fp, 0, 1.0, 0), 0.3], ["the plate", pl, 0.05]] }; },
+      cam: move({ pos: Sb(-0.55, 1.15, 24.0), look: Sb(-0.6, 0.95, 27.9), fov: 46, roll: 0.03 }, { pos: Sb(-0.55, 1.1, 24.4), look: Sb(-0.6, 0.95, 27.9), fov: 44, roll: -0.02 }, f, s.a, s.b, smooth, 0),
+      subjects: [["Frank", add(fp, 0, 1.0, 0), 0.3], ["the plate", add(pl, 0, 0.05, 0), 0.05]] }; },
   // He ran for hours: dawn on the dirt track, Frank jogging along the rail in a heavy sweater
   ran: (s, f) => { const tt = t(f - s.a), x = 30 - 3.4 * tt, fp = IN(x, DIRT.z0 + 1.2);
     return { light: "dawn", dof: 1.5, focus: add(fp, 0, 1.4, 0),
@@ -240,7 +240,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   start: (s, f) => { const tt = t(f - s.a), drop = smooth(tt * 3), x = 458 - coast(tt, 3, 14, 1.8), sp = IN(470, 1.6, TURF.z0 - 3);
     return { light: "day", horses: field(x, 0, [], tt < 0.6 ? "canter" : "gallop"), dof: 0.8, focus: add(sp, -2, 0.4, 6),
       people: [P("starter", sp, "stern", -1, { hw: [add(sp, -0.35, 1.9 - 1.0 * drop, 0.3)] })], props: { flag: { p: add(sp, -0.35, 1.9 - 1.0 * drop, 0.3), r: [0, 0, 2.4 * drop] } },
-      cam: move({ pos: IN(463, 2.4, -38), look: IN(466.5, 1.6, -16), fov: 50, roll: 0.03 }, { pos: IN(462.5, 2.3, -36.5), look: IN(465.5, 1.6, -16), fov: 50, roll: -0.02 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: IN(472.5, 1.9, -30), look: IN(459, 1.5, -10), fov: 50, roll: 0.03 }, { pos: IN(472, 1.85, -29.4), look: IN(458, 1.5, -10), fov: 50, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       subjects: [["the field", IN(x, 1.5, LANE(2)), 2], ["the starter", add(sp, 0, 1.5, 0), 0.4]] }; },
   // ...and near the end, the long shot took the lead: tracking the pair; Sweet Kiss draws past Gimme
   lead: (s, f) => leadAt(s, f, W(5, "took")),
@@ -264,15 +264,15 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: move({ pos: add(h.p, -1.2, 2.3, -7.0), look: add(h.p, -0.3, 1.45, 0), fov: 40, roll: 0.03 }, { pos: add(h.p, -1.8, 2.25, -6.4), look: add(h.p, -0.3, 1.5, 0), fov: 38, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       subjects: [["Frank", add(h.p, 0.3, 2.1, 0.3), 0.3]] }; },
   // Then, near the judges' stand: wide, Sweet Kiss coming down to a walk by the stand, Frank slumped
-  judges: (s, f) => { const tt = t(f - s.a), x = -40 - coast(tt, 9, 1.6, 3.2), g: Gait = tt < 1.2 ? "canter" : tt < 2.4 ? "trot" : "walk", h = run(0, x, g, 2, { pose: 0.9, expr: "neutral" });
+  judges: (s, f) => { const tt = t(f - s.a), x = -58 - coast(tt, 7, 1.4, 3.2), g: Gait = tt < 1.2 ? "canter" : tt < 2.4 ? "trot" : "walk", h = run(0, x, g, 2, { pose: 0.9, expr: "neutral" });
     return { light: "day", horses: [h], dof: 0.6, focus: add(h.p, 0, 1.6, 0), board: false,
       people: [P("judge1", IN(JUDGES.x - 0.6, 3.6, JUDGES.z - 0.4), "nervous", 0, { low: true }), P("judge2", IN(JUDGES.x + 0.7, 3.6, JUDGES.z - 0.3), "shock", 0, { low: true })],
-      cam: move({ pos: IN(JUDGES.x + 10, 3.2, -34), look: IN((x + JUDGES.x) / 2, 1.8, -5), fov: 48, roll: 0.03 }, { pos: IN(JUDGES.x + 9, 3.0, -32), look: IN((x + JUDGES.x) / 2, 1.8, -5), fov: 48, roll: -0.02 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: IN(-63, 3.6, -46), look: IN(-68, 2.2, -4), fov: 48, roll: 0.03 }, { pos: IN(-63.5, 3.4, -44), look: IN(-68.5, 2.2, -4), fov: 48, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       subjects: [["Sweet Kiss", add(h.p, 0, 1.4, 0), 1], ["the judges' stand", IN(JUDGES.x, 4.6, JUDGES.z), 1]] }; },
   // Frank slid out of the saddle... and hit the ground: medium; she stops; he slides off her near side onto the turf
   slid: (s, f) => slidAt(s, f, W(8, "slid") - 1, W(8, "hit") + 2),
   // The track doctor ran over: wide, the doctor running with his bag, two attendants behind; Frank lying still, the mare by him
-  doctor: (s, f) => { const tt = t(f - s.a), lie = Tk(FALL.x + 0.2, 0.22, LANE(2) - 1.0), dx = FALL.x + 7 - 3.4 * tt, dp = IN(Math.max(dx, FALL.x + 1.4), LANE(2) - 2.2);
+  doctor: (s, f) => { const tt = t(f - s.a), lie = Tk(FALL.x + 0.2, 0.22, LANE(2) - 1.0), dx = FALL.x + 4.6 - 3.0 * tt, dp = IN(Math.max(dx, FALL.x + 1.4), LANE(2) - 2.2);
     return { light: "day", horses: [run(0, FALL.x, "stand", 2, { off: lie, expr: "neutral" }, { head: -0.6 })], dof: 0.8, focus: add(lie, 2, 1, 0),
       people: [P("doctor", dp, "nervous", 0, { side: { phase: (tt * 2.8) % 1, mirror: false, stride: 1.2 } }), P("att1", IN(dx + 2.6, LANE(2) - 3.0), "nervous", 0, { side: { phase: (tt * 2.8 + 0.3) % 1, mirror: false, stride: 1.2 } }), P("att2", IN(dx + 4.0, LANE(2) - 1.6), "nervous", 0, { side: { phase: (tt * 2.8 + 0.6) % 1, mirror: false, stride: 1.2 } })],
       props: { bag: { p: add(dp, -0.3, 0.6, -0.2) } },
@@ -295,18 +295,18 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // Nobody knows exactly when his heart stopped: from the infield, the finish again, slower
   when: (s, f) => { const tt = t(f - s.a), x = 10 - 7 * tt, h = run(0, x, "canter", 2, { pose: 0.45, expr: "neutral" });
     return { light: "day", horses: [h], dof: 0.8, focus: add(h.p, 0, 1.8, 0),
-      cam: move({ pos: IN(POST.x + 1.5, 2.3, -27), look: IN(POST.x + 0.5, 1.5, LANE(2)), fov: 40, roll: 0.03 }, { pos: IN(POST.x + 1.0, 2.2, -25.5), look: IN(POST.x, 1.5, LANE(2)), fov: 40, roll: -0.02 }, f, s.a, s.b, smooth, 0),
-      subjects: [["Sweet Kiss", add(h.p, 0, 1.5, 0), 1], ["the post", IN(POST.x, 4.5, POST.z), 0.4]] }; },
+      cam: move({ pos: IN(POST.x + 1.5, 2.3, -27), look: IN(x * 0.75, 1.5, LANE(2)), fov: 40, roll: 0.03 }, { pos: IN(POST.x + 1.0, 2.2, -25.5), look: IN(x * 0.75, 1.5, LANE(2)), fov: 40, roll: -0.02 }, f, s.a, s.b, smooth, 0),
+      subjects: [["Sweet Kiss", add(h.p, 0, 1.5, 0), 1]] }; },
   // Before the finish line...: she comes toward the post, still short of it
-  before: (s, f) => { const tt = t(f - s.a), x = 18 - 6 * tt, h = run(0, x, "gallop", 2, { pose: 0.4, expr: "neutral" });
+  before: (s, f) => { const tt = t(f - s.a), x = 16 - 10 * tt, h = run(0, x, "gallop", 2, { pose: 0.4, expr: "neutral" });
     return { light: "day", horses: [h], dof: 1, focus: add(h.p, 0, 1.9, 0),
-      cam: move({ pos: IN(POST.x - 3.5, 1.6, LANE(2) - 9), look: IN(x - 0.5, 1.9, LANE(2)), fov: 44, roll: -0.03 }, { pos: IN(POST.x - 3.2, 1.6, LANE(2) - 8.6), look: IN(x - 1.0, 1.9, LANE(2)), fov: 44, roll: 0.02 }, f, s.a, s.b, smooth, 0),
-      subjects: [["Frank", add(h.p, 0.1, 2.1, 0.3), 0.4], ["the post", IN(POST.x, 4.5, POST.z), 0.4]] }; },
-  // ...or after it: from the same side, past the post, going away
-  after: (s, f) => { const tt = t(f - s.a), x = -6 - 6 * tt, h = run(0, x, "gallop", 2, { pose: 0.6, expr: "neutral" });
+      cam: move({ pos: add(h.p, -1.4, 2.0, -13), look: add(h.p, -1.4, 1.2, 0), fov: 44, roll: -0.03 }, { pos: add(h.p, -1.8, 2.0, -12.4), look: add(h.p, -1.8, 1.2, 0), fov: 44, roll: 0.02 }, f, s.a, s.b, smooth, 0),
+      subjects: [["Frank", add(h.p, 0.1, 2.1, 0.3), 0.4]] }; },
+  // ...or after it: the same, past the post, the post going away behind
+  after: (s, f) => { const tt = t(f - s.a), x = -1 - 10 * tt, h = run(0, x, "gallop", 2, { pose: 0.6, expr: "neutral" });
     return { light: "day", horses: [h], dof: 1, focus: add(h.p, 0, 1.9, 0),
-      cam: move({ pos: IN(POST.x + 3.5, 1.6, LANE(2) - 9), look: IN(x + 0.5, 1.9, LANE(2)), fov: 44, roll: 0.03 }, { pos: IN(POST.x + 3.2, 1.6, LANE(2) - 8.6), look: IN(x + 1.0, 1.9, LANE(2)), fov: 44, roll: -0.02 }, f, s.a, s.b, smooth, 0),
-      subjects: [["Frank", add(h.p, 0.1, 2.1, 0.3), 0.4], ["the post", IN(POST.x, 4.5, POST.z), 0.4]] }; },
+      cam: move({ pos: add(h.p, 1.4, 2.0, -13), look: add(h.p, 1.4, 1.2, 0), fov: 44, roll: 0.03 }, { pos: add(h.p, 1.8, 2.0, -12.4), look: add(h.p, 1.8, 1.2, 0), fov: 44, roll: -0.02 }, f, s.a, s.b, smooth, 0),
+      subjects: [["Frank", add(h.p, 0.1, 2.1, 0.3), 0.4]] }; },
 
   // But the win still counted: the result board by the judges' stand, the judges above it
   counted: (s, f) => { const bx = JUDGES.x - 8;
@@ -317,14 +317,14 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // 3 days later, they buried him: Holy Cross Cemetery, the mourners round the grave
   grave: (s, f) => { const gy = HILL(GRAVE.x, GRAVE.z), at = (x: number, z: number): V3 => Gv(GRAVE.x + x, HILL(GRAVE.x + x, GRAVE.z + z), GRAVE.z + z);
     return { light: "grey", dof: 1, focus: Gv(GRAVE.x, gy + 1, GRAVE.z),
-      people: [P("mother", at(-1.6, -0.6), "nervous", 1), P("mourn1", at(-2.6, 0.2), "nervous", 1), P("mourn2", at(1.6, -0.4), "nervous", -1), P("mourn3", at(2.5, 0.6), "nervous", -1), P("boss", at(0.9, -1.6), "nervous", 0)],
+      people: [P("mother", at(-1.6, -0.6), "nervous", 1), P("mourn1", at(-2.2, 0.4), "nervous", 1), P("mourn2", at(1.6, -0.4), "nervous", -1), P("mourn3", at(2.2, 0.7), "nervous", -1), P("boss", at(0.9, -1.6), "nervous", 0)],
       cam: move({ pos: Gv(GRAVE.x - 3, gy + 2.6, GRAVE.z - 11), look: Gv(GRAVE.x, gy + 1.0, GRAVE.z + 0.6), fov: 46, roll: 0.03 }, { pos: Gv(GRAVE.x - 2.4, gy + 2.3, GRAVE.z - 9.6), look: Gv(GRAVE.x, gy + 1.0, GRAVE.z + 0.6), fov: 46, roll: -0.02 }, f, s.a, s.b, smooth, 0),
       subjects: [["the grave", Gv(GRAVE.x, gy + 0.5, GRAVE.z + 1), 0.6]] }; },
   // ...in the racing silks he won in: close on the stone, the wreath in blue and yellow, his silk cap on the mound
-  silks: (s, f) => { const gy = HILL(GRAVE.x, GRAVE.z), cap = Gv(GRAVE.x - 0.1, gy + 0.3, GRAVE.z - 0.2);
+  silks: (s, f) => { const gy = HILL(GRAVE.x, GRAVE.z), cap = Gv(GRAVE.x - 0.1, gy + 0.33, GRAVE.z - 0.2);
     return { light: "grey", dof: 2, focus: Gv(GRAVE.x, gy + 0.6, GRAVE.z + 0.6), closeup: true, props: { cap: { p: cap, r: [0, 2.2, 0.08] } },
       cam: move({ pos: Gv(GRAVE.x - 1.2, gy + 1.5, GRAVE.z - 3.2), look: Gv(GRAVE.x, gy + 0.6, GRAVE.z + 0.6), fov: 42, roll: 0.03 }, { pos: Gv(GRAVE.x - 1.0, gy + 1.45, GRAVE.z - 2.7), look: Gv(GRAVE.x, gy + 0.6, GRAVE.z + 0.6), fov: 40, roll: -0.02 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the wreath", Gv(GRAVE.x, gy + 0.88, GRAVE.z + 1.3), 0.1], ["the silk cap", cap, 0.05]] }; },
+      subjects: [["the wreath", Gv(GRAVE.x, gy + 0.88, GRAVE.z + 1.3), 0.1], ["the silk cap", add(cap, 0, 0.07, 0), 0.05]] }; },
   // (after the words) back to the race: the hook's own framing, so the loop lands; the subscribe card plays over it
   end: (s, f) => SPECS.hook({ ...s, a: 0, b: 79 }, f - END + 1),
 };

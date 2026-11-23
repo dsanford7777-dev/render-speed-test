@@ -92,12 +92,12 @@ const News: React.FC<G & { v: number }> = ({ t, d, v }) => {
   );
   if (v === 1) return ( // the Buffalo Courier's headline, June 5, 1923
     <Paper tone="#e8d7b0"><Mv t={t} d={d} m={0}>
-      <Paper1923 t={t} x={960} y={440} w={720} name="Buffalo Courier" date="TUESDAY, JUNE 5, 1923" head={["Steeplechase Rider, Winning", "His First Victory, Topples", "From the Saddle, Dead"]} s={pop(t, 0)} />
+      <Paper1923 t={t} x={960} y={390} w={560} name="Buffalo Courier" date="TUESDAY, JUNE 5, 1923" head={["Steeplechase Rider, Winning", "His First Victory, Topples", "From the Saddle, Dead"]} s={pop(t, 0)} />
     </Mv></Paper>
   );
   return ( // the New York Times, June 5, 1923
     <Paper tone="#e8d7b0"><Mv t={t} d={d} m={0}>
-      <Paper1923 t={t} x={960} y={440} w={760} name="The New York Times" date="JUNE 5, 1923" head={["JOCKEY DIES AS HE", "WINS HIS FIRST RACE"]} deck="Hayes Collapses Passing the Winning Post" s={pop(t, 0)} />
+      <Paper1923 t={t} x={960} y={390} w={580} name="The New York Times" date="JUNE 5, 1923" head={["JOCKEY DIES AS HE", "WINS HIS FIRST RACE"]} deck="Hayes Collapses Passing the Winning Post" s={pop(t, 0)} />
     </Mv></Paper>
   );
 };
@@ -112,7 +112,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
   kisscard: say([{ s: "Sweet Kiss", size: 160, col: RED }, { s: "entered in the name of", cue: [9, "name"], size: 70 }, { s: "Miss A. M. Frayling", cue: [9, "miss"], size: 100 }], { m: 2 }),
   // ---------------- what a steeplechase is ----------------
   chase: say([{ s: "Steeplechase:", size: 130 }, { s: "a horse race", cue: [11, "horse"], size: 100 }, { s: "with fences in the way", cue: [11, "fences"], col: RED, size: 100 }], { m: 0 }),
-  n2mi: num("~2 miles", "about two miles long", { col: RED, sub: "with 12 jumps", subCue: [12, "12"], m: 4, size: 280 }),
+  n2mi: num("~2 miles", "with 12 jumps", { col: RED, m: 4, size: 280 }),
   date: say([{ s: "June 4, 1923", size: 150, col: RED }, { s: "Belmont Park, New York", cue: [12, "date"], size: 90 }], { m: 2 }),
   favorite: checks([{ s: "Gimme: the favorite", mark: "check" }, { s: "Sweet Kiss: not the favorite", cue: [14, "favorite"], mark: "x" }], { top: "The betting", topCol: INK, size: 70 }),
   odds: say([{ s: "Her odds:", size: 100 }, { s: "5-1 … 20-1", cue: [15, "5"], col: RED, size: 170 }, { s: "depending on who you read", cue: [15, "20"], size: 60 }], { m: 4 }),

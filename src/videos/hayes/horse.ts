@@ -30,7 +30,7 @@ const clothTex = (n: number) => ctex("hsCloth" + n, 256, 192, (g) => {
 export class Horse {
   g = new THREE.Group(); body = new THREE.Group(); neck = new THREE.Group(); head = new THREE.Group(); tail = new THREE.Group();
   saddle = new THREE.Object3D(); hands = new THREE.Object3D(); bit = new THREE.Object3D();
-  private legs: Leg[] = []; private reins: THREE.Mesh; private hasRider = true;
+  private legs: Leg[] = []; private reins: THREE.Mesh; private hasRider = true; private tack: THREE.Object3D[] = [];
   private m = new THREE.Matrix4(); private v = new THREE.Vector3(); private v2 = new THREE.Vector3();
   constructor(coat: Coat, num: number, key: string) {
     const C = lam("hsBody_" + key, () => ({ color: coat.body })), D = lam("hsDark_" + key, () => ({ color: coat.dark })), Lg = lam("hsLeg_" + key, () => ({ color: coat.legs }));
@@ -45,8 +45,8 @@ export class Horse {
     this.body.add(mesh(sph(0.36), C, [-0.6, 0.07, 0], undefined, [1.15, 1.0, 0.9]));
     this.body.add(mesh(sph(0.33), C, [0.6, 0.0, 0], undefined, [1.1, 1.05, 0.86]));
     // ---- saddle cloth (the number), the little race saddle, the girth ----
-    for (const s of [-1, 1]) { const c = mesh(new THREE.PlaneGeometry(0.62, 0.42), cloth, [-0.06, 0.1, s * 0.33], [0, s > 0 ? 0 : Math.PI, 0]); this.body.add(c); }
-    this.body.add(mesh(new THREE.BoxGeometry(0.46, 0.06, 0.34), tack, [0.16, 0.39, 0], [0, 0, -0.04]));
+    for (const s of [-1, 1]) { const c = mesh(new THREE.PlaneGeometry(0.62, 0.42), cloth, [-0.06, 0.1, s * 0.33], [0, s > 0 ? 0 : Math.PI, 0]); this.body.add(c); this.tack.push(c); }
+    { const sd = mesh(new THREE.BoxGeometry(0.46, 0.06, 0.34), tack, [0.16, 0.39, 0], [0, 0, -0.04]); this.body.add(sd); this.tack.push(sd); }
     this.saddle.position.set(0.18, 0.4, 0); this.body.add(this.saddle);
     this.hands.position.set(0.62, 0.52, 0); this.body.add(this.hands);
     // ---- neck (pivot at the withers' front), head, ears, mane ----
@@ -84,7 +84,7 @@ export class Horse {
     // ---- reins: one strip from the bit to the rider's hands, rebuilt each frame ----
     this.reins = mesh(new THREE.CylinderGeometry(0.012, 0.012, 1, 5), tack); this.reins.castShadow = false; this.g.add(this.reins);
   }
-  rider(on: boolean) { this.hasRider = on; this.saddle.visible = on; }
+  rider(on: boolean, tacked = on) { this.hasRider = on; this.saddle.visible = on; for (const t of this.tack) t.visible = tacked; }
   /** set the gait and drop the horse onto the ground; returns nothing (read saddle/hands/bit via world positions) */
   pose(q: HorsePose) {
     const g = q.gait, p = ((q.phase % 1) + 1) % 1, j = q.jump ?? -1, air = j >= 0 && j <= 1;

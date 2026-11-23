@@ -73,6 +73,8 @@ export function buildTrack(): TrackSet {
     b.add(B(x - 1.8, fy, z - 1.6, x + 1.8, fy + 1.0, z - 1.5), white); b.add(B(x - 1.8, fy, z - 1.6, x - 1.7, fy + 1.0, z + 1.6), white); b.add(B(x + 1.7, fy, z - 1.6, x + 1.8, fy + 1.0, z + 1.6), white);
     const rf = new THREE.Mesh(new THREE.ConeGeometry(2.9, 1.3, 4), roofM); rf.rotation.y = Math.PI / 4; rf.position.set(x, fy + 3.25, z); rf.castShadow = true; G.add(rf);
     for (let k = 0; k < 9; k++) b.add(B(x + 1.8 + k * 0.33, fy - 0.4 * k - 0.08, z + 0.4, x + 2.15 + k * 0.33, fy - 0.4 * k, z + 1.4), wood);
+    // the stair's two stringers, from the floor's edge down to the ground, and a post under the top
+    for (const sz of [z + 0.36, z + 1.44]) { const g = new THREE.BoxGeometry(Math.hypot(9 * 0.33, fy), 0.22, 0.08); g.rotateZ(-Math.atan2(fy, 9 * 0.33)); g.translate(x + 1.8 + 4.5 * 0.33, fy / 2 - 0.1, sz); b.add(g, wood); }
     b.add(B(x + 1.8, 0, z + 1.4, x + 4.9, 0.1, z + 1.5), wood);
     sign(G, "JUDGES", x, fy + 1.6, z - 1.62, 2.6, 0.5, "#2e5a3a", "#f4ecd0", Math.PI); }
   // ---- the result board beside it (its face is swapped in by the story: blank, or the winner) ----

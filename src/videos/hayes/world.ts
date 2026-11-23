@@ -164,7 +164,7 @@ export class HWorld {
     const right = V(0, 0, 0).setFromMatrixColumn(cam.matrixWorld, 0);
     const riders: Person3[] = [];
     this.horses.forEach((h, i) => { const q = st.horses?.find((x) => x.k === i); h.g.visible = !!q; if (!q) return;
-      h.g.position.set(...q.p); h.g.rotation.set(0, q.yaw, 0); h.rider(!!q.rider && !q.rider.off);
+      h.g.position.set(...q.p); h.g.rotation.set(0, q.yaw, 0); h.rider(!!q.rider && !q.rider.off && (q.rider.slide ?? 0) < 0.3, !!q.rider || !!q.tack);
       h.pose({ gait: q.gait, phase: q.phase, jump: q.jump, head: q.head });
       if (!q.rider) return;
       const fwd = V(Math.cos(q.yaw), 0, -Math.sin(q.yaw)), lz = V(Math.sin(q.yaw), 0, Math.cos(q.yaw)), toCam = cam.position.clone().sub(h.g.position).setY(0).normalize();
