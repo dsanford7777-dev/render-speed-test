@@ -268,7 +268,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "day", horses: [h], dof: 0.6, focus: add(h.p, 0, 1.6, 0), board: false,
       people: [P("judge1", IN(JUDGES.x - 0.6, 3.6, JUDGES.z - 0.4), "nervous", 0, { low: true }), P("judge2", IN(JUDGES.x + 0.7, 3.6, JUDGES.z - 0.3), "shock", 0, { low: true })],
       cam: move({ pos: IN(-63, 3.6, -46), look: IN(-68, 2.2, -4), fov: 48, roll: 0.03 }, { pos: IN(-63.5, 3.4, -44), look: IN(-68.5, 2.2, -4), fov: 48, roll: -0.02 }, f, s.a, s.b, smooth, 0),
-      subjects: [["Sweet Kiss", add(h.p, 0, 1.4, 0), 1], ["the judges' stand", IN(JUDGES.x, 6.6, JUDGES.z), 0.6]] }; },
+      subjects: [["Sweet Kiss", add(h.p, 0, 1.4, 0), 1], ["the judges' stand sign", IN(JUDGES.x, 5.2, JUDGES.z - 1.7), 0.3]] }; },
   // Frank slid out of the saddle... and hit the ground: medium; she stops; he slides off her near side onto the turf
   slid: (s, f) => slidAt(s, f, W(8, "slid") - 1, W(8, "hit") + 2),
   // The track doctor ran over: wide, the doctor running with his bag, two attendants behind; Frank lying still, the mare by him

@@ -77,6 +77,13 @@ Fixed in the code the same day (Peigneur world and the shared `bridge/scenery.ts
 - **Shorts: nothing important in the top ~17 % of the frame.** YouTube's Subscriptions / Live / Trends buttons cover roughly 7–13 % in the Shorts feed. Callouts and pills go at y ≥ 19 %. (Peigneur: "3 HOURS" and the Delcambre Canal pill sat under them.)
 - **The picture holds while its caption is up.** If a caption ("11 BARGES", "WATERFALL POURED") is still on screen after the cut, the next shot must still show that thing, or the cut moves. Make the thing a subject of both shots. (Peigneur: "11 BARGES" over a shot of trees; "the waterfall poured into the hole" over a crater with no waterfall.)
 
+### Added Nov 23 (Frank Hayes build, found in our own still review and framing check)
+- **A Short's frame is narrow: track anything that moves across it.** At a 44° vertical field of view a 9:16 frame is only ~27° wide, so a horse crossing it at racing speed is in shot for well under a second. Tracking shots (the camera moves with the subject) or shots along the line of travel; two subjects in one frame must sit nearly in line from the camera. Check with the framing check's "not in shot" lines, not by guessing.
+- **Riders sit on what they ride.** Jockeys are side-view `ride` cards (`bodySide` mode "ride", bridge/toon.ts) placed on the saddle every frame, offset toward the camera so the near leg is outside the horse; slumping, swaying and falling off are pose/tilt/slide on the same card. Race tack (saddle, number cloth) only on horses in the race, never on a horse in its stall.
+- **Animals touch the ground.** A walking or galloping animal is dropped so its lowest hoof sits on the ground every frame (hayes/horse.ts `pose`); its stride phase follows the distance it travels, so the feet keep pace with the ground.
+- **The subscribe card never plays over a sad scene.** If a Short ends on a death or a funeral, run the Short on past the voice into a neutral loop shot (back to the hook's framing) and let the card play there. Keep the card's default length: the render mixes the slap in 70 frames before the end.
+- **The person who died is never shown hurt.** He slides off and lies still, seen from a distance with people round him; no injury, no close-up of the body.
+
 If one of these can't be fixed in a reasonable time, the shot is restaged or cut so the problem is gone. The report to Daniel after an upload should have nothing under "weak spots".
 
 ## Fixing a video after it's rendered or uploaded (Nov 16)
