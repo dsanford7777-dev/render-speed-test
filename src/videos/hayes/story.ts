@@ -28,7 +28,7 @@ const CUTS: [string, number][] = [
 ];
 /** the Short runs on past the voice: the last shot goes back to the race (the hook's framing) under the subscribe card,
  *  so the card never plays over the funeral */
-export const END = Math.round((SEG_TIMES[12][1] + 0.35) * FPS) + 84;
+export const END = Math.round((SEG_TIMES[12][1] + 0.35) * FPS) + 104;   // the card's default length + tail (the slap is mixed in 70 f before the end)
 export const SHOTS: ShotDef[] = CUTS.map(([g, a], i) => ({ id: i + 1, g, a, b: i === CUTS.length - 1 ? END : CUTS[i + 1][1], k: "3d" as const }));
 export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? SHOTS[SHOTS.length - 1];
 

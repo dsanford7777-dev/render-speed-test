@@ -51,7 +51,7 @@ export const Hayes: React.FC = () => {
       <View3D kit={kit} shot={shotAt(f)} f={f} visible />
       <Overlays />
       <Captions />
-      <SubscribeTag total={END} len={80} />
+      <SubscribeTag total={END} />
       {voice ? <Audio src={staticFile("hayes/voice.mp3")} /> : null}
     </AbsoluteFill>
   );
