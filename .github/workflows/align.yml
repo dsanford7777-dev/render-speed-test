@@ -45,7 +45,7 @@ jobs:
             SHORTS=$(git diff --name-only HEAD~1 HEAD -- 'public/*/voice.mp3' 'public/*/voice-source.json' | cut -d/ -f2 | sort -u); fi
           for s in $SHORTS; do
             echo "== $s"; python scripts/align.py "public/$s/voice.mp3" "src/videos/$s/timeline.ts" 2>&1 | tee -a align.log
-            COMP=$(grep -o "id=\"[A-Za-z]*\"" src/Root.tsx | cut -d'"' -f2 | grep -ix "$s" | head -1)
+            COMP=$(grep -o "id=\"[A-Za-z]*\"" src/Root.tsx | cut -d'"' -f2 | grep -ix "$s" | head -1 || true)
             if [ -f "public/$s/norender" ]; then NORENDER=1; echo "NORENDER=1" >> $GITHUB_ENV; fi
             if [ "${{ inputs.render }}" != "false" ] && [ ! -f "public/$s/norender" ]; then
               printf '{ "composition": "%s", "chunks": 10, "note": "aligned to voice" }\n' "$COMP" > render.json

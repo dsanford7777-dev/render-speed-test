@@ -1,1 +1,5 @@
-{ "url": "https://elevenlabsusercontent.com/database/workspace/63ade8f7f9054edd95dc46200e348af9/content_generation/dv8b9W3DMh6FSGPyVEXd/prFa9gb6xPkVVrpbROPR/content.mp3?Expires=1795417200&KeyName=assets-cdn-key-1&Signature=vbhi3V2tp4PLM5T8Iox2iZ-s-A8=", "target_seconds": 64 }
+{
+ "url": "https://elevenlabsusercontent.com/database/workspace/63ade8f7f9054edd95dc46200e348af9/content_generation/dv8b9W3DMh6FSGPyVEXd/prFa9gb6xPkVVrpbROPR/content.mp3?Expires=1795417200&KeyName=assets-cdn-key-1&Signature=vbhi3V2tp4PLM5T8Iox2iZ-s-A8=",
+ "target_seconds": 64,
+ "note": "retry: align ran, commit step failed (no Hayes in Root.tsx yet)"
+}
