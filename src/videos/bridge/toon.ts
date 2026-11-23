@@ -718,7 +718,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
 };
 
 export type SideOpts = {
-  phase?: number; expr?: Expr; mode?: "march" | "stand" | "swing" | "push"; blink?: boolean | number; stomp?: number; pose?: number;
+  phase?: number; expr?: Expr; mode?: "march" | "stand" | "swing" | "push" | "ride"; blink?: boolean | number; stomp?: number; pose?: number;
   /** step length as a multiple of 0.8 m (370 units): matches 1.6 m/s at 2 steps/s; scale by the view's foreshortening */
   stride?: number; light?: number; seed?: number;
   /** push mode: where the hands land at pose 1, in final canvas units (e.g. the swing kid's back) */
@@ -734,6 +734,11 @@ const ik = (hip: P2, ank: P2, l1: number, l2: number): P2 => {
   return [hip[0] + l1 * Math.cos(k), hip[1] + l1 * Math.sin(k)];
 };
 
+/** ride mode draws the figure this far left of the canvas centre (design units): the hip sits at x = 300 - RIDE_DX */
+export const RIDE_DX = 110;
+/** ride mode: the seat (hip) height above the soles in design units: half the leg (short stirrups) */
+export const rideUp = (o: Outfit) => { const H = headBlob(1, BUILD[o.build ?? "adult"].a, 1), HH = 2 * H.b, u = (2 * H.a) / 100; return 0.5 * ((BUILD[o.build ?? "adult"].legs + 0.12) * HH - 4 * u); };
+
 /** hip height of the seated kid in `swing` mode (design units); swingKid seats the torso bottom on the plank */
 const SWING_HIP = 733;
 
@@ -744,6 +749,8 @@ export const bodySide = (p: Pen, o: Outfit, opts: SideOpts) => {
   const Bd = BUILD[o.build ?? "adult"], skin = LOOK.skin ?? o.skin ?? SKIN, two = Math.PI * 2, lid = lidOf(blink);
   const H: Blob = { ...headBlob(seed, Bd.a, 1), asym: 0.12, rot: rad(3 + 3 * (rnd(seed, 7) - 0.5)) };
   const W = 2 * H.a, HH = 2 * H.b, u = W / 100, sole = 975, ankY = sole - 4 * u;
+  // ride mode leans the body far forward over the hip: shift the whole figure back so the head stays on the canvas
+  if (mode === "ride") { p.g.save(); p.g.translate(-RIDE_DX, 0); }
   const thick = thickAngle(light), ow = 5 * u * LOOK.ink;
   const legLen = (Bd.legs + 0.12) * HH - 4 * u, l1 = legLen / 2, l2 = legLen / 2;
   const nearCol = mix(o.pants, INK, Math.max(0.55, LOOK.limbInk)), farCol = mix(o.pants, INK, Math.max(0.75, LOOK.limbInk)), footCol = o.boots;
@@ -769,6 +776,12 @@ export const bodySide = (p: Pen, o: Outfit, opts: SideOpts) => {
     hipY = ankY - 0.87 * legLen;
     legs.push({ ank: [300 - 0.5 * legLen, ankY], pitch: rad(-8), near: false }, { ank: [300 + 0.32 * legLen, ankY], pitch: 0, near: true });
     lean = 14 * pose;
+  } else if (mode === "ride") {
+    // a jockey on short stirrups (Hayes, Nov 22): seat RIDE_UP above the soles, knees up and forward, the body folded
+    // over the withers; pose 0 = crouched race seat (40 deg) .. 1 = slumped flat over the neck (70 deg); -1 = sitting up
+    hipY = sole - rideUp(o);
+    for (const [dx, near] of [[-5, false], [0, true]] as const) legs.push({ ank: [300 + 0.16 * legLen + dx * u, ankY], pitch: rad(-12), near });
+    lean = 38 + 24 * pose;
   } else if (mode === "swing") {
     hipY = SWING_HIP;
     const a = rad(60 * pose);
@@ -803,7 +816,9 @@ export const bodySide = (p: Pen, o: Outfit, opts: SideOpts) => {
   const rifle = !!o.rifle && (mode === "march" || mode === "stand");
   const B0: P2 = [tcx + 0.72 * T.a, chin + 0.58 * HH], B1: P2 = [tcx - 0.95 * T.a - 22 * u, crown - 0.4 * HH];
   let near: [P2, P2, P2], far: [P2, P2, P2] | null;
-  if (mode === "swing") { near = [S, [S[0] + 12 * u, S[1] - 0.16 * HH], [300 + 6 * u, chin - 0.3 * HH]]; far = [S, [S[0] + 8 * u, S[1] - 0.18 * HH], [300 + 2 * u, chin - 0.36 * HH]]; }
+  if (mode === "ride") { const hN: P2 = [S[0] + 0.62 * HH, S[1] + 0.5 * HH];
+    near = [S, [S[0] + 0.2 * HH, S[1] + 0.42 * HH], hN]; far = [S, [S[0] + 0.16 * HH, S[1] + 0.36 * HH], [hN[0] - 6 * u, hN[1] - 0.04 * HH]]; }
+  else if (mode === "swing") { near = [S, [S[0] + 12 * u, S[1] - 0.16 * HH], [300 + 6 * u, chin - 0.3 * HH]]; far = [S, [S[0] + 8 * u, S[1] - 0.18 * HH], [300 + 2 * u, chin - 0.36 * HH]]; }
   else if (mode === "push") {
     const reach = 0.55 * HH + 0.45 * HH * pose;
     let hN: P2 = [S[0] + reach, S[1] + 0.06 * HH];
@@ -855,6 +870,7 @@ export const bodySide = (p: Pen, o: Outfit, opts: SideOpts) => {
   faceSide(p, hx, hc, W, expr, lid, brim, skin, o.moustache, o.build === "stout");
   if (o.bandana) bandana(p, hp, hx + 22 * (W / 100), hc, W, o.bandana, 1);
   p.rot = null;
+  if (mode === "ride") p.g.restore();
 };
 
 /** rope + seat + seated kid on a 700 x 2300 canvas; the pivot is design (350, 20); kid drawn at 0.92 scale */

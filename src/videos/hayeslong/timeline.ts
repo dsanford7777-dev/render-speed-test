@@ -109,3 +109,69 @@ export const CHAPTERS: { seg: number; num: string; title: string }[] = [
   { seg: 37, num: "6", title: "THE LEGEND" },
   { seg: 44, num: "7", title: "THE WIN COUNTED" },
 ];
+
+// ---------------- shots ----------------
+/** k: "3d" = rendered scene (story3d.ts), "2d" = motion graphic (boards.tsx). A shot starts at segment `s` (or at word
+ *  `w` inside it) and runs until the next shot. g = graphic / shot key. */
+export type Kind = "3d" | "2d";
+type RawShot = { s: number; w: string | null; k: Kind; g: string };
+const D3 = (s: number, w: string | null, g: string): RawShot => ({ s, w, k: "3d", g }), D2 = (s: number, w: string | null, g: string): RawShot => ({ s, w, k: "2d", g });
+const raw: RawShot[] = [
+  D3(0, null, "hook"), D3(0, "rider", "never"),
+  D3(1, null, "firstwin"), D3(1, "time", "dead"),
+  D2(2, null, "legend0"), D3(2, "dead", "when"),
+  D2(3, null, "papers"), D2(3, "real", "title"),
+  D3(4, null, "strange"),
+  D3(5, null, "barn"),
+  D3(6, null, "frank"), D3(6, "trained", "trained"), D3(6, "mucked", "stalls"), D3(6, "walked", "coolwalk"),
+  D2(7, null, "mother"),
+  D3(8, null, "dream"),
+  D3(9, null, "longshot"), D2(9, "entered", "kisscard"),
+  D3(10, null, "boss"),
+  D3(11, null, "fences"), D2(11, "that's", "chase"),
+  D2(12, null, "n2mi"), D3(12, "belmont", "belmont"), D2(12, "date", "date"),
+  D3(13, null, "jumpslow"), D3(13, "again", "jumpb"), D3(13, "rider", "landing"),
+  D2(14, null, "favorite"),
+  D2(15, null, "odds"),
+  D3(16, null, "problem"),
+  D2(17, null, "assigned"),
+  D3(18, null, "carry"), D3(18, "frank", "heavy"),
+  D3(19, null, "starve"), D3(19, "jogged", "ran"), D3(19, "buffalo", "water"),
+  D3(20, null, "hotbox"),
+  D2(21, null, "n10"),
+  D3(22, null, "made"),
+  D3(23, null, "start"), D3(23, "field", "belmont2"),
+  D3(24, null, "kissjump"), D3(24, "frank", "hook2"),
+  D3(25, null, "lead"),
+  D3(26, null, "saw"),
+  D2(27, null, "courier"), D3(27, "cleared", "jump"), D3(27, "swaying", "sway"),
+  D3(28, null, "dip"),
+  D3(29, null, "finish"), D3(29, "easy", "firstwin2"),
+  D3(30, null, "firstwin"),
+  D3(31, null, "judges"),
+  D3(32, null, "attend"),
+  D3(33, null, "slid"),
+  D3(34, null, "doctor"), D3(34, "frank", "dead"),
+  D3(35, null, "heart"), D2(35, "failure", "failure"),
+  D2(36, null, "nyt"),
+  D2(37, null, "grow"),
+  D3(38, null, "when"), D3(38, "body", "never"),
+  D2(39, null, "reports"),
+  D3(40, null, "strange2"), D3(40, "before", "before"), D3(40, "after", "after"),
+  D2(41, null, "age"),
+  D2(42, null, "photo"),
+  D2(43, null, "kissofdeath"),
+  D3(44, null, "counted"),
+  D3(45, null, "grave"), D3(45, "racing", "silks"),
+  D3(46, null, "coolwalk2"), D3(46, "ride", "hook3"),
+  D2(47, null, "question"),
+  D3(48, null, "endpost"),
+];
+export type ShotDef = RawShot & { id: number; a: number; b: number };
+export const SHOTS: ShotDef[] = raw.map((r, i) => ({ ...r, id: i + 1, a: 0, b: 0 }));
+SHOTS.forEach((s, i) => { s.a = i === 0 ? 0 : (s.w ? wordAt(s.s, s.w) : segAt(s.s)) - 2; }); // cuts land ~2 f before the word
+SHOTS.forEach((s, i) => { s.b = i === SHOTS.length - 1 ? VOICE_END : SHOTS[i + 1].a; });
+export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? null;
+/** chapter-start crossfade (frames) */
+export const XFADE = 10;
+export const CHAPTER_SHOTS = new Set(CHAPTERS.map((c) => SHOTS.find((s) => s.s >= c.seg)!.id));
