@@ -1,9 +1,8 @@
 [
   {
     "channel": "shorts",
-    "videoId": "DCJ1zX2ylZI",
-    "action": "replace_text",
-    "find": "LONGFORM_LINK_PENDING",
-    "replace": "https://youtu.be/C8OOIng93V8"
+    "videoId": "3wq4ureWhac",
+    "action": "publish",
+    "title": "This Town Has Been on Fire Underground for 64 Years #history #shorts"
   }
 ]

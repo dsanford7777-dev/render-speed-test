@@ -5,6 +5,8 @@ Reads manage.json: a list of actions, run in order:
       replaces text in the description (fails if `find` isn't there); everything else is resent unchanged
   {"channel": ..., "videoId": "...", "action": "delete", "title": "<exact current title>"}
       deletes the video, only if its current title matches exactly (guards against a wrong id)
+  {"channel": ..., "videoId": "...", "action": "publish", "title": "<exact current title>"}
+      makes a private or scheduled video public now (drops publishAt), only if its title matches exactly
 Credentials: YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_SHORTS / YT_REFRESH_EXPLAINED (never printed).
 """
 import json
@@ -54,6 +56,17 @@ def main():
             snippet["description"] = sn["description"].replace(it["find"], it["replace"])
             yt.videos().update(part="snippet", body={"id": vid, "snippet": snippet}).execute()
             say(f"- {vid} ({ch}): description now has {it['replace']!r} instead of {it['find']!r}")
+        elif act == "publish":
+            if sn["title"] != it.get("title"):
+                say(f"- {vid}: NOT published, title is {sn['title']!r}, manage.json says {it.get('title')!r}"); failed = True; continue
+            cur = yt.videos().list(part="status", id=vid).execute()["items"][0]["status"]
+            st = {k: cur[k] for k in ("license", "embeddable", "publicStatsViewable", "selfDeclaredMadeForKids", "containsSyntheticMedia") if k in cur}
+            if "selfDeclaredMadeForKids" not in st:
+                st["selfDeclaredMadeForKids"] = cur.get("madeForKids", False)
+            st["privacyStatus"] = "public"
+            yt.videos().update(part="status", body={"id": vid, "status": st}).execute()
+            now = yt.videos().list(part="status", id=vid).execute()["items"][0]["status"]
+            say(f"- {vid} ({ch}): privacy now {now.get('privacyStatus')}, publish at {now.get('publishAt', 'none')}")
         else:
             say(f"- unknown action {act!r}"); failed = True
     sys.exit(1 if failed else 0)
