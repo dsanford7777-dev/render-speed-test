@@ -21,6 +21,10 @@ const R = (k: string, mod?: (st: St3, s: ShotDef, f: number) => St3, sync?: () =
 const tt = (s: ShotDef, f: number) => secs(f - s.a);
 /** pull the camera back (k > 1) along its line of sight */
 const far = (st: St3, k: number): St3 => ({ ...st, cam: { ...st.cam, pos: L3(st.cam.look, st.cam.pos, k) } });
+/** re-aim: tilt the look point by dy (m), or replace the subjects */
+const tilt = (dy: number) => (st: St3): St3 => ({ ...st, cam: { ...st.cam, look: [st.cam.look[0], st.cam.look[1] + dy, st.cam.look[2]] as V3 } });
+const subj = (sb: [string, V3, number][]) => (st: St3): St3 => ({ ...st, subjects: sb });
+const HOUSE_FRONT: V3 = Tw(HOLD[0].x, 3.2, HOLD[0].z - 3.0);
 const mv = (s: ShotDef, f: number, a: Partial<Cam> & { pos: V3; look: V3 }, b: Partial<Cam> & { pos: V3; look: V3 }) => move(a, b, f, s.a, s.b, smooth, 0);
 
 const SW0 = 0.14; // sidewalk height
@@ -28,8 +32,8 @@ const SMOKE: [number, number, number] = [0.72, 0.72, 0.74], STEAM: [number, numb
 const HEAPC: V3 = Pt(HEAP[0], HEAP[1] + 0.9, HEAP[2]), FLOOR = HEAP[1];
 const pgy = (lx: number, z: number) => pitGround(Pt(lx, 0, 0)[0], z);
 const OPEN: V3 = Pt(OPENING[0], pgy(OPENING[0], OPENING[1]), OPENING[1]);
-const CAP: V3 = Tw(GAS.x - 1.6, 0.18, 9.4); // one of the station's underground tank fill caps
-const CODD: V3 = Tw(GAS.x - 1.4, 0.16, 9.95);
+const CAP: V3 = Tw(GAS.x - 3.4, 0.18, 9.4); // one of the station's underground tank fill caps
+const CODD: V3 = Tw(GAS.x - 3.2, 0.16, 9.95);
 /** the yard after the hole opened: Todd in it, holding the roots */
 const TODD_IN: V3 = Yd(HOLE[0], -1.05, HOLE[2] + 0.05), ROOT_L: V3 = Yd(HOLE[0] - HOLE_R * 0.9 + 0.1, -0.42, HOLE[2] + 0.18), ROOT_R: V3 = Yd(HOLE[0] - HOLE_R * 0.9, -0.22, HOLE[2] - 0.2);
 /** a few smoke vents along the closed stretch of Route 61 (the graffiti road) */
@@ -37,15 +41,15 @@ const grafSmoke = (t0: number) => [26, 30.5, 35, 39].flatMap((x, i) => vent(Tw(x
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ---------------- straight from the Short ----------------
-  hook: R("hook"), years: R("years"), burning: R("burning"), under: R("under"), zip: R("zip"),
-  tunnels: R("tunnels"), street: R("street"), council: R("council"), dump: R("dump"), five: R("five"), heap: R("heap"), heap2: R("heap"),
+  hook: R("hook"), years: R("years", (st) => subj([["the crack", Tw(-6.2, 0.35, crackZ(-6.2)), 0.4]])(st)), burning: R("burning"), under: R("under"), zip: R("zip"),
+  tunnels: R("tunnels"), street: R("street"), council: R("council", tilt(-0.3)), dump: R("dump"), five: R("five"), heap: R("heap"), heap2: R("heap"),
   light: R("light"), light2: R("light"), hose: R("hose"), back: R("back"), reach: R("reach"), pitwide: R("pitwide"),
   under2: R("fire"), trench: R("trench"), flush: R("flush"), nothing: R("nothing"), yards: R("yards"), cellar: R("cellar"),
-  boy: R("boy"), todd: R("todd"), fell: R("fell"), cousin: R("cousin"), deep: R("deep"),
+  boy: R("boy"), todd: R("todd"), fell: R("fell"), cousin: R("cousin", (st) => tilt(-0.1)(far(st, 1.4))), deep: R("deep"),
   money: R("money"), boxes: R("boxes"), houses: R("houses"), refused: R("refused"), refused2: R("refused", (st) => far(st, 1.35)),
-  stay: R("stay"), route: R("years", (st) => far(st, 1.15)), five2020: R("five2020"), fire: R("fire"),
+  stay: R("stay", (st) => subj([["their house", HOUSE_FRONT, 1]])(st)), route: R("years", (st) => subj([["the crack", Tw(-6.2, 0.35, crackZ(-6.2)), 0.4]])(far(st, 1.15))), five2020: R("five2020"), fire: R("fire"),
   // the ground gives way on this narration's "gave"
-  open: R("open", undefined, () => [wordAt(28, "gave"), SW(6, "open")]),
+  open: R("open", tilt(-0.3), () => [wordAt(28, "gave"), SW(6, "open")]),
 
   // ---------------- the long-form's own ----------------
   // Almost everyone who lived there is gone: the main street today, empty, smoke along the crack
@@ -62,12 +66,12 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["the empty lots", Tw(-31, 0.5, 12), 5]] }),
   // ...one by one, the houses came down: the near side's lots, the camera drifting along them
   lots2: (s, f) => ({ light: "townT", dof: 0.8, focus: Tw(36, 0.8, 12),
-    cam: mv(s, f, { pos: Tw(25, 3.2, -1.5), look: Tw(37, 3.0, 13), fov: 30, roll: -0.03 }, { pos: Tw(28.5, 3.2, -1.5), look: Tw(40.5, 3.0, 13), fov: 30, roll: 0.02 }),
+    cam: mv(s, f, { pos: Tw(25, 3.2, 0), look: Tw(37, 2.2, 13), fov: 30, roll: -0.03 }, { pos: Tw(28.5, 3.2, 0), look: Tw(40.5, 2.2, 13), fov: 30, roll: 0.02 }),
     subjects: [["the empty lots", Tw(38, 0.5, 12), 5]] }),
   // When they're gone, the state gets the land: the holdouts' house alone among the lots, high and wide
   lots3: (s, f) => ({ light: "townT", dof: 0.5, focus: Tw(HOLD[0].x, 2.5, HOLD[0].z), puffs: roadSmoke(tt(s, f), 0.7),
     cam: mv(s, f, { pos: Tw(HOLD[0].x - 6, 4.5, -12), look: Tw(HOLD[0].x + 2, 2.4, HOLD[0].z), fov: 38, roll: 0.02 }, { pos: Tw(HOLD[0].x - 8, 6.5, -15), look: Tw(HOLD[0].x + 2, 2.4, HOLD[0].z), fov: 40, roll: -0.02 }),
-    subjects: [["their house", Tw(HOLD[0].x, 3, HOLD[0].z), 3]] }),
+    subjects: [["their house", HOUSE_FRONT, 3]] }),
   // For a hundred years, miners dug anthracite: two miners walking out of the dark tunnel toward us, picks on their shoulders
   miners: (s, f) => { const t0 = tt(s, f), p1 = Mn(0.55, 0, 6.6 - 0.8 * t0), p2 = Mn(-0.55, 0, 7.6 - 0.8 * t0);
     const pk = (p: V3, sx: number) => ({ g: add(p, 0.22 * sx, 1.32, -0.12), b: add(p, 0.5 * sx, 1.95, 0.35) });
@@ -80,7 +84,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ...next to the Odd Fellows Cemetery: from the near rim across the dump to the cemetery fence and its sign
   cemetery: (s, f) => ({ light: "pit", dof: 0.6, focus: Pt(2, pgy(2, 32) + 1.8, 32), puffs: vent(add(HEAPC, 1, 0.5, 0), secs(f), 3, 2, 0.4, 1.2, 0.3, SMOKE, 0.3, 2),
     cam: mv(s, f, { pos: Pt(-1.5, 2.6, 2.2), look: Pt(2, pgy(2, 32) + 1.4, 32), fov: 24, roll: 0.02 }, { pos: Pt(0.5, 2.5, 2.6), look: Pt(2, pgy(2, 32) + 1.6, 32), fov: 21, roll: -0.02 }),
-    subjects: [["the cemetery sign", Pt(2, pgy(2, 32) + 2.2, 32), 0.6], ["the dump", HEAPC, 1.5]] }),
+    subjects: [["the cemetery sign", Pt(2, pgy(2, 32) + 2.2, 32), 0.6]] }),
   // What nobody had sealed off was an opening in the wall of that pit: smoke from the heap drifting into it
   opening: (s, f) => { const t0 = tt(s, f);
     return { light: "pit", dof: 1, focus: OPEN, heat: 0.3, key: HEAPC,
@@ -103,20 +107,20 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // in 1979 the mayor, John Coddington, who also ran the gas station: the station, Coddington by his tanks' fill caps
   gas: (s, f) => ({ light: "town62", dof: 0.8, focus: add(CODD, 0, 1.4, 0),
     people: [P("codd", CODD, "neutral", 1)],
-    cam: mv(s, f, { pos: Tw(GAS.x + 7.5, 1.8, -3.0), look: Tw(GAS.x - 0.6, 2.0, 9.5), fov: 36, roll: 0.03 }, { pos: Tw(GAS.x + 6.2, 1.75, -2.2), look: Tw(GAS.x - 0.8, 2.0, 9.5), fov: 36, roll: -0.02 }),
+    cam: mv(s, f, { pos: Tw(GAS.x - 5.5, 1.8, -2.5), look: Tw(GAS.x - 1.6, 1.9, 9.5), fov: 36, roll: 0.03 }, { pos: Tw(GAS.x - 4.8, 1.75, -1.8), look: Tw(GAS.x - 1.8, 1.9, 9.5), fov: 36, roll: -0.02 }),
     subjects: [["the gas station", Tw(GAS.x, 2.6, 11), 4], ["John Coddington", add(CODD, 0, 1.4, 0), 0.3]] }),
   // ...dipped a stick into one of his underground fuel tanks. It came up hot: close, the stick lifts out, heat off it
   dip: (s, f) => { const t0 = tt(s, f), up = smooth((f - wordAt(21, "came")) / 14), hand = add(CODD, 0.1, 0.95 + 0.35 * up, -0.35), end = add(CAP, 0, -0.55 + 1.0 * up, 0.1 * up);
     return { light: "town62", dof: 1.5, focus: L3(hand, end, 0.6), people: [P("codd", CODD, up > 0.4 ? "shock" : "stern", -1, { hw: [hand], headTilt: 0.18 })],
       tools: [{ kind: "stick", g: hand, b: end }],
       puffs: up > 0.2 ? vent(add(end, 0, 0.05, 0), t0, 3, 0.9, 0.12, 0.45, 0.4 * up, [0.92, 0.92, 0.94], 0.1, 1) : [],
-      cam: mv(s, f, { pos: Tw(GAS.x - 0.2, 1.25, 7.0), look: L3(add(CODD, 0, 1.2, 0), CAP, 0.5), fov: 42, roll: -0.04 }, { pos: Tw(GAS.x - 0.3, 1.2, 7.3), look: L3(add(CODD, 0, 1.2, 0), CAP, 0.5), fov: 40, roll: 0.03 }),
+      cam: mv(s, f, { pos: Tw(GAS.x - 3.7, 2.2, 5.0), look: Tw(GAS.x - 3.3, 0.85, 9.5), fov: 40, roll: -0.04 }, { pos: Tw(GAS.x - 3.65, 2.15, 5.3), look: Tw(GAS.x - 3.3, 0.85, 9.5), fov: 39, roll: 0.03 }),
       subjects: [["the stick", L3(hand, end, 0.5), 0.15], ["the fill cap", CAP, 0.1]] }; },
   // He lowered a thermometer down on a string: lower, at the cap, the string going down into the tank
   thermo: (s, f) => { const u = smooth((f - s.a) / Math.max(1, s.b - s.a)), hand = add(CODD, 0.05, 1.0, -0.4), end = add(CAP, 0, -0.2 - 0.8 * u, 0);
     return { light: "town62", dof: 2, focus: add(CAP, 0, 0.3, 0), people: [P("codd", CODD, "stern", -1, { hw: [hand], headTilt: 0.2 })],
       tools: [{ kind: "stick", g: hand, b: end }],
-      cam: mv(s, f, { pos: Tw(GAS.x - 2.5, 0.8, 8.3), look: add(CAP, 0.2, 0.75, 0.3), fov: 44, roll: 0.04 }, { pos: Tw(GAS.x - 2.6, 0.75, 8.5), look: add(CAP, 0.2, 0.75, 0.3), fov: 42, roll: -0.03 }),
+      cam: mv(s, f, { pos: Tw(GAS.x - 4.0, 1.7, 6.0), look: Tw(GAS.x - 3.3, 0.8, 9.5), fov: 44, roll: 0.04 }, { pos: Tw(GAS.x - 3.95, 1.7, 6.2), look: Tw(GAS.x - 3.3, 0.8, 9.5), fov: 43, roll: -0.03 }),
       subjects: [["the fill cap", CAP, 0.1]] }; },
   // By now, families had gas monitors in their homes: the monitor on the cellar wall, its red light on
   monitor: (s, f) => ({ light: "cellar", dof: 1.5, focus: Rm(0.75, 1.5, ROOM.z1), key: Rm(0.4, 2.35, 0.2),
@@ -166,7 +170,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ...tell me in the comments: the smoking road, wide, settling
   endhook: (s, f) => ({ light: "townT", dof: 0.6, focus: Tw(2, 0.6, 2), puffs: roadSmoke(tt(s, f)),
     cam: mv(s, f, { pos: Tw(-11, 2.8, -9.5), look: Tw(4, 0.9, 3.5), fov: 38, roll: -0.03 }, { pos: Tw(-9, 2.4, -8), look: Tw(4, 0.9, 3.5), fov: 38, roll: 0.02 }),
-    subjects: [["the smoking crack", Tw(0, 0.4, crackZ(0)), 4], ["the holdout house", Tw(HOLD[0].x, 3.2, HOLD[0].z), 3]] }),
+    subjects: [["the smoking crack", Tw(0, 0.4, crackZ(0)), 4], ["the holdout house", HOUSE_FRONT, 3]] }),
   // the thumbnail: low on the cracked road, smoke pouring up, the holdout house behind
   thumb: () => ({ light: "townT", dof: 1, focus: Tw(1.5, 0.6, 1.2), puffs: roadSmoke(2.2, 1.25),
     cam: { pos: Tw(-3.4, 1.1, -3.6), look: Tw(5, 1.4, 6), fov: 40, roll: 0.03 } }),
