@@ -41,13 +41,13 @@ const grafSmoke = (t0: number) => [26, 30.5, 35, 39].flatMap((x, i) => vent(Tw(x
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ---------------- straight from the Short ----------------
-  hook: R("hook"), years: R("years", (st) => subj([["the crack", Tw(-6.2, 0.35, crackZ(-6.2)), 0.4]])(st)), burning: R("burning"), under: R("under"), zip: R("zip"),
+  hook: R("hook"), years: R("years", (st) => subj([["the crack", Tw(2.2, 0.35, crackZ(2.2)), 0.4]])(st)), burning: R("burning"), under: R("under"), zip: R("zip"),
   tunnels: R("tunnels"), street: R("street"), council: R("council", tilt(-0.3)), dump: R("dump"), five: R("five"), heap: R("heap"), heap2: R("heap"),
   light: R("light"), light2: R("light"), hose: R("hose"), back: R("back"), reach: R("reach"), pitwide: R("pitwide"),
   under2: R("fire"), trench: R("trench"), flush: R("flush"), nothing: R("nothing"), yards: R("yards"), cellar: R("cellar"),
   boy: R("boy"), todd: R("todd"), fell: R("fell"), cousin: R("cousin", (st) => tilt(-0.1)(far(st, 1.4))), deep: R("deep"),
   money: R("money"), boxes: R("boxes"), houses: R("houses"), refused: R("refused"), refused2: R("refused", (st) => far(st, 1.35)),
-  stay: R("stay", (st) => subj([["their house", HOUSE_FRONT, 1]])(st)), route: R("years", (st) => subj([["the crack", Tw(-6.2, 0.35, crackZ(-6.2)), 0.4]])(far(st, 1.15))), five2020: R("five2020"), fire: R("fire"),
+  stay: R("stay", (st) => subj([["their house", HOUSE_FRONT, 1]])(st)), route: R("years", (st) => subj([["the crack", Tw(2.2, 0.35, crackZ(2.2)), 0.4]])(far(st, 1.15))), five2020: R("five2020"), fire: R("fire"),
   // the ground gives way on this narration's "gave"
   open: R("open", tilt(-0.3), () => [wordAt(28, "gave"), SW(6, "open")]),
 
