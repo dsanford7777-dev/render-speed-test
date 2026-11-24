@@ -171,6 +171,12 @@ export const BOARDS: Record<string, React.FC<G>> = {
   // ---------------- today ----------------
   n250: num("250 more years?", "at the rate it's burning", { col: RED, m: 2, size: 200 }),
   n49: num("~$49 million", "to fight the fire and move the town", { col: RED, m: 2 }),
-  question: say([{ s: "Take the buyout...", size: 130 }, { s: "or stay?", cue: [52, "stayed"], col: RED, size: 160 }], { dark: true, glyph: "question", m: 4 }),
+  // kept left of x ~1400: the subscribe card and mascot are still on the right when this board comes in
+  question: ({ t, d, c }) => (
+    <Paper tone="#141a2a"><Mv t={t} d={d} m={4}>
+      <At x={740} y={400} s={pop(t, 0)}><T size={100} col="#fff">Take the buyout...</T></At>
+      <At x={740} y={580} s={pop(t, at([52, "stayed"], c))}><T size={150} col={RED}>or stay?</T></At>
+    </Mv></Paper>
+  ),
 };
 void FONT; void lerp; void Label;
