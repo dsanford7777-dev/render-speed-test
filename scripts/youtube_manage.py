@@ -64,6 +64,7 @@ def main():
             if "selfDeclaredMadeForKids" not in st:
                 st["selfDeclaredMadeForKids"] = cur.get("madeForKids", False)
             st["privacyStatus"] = "public"
+            st["publishAt"] = None  # an explicit null clears a schedule; leaving it out keeps the video private until then
             yt.videos().update(part="status", body={"id": vid, "status": st}).execute()
             now = yt.videos().list(part="status", id=vid).execute()["items"][0]["status"]
             say(f"- {vid} ({ch}): privacy now {now.get('privacyStatus')}, publish at {now.get('publishAt', 'none')}")
