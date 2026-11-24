@@ -133,8 +133,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["the smoke from the crack", Tw(4.5, 1.2, crackZ(4.5)), 0.6], ["the holdout house", Tw(HOLD[0].x, 3.2, HOLD[0].z - 3.5), 4]] }),
   // ...for 64 years: up and back, the crack running across the whole street, smoking all along it
   years: (s, f) => ({ light: "townT", dof: 0, focus: Tw(1, 0.5, 2), puffs: roadSmoke(t(f)),
-    cam: kick(move({ pos: Tw(-2.5, 3.2, -9.0), look: Tw(2, 0.6, 2.5), fov: 50, roll: -0.05 }, { pos: Tw(-5.5, 7.5, -15), look: Tw(1, 0.6, 3.5), fov: 50, roll: 0.03 }, f, s.a, s.b, smooth, 0), f, W(0, "64"), 0.8),
-    subjects: [["the crack", Tw(0.4, 0.1, crackZ(0.4)), 0.3]] }),
+    cam: kick(move({ pos: Tw(-12.5, 1.0, -2.6), look: Tw(4, 0.6, 1.0), fov: 48, roll: -0.06 }, { pos: Tw(-11.5, 2.2, -3.4), look: Tw(4, 0.8, 1.0), fov: 48, roll: 0.03 }, f, s.a, s.b, smooth, 0), f, W(0, "64"), 0.8),
+    subjects: [["the crack", Tw(-3.1, 0.1, crackZ(-3.1)), 0.3]] }),
   // ...its dump cleaned up: low by the heap on the pit floor, rubbish of every kind
   heap: (s, f) => ({ light: "pit", dof: 1, focus: HEAPC, puffs: vent(add(HEAPC, 1, 0.5, 0), t(f), 3, 2, 0.4, 1.2, 0.3, SMOKE, 0.3, 2),
     cam: orbit(s, f, add(HEAPC, 0, 0.2, 0), [-30, -10], [6.4, 5.6], [1.3, 1.0], 48, [-0.05, 0.04]),
@@ -359,7 +359,7 @@ export type Item = { key: string; kind: "stamp" | "pill" | "call"; text: string;
 const B = (g: string) => SHOTS.find((x) => x.g === g)!.b;
 const S0 = (g: string) => SHOTS.find((x) => x.g === g)!.a;
 export const ITEMS = (): Item[] => ([
-  { key: "64", kind: "stamp", text: "64 YEARS", f0: W(0, "64"), f1: B("hook"), y: 23, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 140 },
+  { key: "64", kind: "stamp", text: "64 YEARS", f0: W(0, "64"), f1: B("years"), y: 23, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 140 },
   { key: "pa", kind: "pill", text: "CENTRALIA", sub: "Pennsylvania", f0: W(1, "centralia"), f1: B("street"), y: 22, size: 84 },
   { key: "1962", kind: "pill", text: "MAY 1962", sub: "cleaning up the town dump", f0: W(2, "may"), f1: B("dump"), y: 22, size: 84 },
   { key: "5", kind: "call", text: "5 FIREFIGHTERS", f0: W(2, "5"), f1: B("five"), y: 23, fg: "#ffd166", size: 110 },
