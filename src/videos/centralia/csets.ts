@@ -9,7 +9,7 @@ import { M, T, noInk, shadowAll, glow, sheet, nz, mountain, rodGeo, houseAt, fla
 import { brickTex, labelTex, wallpaperTex, panelTex, clockTex } from "../frozen/paint";
 import { NOINK } from "../bridge/ink";
 import { caSkyTex, signTex, repC } from "../cahaba/cpaint";
-import { GAS, SET, ROAD_Z0, ROAD_Z1, WALK_Z, FRONT_Z, crackZ, HOLD, PIT_C, RX, RZ, DEPTH, SEAM, pitY, HEAP, RIM, TRUCK, TRENCH, BORE, TUN, HOUSE_Z, TREE, HOLE, HOLE_R, ROOM, DESK } from "./place";
+import { GAS, OPENING, SET, ROAD_Z0, ROAD_Z1, WALK_Z, FRONT_Z, crackZ, HOLD, PIT_C, RX, RZ, DEPTH, SEAM, pitY, HEAP, RIM, TRUCK, TRENCH, BORE, TUN, HOUSE_Z, TREE, HOLE, HOLE_R, ROOM, DESK } from "./place";
 import { graffitiTex as ctexG, asphaltTex, lineTex, crackTex, strataTex, coalTex, emberTex, ceSkyTex, snowGrassTex } from "./cepaint";
 
 const M4 = (x: number, y: number, z: number, ry = 0, s = 1) => new THREE.Matrix4().compose(V(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, ry, 0)), V(s, s, s));
@@ -114,7 +114,7 @@ export function buildTown(): TownSet {
   const skies = { day: skyPl(G, caSkyTex("day"), "#5f95cf", ox, 0, 600, 420, -60), haze: skyPl(G, ceSkyTex("haze"), "#7aa0c8", ox, 0, 600, 420, -60) };
   const dust = dustMotes(V(ox, 1.6, 0), V(16, 3, 10), 160, new THREE.Color(1, 0.96, 0.9), 0.03, 0.4); G.add(dust.points);
   noInk(G);
-  const turf = (x: number, z: number) => { const lx = x - ox; if (z > ROAD_Z0 - 1.7 && z < WALK_Z + 1.7) return null; if (Math.abs(lx) < 10 && z > FRONT_Z - 0.3 && z < FRONT_Z + 8.4) return null; for (const h of HOLD) if (Math.abs(lx - h.x) < 3.6 && z > h.z - 6 && z < h.z + 3.8) return null; return gy(lx, z); };
+  const turf = (x: number, z: number) => { const lx = x - ox; if (z > ROAD_Z0 - 1.7 && z < WALK_Z + 1.7) return null; if (Math.abs(lx) < 10 && z > FRONT_Z - 0.3 && z < FRONT_Z + 8.4) return null; if (Math.abs(lx - GAS.x) < 9.6 && z > 5.4 && z < 16.6) return null; for (const h of HOLD) if (Math.abs(lx - h.x) < 3.6 && z > h.z - 6 && z < h.z + 3.8) return null; return gy(lx, z); };
   return { group: G, old, now, crack, condemned, van, lot, skies, turf, dust, drift: (t) => dust.drift(t) };
 }
 
@@ -169,6 +169,13 @@ export function buildPit(): PitSet {
     for (const y of [0.4, 1.05]) for (let k = 0; k < 34; k++) { const x = -17 + k, ya = pitGround(ox + x, z0) + y; b.add(B(ox + x, ya, z0 - 0.03, ox + x + 1, ya + 0.05, z0 + 0.03), iron); }
     sign(G, "ODD FELLOWS CEMETERY", ox + 2, pitGround(ox + 2, z0) + 2.2, z0 - 0.06, 4.8, 0.7, "#2a2a2e", "#e9e2cf");
     b.add(B(ox - 0.6, pitGround(ox, z0) - 0.1, z0 - 0.05, ox - 0.45, pitGround(ox, z0) + 2.6, z0 + 0.05), iron); b.add(B(ox + 4.45, pitGround(ox + 4.5, z0) - 0.1, z0 - 0.05, ox + 4.6, pitGround(ox + 4.5, z0) + 2.6, z0 + 0.05), iron); }
+  // the opening in the pit wall nobody sealed: a short dark throat into the rock behind the heap, toward the old
+  // workings (OPENING in place.ts); the wall itself clips its front so its edge sits in the rock
+  { const [lx, lz] = OPENING, x = ox + lx, e = 0.25, y = pitGround(x, lz), gx = (pitGround(x + e, lz) - pitGround(x - e, lz)) / (2 * e), gz = (pitGround(x, lz + e) - pitGround(x, lz - e)) / (2 * e);
+    const n = V(-gx, 1, -gz).normalize(), q = new THREE.Quaternion().setFromUnitVectors(V(0, 0, 1), n);
+    const hole = new THREE.Mesh(new THREE.CircleGeometry(1.0, 20), new THREE.MeshBasicMaterial({ color: "#070406" })); hole.scale.set(1.25, 0.85, 1); hole.quaternion.copy(q); hole.position.copy(V(x, y, lz).addScaledVector(n, 0.12)); G.add(hole);
+    const rk: Fol = []; for (let i = 0; i < 11; i++) { const a = (i / 11) * Math.PI * 2, o = V(Math.cos(a) * 1.3, Math.sin(a) * 0.95, 0).applyQuaternion(q); rk.push({ g: rockGeo(0.22 + 0.06 * (i % 3), i + 40, 0, 0.45), m: new THREE.Matrix4().compose(V(x, y, lz).add(o).addScaledVector(n, 0.05), new THREE.Quaternion().setFromEuler(new THREE.Euler(i, i * 0.7, 0)), V(1.2, 0.8, 1)) }); }
+    const rim = new THREE.Mesh(mergeFacets(rk), lam("ceOpenRim", () => ({ map: rockTex("ceOpenR", "#5a4a3c"), vertexColors: true, flatShading: true }))); shadowAll(rim); G.add(rim); }
   // the trench (later years): dirt heaped along both sides; the borehole: a steel casing, a pipe and a hose feeding it
   { const dirt = lam("ceSpoil", () => ({ map: dirtTex("ceSpoilT", "#6a5440"), vertexColors: true, flatShading: true })), rk: Fol = [];
     for (let i = 0; i < 24; i++) { const x = TRENCH[0] - 10.5 + i * 0.9, s = i % 2 ? 1.6 : -1.6; rk.push({ g: rockGeo(0.7 + 0.25 * (i % 3), i + 30, 1, 0.5), m: new THREE.Matrix4().compose(V(ox + x, pitGround(ox + x, TRENCH[2] + s) - 0.1, TRENCH[2] + s), new THREE.Quaternion(), V(1.4, 0.7, 1.0)) }); }
@@ -303,8 +310,8 @@ export function buildRoom(): RoomSet {
     for (const sx of [-3.6, -1.6]) bl.add(B(ox + sx - 0.04, 0, z1 - 0.55, ox + sx + 0.04, 1.75, z1 - 0.45), wood);
     // floor cracks the gas comes up through
     for (const [x, z, a] of [[0.4, 0.2, 0.3], [-1.0, -0.6, -0.5], [1.2, -1.4, 0.9]] as [number, number, number][]) { const c = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.4), new THREE.MeshLambertMaterial({ map: crackTex(false), transparent: true, alphaTest: 0.2 })); c.rotation.set(-Math.PI / 2, 0, a); c.position.set(ox + x, 0.01, z); cellar.add(c); } }
-  { const mon = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.36), lam("ceMonitor", () => ({ map: labelTex("GAS|MONITOR", "#e9e2cf", "rgba(30,30,40,0.95)", 1) }))); mon.rotation.y = Math.PI; mon.position.set(ox - 0.9, 1.55, ROOM.z1 - 0.02); cellar.add(mon);
-    const led = new THREE.Mesh(new THREE.CircleGeometry(0.035, 12), new THREE.MeshBasicMaterial({ color: new THREE.Color(2.4, 0.2, 0.15) })); led.rotation.y = Math.PI; led.position.set(ox - 0.75, 1.42, ROOM.z1 - 0.03); cellar.add(led); }
+  { const mon = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.36), lam("ceMonitor", () => ({ map: labelTex("GAS|MONITOR", "#e9e2cf", "rgba(30,30,40,0.95)", 1) }))); mon.rotation.y = Math.PI; mon.position.set(ox + 0.75, 1.55, ROOM.z1 - 0.02); cellar.add(mon);
+    const led = new THREE.Mesh(new THREE.CircleGeometry(0.035, 12), new THREE.MeshBasicMaterial({ color: new THREE.Color(2.4, 0.2, 0.15) })); led.rotation.y = Math.PI; led.position.set(ox + 0.9, 1.42, ROOM.z1 - 0.03); cellar.add(led); }
   bl.build(cellar, true);
   const lamp = new THREE.PointLight("#ffe2b8", 0, 14, 1.3); lamp.position.set(ox - 0.4, h - 0.5, 0.4); council.add(lamp); { const sh = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.3, 0.25, 12, 1, true), M("ceShade", "#e9e2cf")); sh.position.set(ox - 0.4, h - 0.35, 0.4); council.add(sh); }
   const bulb = new THREE.PointLight("#ffd8a0", 0, 12, 1.3); bulb.position.set(ox + 0.4, h - 0.65, 0.2); cellar.add(bulb); flame(cellar, V(ox + 0.4, h - 0.6, 0.2), 0.05);

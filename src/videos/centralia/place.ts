@@ -41,6 +41,8 @@ export const HEAP: V3 = [2, -DEPTH, 18];
 export const RIM: V3 = [0, 0, 16 - RZ - 1.5];
 export const TRUCK: V3 = [8, 0, RIM[2] - 2.2];
 /** the trench and the borehole (later years), off to screen right (-x) */
+/** the opening in the far wall that led down into the old tunnels (set-local x, z of the wall face) */
+export const OPENING: [number, number] = [-5, 23.6];
 export const TRENCH: V3 = [-34, 0, 4], BORE: V3 = [-46, 0, 2];
 export const PIT_SUN: V3 = [-0.45, 0.6, -0.66];
 
