@@ -26,7 +26,9 @@ const est = (): [number, number][] => { let t = 0; return SEGMENTS.map((s) => { 
 // __SEG_TIMES__
 export const SEG_TIMES: [number, number][] = [[0.0, 4.52], [4.9, 9.02], [9.38, 17.52], [17.88, 22.92], [23.22, 28.88], [28.88, 36.28], [36.76, 42.38], [42.66, 48.98], [49.3, 56.0], [56.3, 60.38], [60.76, 63.06], [63.38, 66.72]];
 // __END_SEG_TIMES__
-export const TOTAL = Math.ceil((SEG_TIMES[SEG_TIMES.length - 1][1] + 0.9) * FPS);
+/** the voice's end; the film runs on 100 frames past it into the loop shot, where the subscribe card plays */
+export const VOICE_END = Math.ceil((SEG_TIMES[SEG_TIMES.length - 1][1] + 0.35) * FPS);
+export const TOTAL = VOICE_END + 100;
 
 /** caption words with times (seconds). Estimated: each segment's span shared by word length; align.py swaps in real ones */
 export type Word = { w: string; s: number; e: number; seg: number };
