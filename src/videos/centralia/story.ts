@@ -12,15 +12,15 @@ export type ShotDef = { id: number; g: string; a: number; b: number; k: "3d" };
 const A = (seg: number) => (seg === 0 ? 0 : Math.round(SEG_TIMES[seg][0] * FPS) - 2);
 const W = (seg: number, w: string) => wordAt(seg, w);
 const CUTS: [string, number][] = [
-  ["hook", 0], ["burning", W(0, "still") - 2],
+  ["hook", 0], ["years", W(0, "for") - 2], ["burning", W(0, "still") - 2],
   ["street", A(1)], ["tunnels", W(1, "built") - 2],
-  ["dump", A(2)], ["council", W(2, "so") - 2], ["five", W(2, "5") - 2], ["light", W(2, "set") - 4],
+  ["dump", A(2)], ["heap", W(2, "its") - 2], ["council", W(2, "so") - 2], ["five", W(2, "5") - 2], ["light", W(2, "set") - 4],
   ["pitwide", A(3)], ["seam", W(3, "flames") - 2],
   ["hose", A(4)], ["back", W(4, "came") - 6], ["under", W(4, "because") - 2], ["reach", W(4, "where") - 2],
   ["trench", A(5)], ["flush", W(5, "flushed") - 2], ["nothing", W(5, "nothing") - 2], ["yards", W(5, "smoke") - 2], ["cellar", W(5, "gas") - 2],
   ["boy", A(6)], ["todd", W(6, "todd") - 4], ["open", W(6, "felt") - 2],
   ["fell", A(7)], ["cousin", W(7, "until") - 2], ["deep", W(7, "hole") - 4],
-  ["money", A(8)], ["houses", W(8, "state") - 2], ["zip", W(8, "postal") - 2],
+  ["money", A(8)], ["boxes", W(8, "buy") - 2], ["houses", W(8, "state") - 2], ["zip", W(8, "postal") - 2],
   ["refused", A(9)], ["stay", W(9, "won") - 2],
   ["five2020", A(10)],
   ["fire", A(11)], ["end", VOICE_END],
@@ -103,7 +103,7 @@ const vent = (p: V3, tt: number, n = 4, rise = 2.6, s0 = 0.4, s1 = 1.8, a = 0.6,
   return { p: add(p, lean * u * u + 0.08 * Math.sin(seed + i), rise * u, 0.06 * Math.cos(i + seed)), s: s0 + (s1 - s0) * u, c, a: a * Math.sin(Math.PI * Math.min(1, u * 1.15)) }; });
 /** flames on a heap: additive orange puffs low down, smoke above */
 const flames = (c: V3, tt: number, k: number, r = 3, n = 16): Puff[] => Array.from({ length: n }, (_, i) => { const a = i * 2.39, d = r * Math.sqrt((i + 0.5) / n), u = (tt * 1.4 + i * 0.13) % 1;
-  return { p: add(c, Math.cos(a) * d, 0.3 + 2.2 * u * k + 0.6 * (1 - d / r), Math.sin(a) * d * 0.8), s: (1.2 + 1.6 * (1 - u)) * k, c: [1.0, 0.36 + 0.3 * (1 - u), 0.06] as [number, number, number], a: Math.min(1, 1.2 * (1 - u) * k), add: true }; });
+  return { p: add(c, Math.cos(a) * d, 0.3 + 1.8 * u * k + 0.5 * (1 - d / r), Math.sin(a) * d * 0.8), s: (0.7 + 1.0 * (1 - u)) * k, c: [1.0, 0.34 + 0.25 * (1 - u), 0.05] as [number, number, number], a: Math.min(0.85, 0.9 * (1 - u) * k), add: true }; });
 const smokeCol = (c: V3, tt: number, k: number, n = 10, h = 14): Puff[] => Array.from({ length: n }, (_, i) => { const u = (tt * 0.2 + i / n) % 1;
   return { p: add(c, 2.5 * Math.sin(i * 1.7) * (1 - u) + 3 * u * u, 1.5 + h * u, 1.5 * Math.cos(i * 2.3)), s: (1.6 + 5.5 * u) * k, c: [0.34, 0.32, 0.32], a: 0.75 * (1 - u * 0.8) * k }; });
 const sparks = (c: V3, tt: number, n: number): Card[] => Array.from({ length: n }, (_, i) => { const u = (tt * 0.8 + i / n) % 1; return { kind: "spark" as const, p: add(c, 1.8 * Math.sin(i * 2.7) * (0.4 + u), 0.6 + 4.5 * u, 1.2 * Math.cos(i * 1.9)), spin: i + u * 5, s: 0.7 + 0.5 * (1 - u) }; });
@@ -112,7 +112,7 @@ const sparks = (c: V3, tt: number, n: number): Card[] => Array.from({ length: n 
 const SW = 0.14; // sidewalk height
 const VENTS = [-9.5, -6.2, -3.1, 0.4, 2.2, 3.6, 5.2, 6.8, 9.9];
 const roadSmoke = (tt: number, k = 1): Puff[] => VENTS.flatMap((x, i) => vent(Tw(x, 0.1, crackZ(x)), tt, 4, 4.0 * k, 0.4, 2.4 * k, 0.45, SMOKE, 0.6, i));
-const HOOK_POS: V3 = Tw(-0.5, 1.0, -4.5), HOOK_LOOK: V3 = Tw(12.5, 2.2, 9), HOOK = { fov: 50, roll: 0.035 };
+const HOOK_POS: V3 = Tw(-0.5, 1.7, -4.5), HOOK_LOOK: V3 = Tw(12.5, 1.2, 9), HOOK = { fov: 50, roll: 0.035 };
 // frame 0 is the same framing as the frames after it (a slow creep, no snap), and it is also the last frame (the loop)
 const hookCam = (f: number) => move({ pos: HOOK_POS, look: HOOK_LOOK, ...HOOK }, { pos: L3(HOOK_POS, HOOK_LOOK, 0.05), look: HOOK_LOOK, ...HOOK }, f, 0, 14, smooth, 0);
 const hookState = (tt: number): Partial<St3> => ({ light: "townT", puffs: roadSmoke(tt) });
@@ -130,7 +130,21 @@ const ffs = (expr: Expr, look = 0) => ["ff1", "ff2", "ff3", "ff4", "ff5"].map((w
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // This town has been on fire for 64 years: the cracked road today, smoke pouring out of it (frame 0 is already close)
   hook: (s, f) => ({ ...hookState(t(f)), light: "townT", dof: 1, focus: Tw(3.6, 0.4, 1.0), cam: kick(hookCam(f), f, W(0, "64"), 0.8),
-    subjects: [["the crack", Tw(3.6, 0.1, crackZ(3.6)), 0.2], ["the holdout house", Tw(HOLD[0].x, 3.2, HOLD[0].z - 3.5), 0.5]] }),
+    subjects: [["the crack", Tw(6.8, 0.1, crackZ(6.8)), 0.2], ["the holdout house", Tw(HOLD[0].x, 3.2, HOLD[0].z - 3.5), 0.5]] }),
+  // ...for 64 years: up and back, the crack running across the whole street, smoking all along it
+  years: (s, f) => ({ light: "townT", dof: 0, focus: Tw(1, 0.5, 2), puffs: roadSmoke(t(f)),
+    cam: kick(move({ pos: Tw(-2.5, 3.2, -9.0), look: Tw(2, 0.6, 2.5), fov: 50, roll: -0.05 }, { pos: Tw(-5.5, 7.5, -15), look: Tw(1, 0.6, 3.5), fov: 50, roll: 0.03 }, f, s.a, s.b, smooth, 0), f, W(0, "64"), 0.8),
+    subjects: [["the crack", Tw(0.4, 0.1, crackZ(0.4)), 0.3]] }),
+  // ...its dump cleaned up: low by the heap on the pit floor, rubbish of every kind
+  heap: (s, f) => ({ light: "pit", dof: 1, focus: HEAPC, puffs: vent(add(HEAPC, 1, 0.5, 0), t(f), 3, 2, 0.4, 1.2, 0.3, SMOKE, 0.3, 2),
+    cam: orbit(s, f, add(HEAPC, 0, 0.2, 0), [-30, -10], [6.4, 5.6], [1.3, 1.0], 48, [-0.05, 0.04]),
+    subjects: [["the rubbish heap", HEAPC, 1.5]] }),
+  // ...to buy out the town: close on the family carrying their boxes to the van
+  boxes: (s, f) => { const tt = t(f - s.a);
+    return { light: "town62", van: true, dof: 1, focus: Tw(-8.6, 1.2, 4.8),
+      people: [carrying(walker("man", -8.0, SW, 4.6, -0.7, tt + 2, "neutral"), Tw(-8.5 - 0.7 * (tt + 2), 1.1, 4.3)), P("wife", Tw(-8.9, SW, 5.3), "nervous", 1), P("kid", Tw(-8.4, SW, 5.0), "nervous", 1)],
+      cam: move({ pos: Tw(-5.6, 1.5, -0.6), look: Tw(-9.2, 1.2, 4.8), fov: 44, roll: -0.05 }, { pos: Tw(-6.0, 1.45, 0.0), look: Tw(-9.3, 1.2, 4.8), fov: 42, roll: 0.04 }, f, s.a, s.b, smooth, 0),
+      subjects: [["the family", Tw(-8.8, 1.3, 5.0), 0.3]] }; },
   // ...and it's still burning: down into the crack, orange inside
   burning: (s, f) => ({ light: "townT", dof: 1, focus: Tw(-0.6, 0.08, crackZ(-0.6)), puffs: roadSmoke(t(f)),
     cam: kick(snap(Tw(-0.2, 0.9, crackZ(-0.6) - 1.9), Tw(-0.6, 0.06, crackZ(-0.6)), f, s.a, { fov: 46, roll: -0.08 }, 2.2, 6), f, W(0, "burning"), 1.0),
@@ -148,7 +162,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["the coal car", Mn(0, 0.9, 9.8), 0.4]] }),
   // In May of 1962, the town wanted its dump cleaned up: the dump in the old pit, by day
   dump: (s, f) => ({ light: "pit", dof: 1, focus: HEAPC, puffs: vent(add(HEAPC, 1, 0.5, 0), t(f), 3, 2, 0.4, 1.2, 0.3, SMOKE, 0.3, 2),
-    cam: move({ pos: Pt(-5, 4.2, 0.5), look: add(HEAPC, 0, -0.5, 0), fov: 46, roll: 0.05 }, { pos: Pt(3, 3.0, 2.0), look: add(HEAPC, 0, -0.3, 0), fov: 44, roll: -0.04 }, f, s.a, s.b, smooth, 0),
+    cam: move({ pos: Pt(-5, 3.0, 6.0), look: add(HEAPC, 0, -0.5, 0), fov: 46, roll: 0.05 }, { pos: Pt(3, 2.5, 7.0), look: add(HEAPC, 0, -0.3, 0), fov: 44, roll: -0.04 }, f, s.a, s.b, smooth, 0),
     subjects: [["the rubbish heap", HEAPC, 0.8]] }),
   // So the council hired five volunteer firefighters: the council at the table, one points at the plan
   council: (s, f) => { const p1 = Rm(-0.62, 0, 2.0), p2 = Rm(0, 0, 2.1), p3 = Rm(0.62, 0, 2.0);
@@ -170,7 +184,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // The problem? That dump sat in an old strip-mine pit: a crane up and out, the walls in layers, the fire in the bottom
   pitwide: (s, f) => { const tt = t(f);
     return { light: "pitD", dof: 0, focus: HEAPC, fire: 1, heat: 0.8, key: HEAPC, puffs: [...flames(HEAPC, tt, 1, 3.2, 12), ...smokeCol(HEAPC, tt, 1, 10, 16)],
-      cam: move({ pos: Pt(3, -5.5, 10.6), look: Pt(1.5, FLOOR + 1.2, 18), fov: 50, roll: 0.06 }, { pos: Pt(-8, 13, -12), look: Pt(1, FLOOR + 1.5, 16), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Pt(3, -5.5, 10.6), look: Pt(1.5, FLOOR + 1.2, 18), fov: 50, roll: 0.06 }, { pos: Pt(-4, 9, 2), look: Pt(1, FLOOR + 1.5, 17), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0),
       subjects: [["the pit wall", Pt(0, -4, PIT_C[2] + RZ * 0.85), 1.5], ["the fire", HEAPC, 1]] }; },
   // ...and most likely, the flames found a seam of coal: the black band in the wall starts to glow, spreading
   seam: (s, f) => { const tt = t(f), sp = clamp01((f - W(3, "seam") + 10) / 40) * 0.75 + 0.06;
@@ -178,7 +192,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: kick(move({ pos: Pt(-2.5, FLOOR + 2.0, 18.5), look: SEAMP, fov: 46, roll: 0.08 }, { pos: Pt(-1.0, FLOOR + 2.4, 20.0), look: add(SEAMP, 0.3, 0, 0), fov: 42, roll: -0.04 }, f, s.a, s.b, smooth, 0), f, W(3, "seam"), 0.8),
       subjects: [["the coal seam", SEAMP, 0.5]] }; },
   // They hosed it down: two firemen on the pit floor, water on the heap, steam
-  hose: (s, f) => { const tt = t(f - s.a), p1 = Pt(-3.6, FLOOR, 13.4), p2 = Pt(-1.2, FLOOR, 13.0), h1 = add(p1, -0.35, 1.1, 0.35), n1 = add(p1, -0.6, 1.3, 0.95), h2 = add(p2, -0.3, 1.1, 0.35), n2 = add(p2, -0.4, 1.3, 0.95);
+  hose: (s, f) => { const tt = t(f - s.a), p1 = Pt(-2.0, FLOOR, 13.6), p2 = Pt(-0.4, FLOOR, 13.0), h1 = add(p1, -0.35, 1.1, 0.35), n1 = add(p1, -0.6, 1.3, 0.95), h2 = add(p2, -0.3, 1.1, 0.35), n2 = add(p2, -0.4, 1.3, 0.95);
     const jet = (n: V3, i0: number): Puff[] => Array.from({ length: 8 }, (_, i) => { const u = (tt * 1.6 + i / 8 + i0) % 1; return { p: add(n, 0.3 + 2.6 * u * (HEAPC[0] - n[0]) / 3, 0.25 * Math.sin(Math.PI * u) - 0.4 * u * u, 0.6 + 3.8 * u), s: 0.3 + 0.5 * u, c: [0.82, 0.9, 1.0] as [number, number, number], a: 0.85 * (1 - u * 0.5) }; });
     return { light: "pit", dof: 1, focus: add(p2, 0, 1.2, 0), heat: 0.35, fire: 0.2, key: HEAPC,
       puffs: [...jet(n1, 0), ...jet(n2, 0.5), ...vent(add(HEAPC, 0, -0.3, -1), tt, 8, 4, 0.8, 3.2, 0.7, STEAM, 0.5, 1)],
@@ -196,7 +210,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // Because now it was burning underground, in the tunnels: in the tunnel, the fire coming toward us
   under: (s, f) => { const tt = t(f - s.a), bn = 0.4 + 0.6 * clamp01(tt / 2);
     return { light: "mineF", dof: 1, burn: bn, focus: Mn(0, 1.2, 16), key: Mn(0, 1.4, 18),
-      puffs: Array.from({ length: 12 }, (_, i) => { const u = (tt * 0.35 + i / 12) % 1; return { p: Mn(0.6 * Math.sin(i * 2.1), 2.1 - 0.2 * Math.sin(i), 30 - 26 * u), s: 1.0 + 1.6 * u, c: [0.28, 0.2, 0.18], a: 0.65 * Math.sin(Math.PI * u) }; }),
+      puffs: Array.from({ length: 12 }, (_, i) => { const u = (tt * 0.35 + i / 12) % 1; return { p: Mn(0.5 * Math.sin(i * 2.1), 1.45 - 0.15 * Math.sin(i), 30 - 26 * u), s: 0.6 + 0.9 * u, c: [0.28, 0.2, 0.18], a: 0.6 * Math.sin(Math.PI * u) }; }),
       cam: move({ pos: Mn(0.4, 1.2, 1.0), look: Mn(0, 1.1, 20), fov: 52, roll: -0.05 }, { pos: Mn(0.2, 1.3, 6.5), look: Mn(0, 1.2, 22), fov: 48, roll: 0.04 }, f, s.a, s.b, expo, 0),
       subjects: [["the burning tunnel", Mn(0, 1.2, 18), 1]] }; },
   // ...where no hose could reach: a fireman on the pit floor sprays the ground; the steam just rolls off
@@ -215,12 +229,13 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       people: [P("w1", p1, "stern", -1, { hw: [s1g, L3(s1g, s1b, 0.35)] }), P("w2", p2, "stern", 1, { hw: [pkg, L3(pkg, pkb, 0.3)] }), P("w3", p3, "neutral", 0, { hw: [add(p3, 0.2, 1.0, 0.3)] })],
       cards: dig < -0.2 ? [] : Array.from({ length: 8 }, (_, i) => { const u = ((tt * 1.3) % 1) * 1.5; return { kind: "chunk" as const, p: add(s1b, 0.3 * Math.sin(i * 2) * u, 0.3 + 1.2 * u - 1.4 * u * u, -0.4 * u), spin: i + u * 4, s: 0.5 + 0.2 * (i % 3) }; }),
       cam: move({ pos: Pt(TRENCH[0] + 3.4, y0 + 2.4, TRENCH[2] - 8.2), look: add(p2, 0, 0.7, 1.2), fov: 46, roll: 0.05 }, { pos: Pt(TRENCH[0] + 2.2, y0 + 2.2, TRENCH[2] - 8.0), look: add(p2, 0, 0.75, 1.2), fov: 46, roll: -0.04 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the trench", Pt(TRENCH[0] + 0.6, y0 - 0.2, TRENCH[2] - 0.7), 0.6]] }; },
+      subjects: [["the trench", Pt(TRENCH[0] + 0.6, y0 + 0.2, TRENCH[2] - 1.1), 0.6]] }; },
   // ...and flushed the mines: water pouring down the borehole, a man watching the gauge
   flush: (s, f) => { const y0 = pitGround(Pt(BORE[0], 0, 0)[0], BORE[2]), c = Pt(BORE[0], y0 + 1.0, BORE[2]);
-    return { light: "pit", dof: 1, focus: c, flush: true, people: [P("w2", Pt(BORE[0] - 1.6, y0, BORE[2] - 0.6), "stern", 1)],
-      puffs: vent(add(c, 0, 0.1, 0), t(f), 4, 1.2, 0.3, 0.9, 0.5, STEAM, 0.1, 3),
-      cam: kick(snap(add(c, 3.0, 0.9, -5.4), add(c, 0.2, 0.3, 0), f, s.a, { fov: 46, roll: 0.07 }, 1.5, 5), f, W(5, "flushed"), 0.8),
+    const tt = t(f), noz = Pt(BORE[0] + 0.15, y0 + 2.12, BORE[2] + 0.05);
+    return { light: "pit", dof: 1, focus: c, people: [P("w2", Pt(BORE[0] - 1.6, y0, BORE[2] - 0.6), "stern", 1)],
+      puffs: [...Array.from({ length: 14 }, (_, i) => { const u = (tt * 2.4 + i / 14) % 1; return { p: add(noz, 0.04 * Math.sin(i * 3), -1.15 * u, 0.04 * Math.cos(i * 2)), s: 0.22 + 0.06 * Math.sin(i * 1.7), c: [0.78, 0.88, 1.0] as [number, number, number], a: 0.9 }; }), ...vent(add(c, 0, 0.1, 0), tt, 4, 1.2, 0.3, 0.9, 0.5, STEAM, 0.1, 3)],
+      cam: kick(snap(add(c, -2.6, 1.0, -4.6), add(c, 0.1, 0.4, 0), f, s.a, { fov: 46, roll: 0.07 }, 1.5, 5), f, W(5, "flushed"), 0.8),
       subjects: [["the water down the borehole", add(c, 0.1, 0.45, 0), 0.2]] }; },
   // Nothing worked: the trench smoking along its whole length, the crew standing back
   nothing: (s, f) => { const tt = t(f - s.a), y0 = pitGround(Pt(TRENCH[0], 0, 0)[0], TRENCH[2] - 1.4);
@@ -247,7 +262,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   boy: (s, f) => { const tt = t(f - s.a);
     return { light: "yardW", hole: "closed", dof: 1, focus: Yd(-1.2, 1.0, 2.4), puffs: vent(Yd(HOLE[0], 0.02, HOLE[2]), tt, 3, 1.6, 0.3, 1.1, 0.5, STEAM, 0.2, 1),
       people: [P("todd", Yd(-1.6 + 0.55 * tt, 0, 0.6 + 0.35 * tt), "neutral", 1, { march: (tt * 1.6) % 1 })],
-      cam: orbit(s, f, Yd(-0.4, 1.2, 1.8), [-24, -8], [8.6, 7.8], [1.2, 0.8], 46, [0.04, -0.03]),
+      cam: orbit(s, f, Yd(-0.6, 1.0, 1.6), [-18, -4], [6.2, 5.4], [0.9, 0.6], 46, [0.04, -0.03]),
       subjects: [["the wisp of steam", Yd(HOLE[0], 0.8, HOLE[2]), 0.6]] }; },
   // ...a 12-year-old boy named Todd Domboski: close on him at the spot, looking down at it
   todd: (s, f) => { const p = Yd(HOLE[0] - 0.1, 0, HOLE[2] - 0.15);
@@ -258,7 +273,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ...felt the ground open under his feet: the ground gives way, earth falls in, he drops
   open: (s, f) => { const tt = t(f - s.a), f0 = W(6, "open"), u = clamp01((f - f0) / 8), p = Yd(HOLE[0], -0.9 * u * u, HOLE[2]);
     return { light: "yardW", hole: f >= f0 ? "open" : "closed", dof: 1, focus: add(p, 0, 0.8, 0),
-      puffs: f >= f0 ? vent(Yd(HOLE[0], -0.3, HOLE[2]), tt, 6, 2.6, 0.5, 2.0, 0.7, STEAM, 0.2, 3) : vent(Yd(HOLE[0] + 0.3, 0.02, HOLE[2] + 0.2), tt, 3, 1.4, 0.3, 1.0, 0.5, STEAM, 0.2, 2),
+      puffs: f >= f0 ? vent(Yd(HOLE[0], -0.3, HOLE[2]), tt, 6, 2.6, 0.4, 1.6, 0.6 * clamp01((f - f0 - 6) / 14), STEAM, 0.2, 3) : vent(Yd(HOLE[0] + 0.3, 0.02, HOLE[2] + 0.2), tt, 3, 1.4, 0.3, 1.0, 0.5, STEAM, 0.2, 2),
       cards: f >= f0 ? Array.from({ length: 10 }, (_, i) => { const v = clamp01((f - f0) / 14); return { kind: "chunk" as const, p: Yd(HOLE[0] + 0.55 * Math.cos(i * 0.63), 0.1 - 1.8 * v * v, HOLE[2] + 0.5 * Math.sin(i * 0.63)), spin: i + v * 4, s: 0.28 + 0.08 * (i % 3) }; }) : [],
       people: [P("todd", p, u > 0 ? "shock" : "neutral", 0, { air: u > 0, wave: u > 0 ? 1 : undefined })],
       cam: kick(move({ pos: Yd(HOLE[0] + 0.9, 1.5, HOLE[2] - 3.6), look: Yd(HOLE[0], 0.7, HOLE[2]), fov: 46, roll: -0.06 }, { pos: Yd(HOLE[0] + 0.6, 1.7, HOLE[2] - 3.2), look: Yd(HOLE[0], 0.4, HOLE[2]), fov: 48, roll: 0.05 }, f, s.a, s.b, smooth, 0), f, f0, 1.3),
@@ -288,7 +303,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "town62", van: true, dof: 1, focus: Tw(-13, 1.6, 3.2),
       people: [carrying(walker("man", -7.6, SW, 4.6, -0.7, tt, "neutral"), Tw(-8.1 - 0.7 * tt, 1.1, 4.3)), P("wife", Tw(-8.9, SW, 5.3), "nervous", 1), P("kid", Tw(-8.4, SW, 5.0), "nervous", 1)],
       cam: move({ pos: Tw(-3.0, 2.3, -8.6), look: Tw(-9.4, 1.5, 3.6), fov: 50, roll: 0.05 }, { pos: Tw(-3.8, 2.2, -8.2), look: Tw(-9.6, 1.5, 3.6), fov: 50, roll: -0.04 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the moving van", Tw(-11.4, 2.0, 2.2), 0.8]] }; },
+      subjects: [["the moving van", Tw(-11.4, 2.0, 2.2), 1.5]] }; },
   // The state took the houses: a condemned notice on a door, snapped in close
   houses: (s, f) => ({ light: "town62", condemned: true, dof: 1, focus: Tw(22.81, 1.15, 8.07),
     cam: kick(snap(Tw(21.6, 1.55, 5.2), Tw(22.6, 1.3, 8.07), f, s.a, { fov: 44, roll: -0.08 }, 2.2, 6), f, W(8, "houses"), 0.8),
@@ -306,17 +321,17 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   stay: (s, f) => ({ light: "townT", dof: 0, focus: Tw(0, 1, 8), puffs: roadSmoke(t(f), 1.2),
     people: [P("holdM", PORCH(-0.6), "grin", 1, { wave: 0.8 }), P("holdW", PORCH(0.55), "grin", -1)],
     cam: move({ pos: Tw(HOLD[0].x - 2.0, 2.4, -1.0), look: add(PORCH(0), 0, 1.2, 0), fov: 46, roll: 0.03 }, { pos: Tw(-1.5, 26, -40), look: Tw(-1.5, 0, 11), fov: 60, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-    subjects: [["their house", Tw(HOLD[0].x, 3, HOLD[0].z), 1], ["the other house", Tw(HOLD[1].x, 3, HOLD[1].z), 1]] }),
+    subjects: [["their house", Tw(HOLD[0].x, 3, HOLD[0].z), 1]] }),
   // By 2020, the census counted five people: the five of them in the empty road
   five2020: (s, f) => { const row: [string, number][] = [["holdM", -1.2], ["holdW", -0.6], ["r3", 0], ["r4", 0.6], ["r5", 1.2]];
-    return { light: "townT", dof: 1, focus: Tw(0, 1.2, 5.0), puffs: roadSmoke(t(f), 0.8),
+    return { light: "townT", dof: 1, focus: Tw(0, 1.2, 5.0), puffs: roadSmoke(t(f), 0.5).filter((_, i) => i % 2 === 0),
       people: row.map(([w, x], i) => P(w, Tw(x, SW, 4.9 + [0.5, 0, 0.3, 0, 0.5][i]), i === 2 ? "grin" : "neutral", x > 0 ? -1 : 1)),
       cam: kick(orbit(s, f, Tw(0, 1.2, 5.0), [-10, 6], [8.0, 7.4], [0.4, 0.2], 46, [-0.04, 0.03]), f, W(10, "5"), 0.8),
       subjects: [["the five", Tw(0, 1.3, 5.0), 0.2]] }; },
   // And the fire? It could keep burning for another 250 years: the burning tunnel, the camera pushing into it
   fire: (s, f) => { const tt = t(f - s.a);
     return { light: "mineF", dof: 1, burn: 1, focus: Mn(0, 1.2, 20), key: Mn(0, 1.4, 18),
-      puffs: Array.from({ length: 12 }, (_, i) => { const u = (tt * 0.35 + i / 12) % 1; return { p: Mn(0.6 * Math.sin(i * 2.1), 2.1 - 0.2 * Math.sin(i), 34 - 24 * u), s: 1.0 + 1.6 * u, c: [0.28, 0.2, 0.18], a: 0.6 * Math.sin(Math.PI * u) }; }),
+      puffs: Array.from({ length: 12 }, (_, i) => { const u = (tt * 0.35 + i / 12) % 1; return { p: Mn(0.5 * Math.sin(i * 2.1), 1.45 - 0.15 * Math.sin(i), 34 - 24 * u), s: 0.6 + 0.9 * u, c: [0.28, 0.2, 0.18], a: 0.55 * Math.sin(Math.PI * u) }; }),
       cards: sparks(Mn(0, 0.2, 16), tt, 10),
       cam: kick(move({ pos: Mn(-0.5, 1.6, 4.0), look: Mn(0, 1.2, 24), fov: 50, roll: 0.08 }, { pos: Mn(0.2, 1.3, 10.5), look: Mn(0, 1.3, 26), fov: 46, roll: -0.04 }, f, s.a, s.b, smooth, 0), f, W(11, "250"), 1.0),
       subjects: [["the fire", Mn(0, 1.2, 22), 1]] }; },
@@ -336,7 +351,7 @@ export const specAt = (s: ShotDef, f: number): St3 => {
   return { ...st, focus: st.focus ?? c.look, cam: { ...c, look: [c.look[0] + sw * Math.sin(f * 0.21 + id), c.look[1] + sw * 0.8 * Math.sin(f * 0.17 + 1.3 * id), c.look[2] + sw * Math.sin(f * 0.13 + 2.1 * id)] } };
 };
 /** a sideways blur on the cuts that whip */
-const WHIP = new Set(["street", "dump", "five", "hose", "under", "trench", "yards", "boy", "money", "refused", "fire"]);
+const WHIP = new Set(["years", "heap", "boxes", "street", "dump", "five", "hose", "under", "trench", "yards", "boy", "money", "refused", "fire"]);
 export const whipAt = (s: ShotDef, f: number) => (WHIP.has(s.g) ? Math.max(0, 1 - Math.abs(f - (s.a + 2)) / 4) : 0);
 
 // ---------------- name tags and stamps (Shorts: nothing important above y = 19 %) ----------------

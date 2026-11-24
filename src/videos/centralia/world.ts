@@ -178,7 +178,7 @@ export class CeWorld {
       P2.stream.visible = !!st.flush; P2.drift(t); this.grassP.update(cam); }
     if (set === "mine") { const M2 = this.mine, burn = light === "mineF" ? (st.burn ?? 1) : 0;
       M2.embers.forEach((m, i) => { const k = Math.max(0, Math.min(1, burn * 1.6 - (1 - i / M2.embers.length) * 0.9)); m.visible = k > 0; (m.material as THREE.MeshBasicMaterial).opacity = k * (0.7 + 0.3 * Math.sin(t * 4 + i * 1.7)); });
-      M2.fires.forEach((l, i) => { l.intensity = burn * (30 + 14 * i) * flick(i); }); M2.lamp.intensity = light === "mineC" ? 12 : 0; M2.lamps2.forEach((l) => { l.intensity = light === "mineC" ? 8 : 0; }); M2.dust.points.visible = true; M2.drift(t); }
+      M2.fires.forEach((l, i) => { l.intensity = burn * (30 + 14 * i) * flick(i); }); M2.lamp.intensity = light === "mineC" ? 12 : 0; M2.lamps2.forEach((l) => { l.intensity = light === "mineC" ? 8 : 0; }); M2.bulbs.visible = light === "mineC"; M2.dust.points.visible = true; M2.drift(t); }
     if (set === "yard") { const Y = this.yard, win = light === "yardW", open = win && st.hole === "open";
       Y.winter.visible = win && !open; Y.winterHole.visible = open; Y.summer.visible = !win; Y.hole.visible = open; Y.snow.visible = win; Y.skies.winter.visible = win; Y.skies.day.visible = !win;
       this.yardGrass = !win; this.grassY.update(cam); }

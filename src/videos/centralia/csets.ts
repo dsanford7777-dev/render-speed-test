@@ -87,7 +87,9 @@ export function buildTown(): TownSet {
     van.position.set(ox - 14, 0, 2.2); van.rotation.y = Math.PI; shadowAll(van); old.add(van); }
   // telegraph poles, the hill, a church on the hill (both times)
   for (const x of [-34, -24, 27, 44, 60, -50]) { b.add(new THREE.CylinderGeometry(0.11, 0.15, 9, 7).translate(ox + x, 4.5, 5.9), dark); b.add(B(ox + x - 0.9, 8.3, 5.85, ox + x + 0.9, 8.42, 5.95), dark); }
-  { const ch = M("ceChurch", "#ecebe4"), x = ox - 6, z = 74, y = gy(-6, 74); b.add(B(x - 4, y - 1, z, x + 4, y + 6, z + 10), ch); b.add(B(x - 1.4, y + 6, z - 0.4, x + 1.4, y + 10, z + 2.4), ch);
+  { const ch = lam("ceChurch", () => ({ map: planksHD(), color: "#ecebe4" })), x = ox - 6, z = 74, y = gy(-6, 74); b.add(B(x - 4, y - 1, z, x + 4, y + 6, z + 10), ch); b.add(B(x - 1.4, y + 6, z - 0.4, x + 1.4, y + 10, z + 2.4), ch);
+    for (const wx of [-2.6, 2.6]) { const w = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 2.0), M("ceChWin", "#3a4a6a")); w.rotation.y = Math.PI; w.position.set(x + wx, y + 2.8, z - 0.02); G.add(w); }
+    { const d = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 2.4), M("ceChDoor", "#5a3a2a")); d.rotation.y = Math.PI; d.position.set(x, y + 1.2, z - 0.42); G.add(d); const r = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape([new THREE.Vector2(-4.4, 0), new THREE.Vector2(0, 3.2), new THREE.Vector2(4.4, 0)])), M("ceChRoof", "#5a5a64")); r.rotation.y = Math.PI; r.position.set(x, y + 6, z - 0.03); G.add(r); }
     const dome = new THREE.Mesh(new THREE.SphereGeometry(1.5, 16, 10), M("ceDome", "#6a8ab0")); dome.scale.y = 1.25; dome.position.set(x, y + 11.1, z + 1); G.add(dome); b.add(B(x - 0.08, y + 12.6, z + 0.92, x + 0.08, y + 14, z + 1.08), M("ceGold", "#d9b85a")); b.add(B(x - 0.5, y + 13.4, z + 0.92, x + 0.5, y + 13.55, z + 1.08), M("ceGold", "#d9b85a")); }
   trees(G, [[ox - 40, gy(-40, 30), 30, 1.1], [ox + 46, gy(46, 32), 30, 1.0], [ox + 4, gy(4, 34), 34, 1.15], [ox - 64, gy(-64, 24), 24, 1.0], [ox + 70, gy(70, 22), 22, 1.1], [ox + 30, gy(30, 52), 52, 1.2], [ox - 34, gy(-34, 56), 56, 1.1], [ox + 60, -30, -30, 1], [ox - 58, -32, -32, 1.1]].map(([x, y, z, s]) => [x, y, z, s] as [number, number, number, number]), "T");
   mountain(G, "ceTownHill", ox, -2, 130, 520, 52, 61, 0.6, 0.0, "#5a6a48");
@@ -164,9 +166,9 @@ export function buildPit(): PitSet {
     b.add(new THREE.CylinderGeometry(0.45, 0.45, 1.1, 18, 1, true).translate(ox + BORE[0], y0 + 0.5, BORE[2]), steel); b.add(new THREE.CircleGeometry(0.44, 18).rotateX(-Math.PI / 2).translate(ox + BORE[0], y0 + 0.8, BORE[2]), M("ceBoreDark", "#0e0c0e"));
     b.add(new THREE.TorusGeometry(0.46, 0.06, 6, 18).rotateX(Math.PI / 2).translate(ox + BORE[0], y0 + 1.05, BORE[2]), steel);
     // the hose from the water truck, ending in a nozzle over the casing (on a post, so it is held, not floating)
-    b.add(rodGeo(V(ox + BORE[0] + 6, y0 + 0.2, BORE[2] - 2), V(ox + BORE[0] + 0.9, y0 + 0.2, BORE[2] - 0.6), 0.09), M("ceHose", "#8a3a2a")); b.add(rodGeo(V(ox + BORE[0] + 0.9, y0 + 0.2, BORE[2] - 0.6), V(ox + BORE[0] + 0.5, y0 + 2.2, BORE[2] - 0.2), 0.09), M("ceHose", "#8a3a2a"));
-    b.add(B(ox + BORE[0] + 0.85, y0 - 0.2, BORE[2] - 0.65, ox + BORE[0] + 1.0, y0 + 2.3, BORE[2] - 0.5), M("cePost2", "#7a5c40"));
-    b.add(rodGeo(V(ox + BORE[0] + 0.5, y0 + 2.2, BORE[2] - 0.2), V(ox + BORE[0] + 0.15, y0 + 2.15, BORE[2] - 0.05), 0.07), M("ceBrass", "#c9a23a")); }
+    b.add(rodGeo(V(ox + BORE[0] + 6, y0 + 0.2, BORE[2] + 3), V(ox + BORE[0] + 0.9, y0 + 0.2, BORE[2] + 0.6), 0.07), M("ceHose", "#8a3a2a")); b.add(rodGeo(V(ox + BORE[0] + 0.9, y0 + 0.2, BORE[2] + 0.6), V(ox + BORE[0] + 0.5, y0 + 2.2, BORE[2] + 0.2), 0.07), M("ceHose", "#8a3a2a"));
+    b.add(B(ox + BORE[0] + 0.85, y0 - 0.2, BORE[2] + 0.5, ox + BORE[0] + 1.0, y0 + 2.3, BORE[2] + 0.65), M("cePost2", "#7a5c40"));
+    b.add(rodGeo(V(ox + BORE[0] + 0.5, y0 + 2.2, BORE[2] + 0.2), V(ox + BORE[0] + 0.15, y0 + 2.15, BORE[2] + 0.05), 0.06), M("ceBrass", "#c9a23a")); }
   const streamT = new THREE.CanvasTexture((() => { const c = document.createElement("canvas"); c.width = 128; c.height = 256; const g = c.getContext("2d")!; g.fillStyle = "rgb(170,206,236)"; g.fillRect(0, 0, 128, 256); g.filter = "blur(5px)";
     for (let i = 0; i < 46; i++) { const x = (i * 37) % 128, y = (i * 71) % 256; g.fillStyle = i % 3 ? "rgba(255,255,255,0.55)" : "rgba(110,150,190,0.45)"; g.beginPath(); g.ellipse(x, y, 5 + (i % 4) * 2, 30 + (i % 5) * 10, 0, 0, 6.3); g.fill(); g.beginPath(); g.ellipse(x, y + 256, 5, 30, 0, 0, 6.3); g.fill(); g.beginPath(); g.ellipse(x, y - 256, 5, 30, 0, 0, 6.3); g.fill(); } return c; })());
   streamT.wrapS = streamT.wrapT = THREE.RepeatWrapping;
@@ -187,13 +189,12 @@ export function buildPit(): PitSet {
 }
 
 // =====================================================================================================================
-export type MineSet = { group: THREE.Group; embers: THREE.Mesh[]; fires: THREE.PointLight[]; lamp: THREE.PointLight; lamps2: THREE.PointLight[]; dust: ReturnType<typeof dustMotes>; drift: (t: number) => void };
+export type MineSet = { group: THREE.Group; embers: THREE.Mesh[]; fires: THREE.PointLight[]; lamp: THREE.PointLight; lamps2: THREE.PointLight[]; bulbs: THREE.Group; dust: ReturnType<typeof dustMotes>; drift: (t: number) => void };
 export function buildMine(): MineSet {
   const G = new THREE.Group(), ox = SET.mine[0], b = new Batch(), { hw, h, z0, z1 } = TUN;
   const coal = lam("ceCoalM", () => ({ map: repC(coalTex(), 2, 1) })), floor = lam("ceMineFloor", () => ({ map: dirtTex("ceMineFloorT", "#3a3430") })), timber = lam("ceTimber", () => ({ map: planksHD(), color: "#6a5038" })), iron = M("ceRail", "#5a5a60");
   // walls and roof: rough coal (big facets over the texture), the floor packed dirt with rails on ties
   for (const sx of [-1, 1]) { const g = rockWall(z1 - z0, h + 0.6, 0.9, 0.22, 5 + sx, 3); g.rotateY(sx * Math.PI / 2); g.translate(ox + sx * hw, -0.2, (z0 + z1) / 2); const m = new THREE.Mesh(g, lam("ceCoalWall", () => ({ map: coalTex(), vertexColors: true, flatShading: true }))); m.material.side = THREE.DoubleSide; m.receiveShadow = true; G.add(m); }
-  { const g = rockWall(z1 - z0, hw * 2 + 0.8, 0.9, 0.18, 9, 3); g.rotateX(Math.PI / 2); g.rotateY(Math.PI / 2); g.translate(ox, h, (z0 + z1) / 2); const m = new THREE.Mesh(g, lam("ceCoalWall", () => ({ map: coalTex(), vertexColors: true, flatShading: true }))); m.receiveShadow = true; G.add(m); }
   b.add(B(ox - hw - 0.3, -0.2, z0, ox + hw + 0.3, 0, z1, 2), floor); b.add(B(ox - hw - 0.4, h, z0, ox + hw + 0.4, h + 0.6, z1, 2), coal); for (const sx of [-1, 1]) b.add(B(ox + sx * (hw + 0.05), 0, z0, ox + sx * (hw + 0.6), h, z1, 2), coal);
   b.add(B(ox - hw - 0.6, 0, z1 - 0.2, ox + hw + 0.6, h, z1 + 0.4, 2), coal);
   for (let z = z0; z < z1; z += 0.8) b.add(B(ox - 0.75, 0.0, z, ox + 0.75, 0.08, z + 0.2), timber);
@@ -207,12 +208,13 @@ export function buildMine(): MineSet {
     m.layers.set(NOINK); m.visible = false; G.add(m); embers.push(m); }
   const fires = [18, 30, 44].map((z) => { const l = new THREE.PointLight("#ff7a2a", 0, 18, 1.5); l.position.set(ox, 1.4, z); G.add(l); return l; });
   // a miner's light for the cold tunnel (the old mines): a dim bulb near the camera end
-  const lamp = new THREE.PointLight("#ffd8a0", 0, 22, 1.4); lamp.position.set(ox + 0.4, h - 0.4, 2); G.add(lamp); { const bulb = flame(G, V(ox + 0.4, h - 0.35, 2), 0.05); void bulb; }
-  const lamps2 = [9, 16].map((z) => { const l = new THREE.PointLight("#ffd8a0", 0, 14, 1.5); l.position.set(ox - 0.4, h - 0.4, z); G.add(l); flame(G, V(ox - 0.4, h - 0.35, z), 0.04); return l; });
+  const bulbs = new THREE.Group(); G.add(bulbs);
+  const lamp = new THREE.PointLight("#ffd8a0", 0, 22, 1.4); lamp.position.set(ox + 0.4, h - 0.4, 2); G.add(lamp); flame(bulbs, V(ox + 0.4, h - 0.35, 2), 0.05);
+  const lamps2 = [9, 16].map((z) => { const l = new THREE.PointLight("#ffd8a0", 0, 14, 1.5); l.position.set(ox - 0.4, h - 0.4, z); G.add(l); flame(bulbs, V(ox - 0.4, h - 0.35, z), 0.04); return l; });
   b.build(G, true);
   const dust = dustMotes(V(ox, 1.2, 8), V(2.6, 2, 14), 260, new THREE.Color(1, 0.85, 0.7), 0.025, 0.5); G.add(dust.points);
   noInk(G);
-  return { group: G, embers, fires, lamp, lamps2, dust, drift: (t) => dust.drift(t) };
+  return { group: G, embers, fires, lamp, lamps2, bulbs, dust, drift: (t) => dust.drift(t) };
 }
 
 // =====================================================================================================================
@@ -234,7 +236,7 @@ export function buildYard(): YardSet {
   const winter = ground("ceYardW", snowGrassTex, false), winterHole = ground("ceYardW", snowGrassTex, true), summer = ground("ceYardS", () => dirtTex("ceYardST", "#4a6a2e"), false);
   { const sm2 = lam("ceYardSM", () => ({ map: dirtTex("ceYardST", "#4a6a2e"), color: "#7a9a5a" })); summer.material = sm2; (summer.children[0] as THREE.Mesh).material = sm2; }
   // the sinkhole: a dirt throat going down, rough lip chunks, a black depth, roots across it from the tree's side
-  { const wall = new THREE.Mesh(new THREE.CylinderGeometry(HOLE_R, HOLE_R * 0.85, 7, 20, 6, true), lam("ceThroat", () => ({ map: dirtTex("ceThroatT", "#4a3a2c"), side: THREE.BackSide }))); wall.position.set(ox + HOLE[0], -3.5, HOLE[2]); hole.add(wall);
+  { const wall = new THREE.Mesh(new THREE.CylinderGeometry(HOLE_R, HOLE_R * 0.85, 7, 20, 6, true), lam("ceThroat", () => ({ map: rockTex("ceThroatR", "#4a3a2e"), color: "#7a6a5a", side: THREE.BackSide }))); wall.position.set(ox + HOLE[0], -3.5, HOLE[2]); hole.add(wall);
     const deep = new THREE.Mesh(new THREE.CircleGeometry(HOLE_R * 0.9, 20).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: "#060406" })); deep.position.set(ox + HOLE[0], -6.8, HOLE[2]); hole.add(deep);
     const rk: Fol = []; for (let i = 0; i < 14; i++) { const a = (i / 14) * 6.283; rk.push({ g: rockGeo(0.07 + 0.03 * (i % 3), i + 50, 0, 0.6), m: new THREE.Matrix4().compose(V(ox + HOLE[0] + Math.cos(a) * (HOLE_R + 0.08), 0.02, HOLE[2] + Math.sin(a) * (HOLE_R + 0.08)), new THREE.Quaternion().setFromEuler(new THREE.Euler(0.3, i, 0.2)), V(1.2, 0.7, 1)) }); }
     const lip = new THREE.Mesh(mergeFacets(rk), lam("ceLip", () => ({ map: dirtTex("ceThroatT", "#4a3a2c"), vertexColors: true, flatShading: true }))); shadowAll(lip); hole.add(lip);
@@ -246,7 +248,7 @@ export function buildYard(): YardSet {
   const fence = lam("ceFence", () => ({ map: planksHD(), color: "#e9e2d2" }));
   for (const sx of [-1, 1]) for (let k = 0; k < 24; k++) { const z = -6 + k * 0.6; b.add(B(ox + sx * 7.5 - 0.05, 0, z, ox + sx * 7.5 + 0.05, 1.1, z + 0.4), fence); }
   for (const sx of [-1, 1]) for (const y of [0.3, 0.85]) b.add(B(ox + sx * 7.5 - 0.06, y, -6, ox + sx * 7.5 + 0.06, y + 0.08, 8.4), fence);
-  for (const x of [-5.5, -1.5]) b.add(B(ox + x - 0.06, 0, -3.6, ox + x + 0.06, 2.1, -3.48), M("ceLinePost", "#8a8478")); b.add(rodGeo(V(ox - 5.5, 2.0, -3.54), V(ox - 1.5, 2.0, -3.54), 0.012), M("ceLine2", "#e9e2d2"));
+  for (const z of [1.5, 5.5]) b.add(B(ox + 5.2 - 0.06, 0, z - 0.06, ox + 5.2 + 0.06, 2.1, z + 0.06), M("ceLinePost", "#8a8478")); b.add(rodGeo(V(ox + 5.2, 2.0, 1.5), V(ox + 5.2, 2.0, 5.5), 0.012), M("ceLine2", "#e9e2d2"));
   trees(G, [[ox + TREE[0], 0, TREE[2], 1.0]], "Y", true);
   trees(G, [[ox - 14, yy(-14, 20), 20, 1.1], [ox + 16, yy(16, 24), 24, 1.0], [ox + 2, yy(2, 30), 30, 1.2], [ox - 30, yy(-30, 12), 12, 1.0], [ox + 30, yy(30, 14), 14, 1.1]], "YB", true);
   for (const [x, z, col] of [[-16, 14, "#9ab0b8"], [16, 15, "#d8c89a"], [-30, 18, "#b8a090"], [30, 19, "#a8b89a"]] as [number, number, string][]) houseAt(b, G, ox + x, z, 6.2, 7, 5.6, col, "#4a4038", false, 0, 0);

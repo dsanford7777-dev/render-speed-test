@@ -50,9 +50,9 @@ export const ceSkyTex = (kind: "winter" | "haze") => ctex("ceSky_" + kind, 1024,
 });
 /** patchy snow over frozen grass (the yard in February) */
 export const snowGrassTex = () => ctex("ceSnowGrass", 1024, 1024, (g, r) => {
-  g.fillStyle = "#6e6a50"; g.fillRect(0, 0, 1024, 1024);
-  for (let i = 0; i < 2600; i++) { g.strokeStyle = ["#857e5a", "#5a5a40", "#9a9068"][Math.floor(r() * 3)]; g.lineWidth = 2; const x = r() * 1024, y = r() * 1024; g.beginPath(); g.moveTo(x, y); g.lineTo(x + (r() - 0.5) * 8, y - 8 - r() * 10); g.stroke(); }
-  for (let i = 0; i < 46; i++) { g.fillStyle = r() > 0.3 ? "rgba(236,240,244,0.92)" : "rgba(210,218,228,0.85)"; g.beginPath(); g.ellipse(r() * 1024, r() * 1024, 40 + r() * 150, 24 + r() * 80, r() * 3, 0, 6.3); g.fill(); }
+  g.fillStyle = "#e4e8ec"; g.fillRect(0, 0, 1024, 1024);
+  for (let i = 0; i < 260; i++) { g.fillStyle = r() > 0.5 ? "rgba(200,208,220,0.35)" : "rgba(255,255,255,0.4)"; g.beginPath(); g.ellipse(r() * 1024, r() * 1024, 20 + r() * 60, 10 + r() * 30, r() * 3, 0, 6.3); g.fill(); }
+  for (let i = 0; i < 70; i++) { const x = r() * 1024, y = r() * 1024; for (let k = 0; k < 40; k++) { g.strokeStyle = ["#857e5a", "#6a6448", "#9a9068"][Math.floor(r() * 3)]; g.lineWidth = 2; const px = x + (r() - 0.5) * 50, py = y + (r() - 0.5) * 24; g.beginPath(); g.moveTo(px, py); g.lineTo(px + (r() - 0.5) * 6, py - 6 - r() * 8); g.stroke(); } }
 });
 /** the money: a stack-of-bills face */
 export const billTex = () => ctex("ceBill", 256, 128, (g, r) => { g.fillStyle = "#7aa87a"; g.fillRect(0, 0, 256, 128); g.strokeStyle = "#2a4a2a"; g.lineWidth = 8; g.strokeRect(8, 8, 240, 112); g.fillStyle = "#2a4a2a"; g.font = "900 64px sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("$", 128, 66); for (let i = 0; i < 60; i++) { g.fillStyle = "rgba(255,255,255,0.08)"; g.fillRect(r() * 256, r() * 128, 6, 2); } });
