@@ -130,7 +130,7 @@ const ffs = (expr: Expr, look = 0) => ["ff1", "ff2", "ff3", "ff4", "ff5"].map((w
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // This town has been on fire for 64 years: the cracked road today, smoke pouring out of it (frame 0 is already close)
   hook: (s, f) => ({ ...hookState(t(f)), light: "townT", dof: 1, focus: Tw(3.6, 0.4, 1.0), cam: kick(hookCam(f), f, W(0, "64"), 0.8),
-    subjects: [["the crack", Tw(6.8, 0.1, crackZ(6.8)), 0.2], ["the holdout house", Tw(HOLD[0].x, 3.2, HOLD[0].z - 3.5), 0.5]] }),
+    subjects: [["the smoke from the crack", Tw(4.5, 1.2, crackZ(4.5)), 0.6], ["the holdout house", Tw(HOLD[0].x, 3.2, HOLD[0].z - 3.5), 4]] }),
   // ...for 64 years: up and back, the crack running across the whole street, smoking all along it
   years: (s, f) => ({ light: "townT", dof: 0, focus: Tw(1, 0.5, 2), puffs: roadSmoke(t(f)),
     cam: kick(move({ pos: Tw(-2.5, 3.2, -9.0), look: Tw(2, 0.6, 2.5), fov: 50, roll: -0.05 }, { pos: Tw(-5.5, 7.5, -15), look: Tw(1, 0.6, 3.5), fov: 50, roll: 0.03 }, f, s.a, s.b, smooth, 0), f, W(0, "64"), 0.8),
@@ -185,7 +185,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   pitwide: (s, f) => { const tt = t(f);
     return { light: "pitD", dof: 0, focus: HEAPC, fire: 1, heat: 0.8, key: HEAPC, puffs: [...flames(HEAPC, tt, 1, 3.2, 12), ...smokeCol(HEAPC, tt, 1, 10, 16)],
       cam: move({ pos: Pt(3, -5.5, 10.6), look: Pt(1.5, FLOOR + 1.2, 18), fov: 50, roll: 0.06 }, { pos: Pt(-4, 9, 2), look: Pt(1, FLOOR + 1.5, 17), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the pit wall", Pt(0, -4, PIT_C[2] + RZ * 0.85), 1.5], ["the fire", HEAPC, 1]] }; },
+      subjects: [["the pit", Pt(1, FLOOR + 1, 20), 3], ["the fire", HEAPC, 1.5]] }; },
   // ...and most likely, the flames found a seam of coal: the black band in the wall starts to glow, spreading
   seam: (s, f) => { const tt = t(f), sp = clamp01((f - W(3, "seam") + 10) / 40) * 0.75 + 0.06;
     return { light: "pitD", dof: 1, focus: SEAMP, fire: 0.9, heat: 0.8, seam: sp, key: HEAPC, puffs: flames(HEAPC, tt, 0.8, 3.2, 10),
@@ -219,7 +219,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       puffs: [...Array.from({ length: 8 }, (_, i) => { const u = (tt * 1.6 + i / 8) % 1; return { p: L3(n, aim, u), s: 0.25 + 0.35 * u, c: [0.82, 0.9, 1.0] as [number, number, number], a: 0.85 }; }), ...vent(aim, tt, 6, 3, 0.6, 2.6, 0.75, STEAM, 0.3, 4)],
       tools: [{ kind: "hose", g: h, b: n, tail: Pt(-6, FLOOR + 0.05, 10) }], people: [P("ff5", p, "nervous", -1, { hw: [h, n] })],
       cam: orbit(s, f, add(p, -0.4, 1.0, 1.2), [26, 8], [4.6, 4.0], [0.8, 0.5], 48, [0.06, -0.04]),
-      subjects: [["the spraying hose", n, 0.1], ["the steam", add(aim, 0, 1.2, 0), 0.4]] }; },
+      subjects: [["the spraying hose", n, 0.45], ["the steam", add(aim, 0, 1.2, 0), 0.4]] }; },
   // Crews dug trenches: men digging along the line, dirt flying where the shovels go in
   trench: (s, f) => { const tt = t(f - s.a), y0 = pitGround(Pt(TRENCH[0], 0, 0)[0], TRENCH[2] - 1.4), ph = (tt * 1.3) % 1, dig = Math.sin(ph * 6.283);
     const p1 = Pt(TRENCH[0] + 1.3, y0, TRENCH[2] - 1.5), p2 = Pt(TRENCH[0], y0, TRENCH[2] - 1.9), p3 = Pt(TRENCH[0] - 1.3, y0, TRENCH[2] - 1.4);
@@ -233,7 +233,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ...and flushed the mines: water pouring down the borehole, a man watching the gauge
   flush: (s, f) => { const y0 = pitGround(Pt(BORE[0], 0, 0)[0], BORE[2]), c = Pt(BORE[0], y0 + 1.0, BORE[2]);
     const tt = t(f), noz = Pt(BORE[0] + 0.15, y0 + 2.12, BORE[2] + 0.05);
-    return { light: "pit", dof: 1, focus: c, people: [P("w2", Pt(BORE[0] - 1.6, y0, BORE[2] - 0.6), "stern", 1)],
+    return { light: "pit", dof: 1, focus: c, people: [P("w2", Pt(BORE[0] + 1.3, y0, BORE[2] - 1.0), "stern", -1)],
       puffs: [...Array.from({ length: 14 }, (_, i) => { const u = (tt * 2.4 + i / 14) % 1; return { p: add(noz, 0.04 * Math.sin(i * 3), -1.15 * u, 0.04 * Math.cos(i * 2)), s: 0.22 + 0.06 * Math.sin(i * 1.7), c: [0.78, 0.88, 1.0] as [number, number, number], a: 0.9 }; }), ...vent(add(c, 0, 0.1, 0), tt, 4, 1.2, 0.3, 0.9, 0.5, STEAM, 0.1, 3)],
       cam: kick(snap(add(c, -2.6, 1.0, -4.6), add(c, 0.1, 0.4, 0), f, s.a, { fov: 46, roll: 0.07 }, 1.5, 5), f, W(5, "flushed"), 0.8),
       subjects: [["the water down the borehole", add(c, 0.1, 0.45, 0), 0.2]] }; },
