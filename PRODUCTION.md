@@ -1,6 +1,6 @@
 # Paradox Town: how a short gets made (and checked)
 
-This file and the Claude project doc `claude/production-checklist.md` hold the same checklist (synced Nov 23, 2026).
+This file and the Claude project doc `claude/production-checklist.md` hold the same checklist (synced Nov 24, 2026).
 
 ## Pipeline
 1. **Script**: `src/videos/<short>/timeline.ts`, SEGMENTS (`say` = what the narrator reads, `show` = subtitles).
@@ -88,6 +88,13 @@ Fixed in the code the same day (Peigneur world and the shared `bridge/scenery.ts
 - **When you split a shot, check every overlay that ends on it.** An item whose `f1` is `B("<shot>")` silently disappears if a new cut makes that shot end before the item's `f0` (`ITEMS` drops items with `f1 <= f0`). Centralia's "64 YEARS" stamp vanished from the first render this way and had to be patched. After adding a cut, grep `ITEMS` for the split shot's name.
 - **Subjects are the nouns the narration names, nothing else.** Decorative props (a sign, a truck, a tree) listed as subjects only fail the framing check; drop them.
 - **Cameras in a pit or a hole stay above its ground.** Check the camera's height against the set's ground function at its x, z for both ends of every move (Centralia: three pit cameras started under the rim).
+
+### Added Nov 24 (Centralia long-form)
+- **Check the aligned words for collapsed phrases.** After Align, list any within-segment gap over 1.2 s and any run of words sharing one timestamp; the aligner can pile a whole clause onto the next segment's start (Centralia seg 36: "And one by one, the houses came down" all at 279.82 s). Find the speech in the voice by loudness and set those word times by hand in WORDS.
+- **The frozenlong "calendar" glyph always shows "8".** Don't use it for a date; leave the glyph off.
+- **New flat structures need a hole in the grass.** Grass grows wherever the set's `turf` returns a height; when you add an apron, a pad or a lot, exclude its footprint in `turf` (the gas station apron grew grass through it).
+- **Place new props against what's already in the room.** Check a wall prop against stairs, shelves and furnaces before shooting it (the gas monitor was hung behind the cellar stairs and no camera could see it).
+- **An opening in a sloped wall is a dark disc laid along the wall's normal, with a rim of rocks;** a tube pushed into the slope sticks out as a floating crescent.
 
 If one of these can't be fixed in a reasonable time, the shot is restaged or cut so the problem is gone. The report to Daniel after an upload should have nothing under "weak spots".
 
