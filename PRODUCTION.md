@@ -84,6 +84,11 @@ Fixed in the code the same day (Peigneur world and the shared `bridge/scenery.ts
 - **The subscribe card never plays over a sad scene.** If a Short ends on a death or a funeral, run the Short on past the voice into a neutral loop shot (back to the hook's framing) and let the card play there. Keep the card's default length: the render mixes the slap in 70 frames before the end.
 - **The person who died is never shown hurt.** He slides off and lies still, seen from a distance with people round him; no injury, no close-up of the body.
 
+### Added Nov 24 (Centralia Short)
+- **When you split a shot, check every overlay that ends on it.** An item whose `f1` is `B("<shot>")` silently disappears if a new cut makes that shot end before the item's `f0` (`ITEMS` drops items with `f1 <= f0`). Centralia's "64 YEARS" stamp vanished from the first render this way and had to be patched. After adding a cut, grep `ITEMS` for the split shot's name.
+- **Subjects are the nouns the narration names, nothing else.** Decorative props (a sign, a truck, a tree) listed as subjects only fail the framing check; drop them.
+- **Cameras in a pit or a hole stay above its ground.** Check the camera's height against the set's ground function at its x, z for both ends of every move (Centralia: three pit cameras started under the rim).
+
 If one of these can't be fixed in a reasonable time, the shot is restaged or cut so the problem is gone. The report to Daniel after an upload should have nothing under "weak spots".
 
 ## Fixing a video after it's rendered or uploaded (Nov 16)
