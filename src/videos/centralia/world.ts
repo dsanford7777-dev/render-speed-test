@@ -69,10 +69,12 @@ const OUT: Record<string, Who> = {
   c1: who({ jacket: "#2a2a32", pants: "#2a2a32", boots: "#1a1618", hat: "hair", hair: "#8a8a92", buttons: "#2a2a32", skin: "#f0d2b0", shirt: "#f6f2e8", tie: "#2a3a5a", moustache: "#8a8a92" }, 211, "c1"),
   c2: who({ jacket: "#4a3e34", pants: "#3a3028", boots: "#1a1618", hat: "hair", hair: "#3a2a20", buttons: "#4a3e34", skin: "#e8c4a0", shirt: "#f6f2e8", tie: "#7a2a24", build: "stout" }, 212, "c2"),
   c3: who({ jacket: "#3a4a3a", pants: "#2a302a", boots: "#1a1618", hat: "hair", hair: "#c9c6be", buttons: "#3a4a3a", skin: "#f5d2b4", shirt: "#f6f2e8", tie: "#3a3a3a" }, 213, "c3"),
+  // John Coddington, the mayor who ran the gas station (1979)
+  codd: who({ jacket: "#2a6a3a", pants: "#3a3a44", boots: "#1e1a20", hat: "cap", cap: "#2a6a3a", buttons: "#e9e2cf", skin: "#f0d2b0", moustache: "#5a4a3a", shirt: "#e9e2cf" }, 224, "codd"),
   // the crews of the 1960s-70s
   w1: who(CREW("#6a5a3a"), 214, "w1"), w2: who(CREW("#4a5a6a", { moustache: "#3a2a20" }), 215, "w2"), w3: who(CREW("#7a4a3a", { skin: "#8a5a3c" }), 216, "w3"),
-  // 1981: Todd (12), in a red winter jacket; his cousin Eric, older, in green
-  todd: who({ jacket: "#c0392b", pants: "#3a4a6a", boots: "#2a221c", hat: "cap", cap: "#2a4a7a", buttons: "#c0392b", skin: "#f5d2b4", build: "kid", shirt: "#e9e2d2" }, 217, "todd"),
+  // 1981: Todd (12), in a brown winter jacket and his red cap; his cousin Eric, older, in green
+  todd: who({ jacket: "#5a4a3a", pants: "#3a4a6a", boots: "#2a221c", hat: "cap", cap: "#c0392b", buttons: "#5a4a3a", skin: "#f5d2b4", build: "kid", shirt: "#e9e2d2" }, 217, "todd"),
   eric: who({ jacket: "#3a6a4a", pants: "#3a3e4a", boots: "#2a221c", hat: "hair", hair: "#6a4a2a", buttons: "#3a6a4a", skin: "#f5d2b4", shirt: "#e9e2d2" }, 218, "eric"),
   // the people who stayed (older, today)
   holdM: who({ jacket: "#6a5a4a", pants: "#3a3a40", boots: "#2a221c", hat: "cap", cap: "#3a4a3a", buttons: "#6a5a4a", skin: "#e8c8a8", moustache: "#d8d6d0", plaid: "#4a3a2a" }, 219, "holdM"),
@@ -191,7 +193,7 @@ export class CeWorld {
       tl.handle.visible = true; tl.handle.position.copy(gp).addScaledVector(d, len / 2); tl.handle.quaternion.setFromUnitVectors(V(0, 1, 0), d); tl.handle.scale.set(hose ? 2.0 : 1, len, hose ? 2.0 : 1);
       tl.handle.material = hose ? tl.tail.material : this.woodM;
       tl.tail.visible = hose && !!q.tail; if (hose && q.tail) { const tp = V(...q.tail), td = gp.clone().sub(tp), tlen = td.length(); tl.tail.position.copy(tp).addScaledVector(td, 0.5); tl.tail.quaternion.setFromUnitVectors(V(0, 1, 0), td.normalize()); tl.tail.scale.set(1, tlen, 1); }
-      const head = hose ? "nozzle" : q.kind;
+      const head = hose ? "nozzle" : q.kind === "stick" ? "" : q.kind;
       for (const [k, h] of Object.entries(tl.heads)) { h.visible = k === head; if (k !== head) continue; h.position.copy(bp); h.quaternion.setFromUnitVectors(V(0, -1, 0), d); if (k === "nozzle") h.quaternion.setFromUnitVectors(V(0, 1, 0), d); if (k === "pick") h.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, Math.PI / 2))); } });
     for (const p of Object.values(this.cards)) p.hide();
     const cn: Record<string, number> = {};

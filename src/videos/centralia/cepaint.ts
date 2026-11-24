@@ -57,3 +57,13 @@ export const snowGrassTex = () => ctex("ceSnowGrass", 1024, 1024, (g, r) => {
 /** the money: a stack-of-bills face */
 export const billTex = () => ctex("ceBill", 256, 128, (g, r) => { g.fillStyle = "#7aa87a"; g.fillRect(0, 0, 256, 128); g.strokeStyle = "#2a4a2a"; g.lineWidth = 8; g.strokeRect(8, 8, 240, 112); g.fillStyle = "#2a4a2a"; g.font = "900 64px sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("$", 128, 66); for (let i = 0; i < 60; i++) { g.fillStyle = "rgba(255,255,255,0.08)"; g.fillRect(r() * 256, r() * 128, 6, 2); } });
 export const rep = (t: THREE.Texture, x: number, y: number) => { const c = t.clone(); c.repeat.set(x, y); c.wrapS = c.wrapT = THREE.RepeatWrapping; c.needsUpdate = true; return c; };
+/** the Graffiti Highway: spray paint across the old road (made-up tags, shapes and words, no real logos) */
+export const graffitiTex = () => ctex("ceGraffiti", 2048, 512, (g, r) => {
+  g.clearRect(0, 0, 2048, 512);
+  const cols = ["#e0332e", "#2f7fd8", "#ffd166", "#2f9a57", "#c86ad8", "#ffffff", "#ff8a3a"];
+  for (let i = 0; i < 46; i++) { g.fillStyle = cols[i % cols.length] + "cc"; g.beginPath(); g.ellipse(r() * 2048, r() * 512, 30 + r() * 90, 14 + r() * 40, r() * 3, 0, 6.3); g.fill(); }
+  g.lineCap = "round"; for (let i = 0; i < 40; i++) { g.strokeStyle = cols[(i * 3) % cols.length]; g.lineWidth = 6 + r() * 10; g.beginPath(); let x = r() * 2048, y = r() * 512; g.moveTo(x, y); for (let k = 0; k < 4; k++) { x += (r() - 0.5) * 160; y += (r() - 0.5) * 90; g.lineTo(x, y); } g.stroke(); }
+  g.textAlign = "center"; g.textBaseline = "middle";
+  const words = ["HI MOM", "WAS HERE", "PEACE", "HOT!", "2013", "SMILE", "WOW", "NO FIRE?", "J+K", "HELLO"];
+  words.forEach((w, i) => { g.save(); g.translate(120 + i * 200 + r() * 40, 90 + (i % 3) * 150 + r() * 30); g.rotate((r() - 0.5) * 0.6); g.font = `900 ${60 + r() * 50}px sans-serif`; g.lineWidth = 10; g.strokeStyle = "#120c16"; g.strokeText(w, 0, 0); g.fillStyle = cols[i % cols.length]; g.fillText(w, 0, 0); g.restore(); });
+});

@@ -9,8 +9,8 @@ import { M, T, noInk, shadowAll, glow, sheet, nz, mountain, rodGeo, houseAt, fla
 import { brickTex, labelTex, wallpaperTex, panelTex, clockTex } from "../frozen/paint";
 import { NOINK } from "../bridge/ink";
 import { caSkyTex, signTex, repC } from "../cahaba/cpaint";
-import { SET, ROAD_Z0, ROAD_Z1, WALK_Z, FRONT_Z, crackZ, HOLD, PIT_C, RX, RZ, DEPTH, SEAM, pitY, HEAP, RIM, TRUCK, TRENCH, BORE, TUN, HOUSE_Z, TREE, HOLE, HOLE_R, ROOM, DESK } from "./place";
-import { asphaltTex, lineTex, crackTex, strataTex, coalTex, emberTex, ceSkyTex, snowGrassTex } from "./cepaint";
+import { GAS, SET, ROAD_Z0, ROAD_Z1, WALK_Z, FRONT_Z, crackZ, HOLD, PIT_C, RX, RZ, DEPTH, SEAM, pitY, HEAP, RIM, TRUCK, TRENCH, BORE, TUN, HOUSE_Z, TREE, HOLE, HOLE_R, ROOM, DESK } from "./place";
+import { graffitiTex as ctexG, asphaltTex, lineTex, crackTex, strataTex, coalTex, emberTex, ceSkyTex, snowGrassTex } from "./cepaint";
 
 const M4 = (x: number, y: number, z: number, ry = 0, s = 1) => new THREE.Matrix4().compose(V(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, ry, 0)), V(s, s, s));
 type Fol = { g: THREE.BufferGeometry; m: THREE.Matrix4; tint?: number }[];
@@ -67,7 +67,7 @@ export function buildTown(): TownSet {
     bo.add(B(ox + 1.0, 0.55, 5.6, ox + 2.8, 0.62, 6.0), wood); for (const x of [1.1, 2.7]) bo.add(B(ox + x - 0.04, 0.14, 5.65, ox + x + 0.04, 0.55, 5.95), dark); }
   // the frame houses along the street (1962); the two holdouts stand in both
   const houses: [number, number, string, number][] = [];
-  for (const sgn of [1, -1]) for (let k = 0; k < 6; k++) { const x = sgn * (14 + k * 8.5); if (HOLD.some((h) => Math.abs(h.x - x) < 4)) continue; houses.push([x, 11 + (k % 2) * 0.6, ["#c9c2b0", "#9ab0b8", "#d8c89a", "#b8a090", "#a8b89a", "#e0d8c8"][(k + (sgn > 0 ? 0 : 3)) % 6], 0.03 * (k % 3 - 1)]); }
+  for (const sgn of [1, -1]) for (let k = 0; k < 6; k++) { const x = sgn * (14 + k * 8.5); if (HOLD.some((h) => Math.abs(h.x - x) < 4) || Math.abs(x - GAS.x) < 4) continue; houses.push([x, 11 + (k % 2) * 0.6, ["#c9c2b0", "#9ab0b8", "#d8c89a", "#b8a090", "#a8b89a", "#e0d8c8"][(k + (sgn > 0 ? 0 : 3)) % 6], 0.03 * (k % 3 - 1)]); }
   for (const [x, z, col, yaw] of houses) { const h = houseAt(b, old, ox + x, z, 6.2, 7, 5.6, col, "#4a4038", false, yaw, 0); h.traverse((m) => { m.castShadow = true; }); }
   for (const [x, z, col] of [[-12, -16, "#b8a890"], [6, -17, "#c9c2b0"], [22, -16, "#9ab0b8"], [-26, -17, "#d8c89a"]] as [number, number, string][]) houseAt(b, old, ox + x, z, 6.2, 7, 5.6, col, "#4a4038", false, Math.PI, 0);
   HOLD.forEach((hh, i) => { const g = houseAt(b, G, ox + hh.x, hh.z, 6.4, 7, 5.8, i ? "#e0d8c8" : "#c9b89a", "#3a3438", false, 0, 0); void g;
@@ -85,6 +85,16 @@ export function buildTown(): TownSet {
     const ramp = new THREE.Mesh(B(-5.2, 0, -0.7, -3.2, 0.06, 0.7), wood); ramp.rotation.z = -0.33; ramp.position.y = 0.35; van.add(ramp);
     for (let k = 0; k < 5; k++) { const bx = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.5, 0.6), lam("ceBox" + (k % 2), () => ({ map: labelTex(k % 2 ? "KITCHEN" : "BOOKS", "#b9a27a", "rgba(30,20,20,0.9)", 1) }))); bx.position.set(-2.6 + (k % 3) * 0.7, 0.95 + Math.floor(k / 3) * 0.5, -0.3 + (k % 2) * 0.5); van.add(bx); }
     van.position.set(ox - 14, 0, 2.2); van.rotation.y = Math.PI; shadowAll(van); old.add(van); }
+  // John Coddington's gas station (1962-79): a small cinder-block office, a canopy on two posts, two pumps on an island, the
+  // fill caps of the underground tanks in the apron
+  { const block = M("ceGasBlock", "#e9e2cf"), trim = M("ceGasTrim", "#2a6a3a"), pump = M("ceGasPump", "#c0392b"), apron = lam("ceApron", () => ({ map: repC(dirtTex("ceApronT", "#9a968c"), 2, 2) })), x = ox + GAS.x;
+    bo.add(B(x - 9, 0.14, 5.75, x + 9, 0.16, 15), apron); bo.add(B(x - 4, 0, 11, x + 4, 3.4, 16), block); bo.add(B(x - 4.2, 3.4, 10.8, x + 4.2, 3.8, 16.2), trim);
+    bo.add(B(x - 5, 3.6, 6.2, x + 5, 3.9, 10.8), trim); for (const dx of [-4.6, 4.6]) bo.add(B(x + dx - 0.12, 0.14, 7.0, x + dx + 0.12, 3.6, 7.24), M("ceGasPost", "#e9e2cf"));
+    bo.add(B(x - 2.4, 0.14, 7.2, x + 2.4, 0.34, 8.0), M("ceIsland", "#c9c2b0"));
+    for (const dx of [-1.2, 1.2]) { bo.add(B(x + dx - 0.35, 0.34, 7.4, x + dx + 0.35, 1.8, 7.8), pump); bo.add(new THREE.SphereGeometry(0.28, 12, 8).translate(x + dx, 2.05, 7.6), M("ceGlobe", "#f6f2e8")); }
+    sign(old, "CODDINGTON'S", x, 2.6, 10.97, 4.6, 0.7, "#2a6a3a", "#f6f2e8"); sign(old, "GAS", x, 3.75, 6.18, 1.6, 0.42, "#2a6a3a", "#f6f2e8");
+    for (let k = 0; k < 4; k++) bo.add(new THREE.CylinderGeometry(0.16, 0.16, 0.05, 14).translate(x - 3.4 + k * 0.9, 0.18, 9.4), M("ceFillCap", "#3a3a40"));
+    { const d = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 2.1), M("ceGasDoor", "#3a4a5a")); d.rotation.y = Math.PI; d.position.set(x + 1.8, 1.19, 10.98); old.add(d); const w = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.2), M("ceWinM", "#3a4a5a")); w.rotation.y = Math.PI; w.position.set(x - 1.6, 1.6, 10.98); old.add(w); } }
   // telegraph poles, the hill, a church on the hill (both times)
   for (const x of [-34, -24, 27, 44, 60, -50]) { b.add(new THREE.CylinderGeometry(0.11, 0.15, 9, 7).translate(ox + x, 4.5, 5.9), dark); b.add(B(ox + x - 0.9, 8.3, 5.85, ox + x + 0.9, 8.42, 5.95), dark); }
   { const ch = lam("ceChurch", () => ({ map: planksHD(), color: "#ecebe4" })), x = ox - 6, z = 74, y = gy(-6, 74); b.add(B(x - 4, y - 1, z, x + 4, y + 6, z + 10), ch); b.add(B(x - 1.4, y + 6, z - 0.4, x + 1.4, y + 10, z + 2.4), ch);
@@ -99,6 +109,7 @@ export function buildTown(): TownSet {
     const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ map: crackTex(true), transparent: true, alphaTest: 0.2, emissive: new THREE.Color(0.9, 0.35, 0.08), emissiveMap: crackTex(true) })); m.position.set(ox, 0.085, 0); m.receiveShadow = true; crack.add(m);
     const rk: Fol = []; for (let i = 0; i < 26; i++) { const x = -12 + i, s = i % 2 ? 1 : -1; rk.push({ g: rockGeo(0.28 + 0.1 * (i % 3), i + 4, 0, 0.45), m: new THREE.Matrix4().compose(V(ox + x, 0.1, crackZ(x) + s * (0.62 + 0.15 * (i % 3))), new THREE.Quaternion().setFromEuler(new THREE.Euler(0.3 * s, i, 0)), V(1.3, 0.5, 0.9)) }); }
     const cm = new THREE.Mesh(mergeFacets(rk), lam("ceChunk", () => ({ map: asphaltTex(true), vertexColors: true, flatShading: true }))); shadowAll(cm); crack.add(cm); }
+  { const gt = ctexG(); const g = new THREE.PlaneGeometry(30, 7.6); g.rotateX(-Math.PI / 2); const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ map: gt, transparent: true, alphaTest: 0.1 })); m.position.set(ox + 31, 0.08, 0); m.receiveShadow = true; now.add(m); }
   const lot = new THREE.Mesh(new THREE.PlaneGeometry(18, 8), lam("ceLotPatch", () => ({ map: dirtTex("ceLotT", "#4a6a2e"), color: "#7a9a5a" }))); lot.rotation.x = -Math.PI / 2; lot.position.set(ox, 0.16, FRONT_Z + 4); now.add(lot);
   const skies = { day: skyPl(G, caSkyTex("day"), "#5f95cf", ox, 0, 600, 420, -60), haze: skyPl(G, ceSkyTex("haze"), "#7aa0c8", ox, 0, 600, 420, -60) };
   const dust = dustMotes(V(ox, 1.6, 0), V(16, 3, 10), 160, new THREE.Color(1, 0.96, 0.9), 0.03, 0.4); G.add(dust.points);
@@ -292,6 +303,8 @@ export function buildRoom(): RoomSet {
     for (const sx of [-3.6, -1.6]) bl.add(B(ox + sx - 0.04, 0, z1 - 0.55, ox + sx + 0.04, 1.75, z1 - 0.45), wood);
     // floor cracks the gas comes up through
     for (const [x, z, a] of [[0.4, 0.2, 0.3], [-1.0, -0.6, -0.5], [1.2, -1.4, 0.9]] as [number, number, number][]) { const c = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.4), new THREE.MeshLambertMaterial({ map: crackTex(false), transparent: true, alphaTest: 0.2 })); c.rotation.set(-Math.PI / 2, 0, a); c.position.set(ox + x, 0.01, z); cellar.add(c); } }
+  { const mon = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.36), lam("ceMonitor", () => ({ map: labelTex("GAS|MONITOR", "#e9e2cf", "rgba(30,30,40,0.95)", 1) }))); mon.rotation.y = Math.PI; mon.position.set(ox - 0.9, 1.55, ROOM.z1 - 0.02); cellar.add(mon);
+    const led = new THREE.Mesh(new THREE.CircleGeometry(0.035, 12), new THREE.MeshBasicMaterial({ color: new THREE.Color(2.4, 0.2, 0.15) })); led.rotation.y = Math.PI; led.position.set(ox - 0.75, 1.42, ROOM.z1 - 0.03); cellar.add(led); }
   bl.build(cellar, true);
   const lamp = new THREE.PointLight("#ffe2b8", 0, 14, 1.3); lamp.position.set(ox - 0.4, h - 0.5, 0.4); council.add(lamp); { const sh = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.3, 0.25, 12, 1, true), M("ceShade", "#e9e2cf")); sh.position.set(ox - 0.4, h - 0.35, 0.4); council.add(sh); }
   const bulb = new THREE.PointLight("#ffd8a0", 0, 12, 1.3); bulb.position.set(ox + 0.4, h - 0.65, 0.2); cellar.add(bulb); flame(cellar, V(ox + 0.4, h - 0.6, 0.2), 0.05);

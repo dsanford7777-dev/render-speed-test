@@ -24,6 +24,8 @@ export const CRACK: V3 = [0, 0, 0];
 export const crackZ = (x: number) => 0.9 * Math.sin(x * 0.45) + 0.35 * Math.sin(x * 1.3 + 1);
 /** the two holdout houses (today) and their porches */
 export const HOLD = [{ x: 13, z: 11 }, { x: -16, z: 12 }];
+/** John Coddington's gas station (1962 town, far side of the street) */
+export const GAS = { x: -31, z: 7 };
 export const TOWN_SUN: V3 = [-0.5, 0.55, -0.66];
 
 // ---- the pit ----

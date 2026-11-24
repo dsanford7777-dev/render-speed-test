@@ -35,7 +35,7 @@ export type Person3 = { who: string; p: V3; expr: Expr; look?: number; headTilt?
   air?: boolean;
   /** walking in profile: step phase 0..1; mirror = moving toward -x; carry = a point both hands hold out to */
   side?: { phase: number; mirror: boolean; stride?: number; carry?: V3 } };
-export type Tool = { kind: "hose" | "pick" | "shovel" | "torch"; g: V3; b: V3; tail?: V3 };
+export type Tool = { kind: "hose" | "pick" | "shovel" | "torch" | "stick"; g: V3; b: V3; tail?: V3 };
 export type Puff = { p: V3; s: number; c: [number, number, number]; a: number; add?: boolean };
 export type CardKind = "paper" | "spark" | "chunk";
 export type Card = { kind: CardKind; p: V3; spin: number; s: number; flat?: boolean };
