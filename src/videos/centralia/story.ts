@@ -112,7 +112,7 @@ const sparks = (c: V3, tt: number, n: number): Card[] => Array.from({ length: n 
 const SW = 0.14; // sidewalk height
 const VENTS = [-9.5, -6.2, -3.1, 0.4, 2.2, 3.6, 5.2, 6.8, 9.9];
 const roadSmoke = (tt: number, k = 1): Puff[] => VENTS.flatMap((x, i) => vent(Tw(x, 0.1, crackZ(x)), tt, 4, 4.0 * k, 0.4, 2.4 * k, 0.45, SMOKE, 0.6, i));
-const HOOK_POS: V3 = Tw(-0.5, 1.0, -4.5), HOOK_LOOK: V3 = Tw(10, 1.9, 9), HOOK = { fov: 50, roll: 0.035 };
+const HOOK_POS: V3 = Tw(-0.5, 1.0, -4.5), HOOK_LOOK: V3 = Tw(12.5, 2.2, 9), HOOK = { fov: 50, roll: 0.035 };
 // frame 0 is the same framing as the frames after it (a slow creep, no snap), and it is also the last frame (the loop)
 const hookCam = (f: number) => move({ pos: HOOK_POS, look: HOOK_LOOK, ...HOOK }, { pos: L3(HOOK_POS, HOOK_LOOK, 0.05), look: HOOK_LOOK, ...HOOK }, f, 0, 14, smooth, 0);
 const hookState = (tt: number): Partial<St3> => ({ light: "townT", puffs: roadSmoke(tt) });
@@ -140,8 +140,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "town62", dof: 1, focus: Tw(-2, 1.4, 5.2),
       cam: move({ pos: Tw(5.0, 1.7, -3.4), look: Tw(-3.4, 1.6, 6.0), fov: 46, roll: 0.05 }, { pos: Tw(3.8, 1.6, -2.8), look: Tw(-3.8, 1.6, 6.0), fov: 46, roll: -0.03 }, f, s.a, s.b, smooth, 0),
       people: [P("man", Tw(-1.9, SW, 4.9), "grin", -1), P("wife", Tw(-1.2, SW, 5.1), "laugh", 1), P("kid", Tw(-1.55, SW, 4.5), "grin", 0, { wave: 0.6 }),
-        walker("m1", -6.2, SW, 4.6, 1.1, tt, "neutral"), walker("m2", -7.4, SW, 5.0, 1.1, tt, "grin")],
-      subjects: [["the borough sign", Tw(4.2, 5.9, FRONT_Z), 0.3]] }; },
+        walker("m1", -5.0, SW, 4.6, 1.1, tt, "neutral"), walker("m2", -5.9, SW, 5.0, 1.1, tt, "grin")],
+      subjects: [["the town", Tw(-1.5, 1.4, 5.0), 0.3]] }; },
   // ...built right on top of old mine tunnels: the camera is in the dark tunnel, a miner's lamp, the old coal car
   tunnels: (s, f) => ({ light: "mineC", dof: 1, focus: Mn(0, 1.1, 9.8), key: Mn(0.4, 2.0, 2),
     cam: move({ pos: Mn(0.6, 2.1, -4.5), look: Mn(0, 1.0, 10), fov: 50, roll: 0.06 }, { pos: Mn(0.2, 1.3, 1.5), look: Mn(0, 1.0, 12), fov: 46, roll: -0.03 }, f, s.a, s.b, smooth, 0),
@@ -149,7 +149,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // In May of 1962, the town wanted its dump cleaned up: the dump in the old pit, by day
   dump: (s, f) => ({ light: "pit", dof: 1, focus: HEAPC, puffs: vent(add(HEAPC, 1, 0.5, 0), t(f), 3, 2, 0.4, 1.2, 0.3, SMOKE, 0.3, 2),
     cam: move({ pos: Pt(-5, 4.2, 0.5), look: add(HEAPC, 0, -0.5, 0), fov: 46, roll: 0.05 }, { pos: Pt(3, 3.0, 2.0), look: add(HEAPC, 0, -0.3, 0), fov: 44, roll: -0.04 }, f, s.a, s.b, smooth, 0),
-    subjects: [["the rubbish heap", HEAPC, 0.8], ["the cemetery", Pt(2, 2.4, PIT_C[2] + RZ + 5), 1.0]] }),
+    subjects: [["the rubbish heap", HEAPC, 0.8]] }),
   // So the council hired five volunteer firefighters: the council at the table, one points at the plan
   council: (s, f) => { const p1 = Rm(-0.62, 0, 2.0), p2 = Rm(0, 0, 2.1), p3 = Rm(0.62, 0, 2.0);
     return { light: "council", dof: 1, focus: Rm(0, 1.45, 1.9), key: Rm(-0.4, 2.5, 0.4),
@@ -159,14 +159,14 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ...five volunteer firefighters: lined up on the rim by the fire company's truck
   five: (s, f) => ({ light: "pit", dof: 1, focus: add(RIM5[2], 0, 1.3, 0), people: ffs("neutral"),
     cam: kick(move({ pos: add(RIM5[2], 1.0, 1.2, -7.2), look: add(RIM5[2], 0, 1.2, 0), fov: 50, roll: 0.06 }, { pos: add(RIM5[2], -0.5, 1.3, -7.6), look: add(RIM5[2], 0, 1.25, 0), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, W(2, "5"), 0.7),
-    subjects: [["the fire truck", Pt(TRUCK[0], 1.6, TRUCK[2]), 0.6]] }),
+    subjects: [["the firemen", add(RIM5[2], 0, 1.3, 0), 0.2]] }),
   // ...and they set the dump on fire: a torch to the heap at dusk, the fire takes, at the lens
   light: (s, f) => { const tt = t(f - s.a), go = clamp01((f - W(2, "fire")) / 12), p = Pt(-1.5, FLOOR, 13.6), hand = add(p, 0.4, 1.15, 0.4), tip = add(p, 0.8, 1.5, 0.75);
     return { light: "pitD", dof: 1, focus: add(HEAPC, -1.5, 0, -2), fire: 0.25 + 0.75 * go, heat: go * 0.8, key: HEAPC,
       puffs: [...flames(HEAPC, tt, 0.3 + 0.7 * go, 3.2), ...smokeCol(HEAPC, tt, go, 10, 12)], cards: sparks(HEAPC, tt, Math.round(14 * go)), tools: [{ kind: "torch", g: hand, b: tip }],
       people: [P("ff2", p, go > 0.3 ? "shock" : "grin", -1, { hw: [hand] })],
       cam: kick(move({ pos: Pt(-4.2, FLOOR + 1.6, 8.6), look: add(HEAPC, -0.6, 0.2, -1), fov: 48, roll: -0.06 }, { pos: Pt(-3.4, FLOOR + 1.2, 10.4), look: add(HEAPC, -0.6, 0.6, -1), fov: 52, roll: 0.05 }, f, s.a, s.b, smooth, 0), f, W(2, "fire"), 1.2),
-      subjects: [["the burning heap", HEAPC, 0.8], ["the torch", tip, 0.1]] }; },
+      subjects: [["the burning heap", add(HEAPC, 0, 0.8, 0), 2.2], ["the torch", tip, 0.1]] }; },
   // The problem? That dump sat in an old strip-mine pit: a crane up and out, the walls in layers, the fire in the bottom
   pitwide: (s, f) => { const tt = t(f);
     return { light: "pitD", dof: 0, focus: HEAPC, fire: 1, heat: 0.8, key: HEAPC, puffs: [...flames(HEAPC, tt, 1, 3.2, 12), ...smokeCol(HEAPC, tt, 1, 10, 16)],
@@ -184,15 +184,15 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       puffs: [...jet(n1, 0), ...jet(n2, 0.5), ...vent(add(HEAPC, 0, -0.3, -1), tt, 8, 4, 0.8, 3.2, 0.7, STEAM, 0.5, 1)],
       tools: [{ kind: "hose", g: h1, b: n1, tail: Pt(-6, FLOOR + 0.05, 10) }, { kind: "hose", g: h2, b: n2, tail: Pt(-4, FLOOR + 0.05, 9.5) }],
       people: [P("ff1", p1, "stern", -1, { hw: [h1, n1] }), P("ff3", p2, "stern", -1, { hw: [h2, n2] })],
-      cam: move({ pos: Pt(0.4, FLOOR + 1.5, 9.6), look: add(p2, -0.6, 1.1, 2.2), fov: 52, roll: 0.05 }, { pos: Pt(-0.6, FLOOR + 1.6, 9.9), look: add(p2, -0.9, 1.0, 2.6), fov: 50, roll: -0.04 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the water on the heap", add(HEAPC, -1.2, 0, -2.2), 0.6]] }; },
+      cam: move({ pos: Pt(0.4, FLOOR + 1.5, 9.6), look: add(p2, 0.6, 1.0, 2.6), fov: 52, roll: 0.05 }, { pos: Pt(-0.6, FLOOR + 1.6, 9.9), look: add(p2, 0.4, 1.0, 2.8), fov: 50, roll: -0.04 }, f, s.a, s.b, smooth, 0),
+      subjects: [["the water on the heap", Pt(0.0, FLOOR + 0.6, 15.6), 0.8]] }; },
   // It came back: smoke out of the ground round the heap again, the firemen look round
-  back: (s, f) => { const tt = t(f - s.a), k = clamp01(tt / 0.6), spots = [[-6, 15], [5, 13], [8, 19], [-4, 21], [0, 11.5]] as [number, number][];
+  back: (s, f) => { const tt = t(f - s.a), k = clamp01(tt / 0.6), spots = [[-4.2, 16], [-0.5, 17], [-2.5, 19], [1.2, 15], [-3.5, 14.5]] as [number, number][];
     return { light: "pit", dof: 1, focus: Pt(-1, FLOOR + 1.2, 13), heat: 0.6, fire: 0.25, key: HEAPC,
       puffs: spots.flatMap(([x, z], i) => vent(Pt(x, FLOOR + 0.05, z), tt, 3, 3 * k, 0.5, 2.2, 0.7, SMOKE, 0.3, i)),
       people: [P("ff1", Pt(-2.5, FLOOR, 13.8), "shock", 1), P("ff3", Pt(-1.5, FLOOR, 13.2), "nervous", -1)],
       cam: kick(snap(Pt(-2.0, FLOOR + 1.5, 9.4), Pt(-2.1, FLOOR + 1.3, 13.3), f, s.a, { fov: 54, roll: -0.07 }, 1.15, 5), f, W(4, "back"), 0.9),
-      subjects: [["the smoke from the ground", Pt(-6, FLOOR + 1.4, 15), 0.6]] }; },
+      subjects: [["the smoke from the ground", Pt(-2.5, FLOOR + 1.5, 19), 0.8]] }; },
   // Because now it was burning underground, in the tunnels: in the tunnel, the fire coming toward us
   under: (s, f) => { const tt = t(f - s.a), bn = 0.4 + 0.6 * clamp01(tt / 2);
     return { light: "mineF", dof: 1, burn: bn, focus: Mn(0, 1.2, 16), key: Mn(0, 1.4, 18),
@@ -214,8 +214,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       tools: [{ kind: "shovel", g: s1g, b: s1b }, { kind: "pick", g: pkg, b: pkb }, { kind: "shovel", g: add(p3, 0.2, 1.0, 0.3), b: add(p3, 0.3, 0.1, 1.1) }],
       people: [P("w1", p1, "stern", -1, { hw: [s1g, L3(s1g, s1b, 0.35)] }), P("w2", p2, "stern", 1, { hw: [pkg, L3(pkg, pkb, 0.3)] }), P("w3", p3, "neutral", 0, { hw: [add(p3, 0.2, 1.0, 0.3)] })],
       cards: dig < -0.2 ? [] : Array.from({ length: 8 }, (_, i) => { const u = ((tt * 1.3) % 1) * 1.5; return { kind: "chunk" as const, p: add(s1b, 0.3 * Math.sin(i * 2) * u, 0.3 + 1.2 * u - 1.4 * u * u, -0.4 * u), spin: i + u * 4, s: 0.5 + 0.2 * (i % 3) }; }),
-      cam: move({ pos: Pt(TRENCH[0] + 4.5, y0 + 2.4, TRENCH[2] - 7.5), look: add(p2, 0, 0.7, 1.2), fov: 46, roll: 0.05 }, { pos: Pt(TRENCH[0] + 1.5, y0 + 1.8, TRENCH[2] - 7.0), look: add(p2, 0, 0.8, 1.2), fov: 46, roll: -0.04 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the trench", Pt(TRENCH[0], y0 - 0.8, TRENCH[2]), 0.6]] }; },
+      cam: move({ pos: Pt(TRENCH[0] + 3.4, y0 + 2.4, TRENCH[2] - 8.2), look: add(p2, 0, 0.7, 1.2), fov: 46, roll: 0.05 }, { pos: Pt(TRENCH[0] + 2.2, y0 + 2.2, TRENCH[2] - 8.0), look: add(p2, 0, 0.75, 1.2), fov: 46, roll: -0.04 }, f, s.a, s.b, smooth, 0),
+      subjects: [["the trench", Pt(TRENCH[0] + 0.6, y0 - 0.2, TRENCH[2] - 0.7), 0.6]] }; },
   // ...and flushed the mines: water pouring down the borehole, a man watching the gauge
   flush: (s, f) => { const y0 = pitGround(Pt(BORE[0], 0, 0)[0], BORE[2]), c = Pt(BORE[0], y0 + 1.0, BORE[2]);
     return { light: "pit", dof: 1, focus: c, flush: true, people: [P("w2", Pt(BORE[0] - 1.6, y0, BORE[2] - 0.6), "stern", 1)],
@@ -235,20 +235,20 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       puffs: [[-3.2, 0.2], [-1.6, 1.3], [-4.6, -0.8]].flatMap(([x, z], i) => vent(Yd(x, 0.02, z), tt, 4, 2.4, 0.4, 1.8, 0.7, SMOKE, 0.3, i)),
       people: [P("wife", Yd(-0.8, 0, -1.6), "shock", 1)],
       cam: move({ pos: Yd(1.2, 1.5, -6.8), look: Yd(-2.0, 0.9, 0.4), fov: 46, roll: -0.05 }, { pos: Yd(0.2, 1.4, -6.0), look: Yd(-2.2, 0.8, 0.4), fov: 44, roll: 0.04 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the smoking lawn", Yd(-3.2, 0.4, 0.2), 0.4], ["the clothesline", Yd(-3.5, 2.0, -3.54), 0.2]] }; },
+      subjects: [["the smoking lawn", Yd(-3.2, 0.4, 0.2), 0.4]] }; },
   // Gas crept into basements: a cellar, grey gas curling up through the floor cracks, a man backing off
   cellar: (s, f) => { const tt = t(f - s.a);
     return { light: "cellar", dof: 1, focus: Rm(0.4, 0.6, 0.2), key: Rm(0.4, 2.35, 0.2),
       puffs: [[0.4, 0.2], [-1.0, -0.6], [1.2, -1.4]].flatMap(([x, z], i) => vent(Rm(x, 0.02, z), tt, 5, 1.6, 0.4, 1.4, 0.6, GAS, 0.25, i)),
       people: [P("man", Rm(-1.5, 0, 1.6), "nervous", -1)],
       cam: kick(move({ pos: Rm(1.5, 1.2, -3.6), look: Rm(-0.2, 0.7, 0.6), fov: 48, roll: 0.07 }, { pos: Rm(1.0, 1.0, -3.0), look: Rm(-0.3, 0.75, 0.6), fov: 46, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, W(5, "basements"), 0.6),
-      subjects: [["the gas", Rm(0.4, 0.9, 0.2), 0.3], ["the furnace", Rm(2.0, 1.0, 2.9), 0.3]] }; },
+      subjects: [["the gas", Rm(0.4, 0.9, 0.2), 0.3]] }; },
   // Then, on Valentine's Day, 1981: the yard in winter, a boy walking toward a wisp of steam
   boy: (s, f) => { const tt = t(f - s.a);
     return { light: "yardW", hole: "closed", dof: 1, focus: Yd(-1.2, 1.0, 2.4), puffs: vent(Yd(HOLE[0], 0.02, HOLE[2]), tt, 3, 1.6, 0.3, 1.1, 0.5, STEAM, 0.2, 1),
       people: [P("todd", Yd(-1.6 + 0.55 * tt, 0, 0.6 + 0.35 * tt), "neutral", 1, { march: (tt * 1.6) % 1 })],
       cam: orbit(s, f, Yd(-0.4, 1.2, 1.8), [-24, -8], [8.6, 7.8], [1.2, 0.8], 46, [0.04, -0.03]),
-      subjects: [["the wisp of steam", Yd(HOLE[0], 0.8, HOLE[2]), 0.3], ["the tree", Yd(TREE[0], 2.8, TREE[2]), 0.4]] }; },
+      subjects: [["the wisp of steam", Yd(HOLE[0], 0.8, HOLE[2]), 0.6]] }; },
   // ...a 12-year-old boy named Todd Domboski: close on him at the spot, looking down at it
   todd: (s, f) => { const p = Yd(HOLE[0] - 0.1, 0, HOLE[2] - 0.15);
     return { light: "yardW", hole: "closed", dof: 2, focus: add(p, 0, 0.95, 0), puffs: vent(Yd(HOLE[0] + 0.3, 0.02, HOLE[2] + 0.2), t(f), 3, 1.4, 0.3, 1.0, 0.5, STEAM, 0.2, 2),
@@ -287,12 +287,12 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   money: (s, f) => { const tt = t(f - s.a);
     return { light: "town62", van: true, dof: 1, focus: Tw(-13, 1.6, 3.2),
       people: [carrying(walker("man", -7.6, SW, 4.6, -0.7, tt, "neutral"), Tw(-8.1 - 0.7 * tt, 1.1, 4.3)), P("wife", Tw(-8.9, SW, 5.3), "nervous", 1), P("kid", Tw(-8.4, SW, 5.0), "nervous", 1)],
-      cam: move({ pos: Tw(-4.0, 2.2, -7.0), look: Tw(-10.6, 1.5, 3.6), fov: 48, roll: 0.05 }, { pos: Tw(-5.0, 2.0, -6.4), look: Tw(-10.8, 1.5, 3.6), fov: 46, roll: -0.04 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the moving van", Tw(-14, 2.2, 2.2), 0.8]] }; },
+      cam: move({ pos: Tw(-3.0, 2.3, -8.6), look: Tw(-9.4, 1.5, 3.6), fov: 50, roll: 0.05 }, { pos: Tw(-3.8, 2.2, -8.2), look: Tw(-9.6, 1.5, 3.6), fov: 50, roll: -0.04 }, f, s.a, s.b, smooth, 0),
+      subjects: [["the moving van", Tw(-11.4, 2.0, 2.2), 0.8]] }; },
   // The state took the houses: a condemned notice on a door, snapped in close
   houses: (s, f) => ({ light: "town62", condemned: true, dof: 1, focus: Tw(22.81, 1.15, 8.07),
     cam: kick(snap(Tw(21.6, 1.55, 5.2), Tw(22.6, 1.3, 8.07), f, s.a, { fov: 44, roll: -0.08 }, 2.2, 6), f, W(8, "houses"), 0.8),
-    subjects: [["the condemned notice", Tw(22.81, 1.15, 8.07), 0.1], ["the house", Tw(22.5, 3.0, 8.1), 0.3]] }),
+    subjects: [["the condemned notice", Tw(22.81, 1.15, 8.07), 0.1]] }),
   // The Postal Service even took away the ZIP code: the post office sign
   zip: (s, f) => ({ light: "town62", dof: 1, focus: Tw(-4.6, 3.55, FRONT_Z),
     cam: kick(move({ pos: Tw(-1.8, 3.4, -4.4), look: Tw(-4.6, 4.3, FRONT_Z), fov: 44, roll: 0.06 }, { pos: Tw(-2.9, 3.5, -3.4), look: Tw(-4.6, 4.3, FRONT_Z), fov: 42, roll: -0.04 }, f, s.a, s.b, smooth, 0), f, W(8, "zip"), 1.0),
@@ -305,7 +305,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ...and they won the right to stay for the rest of their lives: crane up over the empty grid, their house, and one other
   stay: (s, f) => ({ light: "townT", dof: 0, focus: Tw(0, 1, 8), puffs: roadSmoke(t(f), 1.2),
     people: [P("holdM", PORCH(-0.6), "grin", 1, { wave: 0.8 }), P("holdW", PORCH(0.55), "grin", -1)],
-    cam: move({ pos: Tw(HOLD[0].x - 2.0, 2.4, -1.0), look: add(PORCH(0), 0, 1.2, 0), fov: 46, roll: 0.03 }, { pos: Tw(4, 19, -22), look: Tw(-1, 0, 10), fov: 50, roll: -0.04 }, f, s.a, s.b, smooth, 0),
+    cam: move({ pos: Tw(HOLD[0].x - 2.0, 2.4, -1.0), look: add(PORCH(0), 0, 1.2, 0), fov: 46, roll: 0.03 }, { pos: Tw(-1.5, 26, -40), look: Tw(-1.5, 0, 11), fov: 60, roll: -0.03 }, f, s.a, s.b, smooth, 0),
     subjects: [["their house", Tw(HOLD[0].x, 3, HOLD[0].z), 1], ["the other house", Tw(HOLD[1].x, 3, HOLD[1].z), 1]] }),
   // By 2020, the census counted five people: the five of them in the empty road
   five2020: (s, f) => { const row: [string, number][] = [["holdM", -1.2], ["holdW", -0.6], ["r3", 0], ["r4", 0.6], ["r5", 1.2]];
