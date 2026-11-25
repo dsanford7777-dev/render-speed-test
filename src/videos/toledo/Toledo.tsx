@@ -54,7 +54,7 @@ export const Toledo: React.FC = () => {
       <Overlays />
       <Captions />
       <SubscribeTag total={TOTAL} />
-      {voice ? <Audio src={staticFile("centralia/voice.mp3")} /> : null}
+      {voice ? <Audio src={staticFile("toledo/voice.mp3")} /> : null}
     </AbsoluteFill>
   );
 };

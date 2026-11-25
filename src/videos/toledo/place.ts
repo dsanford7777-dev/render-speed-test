@@ -1,60 +1,57 @@
-// The Toledo Short (the dump fire of May 27, 1962 that became a mine fire, the 1981 sinkhole, the buyout): where
-// things stand. Five sets, far apart along x. In every set the cameras sit on the -z side looking toward +z, so world +x
-// is screen LEFT.
-//   town   the main street: asphalt road, a brick block with the borough sign and the post office, frame houses both
-//          sides, the hill behind. 1962 (whole), or today (most houses gone, grass lots, the road cracked and smoking).
-//   pit    the town dump in an old strip-mine pit beside the cemetery: rock walls in layers with a black coal seam,
-//          a heap of rubbish at the bottom, the fire company's truck on the rim; a trench and a borehole further along.
-//   mine   one old mine tunnel: coal walls, timber sets, rails; cold and dark (the old mines) or burning (the fire).
-//   yard   a back yard in winter (Feb 14, 1981): the back of a house, a fence, an old tree; the sinkhole opens by it.
-//   room   one room, dressed as the borough council's room (1962) or as a house cellar (gas through the floor).
+// The Toledo War Short (Ohio vs the Michigan Territory, 1835-36): where things stand. Four sets, far apart along x.
+// In every set the cameras sit on the -z side looking toward +z, so world +x is screen LEFT.
+//   river  Toledo, 1835: a dirt street, log and frame buildings on its far side (the tavern among them, at screen
+//          right), and at screen left the bank dropping to the Maumee, a plank wharf and a moored schooner.
+//   woods  Phillips Corners: a forest clearing with the survey line (stakes, a chain, a compass on its staff).
+//   room   one room with three dressings: the tavern (bar, barrels, lanterns), Congress (columns, desks, the big map),
+//          the Frostbitten Convention (log walls, a stove, frosted windows, benches).
+//   north  the Upper Peninsula: a pine forest and a rocky Lake Superior shore with a copper outcrop and a mine portal,
+//          in winter (snow, ice) or summer (the copper years).
 export type V3 = [number, number, number];
 export const FPS = 30;
 
-export type SetKey = "town" | "pit" | "mine" | "yard" | "room";
-export const SET: Record<SetKey, V3> = { town: [0, 0, 0], pit: [400, 0, 0], mine: [700, 0, 0], yard: [1000, 0, 0], room: [1300, 0, 0] };
+export type SetKey = "river" | "woods" | "room" | "north";
+export const SET: Record<SetKey, V3> = { river: [0, 0, 0], woods: [400, 0, 0], room: [700, 0, 0], north: [1000, 0, 0] };
 const at = (k: SetKey) => (x: number, y: number, z: number): V3 => [SET[k][0] + x, SET[k][1] + y, SET[k][2] + z];
-export const Tw = at("town"), Pt = at("pit"), Mn = at("mine"), Yd = at("yard"), Rm = at("room");
+export const Rv = at("river"), Wd = at("woods"), Rm = at("room"), Nt = at("north");
 
-// ---- the town ----
-/** the road runs along x; its near kerb at z = ROAD_Z0, far kerb ROAD_Z1; the brick block's front at FRONT_Z */
-export const ROAD_Z0 = -4, ROAD_Z1 = 4, WALK_Z = 4.15, FRONT_Z = 7;
-/** the big crack across the road (today): centre and length along x, its line wanders in z */
-export const CRACK: V3 = [0, 0, 0];
-export const crackZ = (x: number) => 0.9 * Math.sin(x * 0.45) + 0.35 * Math.sin(x * 1.3 + 1);
-/** the two holdout houses (today) and their porches */
-export const HOLD = [{ x: 13, z: 11 }, { x: -16, z: 12 }];
-/** John Coddington's gas station (1962 town, far side of the street) */
-export const GAS = { x: -31, z: 7 };
-export const TOWN_SUN: V3 = [-0.5, 0.55, -0.66];
+// ---- the river town ----
+/** the street runs along x between ST_Z0 and ST_Z1; buildings stand behind it (x < BLD_X1) from z = BLD_Z */
+export const ST_Z0 = -3, ST_Z1 = 3, BLD_Z = 5.5, BLD_X1 = -5;
+/** the bank: level ground to BANK_Z0, down to the water level WATER_Y by BANK_Z1; the far bank from FAR_Z */
+export const BANK_Z0 = 9, BANK_Z1 = 14, WATER_Y = -1.3, FAR_Z = 70;
+/** where the bank starts dropping: BANK_Z0 at screen left (the wharf side), well back behind the buildings at screen right */
+export const bankZ = (x: number) => { const u = Math.max(0, Math.min(1, (x + 2) / -7)); return BANK_Z0 + (34 - BANK_Z0) * u * u * (3 - 2 * u); };
+/** ground height in the river set (set-local x, z) */
+export const riverY = (x: number, z: number) => {
+  const z0 = bankZ(x), z1 = z0 + (BANK_Z1 - BANK_Z0);
+  if (z < z0) return 0;
+  if (z < z1) { const u = (z - z0) / (z1 - z0); return -2.6 * u * u * (3 - 2 * u); }
+  if (z < FAR_Z) return -2.6;
+  return Math.min(1.5, -2.6 + (z - FAR_Z) * 0.45);
+};
+/** the tavern's front (its door) and the wharf (x range, how far it runs out over the water) */
+export const TAVERN = { x: -13, z: BLD_Z }, WHARF = { x0: 9, x1: 13, z1: 26, y: 0.25 };
+/** the schooner moored at the wharf's end */
+export const SHIP: V3 = [20, WATER_Y, 27];
+export const RIVER_SUN: V3 = [-0.45, 0.58, -0.68];
 
-// ---- the pit ----
-/** the pit: an ellipse (radii RX, RZ) round PIT_C, DEPTH deep; walls steep, floor flat; the seam band in the wall */
-export const PIT_C: V3 = [0, 0, 16], RX = 17, RZ = 11, DEPTH = 9;
-export const SEAM: [number, number] = [-6.2, -4.6];
-const sm = (a: number, b: number, x: number) => { const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u); };
-/** ground height in the pit set (set-local x, z) before the small noise */
-export const pitY = (x: number, z: number) => { const r = Math.hypot((x - PIT_C[0]) / RX, (z - PIT_C[2]) / RZ); return -DEPTH * (1 - sm(0.62, 1.0, r)); };
-/** the rubbish heap on the pit floor */
-export const HEAP: V3 = [2, -DEPTH, 18];
-/** the rim where the firemen stand (near side, toward the camera) and the truck */
-export const RIM: V3 = [0, 0, 16 - RZ - 1.5];
-export const TRUCK: V3 = [8, 0, RIM[2] - 2.2];
-/** the trench and the borehole (later years), off to screen right (-x) */
-/** the opening in the far wall that led down into the old tunnels (set-local x, z of the wall face) */
-export const OPENING: [number, number] = [-5, 23.6];
-export const TRENCH: V3 = [-34, 0, 4], BORE: V3 = [-46, 0, 2];
-export const PIT_SUN: V3 = [-0.45, 0.6, -0.66];
-
-// ---- the mine ----
-/** the tunnel runs along +z from the camera end: half width, height, length */
-export const TUN = { hw: 1.6, h: 2.4, z0: -6, z1: 60 };
-
-// ---- the yard ----
-/** the house's back wall at z = HOUSE_Z; the tree; the sinkhole beside it */
-export const HOUSE_Z = 9, TREE: V3 = [2.2, 0, 3.2], HOLE: V3 = [0.6, 0, 2.4], HOLE_R = 0.62;
-export const YARD_SUN: V3 = [-0.4, 0.5, -0.76];
+// ---- the woods ----
+/** the survey line runs along x at z = LINE_Z; the compass on its staff; the clearing's radius */
+export const LINE_Z = 6, COMPASS: V3 = [-2.2, 0, 5.4], CLEAR_R = 9;
+export const WOODS_SUN: V3 = [-0.35, 0.62, -0.7];
 
 // ---- the room ----
-export const ROOM = { w: 4.6, z0: -5.5, z1: 3.6, h: 3.0 };
-export const DESK = { y: 0.8, x: 0, z: 1.2, hw: 1.3, hd: 0.55 };
+export const ROOM = { w: 5.0, z0: -6, z1: 4.0, h: 3.4 };
+/** the tavern's bar (along the back wall) and its table; Congress's big map on the back wall; the convention's stove */
+export const BAR = { z: 2.6, x0: -4.4, x1: 0.6, y: 1.1 }, TABLE: V3 = [1.6, 0, 0.2], MAP = { x: 0, y: 2.0, w: 3.6, h: 2.3 }, STOVE: V3 = [3.2, 0, 1.6];
+
+// ---- the north ----
+/** the shore runs along x at z = SHORE_Z (lake beyond); the copper outcrop and the mine portal in the rock face */
+export const SHORE_Z = 22, LAKE_Y = -0.6, OUTCROP: V3 = [-3, 0, 7.5], PORTAL: V3 = [6, 0, 9.5];
+export const northY = (x: number, z: number) => {
+  const base = 0.05 * Math.sin(x * 0.7 + z * 0.4) + 0.04 * Math.sin(x * 1.9 - z * 1.3);
+  if (z > SHORE_Z - 3) { const u = Math.min(1, (z - (SHORE_Z - 3)) / 4); return base * (1 - u) + (LAKE_Y - 0.6) * u * u * (3 - 2 * u); }
+  return base;
+};
+export const NORTH_SUN: V3 = [-0.5, 0.42, -0.76];

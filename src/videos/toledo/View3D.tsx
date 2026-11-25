@@ -17,7 +17,7 @@ import { TwWorld } from "./world";
 import { SPECS, specAt, whipAt, ShotDef } from "./story";
 
 const sat = (k: number) => GRADES.day.sat.map((x) => x * k) as [number, number, number];
-const GR: Record<"town62" | "townT" | "pit" | "pitD" | "mineC" | "mineF" | "yardW" | "yardS" | "council" | "cellar", GradeParams> = { town62: { ...GRADES.day, sat: sat(0.95), vig: [0.3, 0.36] }, townT: { ...GRADES.day, sat: sat(0.86), vig: [0.32, 0.36] }, pit: { ...GRADES.day, sat: sat(0.92), vig: [0.3, 0.36] }, pitD: { ...GRADES.day, sat: sat(0.92), vig: [0.42, 0.3] }, mineC: { ...GRADES.day, sat: sat(0.85), vig: [0.46, 0.26] }, mineF: { ...GRADES.day, sat: sat(1.0), vig: [0.46, 0.26] }, yardW: { ...GRADES.day, sat: sat(0.85), vig: [0.3, 0.36] }, yardS: { ...GRADES.day, sat: sat(0.95), vig: [0.3, 0.36] }, council: { ...GRADES.day, sat: sat(0.95), vig: [0.44, 0.26] }, cellar: { ...GRADES.day, sat: sat(0.85), vig: [0.46, 0.26] } };
+const GR: Record<"river" | "woods" | "tavern" | "congress" | "conv" | "northW" | "northS", GradeParams> = { river: { ...GRADES.day, sat: sat(0.95), vig: [0.3, 0.36] }, woods: { ...GRADES.day, sat: sat(0.92), vig: [0.34, 0.34] }, tavern: { ...GRADES.day, sat: sat(0.95), vig: [0.44, 0.26] }, congress: { ...GRADES.day, sat: sat(0.92), vig: [0.36, 0.32] }, conv: { ...GRADES.day, sat: sat(0.82), vig: [0.46, 0.26] }, northW: { ...GRADES.day, sat: sat(0.85), vig: [0.3, 0.36] }, northS: { ...GRADES.day, sat: sat(0.98), vig: [0.3, 0.36] } };
 const QA = !!(getInputProps() as { qa?: boolean }).qa;
 
 const makeBloom = () => {
@@ -30,7 +30,7 @@ const fwd = new THREE.Vector3(), fpt = new THREE.Vector3();
 
 export const useKit = () => {
   const [kit, setKit] = useState<Kit | null>(null);
-  const [handle] = useState(() => delayRender("centralia kit"));
+  const [handle] = useState(() => delayRender("toledo kit"));
   useEffect(() => { loadKit().then((k) => { setKit(k); continueRender(handle); }); }, [handle]);
   return kit;
 };
@@ -77,8 +77,8 @@ const Inner: React.FC<{ kit: Kit; shot: ShotDef | null; f: number }> = ({ kit, s
 export const View3D: React.FC<{ kit: Kit; shot: ShotDef | null; f: number; visible: boolean; w?: number; h?: number }> = ({ kit, shot, f, visible, w = 1080, h = 1920 }) => {
   const whip = visible && shot && has3D(shot) ? whipAt(shot, f) : 0;
   return (
-  <div style={{ position: "absolute", inset: 0, opacity: visible ? 1 : 0, filter: whip > 0.01 ? "url(#cewhip)" : undefined }}>
-    <svg width="0" height="0" style={{ position: "absolute" }}><filter id="cewhip" x="-12%" y="0%" width="124%" height="100%"><feGaussianBlur stdDeviation={`${(whip * 46).toFixed(1)} 0`} /></filter></svg>
+  <div style={{ position: "absolute", inset: 0, opacity: visible ? 1 : 0, filter: whip > 0.01 ? "url(#twwhip)" : undefined }}>
+    <svg width="0" height="0" style={{ position: "absolute" }}><filter id="twwhip" x="-12%" y="0%" width="124%" height="100%"><feGaussianBlur stdDeviation={`${(whip * 46).toFixed(1)} 0`} /></filter></svg>
     <ThreeCanvas width={w} height={h} shadows gl={{ antialias: false, stencil: false, powerPreference: "high-performance", toneMappingExposure: 1.0 }}
       camera={{ fov: 40, near: 0.05, far: 4000 }}>
       <Inner kit={kit} shot={visible ? shot : null} f={f} />

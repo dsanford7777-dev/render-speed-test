@@ -1,9 +1,8 @@
-// The Toledo Short's world: five sets (csets.ts), only the one in shot is switched on.
+// The Toledo War Short's world: four sets (tsets.ts), only the one in shot is switched on.
 // Look: character look B (bridge/toon.ts) and the background rules: sets carry no ink line, every light has a source,
 // characters cast real shadows (a shadow twin turned to the light), grass near the camera on every lawn.
-// Posed per frame: the town's two times (1962 / today), the crack, the condemned notices, the moving van; the pit's
-// burning heap and the seam glowing along the wall, the water down the borehole; the tunnel cold or burning; the yard's
-// winter, the sinkhole; the room's two dressings; tools in hands (hose, torch, pick, shovel); cards; puffs.
+// Posed per frame: the river (waves), the room's three dressings (tavern / Congress / convention) and its map, the north
+// in winter or summer; tools in hands (musket, penknife, pick); cards (paper, sparks, snowflakes, copper); puffs.
 import * as THREE from "three";
 import { V, lam, Kit } from "../bridge/build";
 import { Pen, bodyFront, bodySide, fxContact, Outfit } from "../bridge/toon";
@@ -15,81 +14,81 @@ import { ctex } from "../bridge/paint";
 import { Grass } from "../bridge/grass";
 import { M } from "../frozen/fsets";
 import { puffTex, sheetTex } from "../frozen/paint";
-import { V3, FPS, SET, TOWN_SUN, PIT_SUN, YARD_SUN } from "./place";
-import { buildTown, buildPit, buildMine, buildYard, buildRoom, TownSet, PitSet, MineSet, YardSet, RoomSet } from "./tsets";
+import { V3, FPS, SET, RIVER_SUN, WOODS_SUN, NORTH_SUN } from "./place";
+import { buildRiver, buildWoods, buildRoom, buildNorth, RiverSet, WoodsSet, RoomSet, NorthSet } from "./tsets";
 import type { St3, CardKind } from "./story";
 type Light = St3["light"];
 
 const D = LIGHTS.day;
 const LP: Record<Light, LightPreset> = {
-  // the town in 1962: a clear late-spring day
-  town62: { ...D, fogNear: 60, fogFar: 520, lit: [1.36, 1.28, 1.12], shade: [0.44, 0.47, 0.6], lift: [0.06, 0.06, 0.09], charTint: [1.02, 0.98, 0.93], sideTint: [0.9, 0.9, 0.95], hemiI: 0.64, sunI: 2.3, sunCol: "#fff0d0", sky: "#b9d2ea", ground: "#6a6048", fog: "#c9d6e0" },
-  // the town today: hazy, a little colder; smoke in the air
-  townT: { ...D, fogNear: 40, fogFar: 420, lit: [1.22, 1.2, 1.12], shade: [0.42, 0.45, 0.56], lift: [0.07, 0.07, 0.09], charTint: [1.0, 0.98, 0.95], sideTint: [0.9, 0.9, 0.94], hemiI: 0.66, sunI: 1.9, sunCol: "#f2ecdc", sky: "#c2d2e0", ground: "#6a6450", fog: "#cdd4da" },
-  // the dump by day
-  pit: { ...D, fogNear: 60, fogFar: 520, lit: [1.34, 1.26, 1.1], shade: [0.44, 0.46, 0.58], lift: [0.06, 0.06, 0.09], charTint: [1.02, 0.97, 0.92], sideTint: [0.9, 0.9, 0.95], hemiI: 0.64, sunI: 2.2, sunCol: "#ffecc8", sky: "#b9cde0", ground: "#7a6a54", fog: "#c9d2d8" },
-  // the evening they set it alight: dusk, the fire the brightest thing
-  pitD: { ...D, fogNear: 50, fogFar: 420, lit: [0.96, 0.76, 0.68], shade: [0.26, 0.26, 0.42], lift: [0.05, 0.04, 0.09], charTint: [1.04, 0.88, 0.8], sideTint: [0.86, 0.8, 0.9], hemiI: 0.5, sunI: 1.2, sunCol: "#ff9a5a", sky: "#7a6a8a", ground: "#3a3040", fog: "#6a5a6e" },
-  // the old mine tunnels, cold: one dim lamp
-  mineC: { ...D, fogNear: 6, fogFar: 40, lit: [0.62, 0.6, 0.64], shade: [0.16, 0.16, 0.2], lift: [0.05, 0.05, 0.07], charTint: [0.96, 0.92, 0.88], sideTint: [0.9, 0.88, 0.9], hemiI: 0.3, sunI: 0, sunCol: "#ffffff", sky: "#3a3a44", ground: "#1a1a20", fog: "#08080c" },
-  // the tunnels burning: orange from deep inside
-  mineF: { ...D, fogNear: 10, fogFar: 60, lit: [1.0, 0.62, 0.4], shade: [0.2, 0.1, 0.09], lift: [0.06, 0.03, 0.03], charTint: [1.04, 0.84, 0.7], sideTint: [0.94, 0.8, 0.72], hemiI: 0.3, sunI: 0, sunCol: "#ff8a3a", sky: "#4a2418", ground: "#1a0c0a", fog: "#1a0806" },
-  // the yard, Feb 14, 1981: overcast winter light
-  yardW: { ...D, fogNear: 40, fogFar: 380, lit: [1.16, 1.18, 1.22], shade: [0.46, 0.5, 0.6], lift: [0.08, 0.08, 0.1], charTint: [1.0, 0.98, 0.98], sideTint: [0.92, 0.92, 0.96], hemiI: 0.72, sunI: 1.4, sunCol: "#e8eef6", sky: "#c2ccd6", ground: "#7a7868", fog: "#d2d8de" },
-  // a back yard in summer
-  yardS: { ...D, fogNear: 60, fogFar: 520, lit: [1.36, 1.28, 1.12], shade: [0.44, 0.47, 0.6], lift: [0.06, 0.06, 0.09], charTint: [1.02, 0.98, 0.93], sideTint: [0.9, 0.9, 0.95], hemiI: 0.64, sunI: 2.2, sunCol: "#fff0d0", sky: "#b9d2ea", ground: "#6a6048", fog: "#c9d6e0" },
-  // the council room: a window and a hanging lamp
-  council: { ...D, fogNear: 30, fogFar: 200, lit: [0.74, 0.64, 0.52], shade: [0.2, 0.17, 0.16], lift: [0.04, 0.03, 0.03], charTint: [1.04, 0.95, 0.84], sideTint: [0.92, 0.86, 0.78], hemiI: 0.36, sunI: 0, sunCol: "#ffe0b0", sky: "#8a7a68", ground: "#3a2a20", fog: "#1a1410" },
-  // the cellar: one bare bulb, gas in the air
-  cellar: { ...D, fogNear: 4, fogFar: 22, lit: [0.6, 0.56, 0.48], shade: [0.13, 0.13, 0.14], lift: [0.04, 0.04, 0.04], charTint: [1.0, 0.94, 0.86], sideTint: [0.9, 0.86, 0.82], hemiI: 0.24, sunI: 0, sunCol: "#ffd8a0", sky: "#4a4640", ground: "#1e1c1a", fog: "#4a4a44" },
+  // the river town, 1835: a clear summer day
+  river: { ...D, fogNear: 70, fogFar: 560, lit: [1.36, 1.28, 1.12], shade: [0.44, 0.47, 0.6], lift: [0.06, 0.06, 0.09], charTint: [1.02, 0.98, 0.93], sideTint: [0.9, 0.9, 0.95], hemiI: 0.64, sunI: 2.3, sunCol: "#fff0d0", sky: "#b9d2ea", ground: "#5a6040", fog: "#c9d6e0" },
+  // the woods at Phillips Corners: leafy light
+  woods: { ...D, fogNear: 30, fogFar: 260, lit: [1.26, 1.24, 1.04], shade: [0.4, 0.46, 0.5], lift: [0.05, 0.07, 0.07], charTint: [1.0, 0.99, 0.92], sideTint: [0.9, 0.92, 0.92], hemiI: 0.62, sunI: 2.1, sunCol: "#fff2cc", sky: "#b4cfa8", ground: "#4a5a30", fog: "#b8c8b0" },
+  // the tavern: two oil lanterns and a window
+  tavern: { ...D, fogNear: 30, fogFar: 200, lit: [0.8, 0.66, 0.5], shade: [0.21, 0.17, 0.15], lift: [0.04, 0.03, 0.03], charTint: [1.05, 0.95, 0.83], sideTint: [0.92, 0.86, 0.78], hemiI: 0.36, sunI: 0, sunCol: "#ffe0b0", sky: "#8a7a68", ground: "#3a2a20", fog: "#1a1410" },
+  // Congress: tall daylit windows, plaster
+  congress: { ...D, fogNear: 30, fogFar: 200, lit: [1.06, 1.02, 0.94], shade: [0.34, 0.33, 0.38], lift: [0.05, 0.05, 0.06], charTint: [1.02, 0.98, 0.94], sideTint: [0.92, 0.9, 0.9], hemiI: 0.5, sunI: 0, sunCol: "#f6f2e8", sky: "#d8d0c0", ground: "#6a5a48", fog: "#3a342c" },
+  // the Frostbitten Convention: grey window light, the stove the only warmth
+  conv: { ...D, fogNear: 30, fogFar: 200, lit: [0.72, 0.72, 0.8], shade: [0.2, 0.2, 0.26], lift: [0.04, 0.04, 0.06], charTint: [1.0, 0.95, 0.92], sideTint: [0.9, 0.88, 0.9], hemiI: 0.42, sunI: 0, sunCol: "#ffb070", sky: "#9aa4b0", ground: "#2a2622", fog: "#181a1e" },
+  // the Upper Peninsula in winter: overcast, snow light
+  northW: { ...D, fogNear: 40, fogFar: 420, lit: [1.16, 1.18, 1.24], shade: [0.46, 0.5, 0.62], lift: [0.08, 0.08, 0.11], charTint: [1.0, 0.98, 0.98], sideTint: [0.92, 0.92, 0.96], hemiI: 0.74, sunI: 1.3, sunCol: "#e8eef6", sky: "#c2ccd6", ground: "#8a8c90", fog: "#d2d8de" },
+  // the Upper Peninsula in summer
+  northS: { ...D, fogNear: 70, fogFar: 560, lit: [1.34, 1.28, 1.12], shade: [0.44, 0.47, 0.6], lift: [0.06, 0.06, 0.09], charTint: [1.02, 0.98, 0.93], sideTint: [0.9, 0.9, 0.95], hemiI: 0.64, sunI: 2.2, sunCol: "#fff0d0", sky: "#b9d2ea", ground: "#5a6040", fog: "#c9d6e0" },
 };
 const LK: WorldLook = LOOK.day;
-const BG: Record<Light, string> = { town62: "#c9d6e0", townT: "#cdd4da", pit: "#c9d2d8", pitD: "#4a3e58", mineC: "#08080c", mineF: "#1a0806", yardW: "#d2d8de", yardS: "#c9d6e0", council: "#1a1410", cellar: "#2a2a26" };
-const SUN: Record<Light, V3> = { town62: TOWN_SUN, townT: TOWN_SUN, pit: PIT_SUN, pitD: [-0.7, 0.24, 0.66], mineC: [0, 1, 0], mineF: [0, 1, 0], yardW: YARD_SUN, yardS: YARD_SUN, council: [0, 1, 0], cellar: [0, 1, 0] };
-const SETOF: Record<Light, "town" | "pit" | "mine" | "yard" | "room"> = { town62: "town", townT: "town", pit: "pit", pitD: "pit", mineC: "mine", mineF: "mine", yardW: "yard", yardS: "yard", council: "room", cellar: "room" };
+const BG: Record<Light, string> = { river: "#c9d6e0", woods: "#b8c8b0", tavern: "#1a1410", congress: "#3a342c", conv: "#181a1e", northW: "#d2d8de", northS: "#c9d6e0" };
+const SUN: Record<Light, V3> = { river: RIVER_SUN, woods: WOODS_SUN, tavern: [0, 1, 0], congress: [0, 1, 0], conv: [0, 1, 0], northW: NORTH_SUN, northS: NORTH_SUN };
+const SETOF: Record<Light, "river" | "woods" | "room" | "north"> = { river: "river", woods: "woods", tavern: "room", congress: "room", conv: "room", northW: "north", northS: "north" };
 /** lamp-lit sets: characters take light from the point lights, their shadows fall from the key lamp */
-const LAMPLIT = new Set<Light>(["mineC", "mineF", "council", "cellar"]);
+const LAMPLIT = new Set<Light>(["tavern", "congress", "conv"]);
 
-// ---------------- cast ----------------
+// ---------------- cast (1835-36, then the 1840s mines) ----------------
 type Who = { o: Outfit; seed: number; key: string };
 const who = (o: Outfit, seed: number, key: string): Who => ({ o, seed, key });
-/** the volunteer firemen of 1962: long dark coats, black helmets */
-const FF = (coat: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket: coat, pants: "#2a2a30", boots: "#1a1618", hat: "hardhat", cap: "#1e1e22", buttons: "#c9a23a", skin: "#f0d2b0", belt: "#c9b25a", ...extra });
-const MINER = (jacket: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#3e3a40", boots: "#1e1a20", hat: "minerhat", cap: "#3a3430", buttons: jacket, skin: "#ecc8a4", braces: "#5a4028", ...extra });
-const CREW = (jacket: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#3a4a5a", boots: "#2a221c", hat: "hardhat", cap: "#e0b22a", buttons: jacket, skin: "#e8c4a0", ...extra });
+/** militia: their own clothes, a rifle; Michigan in blues and browns, Ohio in greens and greys */
+const MI = (jacket: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#3a3a44", boots: "#1e1a20", hat: "shako", cap: "#2a2a34", buttons: "#c9a23a", skin: "#f0d2b0", belt: "#e9e2cf", rifle: true, ...extra });
+const OH = (jacket: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#4a4a3e", boots: "#2a221c", hat: "fedora", cap: "#3a3a30", buttons: "#c9c6be", skin: "#ecc8a4", belt: "#8a6a3a", rifle: true, ...extra });
+const SURV = (jacket: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#5a4a3a", boots: "#2a221c", hat: "fedora", cap: "#6a5a40", buttons: jacket, skin: "#f0d2b0", shirt: "#efe6cf", braces: "#4a3020", ...extra });
+const GENT = (jacket: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#2a2a32", boots: "#1a1618", hat: "tophat", cap: "#1e1e24", buttons: jacket, skin: "#f0d2b0", shirt: "#f6f2e8", tie: "#f6f2e8", ...extra });
 const OUT: Record<string, Who> = {
-  ff1: who(FF("#2a2a30", { moustache: "#3a2a20" }), 201, "ff1"), ff2: who(FF("#33302e", { skin: "#e0b48c", build: "stout" }), 202, "ff2"), ff3: who(FF("#2a2e34"), 203, "ff3"),
-  ff4: who(FF("#302a2a", { moustache: "#8a5a30", skin: "#c8946a" }), 204, "ff4"), ff5: who(FF("#2c2c2c", { skin: "#f5c9a0" }), 205, "ff5"),
-  // townspeople of 1962
-  man: who({ jacket: "#5a6a7a", pants: "#3a3e48", boots: "#1e1a20", hat: "fedora", cap: "#4a4438", buttons: "#5a6a7a", skin: "#f0d2b0", shirt: "#f2ece0", tie: "#7a2a24" }, 206, "man"),
-  wife: who({ jacket: "#b8506a", pants: "#3a3a44", boots: "#2a221c", hat: "hair", hair: "#6a4a2a", dress: "#c86a80", buttons: "#b8506a", skin: "#f5d2b4" }, 207, "wife"),
-  kid: who({ jacket: "#3a7ab8", pants: "#3a3e4a", boots: "#2a221c", hat: "hair", hair: "#c9a060", buttons: "#3a7ab8", skin: "#f5d2b4", build: "kid", shirt: "#f2ece0" }, 208, "kid"),
-  m1: who(MINER("#4a5a6a", { moustache: "#3a2a20" }), 209, "m1"), m2: who(MINER("#6a4a3a", { skin: "#e0b48c", build: "stout" }), 210, "m2"),
-  // the council
-  c1: who({ jacket: "#2a2a32", pants: "#2a2a32", boots: "#1a1618", hat: "hair", hair: "#8a8a92", buttons: "#2a2a32", skin: "#f0d2b0", shirt: "#f6f2e8", tie: "#2a3a5a", moustache: "#8a8a92" }, 211, "c1"),
-  c2: who({ jacket: "#4a3e34", pants: "#3a3028", boots: "#1a1618", hat: "hair", hair: "#3a2a20", buttons: "#4a3e34", skin: "#e8c4a0", shirt: "#f6f2e8", tie: "#7a2a24", build: "stout" }, 212, "c2"),
-  c3: who({ jacket: "#3a4a3a", pants: "#2a302a", boots: "#1a1618", hat: "hair", hair: "#c9c6be", buttons: "#3a4a3a", skin: "#f5d2b4", shirt: "#f6f2e8", tie: "#3a3a3a" }, 213, "c3"),
-  // John Coddington, the mayor who ran the gas station (1979)
-  codd: who({ jacket: "#2a6a3a", pants: "#3a3a44", boots: "#1e1a20", hat: "cap", cap: "#2a6a3a", buttons: "#e9e2cf", skin: "#f0d2b0", moustache: "#5a4a3a", shirt: "#e9e2cf" }, 224, "codd"),
-  // the crews of the 1960s-70s
-  w1: who(CREW("#6a5a3a"), 214, "w1"), w2: who(CREW("#4a5a6a", { moustache: "#3a2a20" }), 215, "w2"), w3: who(CREW("#7a4a3a", { skin: "#8a5a3c" }), 216, "w3"),
-  // 1981: Todd (12), in a brown winter jacket and his red cap; his cousin Eric, older, in green
-  todd: who({ jacket: "#5a4a3a", pants: "#3a4a6a", boots: "#2a221c", hat: "cap", cap: "#c0392b", buttons: "#5a4a3a", skin: "#f5d2b4", build: "kid", shirt: "#e9e2d2" }, 217, "todd"),
-  eric: who({ jacket: "#3a6a4a", pants: "#3a3e4a", boots: "#2a221c", hat: "hair", hair: "#6a4a2a", buttons: "#3a6a4a", skin: "#f5d2b4", shirt: "#e9e2d2" }, 218, "eric"),
-  // the people who stayed (older, today)
-  holdM: who({ jacket: "#6a5a4a", pants: "#3a3a40", boots: "#2a221c", hat: "cap", cap: "#3a4a3a", buttons: "#6a5a4a", skin: "#e8c8a8", moustache: "#d8d6d0", plaid: "#4a3a2a" }, 219, "holdM"),
-  holdW: who({ jacket: "#7a6a8a", pants: "#3a3a44", boots: "#2a221c", hat: "hair", hair: "#d8d6d0", dress: "#5a4a6a", buttons: "#7a6a8a", skin: "#f0d2b8" }, 220, "holdW"),
-  r3: who({ jacket: "#2f6a6a", pants: "#3a3e4a", boots: "#2a2a2e", hat: "hair", hair: "#5a3a22", buttons: "#2f6a6a", skin: "#f5d2b4", shirt: "#f0ece2" }, 221, "r3"),
-  r4: who({ jacket: "#8a6a3a", pants: "#4a4a3a", boots: "#2a221c", hat: "cap", cap: "#7a2a24", buttons: "#8a6a3a", skin: "#c8946a" }, 222, "r4"),
-  r5: who({ jacket: "#4a4a6a", pants: "#3a3a44", boots: "#2a221c", hat: "hair", hair: "#8a8a8a", buttons: "#4a4a6a", skin: "#f0d2b0", moustache: "#8a8a8a" }, 223, "r5"),
+  // Stevens T. Mason, Michigan's "boy governor", 23: young, dark hair, no moustache
+  mason: who(GENT("#2a3a5a", { skin: "#f5d6b8", tie: "#2a2a32" }), 301, "mason"),
+  // Robert Lucas, Ohio's governor: older, grey
+  lucas: who(GENT("#2a2a2e", { moustache: "#c9c6be", skin: "#e8c4a0", build: "stout" }), 302, "lucas"),
+  mi1: who(MI("#2a4a7a", { moustache: "#3a2a20" }), 303, "mi1"), mi2: who(MI("#3a5a8a", { skin: "#e0b48c" }), 304, "mi2"), mi3: who(MI("#5a4a3a", { build: "stout" }), 305, "mi3"), mi4: who(MI("#2a3a5a", { skin: "#c8946a", moustache: "#2a1a12" }), 306, "mi4"),
+  // the Michigan men at Phillips Corners hold 3D muskets (they fire them), so no rifle on the card
+  mf1: who(MI("#2a4a7a", { moustache: "#3a2a20", rifle: false }), 340, "mf1"), mf2: who(MI("#5a4a3a", { build: "stout", rifle: false }), 341, "mf2"), mf3: who(MI("#3a5a8a", { skin: "#e0b48c", rifle: false }), 342, "mf3"),
+  oh1: who(OH("#4a5a3a", { moustache: "#6a4a2a" }), 307, "oh1"), oh2: who(OH("#5a5a52", { skin: "#e0b48c" }), 308, "oh2"), oh3: who(OH("#3a4a3a", { build: "stout" }), 309, "oh3"), oh4: who(OH("#6a6a5a", { skin: "#f5c9a0" }), 310, "oh4"),
+  sv1: who(SURV("#7a5a3a", { moustache: "#5a3a20" }), 311, "sv1"), sv2: who(SURV("#5a6a7a", { hat: "cap", cap: "#4a4a3a" }), 312, "sv2"), sv3: who(SURV("#8a7a5a", { skin: "#e8c4a0", build: "stout" }), 313, "sv3"),
+  // Joseph Wood, Monroe County deputy sheriff
+  wood: who({ jacket: "#5a4232", pants: "#3a3a40", boots: "#1e1a20", hat: "fedora", cap: "#2a2420", buttons: "#d8b84a", skin: "#f0d2b0", moustache: "#4a3020", shirt: "#efe6cf", tie: "#2a2a2a", belt: "#2a221c" }, 314, "wood"),
+  // the Stickneys of Toledo
+  two: who({ jacket: "#6a3a2a", pants: "#4a4a3a", boots: "#2a221c", hat: "cap", cap: "#3a3028", buttons: "#6a3a2a", skin: "#f0d2b0", plaid: "#3a2418", shirt: "#efe6cf" }, 315, "two"),
+  one: who({ jacket: "#3a5a4a", pants: "#4a4a3a", boots: "#2a221c", hat: "hair", hair: "#6a4a2a", buttons: "#3a5a4a", skin: "#f0d2b0", moustache: "#6a4a2a", shirt: "#efe6cf", braces: "#3a2418" }, 316, "one"),
+  barman: who({ jacket: "#efe6cf", pants: "#3a3a40", boots: "#2a221c", hat: "hair", hair: "#3a2a20", buttons: "#efe6cf", skin: "#e8c4a0", moustache: "#3a2a20", shirt: "#efe6cf" }, 317, "barman"),
+  // Congress
+  cg1: who(GENT("#2a2a32", { hat: "hair", hair: "#8a8a92", moustache: "#8a8a92" }), 318, "cg1"), cg2: who(GENT("#4a3e34", { hat: "hair", hair: "#3a2a20", build: "stout", tie: "#7a2a24" }), 319, "cg2"), cg3: who(GENT("#3a4a3a", { hat: "hair", hair: "#c9c6be" }), 320, "cg3"),
+  // the delegates, in their winter coats
+  d1: who(GENT("#3a2a24", { moustache: "#5a4a3a" }), 321, "d1"), d2: who(GENT("#2a3430", { hat: "hair", hair: "#8a8a8a", build: "stout" }), 322, "d2"), d3: who(GENT("#4a3a4a", { hat: "fedora", cap: "#2a2a2a" }), 323, "d3"), d4: who(GENT("#2e2e36", { skin: "#e0b48c", moustache: "#2a1a12" }), 324, "d4"),
+  // the river town
+  t1: who({ jacket: "#6a5a7a", pants: "#3a3a44", boots: "#2a221c", hat: "bonnet", cap: "#e9e2cf", dress: "#7a6a8a", buttons: "#6a5a7a", skin: "#f5d2b4" }, 325, "t1"),
+  t2: who({ jacket: "#7a4a3a", pants: "#4a4a3a", boots: "#2a221c", hat: "cap", cap: "#4a3a2a", buttons: "#7a4a3a", skin: "#e8c4a0", shirt: "#efe6cf", braces: "#3a2418" }, 326, "t2"),
+  t3: who({ jacket: "#efe6cf", pants: "#5a4a3a", boots: "#2a221c", hat: "hair", hair: "#c9a060", buttons: "#efe6cf", skin: "#f0d2b0", braces: "#4a3020" }, 327, "t3"),
+  t4: who({ jacket: "#3a6a6a", pants: "#3a3a44", boots: "#2a221c", hat: "bonnet", cap: "#d8c0a0", dress: "#4a7a7a", buttons: "#3a6a6a", skin: "#f0d2b8" }, 328, "t4"),
+  // the copper country: a prospector and miners
+  pros: who({ jacket: "#7a5a3a", pants: "#4a4a3e", boots: "#2a221c", hat: "fedora", cap: "#5a4a32", buttons: "#7a5a3a", skin: "#e8c4a0", moustache: "#8a6a4a", plaid: "#4a2a1a", shirt: "#efe6cf" }, 329, "pros"),
+  mn1: who({ jacket: "#4a5a6a", pants: "#3e3a40", boots: "#1e1a20", hat: "minerhat", cap: "#3a3430", buttons: "#4a5a6a", skin: "#ecc8a4", braces: "#5a4028", moustache: "#3a2a20" }, 330, "mn1"),
+  mn2: who({ jacket: "#6a4a3a", pants: "#3e3a40", boots: "#1e1a20", hat: "minerhat", cap: "#3a3430", buttons: "#6a4a3a", skin: "#e0b48c", braces: "#5a4028", build: "stout" }, 331, "mn2"),
 };
 
 const SUc = 0.00216;
 const tier = (d: number): [number, number, number] => d < 3.2 ? [1800, 3000, 3.0] : d < 6.5 ? [1080, 1800, 1.8] : d < 16 ? [480, 800, 0.8] : [240, 400, 0.4];
 const shadowAll = <T extends THREE.Object3D>(o: T) => { o.traverse((m) => { m.castShadow = true; m.receiveShadow = true; }); return o; };
-const sparkTex = () => ctex("ceSpark", 64, 64, (g) => { g.clearRect(0, 0, 64, 64); g.fillStyle = "#ffd27a"; g.beginPath(); for (let k = 0; k < 8; k++) { const a = (k / 8) * 6.283, r = k % 2 ? 10 : 30; g.lineTo(32 + Math.cos(a) * r, 32 + Math.sin(a) * r); } g.closePath(); g.fill(); g.strokeStyle = "#120c16"; g.lineWidth = 4; g.stroke(); });
-const chunkTex = () => ctex("ceChunkT", 96, 96, (g, r) => { g.clearRect(0, 0, 96, 96); const pts: [number, number][] = []; for (let k = 0; k < 6; k++) { const a = (k / 6) * 6.283, rr = 20 + r() * 22; pts.push([48 + Math.cos(a) * rr, 48 + Math.sin(a) * rr * 0.7]); }
-  g.fillStyle = "#6a5440"; g.beginPath(); pts.forEach(([x, y], k) => (k ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); g.fill(); g.strokeStyle = "#120c16"; g.lineWidth = 6; g.stroke(); });
+const sparkTex = () => ctex("twSpark", 64, 64, (g) => { g.clearRect(0, 0, 64, 64); g.fillStyle = "#ffd27a"; g.beginPath(); for (let k = 0; k < 8; k++) { const a = (k / 8) * 6.283, r = k % 2 ? 10 : 30; g.lineTo(32 + Math.cos(a) * r, 32 + Math.sin(a) * r); } g.closePath(); g.fill(); g.strokeStyle = "#120c16"; g.lineWidth = 4; g.stroke(); });
+const flakeTex = () => ctex("twFlake", 64, 64, (g) => { g.clearRect(0, 0, 64, 64); g.strokeStyle = "#ffffff"; g.lineWidth = 5; g.lineCap = "round"; for (let k = 0; k < 3; k++) { const a = (k / 3) * Math.PI; g.beginPath(); g.moveTo(32 - Math.cos(a) * 24, 32 - Math.sin(a) * 24); g.lineTo(32 + Math.cos(a) * 24, 32 + Math.sin(a) * 24); g.stroke(); } });
+const nuggetTex = () => ctex("twNugget", 96, 96, (g, r) => { g.clearRect(0, 0, 96, 96); const pts: [number, number][] = []; for (let k = 0; k < 7; k++) { const a = (k / 7) * 6.283, rr = 20 + r() * 20; pts.push([48 + Math.cos(a) * rr, 48 + Math.sin(a) * rr * 0.8]); }
+  g.fillStyle = "#d9793a"; g.beginPath(); pts.forEach(([x, y], k) => (k ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); g.fill(); g.fillStyle = "#ffb27a"; g.beginPath(); g.arc(40, 38, 8, 0, 6.3); g.fill(); g.strokeStyle = "#120c16"; g.lineWidth = 6; g.beginPath(); pts.forEach(([x, y], k) => (k ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); g.stroke(); });
 
 /** camera-facing cut-out cards of one kind */
 class CardPool {
@@ -109,9 +108,9 @@ export class TwWorld {
   private actors: Actor[] = []; private fxs: Fx[] = [];
   private hemi: THREE.HemisphereLight; private sun: THREE.DirectionalLight;
   private fog = new THREE.Fog("#2a2024", 80, 600); private bg = new THREE.Color();
-  private town: TownSet; private pit: PitSet; private mine: MineSet; private yard: YardSet; private room: RoomSet;
-  private grassT: Grass; private grassP: Grass; private grassY: Grass; private yardGrass = false; private woodM: THREE.Material;
-  private tools: { g: THREE.Group; handle: THREE.Mesh; tail: THREE.Mesh; heads: Record<string, THREE.Object3D> }[] = [];
+  private river: RiverSet; private woods: WoodsSet; private room: RoomSet; private north: NorthSet;
+  private grassR: Grass; private grassW: Grass; private grassN: Grass; private northGrass = false;
+  private tools: { g: THREE.Group; barrel: THREE.Mesh; heads: Record<string, THREE.Object3D> }[] = [];
   private cards: Record<CardKind, CardPool>;
   private puffs: THREE.Sprite[] = [];
   private lastPeople: { name: string; p: V3; low: boolean; extra: boolean; s: number }[] = [];
@@ -124,21 +123,21 @@ export class TwWorld {
     this.sun = new THREE.DirectionalLight("#fff0d6", 2.4);
     this.sun.castShadow = true; this.sun.shadow.mapSize.set(4096, 4096);
     R.add(this.hemi, this.sun, this.sun.target);
-    this.town = buildTown(); this.pit = buildPit(); this.mine = buildMine(); this.yard = buildYard(); this.room = buildRoom();
-    R.add(this.town.group, this.pit.group, this.mine.group, this.yard.group, this.room.group);
-    this.grassT = new Grass(this.town.group, this.town.turf); this.grassP = new Grass(this.pit.group, this.pit.turf); this.grassY = new Grass(this.yard.group, (x, z) => (this.yardGrass ? this.yard.turf(x, z) : null));
-    // ---- posed props (these keep their ink line: they are what the characters hold) ----
-    const wood = M("ceToolWood", "#8a6238"); this.woodM = wood; const iron = M("ceToolIron", "#34303a"), brass = M("ceToolBrass", "#c9a23a"), hoseM = M("ceToolHose", "#8a3a2a");
-    for (let i = 0; i < 6; i++) { const g = new THREE.Group(), handle = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 1, 8), wood), tail = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 8), hoseM); g.add(handle, tail);
-      const nozzle = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.22, 10), brass);
+    this.river = buildRiver(); this.woods = buildWoods(); this.room = buildRoom(); this.north = buildNorth();
+    R.add(this.river.group, this.woods.group, this.room.group, this.north.group);
+    this.grassR = new Grass(this.river.group, this.river.turf); this.grassW = new Grass(this.woods.group, this.woods.turf); this.grassN = new Grass(this.north.group, (x, z) => (this.northGrass ? this.north.turf(x, z) : null));
+    // ---- posed props: a musket (wooden stock + iron barrel), a penknife, a pickaxe (they keep their ink line) ----
+    const wood = M("twToolWood", "#7a5232"), iron = M("twToolIron", "#34303a"), steel = M("twToolSteel", "#eef0f4", { emissive: "#8a8c94", emissiveIntensity: 0.6 });
+    for (let i = 0; i < 6; i++) { const g = new THREE.Group(), barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 1, 8), iron); g.add(barrel);
+      const stock = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.42, 0.11), wood); stock.geometry.translate(0, -0.21, 0);
+      const knife = new THREE.Group(); { const hnd = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.13, 0.03), wood); hnd.position.y = 0.04; const bl = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.15, 0.008), steel); bl.position.y = -0.1; knife.add(hnd, bl); }
       const pick = new THREE.Group(); { const bb = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.05, 0.05), iron); pick.add(bb); for (const sx of [-1, 1]) { const tp = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.14, 6), iron); tp.rotation.z = -sx * Math.PI / 2; tp.position.x = sx * 0.4; pick.add(tp); } }
-      const shovel = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.32, 0.03), iron);
-      const torch = new THREE.Group(); { const rag = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 8), M("ceRag", "#3a2a20")); torch.add(rag); const fl = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color(3.2, 1.8, 0.6), fog: false })); fl.scale.y = 1.8; fl.position.y = -0.14; fl.layers.set(AFTERINK); torch.add(fl); }
-      const heads = { nozzle, pick, shovel, torch }; for (const h of Object.values(heads)) g.add(h);
-      shadowAll(g); g.visible = false; R.add(g); this.tools.push({ g, handle, tail, heads }); }
-    this.cards = { paper: new CardPool(R, sheetTex(), 24, 0.24, 0.3, NOINK), spark: new CardPool(R, sparkTex(), 40, 0.14, 0.14, AFTERINK), chunk: new CardPool(R, chunkTex(), 40, 0.4, 0.4, NOINK) };
+      const heads = { stock, knife, pick }; for (const h of Object.values(heads)) g.add(h);
+      shadowAll(g); g.visible = false; R.add(g); this.tools.push({ g, barrel, heads }); }
+    this.cards = { paper: new CardPool(R, sheetTex(), 24, 0.24, 0.3, NOINK), spark: new CardPool(R, sparkTex(), 40, 0.14, 0.14, AFTERINK), flake: new CardPool(R, flakeTex(), 80, 0.09, 0.09, AFTERINK), nugget: new CardPool(R, nuggetTex(), 30, 0.22, 0.22, NOINK) };
     const puffT = puffTex();
     for (let i = 0; i < 64; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: puffT, transparent: true, depthWrite: false, fog: false })); s.visible = false; s.layers.set(AFTERINK); R.add(s); this.puffs.push(s); }
+    void lam;
   }
 
   private actor(i: number) { while (this.actors.length <= i) this.actors.push(new Actor(this.root)); return this.actors[i]; }
@@ -152,7 +151,6 @@ export class TwWorld {
     cam.fov = c.fov; cam.near = 0.04; cam.far = 2400; cam.updateProjectionMatrix(); cam.updateMatrixWorld();
     const focus = V(...(st.focus ?? c.look)), dist = cam.position.distanceTo(focus);
     cam.layers.enable(NOINK);
-    this.town.group.visible = set === "town"; this.pit.group.visible = set === "pit"; this.mine.group.visible = set === "mine"; this.yard.group.visible = set === "yard"; this.room.group.visible = set === "room";
     // ---- lights ----
     const sunDir = this.v.set(...SUN[light]).normalize().clone();
     this.hemi.color.set(L.sky); this.hemi.groundColor.set(L.ground); this.hemi.intensity = L.hemiI;
@@ -170,31 +168,24 @@ export class TwWorld {
     const flick = (k: number) => 1 + 0.14 * Math.sin(t * 9 + k) + 0.08 * Math.sin(t * 23 + 2 * k);
 
     // ---------------- the sets ----------------
-    if (set === "town") { const T2 = this.town, today = light === "townT";
-      T2.old.visible = !today; T2.now.visible = today; T2.crack.visible = today; T2.skies.day.visible = !today; T2.skies.haze.visible = today;
-      T2.condemned.visible = !!st.condemned && !today; T2.van.visible = !!st.van && !today; T2.drift(t); T2.dust.points.visible = today;
-      this.grassT.update(cam); }
-    if (set === "pit") { const P2 = this.pit, dusk = light === "pitD"; P2.skies.day.visible = !dusk; P2.skies.dusk.visible = dusk;
-      const fire = st.fire ?? 0; P2.fire.intensity = 60 * fire * flick(0); P2.heapGlow.visible = (st.heat ?? 0) > 0; (P2.heapGlow.material as THREE.MeshBasicMaterial).opacity = Math.min(1, st.heat ?? 0) * (0.8 + 0.2 * flick(1));
-      const sp = st.seam ?? 0; P2.seam.forEach((m, i) => { const a = (i / P2.seam.length) * 6.283, d = Math.min(Math.abs(a - 1.4), 6.283 - Math.abs(a - 1.4)) / Math.PI, k = Math.max(0, Math.min(1, (sp - d) * 4)); m.visible = k > 0; (m.material as THREE.MeshBasicMaterial).opacity = k * (0.75 + 0.25 * Math.sin(t * 5 + i)); });
-      P2.stream.visible = !!st.flush; P2.drift(t); this.grassP.update(cam); }
-    if (set === "mine") { const M2 = this.mine, burn = light === "mineF" ? (st.burn ?? 1) : 0;
-      M2.embers.forEach((m, i) => { const k = Math.max(0, Math.min(1, burn * 1.6 - (1 - i / M2.embers.length) * 0.9)); m.visible = k > 0; (m.material as THREE.MeshBasicMaterial).opacity = k * (0.7 + 0.3 * Math.sin(t * 4 + i * 1.7)); });
-      M2.fires.forEach((l, i) => { l.intensity = burn * (30 + 14 * i) * flick(i); }); M2.lamp.intensity = light === "mineC" ? 12 : 0; M2.lamps2.forEach((l) => { l.intensity = light === "mineC" ? 8 : 0; }); M2.bulbs.visible = light === "mineC"; M2.dust.points.visible = true; M2.drift(t); }
-    if (set === "yard") { const Y = this.yard, win = light === "yardW", open = win && st.hole === "open";
-      Y.winter.visible = win && !open; Y.winterHole.visible = open; Y.summer.visible = !win; Y.hole.visible = open; Y.snow.visible = win; Y.skies.winter.visible = win; Y.skies.day.visible = !win;
-      this.yardGrass = !win; this.grassY.update(cam); }
-    if (set === "room") { const Rm = this.room, cel = light === "cellar"; Rm.council.visible = !cel; Rm.cellar.visible = cel; Rm.lamp.intensity = cel ? 0 : 8 * (1 + 0.04 * Math.sin(t * 7)); Rm.bulb.intensity = cel ? 9 * (1 + 0.05 * Math.sin(t * 13)) : 0; Rm.drift(t); }
+    this.river.group.visible = set === "river"; this.woods.group.visible = set === "woods"; this.room.group.visible = set === "room"; this.north.group.visible = set === "north";
+    if (set === "river") { this.river.drift(t); this.river.water.U.uSun.value.set(...SUN[light]); this.grassR.update(cam); }
+    if (set === "woods") { this.woods.drift(t); this.grassW.update(cam); }
+    if (set === "room") { const Rm = this.room; Rm.tavern.visible = light === "tavern"; Rm.congress.visible = light === "congress"; Rm.conv.visible = light === "conv";
+      Rm.map.map = Rm.mapTex[st.map ?? "strip"]; Rm.map.needsUpdate = true;
+      Rm.lamps.forEach((l, i) => { l.intensity = light === "tavern" ? 9 * flick(i) * 0.95 : 0; });
+      Rm.win.intensity = light === "congress" ? 16 : light === "conv" ? 6 : light === "tavern" ? 3 : 0;
+      Rm.stove.intensity = light === "conv" ? 10 * flick(2) : 0; Rm.stoveGlow.visible = light === "conv"; Rm.drift(t); }
+    if (set === "north") { const N = this.north, win = light === "northW"; N.winter.visible = win; N.summer.visible = !win; N.copper.visible = !win; N.drift(t); N.water.U.uSun.value.set(...SUN[light]);
+      this.northGrass = !win; this.grassN.update(cam); }
 
     // ---------------- props ----------------
     this.tools.forEach((tl, i) => { const q = st.tools?.[i]; tl.g.visible = !!q; if (!q) return;
       const gp = V(...q.g), bp = V(...q.b), d = bp.clone().sub(gp), len = d.length(); d.normalize();
-      const hose = q.kind === "hose";
-      tl.handle.visible = true; tl.handle.position.copy(gp).addScaledVector(d, len / 2); tl.handle.quaternion.setFromUnitVectors(V(0, 1, 0), d); tl.handle.scale.set(hose ? 2.0 : 1, len, hose ? 2.0 : 1);
-      tl.handle.material = hose ? tl.tail.material : this.woodM;
-      tl.tail.visible = hose && !!q.tail; if (hose && q.tail) { const tp = V(...q.tail), td = gp.clone().sub(tp), tlen = td.length(); tl.tail.position.copy(tp).addScaledVector(td, 0.5); tl.tail.quaternion.setFromUnitVectors(V(0, 1, 0), td.normalize()); tl.tail.scale.set(1, tlen, 1); }
-      const head = hose ? "nozzle" : q.kind === "stick" ? "" : q.kind;
-      for (const [k, h] of Object.entries(tl.heads)) { h.visible = k === head; if (k !== head) continue; h.position.copy(bp); h.quaternion.setFromUnitVectors(V(0, -1, 0), d); if (k === "nozzle") h.quaternion.setFromUnitVectors(V(0, 1, 0), d); if (k === "pick") h.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, Math.PI / 2))); } });
+      const gun = q.kind === "musket";
+      tl.barrel.visible = gun; if (gun) { tl.barrel.position.copy(gp).addScaledVector(d, len / 2); tl.barrel.quaternion.setFromUnitVectors(V(0, 1, 0), d); tl.barrel.scale.set(1, len, 1); }
+      const head = gun ? "stock" : q.kind;
+      for (const [k, h] of Object.entries(tl.heads)) { h.visible = k === head; if (k !== head) continue; h.position.copy(k === "pick" ? bp : gp); h.quaternion.setFromUnitVectors(V(0, 1, 0), k === "stock" ? d : d.clone().negate()); if (k === "pick") h.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, Math.PI / 2))); } });
     for (const p of Object.values(this.cards)) p.hide();
     const cn: Record<string, number> = {};
     for (const cd of st.cards ?? []) { const k = cn[cd.kind] ?? 0; cn[cd.kind] = k + 1; this.cards[cd.kind].put(k, cd.p, cam, cd.spin, cd.s, !!cd.flat); }
@@ -240,7 +231,7 @@ export class TwWorld {
     }
     for (let i = ai; i < this.actors.length; i++) this.actors[i].mesh.visible = this.actors[i].caster.visible = false;
     // ---- contact shadows ----
-    const cc = set === "room" || set === "mine" ? "#2a2420" : "#5a5248";
+    const cc = set === "room" ? "#2a2420" : set === "north" && light === "northW" ? "#8a8c96" : "#5a5248";
     let fi = 0;
     for (const { q } of people) {
       if (q.low || q.air) continue;
@@ -254,7 +245,7 @@ export class TwWorld {
     this.pool.flush();
     for (const a2 of this.actors) if (a2.mesh.visible) a2.bind();
     for (const e3 of this.fxs) if (e3.mesh.visible) e3.bind();
-    void lam; void SET;
+    void SET;
     return focus;
   }
   /** framing checks for this frame (call right after update). Pure measurement, no drawing. */
@@ -276,6 +267,7 @@ export class TwWorld {
       else if (head.frac > 0.02 && head.frac < 0.97) out.push(`${q.name}: head cut off by the frame edge (${Math.round(head.frac * 100)}% in shot)`);
       else if (head.frac <= 0.02 && body.frac > 0.12) out.push(`${q.name}: body in shot without the head`);
       if (head.frac > 0.02 && head.h > 1.6 && !st.closeup) out.push(`${q.name}: face fills the screen`);
+      if (!q.extra && head.frac >= 0 && head.frac <= 0.02 && body.frac <= 0.12) out.push(`${q.name}: not in shot at all`);
     }
     for (const [name, at, r] of st.subjects ?? []) {
       const v3 = V(...at);
