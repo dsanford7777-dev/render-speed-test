@@ -2,8 +2,8 @@
   {
     "channel": "shorts",
     "videoId": "3wq4ureWhac",
-    "action": "publish",
-    "title": "This Town Has Been on Fire Underground for 64 Years #history #shorts"
+    "action": "replace_text",
+    "find": "The scenes are an animated dramatization.\n\n#history #shorts #centralia",
+    "replace": "The scenes are an animated dramatization.\n\nThe full story: https://youtu.be/scYRkPAOoH0\n\n#history #shorts #centralia"
   }
 ]
- 
