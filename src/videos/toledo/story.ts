@@ -113,7 +113,7 @@ const hookCam = (f: number) => move({ pos: HOOK_POS, look: HOOK_LOOK, ...HOOK },
 const hookState = (): Partial<St3> => ({ light: "river", people: faceoff("stern", "stern") });
 const TAV: V3 = Rv(TAVERN.x, 0, TAVERN.z);
 // ---------------- the room as the shots use it ----------------
-const TWO_P: V3 = Rm(TABLE[0] + 0.25, 0, TABLE[2] + 0.95), ONE_P: V3 = Rm(TABLE[0] - 0.6, 0, TABLE[2] + 1.1), WOOD_IN: V3 = Rm(0.45, 0, -0.6), BARMAN: V3 = Rm(0.1, 0, BAR.z + 0.62);
+const TWO_P: V3 = Rm(TABLE[0] + 0.25, 0, TABLE[2] + 0.95), ONE_P: V3 = Rm(TABLE[0] - 0.6, 0, TABLE[2] + 1.1), WOOD_IN: V3 = Rm(0.62, 0, -0.35), BARMAN: V3 = Rm(0.1, 0, BAR.z + 0.62);
 /** for the stab Two is up and round the table's side, Wood facing him */
 const TWO_UP: V3 = Rm(1.3, 0, 1.0), WOOD_AT: V3 = Rm(0.6, 0, 0.75);
 const MAPC: V3 = Rm(MAP.x, MAP.y, 3.86), CG2: V3 = Rm(0.95, 0.35, 3.05);
@@ -140,7 +140,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   knife: (s, f) => { const hand: V3 = add(TWO_P, -0.22, 1.28, -0.38), tip: V3 = add(hand, 0.03, 0.2, -0.02);
     return { light: "tavern", dof: 1, closeup: true, focus: add(hand, 0, 0.1, 0), key: LAMP_T, tools: [{ kind: "knife", g: hand, b: tip }],
       people: [P("two", TWO_P, "grin", -1, { hw: [hand] })],
-      cam: kick(snap(add(TWO_P, -0.3, 1.45, -1.75), add(TWO_P, -0.12, 1.42, 0), f, s.a, { fov: 42, roll: -0.05 }, 1.6, 6), f, W(0, "penknife"), 0.8),
+      cam: kick(snap(add(TWO_P, -0.3, 1.45, -2.15), add(TWO_P, -0.12, 1.42, 0), f, s.a, { fov: 44, roll: -0.05 }, 1.6, 6), f, W(0, "penknife"), 0.8),
       subjects: [["the penknife", add(hand, 0.01, 0.12, 0), 0.04], ["Two Stickney", add(TWO_P, 0, 1.5, 0), 0.2]] }; },
   // You see, in 1835, both of them claimed the same strip of land: the map, Michigan's line and Ohio's line
   strip: (s, f) => ({ light: "congress", map: "strip", dof: 1, focus: add(MAPC, -0.4, -0.1, 0), key: WIN_C,
@@ -159,7 +159,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["the schooner", Rv(SHIP[0] - 4, 2, SHIP[2]), 1], ["the wharf", Rv(11, WHARF.y, 18), 1]] }),
   // Michigan wasn't even a state yet: its governor on the board walk outside the tavern
   mason: (s, f) => { const p = Rv(TAVERN.x + 2.2, BW, WALK_Z - 0.2);
-    return { light: "river", dof: 1, focus: add(p, 0, 1.4, 0), people: [P("mason", p, "stern", -1), P("t1", Rv(TAVERN.x - 1.2, BW, WALK_Z + 0.2), "neutral", 1)],
+    return { light: "river", dof: 1, focus: add(p, 0, 1.4, 0), people: [P("mason", p, "stern", -1), P("t1", Rv(TAVERN.x - 1.2, BW, WALK_Z + 0.2), "neutral", 1, { extra: true })],
       cam: move({ pos: Rv(TAVERN.x + 4.6, 1.6, 0.0), look: add(p, -0.4, 1.4, 0), fov: 44, roll: -0.05 }, { pos: Rv(TAVERN.x + 4.0, 1.55, 0.6), look: add(p, -0.5, 1.4, 0), fov: 42, roll: 0.04 }, f, s.a, s.b, smooth, 0),
       subjects: [["Mason", add(p, 0, 1.4, 0), 0.2]] }; },
   // Its governor was 23: close on young Mason, grinning
@@ -191,7 +191,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "woods", dof: 1, focus: Wd(-1.2, 1.3, 9),
       people: [man("mi1", -1.0, 16.5, 0), man("mi3", 0.3, 17.4, 1), man("mi2", -2.3, 17.6, 1),
         P(SV[0][0], SV[0][1], seen ? "shock" : "neutral", seen ? 0 : -1), P(SV[1][0], SV[1][1], seen ? "shock" : "whistle", 0)],
-      cam: move({ pos: Wd(-1.9, 1.5, 1.0), look: Wd(-1.4, 1.4, 12), fov: 50, roll: 0.05 }, { pos: Wd(-1.8, 1.55, 1.6), look: Wd(-1.2, 1.4, 12), fov: 48, roll: -0.03 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Wd(-2.2, 1.5, 0.8), look: Wd(-1.7, 1.4, 12), fov: 50, roll: 0.05 }, { pos: Wd(-2.1, 1.55, 1.2), look: Wd(-1.6, 1.4, 12), fov: 50, roll: -0.03 }, f, s.a, s.b, smooth, 0),
       subjects: [["the Michigan men", Wd(-1.0, 1.3, 16.5 - 1.2 * tt), 0.3], ["the surveyors", add(SV[1][1], 0, 1.4, 0), 0.2]] }; },
   // ...and fired: three muskets, flashes, smoke rolling (aimed high, over the surveyors)
   fire: (s, f) => { const f0 = W(3, "fired") + 1, tt = t(f - f0), target = Wd(-1, 0, 5.5);
@@ -207,18 +207,18 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "woods", dof: 1, focus: add(SV[0][1], 0.3, 1.1, 0.5),
       people: [P(SV[0][0], SV[0][1], "shock", 1, { tilt: 0.22, s: 0.95 }), P(SV[1][0], SV[1][1], "shock", -1, { tilt: -0.18 }), P(SV[2][0], Wd(-3.0, 0, 7.0), "nervous", 1, { tilt: 0.12 })],
       puffs: Array.from({ length: 10 }, (_, i) => { const u = (tt * 0.25 + i / 10) % 1; return { p: Wd(1.5 - 6 * u, 2.5 + 0.3 * Math.sin(i), 6.4 + 1.2 * Math.cos(i * 1.7)), s: 0.9 + 0.8 * u, c: SMOKE, a: 0.5 * Math.sin(Math.PI * u) }; }),
-      cam: move({ pos: Wd(-2.2, 1.2, 1.8), look: Wd(-2.0, 1.3, 6.5), fov: 50, roll: 0.06 }, { pos: Wd(-2.1, 1.15, 2.3), look: Wd(-2.0, 1.35, 6.5), fov: 48, roll: -0.04 }, f, s.a, s.b, smooth, 0),
+      cam: move({ pos: Wd(-2.2, 1.2, 1.8), look: Wd(-2.0, 1.3, 6.5), fov: 50, roll: 0.06 }, { pos: Wd(-2.15, 1.18, 1.95), look: Wd(-2.1, 1.35, 6.5), fov: 50, roll: -0.04 }, f, s.a, s.b, smooth, 0),
       subjects: [["the surveyors", add(SV[0][1], 0, 1.3, 0), 0.2]] }; },
   // Nobody was hit: the surveyors run for it, out of the clearing, the staff left standing
   nobody: (s, f) => { const tt = t(f - s.a);
     return { light: "woods", dof: 1, focus: Wd(-2.8 - 2.6 * smooth((f - s.a) / Math.max(1, s.b - s.a)), 1.2, 6.5),
-      people: [walker("sv1", -2.2, 0, 5.6, -3.0, tt, "shock"), walker("sv2", -1.4, 0, 7.8, -3.0, tt + 0.1, "shock"), walker("sv3", -3.4, 0, 7.2, -3.0, tt, "nervous")],
+      people: [walker("sv1", Wd(-2.2, 0, 0)[0], 0, 5.6, -3.0, tt, "shock"), walker("sv2", Wd(-1.4, 0, 0)[0], 0, 7.8, -3.0, tt + 0.1, "shock"), walker("sv3", Wd(-3.4, 0, 0)[0], 0, 7.2, -3.0, tt, "nervous")],
       cam: move({ pos: Wd(-2.4, 1.4, -0.4), look: Wd(-2.8, 1.2, 6.5), fov: 50, roll: -0.05 }, { pos: Wd(-4.8, 1.4, -0.2), look: Wd(-5.6, 1.2, 6.5), fov: 50, roll: 0.04 }, f, s.a, s.b, smooth, 0),
       subjects: [["the surveyors", Wd(-2.8 - 3.0 * tt, 1.3, 6.5), 0.6]] }; },
   // Then a Michigan deputy sheriff, Joseph Wood, went into Toledo: along the board walk toward the tavern
-  wood: (s, f) => { const tt = t(f - s.a), w = walker("wood", TAVERN.x + 6.0, BW, WALK_Z, -1.05, tt), lk = add(w.p, -0.4, 1.35, 0);
+  wood: (s, f) => { const tt = t(f - s.a), w = walker("wood", TAVERN.x + 6.0, BW, 3.6, -1.05, tt), lk = add(w.p, -0.3, 1.35, 0.6);
     return { light: "river", dof: 1, focus: add(w.p, 0, 1.4, 0), people: [w, P("t4", Rv(TAVERN.x - 1.6, BW, WALK_Z + 0.4), "nervous", 1, { extra: true })],
-      cam: { pos: add(lk, 1.6, 0.2, -4.4), look: lk, fov: 46, roll: 0.03 * Math.sin(tt * 1.3) },
+      cam: { pos: add(lk, 0.5, 0.15, -4.6), look: lk, fov: 46, roll: 0.03 * Math.sin(tt * 1.3) },
       subjects: [["Wood", add(w.p, 0, 1.4, 0), 0.2]] }; },
   // ...to arrest a man named Two Stickney: inside the tavern, Wood at the door, Two at his table
   tavern: (s, f) => ({ light: "tavern", dof: 1, focus: add(TWO_P, -0.5, 1.4, 0), key: LAMP_T,
@@ -277,7 +277,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   snow: (s, f) => { const tt = t(f);
     return { light: "northW", dof: 0, focus: Nt(-8, 2, 12), cards: snowfall(Nt(-6, 1.8, 3), tt, 60, 9, 5),
       cam: move({ pos: Nt(2, 1.8, -6), look: Nt(-10, 2.4, 12), fov: 52, roll: 0.04 }, { pos: Nt(0, 2.6, -8), look: Nt(-12, 3.0, 14), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the snowy pines", Nt(-17, 4, 6), 2], ["the frozen lake", Nt(-6, -0.5, 28), 3]] }; },
+      subjects: [["the snowy pines", Nt(-14, 4, 13), 2], ["the frozen lake", Nt(-24, -0.5, 30), 3]] }; },
   // They voted no: the delegates in the tavern, arms folded, stern
   no: (s, f) => { const ps: V3[] = [Rm(1.0, 0, 1.2), Rm(0.1, 0, 1.2), Rm(1.45, 0, 2.1), Rm(-0.35, 0, 1.95)];
     return { light: "tavern", dof: 1, focus: Rm(0.5, 1.5, 1.6), key: LAMP_T,
@@ -288,7 +288,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   broke: (s, f) => { const mp = Rm(STOVE[0] - 1.0, 0, STOVE[2] - 0.3);
     return { light: "conv", dof: 1, focus: add(mp, 0, 1.5, 0), key: LAMP_C, people: [P("mason", mp, "nervous", 1, { headTilt: -0.1 })],
       cam: move({ pos: add(mp, -1.4, 1.6, -2.9), look: add(mp, 0.4, 1.35, 0), fov: 44, roll: -0.05 }, { pos: add(mp, -1.0, 1.55, -2.5), look: add(mp, 0.4, 1.4, 0), fov: 42, roll: 0.04 }, f, s.a, s.b, smooth, 0),
-      subjects: [["Mason", add(mp, 0, 1.5, 0), 0.2], ["the stove", Rm(STOVE[0], 0.7, STOVE[2]), 0.3]] }; },
+      subjects: [["Mason", add(mp, 0, 1.5, 0), 0.2]] }; },
   // ...they met again in December, at the Frostbitten Convention: delegates in coats, frost on the windows, the stove
   frost: (s, f) => { const ps = DELS, tt = t(f);
     return { light: "conv", dof: 1, focus: Rm(0.6, 1.5, 1.5), key: LAMP_C,
@@ -300,33 +300,33 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   yes2: (s, f) => { const ps = DELS, up = f >= W(8, "yes");
     return { light: "conv", dof: 1, focus: Rm(0.6, 1.5, 1.5), key: LAMP_C,
       people: ["d1", "d2", "d3", "d4"].map((w, i) => P(w, ps[i], up ? "laugh" : "grin", i % 2 ? 1 : -1, { wave: up ? 0.9 : 0.4 })),
-      cam: kick(move({ pos: Rm(0.6, 1.6, -3.4), look: Rm(0.6, 1.55, 1.6), fov: 48, roll: -0.04 }, { pos: Rm(0.6, 1.6, -3.0), look: Rm(0.6, 1.6, 1.6), fov: 48, roll: 0.04 }, f, s.a, s.b, smooth, 0), f, W(8, "yes"), 1.0),
+      cam: kick(move({ pos: Rm(0.6, 1.6, -3.6), look: Rm(0.6, 1.55, 1.6), fov: 50, roll: -0.04 }, { pos: Rm(0.6, 1.6, -3.4), look: Rm(0.6, 1.6, 1.6), fov: 50, roll: 0.04 }, f, s.a, s.b, smooth, 0), f, W(8, "yes"), 1.0),
       subjects: [["the delegates", Rm(0.6, 1.6, 1.5), 0.3]] }; },
   // A few years later, they found copper up there: summer, a prospector's pick at the outcrop, the copper showing
   copper: (s, f) => { const p = ng(-2.0, 5.4), sw = 0.5 + 0.5 * Math.sin(t(f) * 5), hand = add(p, -0.3, 1.2 + 0.25 * sw, 0.1), head = add(hand, -0.2, 0.35 - 0.5 * sw, 0.35);
     return { light: "northS", dof: 1, focus: ORE, tools: [{ kind: "pick", g: hand, b: head }],
       people: [P("pros", p, f >= W(9, "copper") ? "grin" : "neutral", -1, { hw: [hand] })],
       cards: f >= W(9, "copper") ? [0, 1, 2].map((i) => ({ kind: "nugget" as const, p: add(ORE, -0.2 + i * 0.3, 0.25 + 0.1 * i, -0.5), spin: i, s: 0.8 })) : [],
-      cam: kick(move({ pos: ng(-2.2, 1.4, 1.5), look: ng(-2.6, 6.4, 0.9), fov: 48, roll: 0.05 }, { pos: ng(-2.4, 2.0, 1.4), look: ng(-2.7, 6.4, 0.85), fov: 46, roll: -0.04 }, f, s.a, s.b, smooth, 0), f, W(9, "copper"), 0.8),
-      subjects: [["the copper", ORE, 0.2], ["the prospector", add(p, 0, 1.4, 0), 0.2]] }; },
+      cam: kick(move({ pos: ng(-2.2, 1.4, 1.5), look: ng(-2.6, 6.4, 0.9), fov: 48, roll: 0.05 }, { pos: ng(-2.35, 1.6, 1.45), look: ng(-2.65, 6.4, 0.85), fov: 48, roll: -0.04 }, f, s.a, s.b, smooth, 0), f, W(9, "copper"), 0.8),
+      subjects: [["the copper", add(ORE, 0, 0.35, -0.5), 0.15], ["the prospector", add(p, 0, 1.4, 0), 0.2]] }; },
   // For 40 years, Michigan mined more copper than any state: the mine, a cart heaped with copper, miners pushing it out
   mine: (s, f) => { const tt = t(f - s.a), cz = PORTAL[2] - 3.6 - 0.35 * tt, cp = ng(PORTAL[0], cz, 0.9);
     return { light: "northS", dof: 1, focus: cp,
-      people: [P("mn1", ng(PORTAL[0] + 0.5, cz + 1.25), "grin", 0, { hw: [add(cp, 0.4, 0.15, 0.75)] }), P("mn2", ng(PORTAL[0] - 1.6, cz - 0.6), "laugh", 1, { wave: 0.6 })],
-      cam: move({ pos: ng(PORTAL[0] - 3.5, PORTAL[2] - 10, 1.8), look: add(cp, 0, 0.4, 1.0), fov: 48, roll: -0.04 }, { pos: ng(PORTAL[0] - 2.8, PORTAL[2] - 9, 1.5), look: add(cp, 0, 0.3, 0.5), fov: 46, roll: 0.04 }, f, s.a, s.b, smooth, 0),
+      people: [P("mn1", ng(PORTAL[0] + 0.5, cz + 1.25), "grin", 0, { hw: [add(cp, 0.4, 0.15, 0.75)] }), P("mn2", ng(PORTAL[0] - 1.2, cz - 0.6), "laugh", 1, { wave: 0.6 })],
+      cam: move({ pos: ng(PORTAL[0] - 3.5, PORTAL[2] - 10, 1.8), look: add(cp, 0, 0.4, 1.0), fov: 48, roll: -0.04 }, { pos: ng(PORTAL[0] - 3.3, PORTAL[2] - 9.6, 1.7), look: add(cp, 0, 0.4, 0.9), fov: 48, roll: 0.04 }, f, s.a, s.b, smooth, 0),
       subjects: [["the mine", ng(PORTAL[0], PORTAL[2], 1.5), 0.6], ["the copper cart", cp, 0.4]] }; },
   // Ohio got Toledo: Lucas on Toledo's board walk, his men cheering
   ohio: (s, f) => { const p = Rv(-21, BW, WALK_Z - 0.3);
     return { light: "river", dof: 1, focus: add(p, 0, 1.4, 0),
-      people: [P("lucas", p, "laugh", 0), P("oh1", Rv(-20.35, 0, 1.6), "laugh", -1, { wave: 0.9 }), P("oh2", Rv(-21.65, 0, 1.8), "grin", 1, { wave: 0.6 })],
-      cam: kick(move({ pos: Rv(-21.2, 1.5, -2.4), look: Rv(-21, 1.45, 3.4), fov: 48, roll: -0.05 }, { pos: Rv(-20.9, 1.55, -2.0), look: Rv(-21, 1.5, 3.4), fov: 46, roll: 0.04 }, f, s.a, s.b, smooth, 0), f, W(10, "toledo"), 0.8),
+      people: [P("lucas", p, "laugh", 0), P("oh1", Rv(-20.45, 0, 1.6), "laugh", -1, { wave: 0.9 }), P("oh2", Rv(-21.65, 0, 1.8), "grin", 1, { wave: 0.6 })],
+      cam: kick(move({ pos: Rv(-21.2, 1.5, -2.4), look: Rv(-21, 1.45, 3.4), fov: 48, roll: -0.05 }, { pos: Rv(-21.0, 1.55, -2.2), look: Rv(-21, 1.5, 3.4), fov: 48, roll: 0.04 }, f, s.a, s.b, smooth, 0), f, W(10, "toledo"), 0.8),
       subjects: [["Lucas", add(p, 0, 1.45, 0), 0.2]] }; },
   // Michigan got rich: Mason by the copper cart, laughing
-  rich: (s, f) => { const mp = ng(PORTAL[0] - 1.1, PORTAL[2] - 3.9);
-    return { light: "northS", dof: 1, focus: add(mp, 0.4, 1.3, 0), people: [P("mason", mp, "laugh", 1, { wave: 0.8 })],
+  rich: (s, f) => { const mp = ng(PORTAL[0] - 1.35, PORTAL[2] - 4.4), lk = ng(PORTAL[0] - 0.7, PORTAL[2] - 4.0, 1.25);
+    return { light: "northS", dof: 1, focus: add(mp, 0, 1.4, 0), people: [P("mason", mp, "laugh", 1, { wave: 0.8 })],
       cards: [0, 1].map((i) => ({ kind: "nugget" as const, p: add(mp, -0.25 - 0.1 * i, 1.0 + 0.12 * i, -0.25), spin: i * 2, s: 0.7 })),
-      cam: kick(move({ pos: add(mp, 0.9, 1.6, -3.0), look: add(mp, 0.5, 1.3, 0), fov: 46, roll: 0.05 }, { pos: add(mp, 0.6, 1.55, -2.5), look: add(mp, 0.45, 1.35, 0), fov: 44, roll: -0.04 }, f, s.a, s.b, smooth, 0), f, W(10, "rich"), 1.0),
-      subjects: [["Mason", add(mp, 0, 1.5, 0), 0.2], ["the copper cart", CART, 0.4]] }; },
+      cam: kick(move({ pos: add(lk, -0.2, 0.35, -3.9), look: lk, fov: 52, roll: 0.05 }, { pos: add(lk, -0.1, 0.3, -3.6), look: lk, fov: 52, roll: -0.04 }, f, s.a, s.b, smooth, 0), f, W(10, "rich"), 1.0),
+      subjects: [["Mason", add(mp, 0, 1.5, 0), 0.2], ["the copper cart", add(CART, 0, 0.3, -0.7), 0.3]] }; },
   // loop: back to the face-off in the street, settling onto the opening frame
   end: (s, f) => { const h0 = hookCam(0);
     return { ...hookState(), light: "river", dof: 1, focus: Rv(0, 1.3, 2.0),
@@ -350,7 +350,7 @@ export type Item = { key: string; kind: "stamp" | "pill" | "call"; text: string;
 const B = (g: string) => SHOTS.find((x) => x.g === g)!.b;
 const S0 = (g: string) => SHOTS.find((x) => x.g === g)!.a;
 export const ITEMS = (): Item[] => ([
-  { key: "war", kind: "stamp", text: "OHIO vs. MICHIGAN", f0: 0, f1: B("hook"), y: 23, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 96 },
+  { key: "war", kind: "stamp", text: "OHIO vs. MICHIGAN", f0: 6, f1: B("hook"), y: 23, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 96 },
   { key: "wound", kind: "call", text: "THE ONLY WOUND", f0: W(0, "wound"), f1: B("knife"), y: 23, fg: "#ffd166", size: 110 },
   { key: "1835", kind: "pill", text: "1835", sub: "both claimed the Toledo Strip", f0: W(1, "1835"), f1: B("strip"), y: 22, size: 84 },
   { key: "toledo", kind: "pill", text: "TOLEDO", sub: "on the Maumee River", f0: W(1, "toledo"), f1: B("toledo"), y: 22, size: 84 },
@@ -370,7 +370,7 @@ export const ITEMS = (): Item[] => ([
   { key: "blood", kind: "call", text: "THE ONLY BLOOD OF THE WAR", f0: W(5, "only"), f1: B("only"), y: 23, fg: "#ff6b5a", size: 84 },
   { key: "dc", kind: "pill", text: "CONGRESS", sub: "Washington, 1836", f0: W(6, "congress"), f1: B("congress"), y: 22, size: 84 },
   { key: "give", kind: "stamp", text: "GIVE UP TOLEDO", f0: W(6, "give"), f1: B("deal"), y: 23, rot: -3, bg: "#2f2a3a", fg: "#ffffff", size: 110 },
-  { key: "up", kind: "call", text: "+ THE UPPER PENINSULA", f0: W(6, "upper"), f1: B("up"), y: 23, fg: "#ffd166", size: 90 },
+  { key: "up", kind: "call", text: "+ THE UPPER PENINSULA", f0: W(6, "upper"), f1: B("up"), y: 23, fg: "#ffd166", size: 56 },
   { key: "furious", kind: "stamp", text: "FURIOUS", f0: W(7, "furious"), f1: B("furious"), y: 23, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 140 },
   { key: "no", kind: "stamp", text: "VOTED NO", f0: W(7, "no"), f1: B("no"), y: 23, rot: 4, bg: "#e0332e", fg: "#ffffff", size: 130 },
   { key: "dec", kind: "pill", text: "DECEMBER 1836", f0: W(8, "december"), f1: W(8, "frostbitten"), y: 22, size: 84 },
