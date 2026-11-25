@@ -1,6 +1,6 @@
 # Paradox Town: how a short gets made (and checked)
 
-This file and the Claude project doc `claude/production-checklist.md` hold the same checklist (synced Nov 24, 2026).
+This file and the Claude project doc `claude/production-checklist.md` hold the same checklist (synced Nov 25, 2026).
 
 ## Pipeline
 1. **Script**: `src/videos/<short>/timeline.ts`, SEGMENTS (`say` = what the narrator reads, `show` = subtitles).
