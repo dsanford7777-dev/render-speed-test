@@ -326,7 +326,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "northS", dof: 1, focus: add(mp, 0, 1.4, 0), people: [P("mason", mp, "laugh", 1, { wave: 0.8 })],
       cards: [0, 1].map((i) => ({ kind: "nugget" as const, p: add(mp, -0.25 - 0.1 * i, 1.0 + 0.12 * i, -0.25), spin: i * 2, s: 0.7 })),
       cam: kick(move({ pos: add(lk, -0.2, 0.35, -3.9), look: lk, fov: 52, roll: 0.05 }, { pos: add(lk, -0.1, 0.3, -3.6), look: lk, fov: 52, roll: -0.04 }, f, s.a, s.b, smooth, 0), f, W(10, "rich"), 1.0),
-      subjects: [["Mason", add(mp, 0, 1.5, 0), 0.2], ["the copper cart", add(CART, 0, 0.3, -0.7), 0.3]] }; },
+      subjects: [["Mason", add(mp, 0, 1.5, 0), 0.2], ["the copper cart", add(CART, -0.4, 0.35, -0.7), 0.2]] }; },
   // loop: back to the face-off in the street, settling onto the opening frame
   end: (s, f) => { const h0 = hookCam(0);
     return { ...hookState(), light: "river", dof: 1, focus: Rv(0, 1.3, 2.0),
