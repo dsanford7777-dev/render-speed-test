@@ -261,7 +261,7 @@ export function buildNorth(): NorthSet {
     for (let i = 0; i < 240; i++) { const x = -130 + r(i) * 260, z = -60 + r(i + 500) * 76; if (x > -14 && x < 26 && z > -14) continue; spots.push([ox + x, gy(ox + x, z), z, 0.85 + r(i + 900) * 0.45]); }
     for (let i = 0; i < 70; i++) { const x = -60 + r(i + 700) * 50, z = 8 + r(i + 800) * 10; if (Math.hypot(x - OUTCROP[0], z - OUTCROP[2]) < 6) continue; spots.push([ox + x, gy(ox + x, z), z, 0.75 + r(i + 860) * 0.45]); }
     for (let i = 0; i < 30; i++) { const x = FX0 + 2 + r(i + 40) * (FX1 - FX0 - 4), z = FZ + 3 + r(i + 140) * (SHORE_Z - FZ - 4); spots.push([ox + x, 8.2, z, 0.7 + r(i + 240) * 0.3]); }
-    forest(G, spots, "north", 0.12, winter); }
+    forest(G, spots, "north", 0, winter); }
   skyPl(G, twSkyTex("winter"), "#8a98aa", ox, 10, 240, 170, -20);
   const flakes = dustMotes(V(ox, 3, 4), V(30, 7, 24), 420, new THREE.Color(1, 1, 1), 0.05, 0.8); winter.add(flakes.points);
   b.build(G, true); noInk(G);

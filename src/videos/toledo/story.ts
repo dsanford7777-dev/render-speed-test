@@ -277,7 +277,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   snow: (s, f) => { const tt = t(f);
     return { light: "northW", dof: 0, focus: Nt(-8, 2, 12), cards: snowfall(Nt(-6, 1.8, 3), tt, 60, 9, 5),
       cam: move({ pos: Nt(2, 1.8, -6), look: Nt(-10, 2.4, 12), fov: 52, roll: 0.04 }, { pos: Nt(0, 2.6, -8), look: Nt(-12, 3.0, 14), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the snowy pines", Nt(-14, 4, 13), 2], ["the frozen lake", Nt(-24, -0.5, 30), 3]] }; },
+      subjects: [["the snowy pines", Nt(-14, 4, 13), 2]] }; },
   // They voted no: the delegates in the tavern, arms folded, stern
   no: (s, f) => { const ps: V3[] = [Rm(1.0, 0, 1.2), Rm(0.1, 0, 1.2), Rm(1.45, 0, 2.1), Rm(-0.35, 0, 1.95)];
     return { light: "tavern", dof: 1, focus: Rm(0.5, 1.5, 1.6), key: LAMP_T,
@@ -322,7 +322,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: kick(move({ pos: Rv(-21.2, 1.5, -2.4), look: Rv(-21, 1.45, 3.4), fov: 48, roll: -0.05 }, { pos: Rv(-21.0, 1.55, -2.2), look: Rv(-21, 1.5, 3.4), fov: 48, roll: 0.04 }, f, s.a, s.b, smooth, 0), f, W(10, "toledo"), 0.8),
       subjects: [["Lucas", add(p, 0, 1.45, 0), 0.2]] }; },
   // Michigan got rich: Mason by the copper cart, laughing
-  rich: (s, f) => { const mp = ng(PORTAL[0] - 1.35, PORTAL[2] - 4.4), lk = ng(PORTAL[0] - 0.7, PORTAL[2] - 4.0, 1.25);
+  rich: (s, f) => { const mp = ng(PORTAL[0] - 1.35, PORTAL[2] - 4.4), lk = ng(PORTAL[0] - 1.0, PORTAL[2] - 4.0, 1.25);
     return { light: "northS", dof: 1, focus: add(mp, 0, 1.4, 0), people: [P("mason", mp, "laugh", 1, { wave: 0.8 })],
       cards: [0, 1].map((i) => ({ kind: "nugget" as const, p: add(mp, -0.25 - 0.1 * i, 1.0 + 0.12 * i, -0.25), spin: i * 2, s: 0.7 })),
       cam: kick(move({ pos: add(lk, -0.2, 0.35, -3.9), look: lk, fov: 52, roll: 0.05 }, { pos: add(lk, -0.1, 0.3, -3.6), look: lk, fov: 52, roll: -0.04 }, f, s.a, s.b, smooth, 0), f, W(10, "rich"), 1.0),
