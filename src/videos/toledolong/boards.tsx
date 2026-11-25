@@ -77,12 +77,12 @@ const Lines: React.FC<G> = ({ t, d, c, v }) => {
       <At x={P([-86.3, 41.0])[0]} y={P([-86.3, 41.0])[1]} s={1}><T size={40} col="#5a4a3a">INDIANA</T></At>
       {/* what each step adds */}
       {m === 1 ? <Tag p={[-85.4, 41.62]} dy={-70} s={pop(t, 14)} col={RED} text="1787: due east from the tip" /> : null}
-      {m === 2 ? <Tag p={mtip} dx={200} dy={-60} s={pop(t, at([7, "mitchell"], c))} col={RED} text="the Mitchell Map's tip: too far north" /> : null}
+      {m === 2 ? <Tag p={mtip} dx={420} dy={-60} s={pop(t, at([7, "mitchell"], c))} col={RED} text="the Mitchell Map's tip: too far north" /> : null}
       {m === 3 ? <Tag p={[-85.8, 41.7]} dy={-80} s={pop(t, at([8, "bend"], c))} col={OHIO} text="Ohio, 1802: bend up to Maumee Bay" /> : null}
-      {m === 4 ? <Tag p={TIP} dx={60} dy={70} s={pop(t, at([9, "further"], c))} col={RED} text="the real tip: further south" /> : null}
+      {m === 4 ? <Tag p={TIP} dx={330} dy={80} s={pop(t, at([9, "further"], c))} col={RED} text="the real tip: further south" /> : null}
       {m === 5 ? <><Tag p={[-86.0, 41.72]} dy={-62} s={pop(t, at([10, "ohio"], c))} col={OHIO} text="Ohio's line" /><Tag p={[-86.0, 41.62]} dy={62} s={pop(t, at([10, "michigan"], c))} col={MICH} text="Michigan's line" /></> : null}
       {m === 6 ? <><Tag p={[-84.1, 41.66]} dy={-90} s={pop(t, at([11, "468"], c))} col={RED} text="468 square miles" /><Tag p={TOLEDO} dx={30} dy={70} s={pop(t, at([11, "toledo"], c))} text="Toledo" /></> : null}
-      {m === 7 ? <><Tag p={[-84.35, 40.9]} dx={190} s={pop(t, at([13, "ohio"], c))} col="#7a5a2a" text="Ohio's canal" /><Tag p={[-80.9, 42.55]} dx={-40} dy={-70} s={pop(t, at([13, "linking"], c))} col="#7a5a2a" text="to the Erie Canal and New York" /><Tag p={TOLEDO} dx={30} dy={70} s={1} text="Toledo" /></> : null}
+      {m === 7 ? <><Tag p={[-84.35, 40.9]} dx={190} s={pop(t, at([13, "ohio"], c))} col="#7a5a2a" text="Ohio's canal" /><Tag p={[-80.9, 42.55]} dx={-330} dy={-80} s={pop(t, at([13, "linking"], c))} col="#7a5a2a" text="to the Erie Canal and New York" /><Tag p={TOLEDO} dx={30} dy={70} s={1} text="Toledo" /></> : null}
     </Mv></Paper>
   );
 };
@@ -100,7 +100,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
   statehood: say([{ s: "1835:", size: 130 }, { s: "Michigan wants", cue: [15, "michigan"], size: 110 }, { s: "to be a state", cue: [15, "state"], col: RED, size: 120 }], { m: 2 }),
   boygov: say([{ s: "\"The Boy Governor\"", size: 140, col: RED }, { s: "Stevens T. Mason, 22", cue: [16, "people"], size: 80 }], { m: 2 }),
   feb: say([{ s: "February 1835", size: 130, col: RED }, { s: "Ohio takes over", cue: [18, "taking"], size: 110 }, { s: "the strip", cue: [18, "strip"], size: 110 }], { m: 2 }),
-  pains: num("$1,000", "fine for any Ohio official in the strip", { col: RED, m: 2, top: "The Pains and Penalties Act", sub: "or 5 years of hard labor", subCue: [19, "locked"] }),
+  pains: num("$1,000", "fine for Ohio officials", { col: RED, m: 2, top: "The Pains and Penalties Act", sub: "or 5 years of hard labor", subCue: [19, "locked"] }),
   armies: checks([{ s: "Ohio: about 600 militia" }, { s: "Michigan: around 1,000", cue: [20, "mason"] }], { top: "Both sides call out the militia", topCol: INK, size: 80 }),
   // ---------------- the one real battle ----------------
   phillips: say([{ s: "Phillips Corners", size: 140, col: RED }, { s: "April 1835", size: 100 }], { m: 2 }),
@@ -125,9 +125,9 @@ export const BOARDS: Record<string, React.FC<G>> = {
   // kept left of x ~1400: the subscribe card and mascot are still on the right when this board comes in
   question: ({ t, d, c }) => (
     <Paper tone="#141a2a"><Mv t={t} d={d} m={4}>
-      <At x={740} y={300} s={pop(t, 0)}><T size={96} col="#fff">Who really won?</T></At>
-      <At x={740} y={470} s={pop(t, at([50, "ohio"], c))}><T size={80} col="#7fd18a">Ohio: the port</T></At>
-      <At x={740} y={600} s={pop(t, at([50, "michigan"], c))}><T size={80} col="#ffb347">Michigan: the copper</T></At>
+      <At x={620} y={300} s={pop(t, 0)}><T size={84} col="#fff">Who really won?</T></At>
+      <At x={620} y={460} s={pop(t, at([50, "ohio"], c))}><T size={72} col="#7fd18a">Ohio: the port</T></At>
+      <At x={620} y={590} s={pop(t, at([50, "michigan"], c))}><T size={72} col="#ffb347">Michigan: the copper</T></At>
     </Mv></Paper>
   ),
 };

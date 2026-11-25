@@ -109,10 +109,11 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: mv(s, f, { pos: Nt(-1.5, 1.5, -1.6), look: Nt(0.2, 1.2, 5), fov: 38, roll: 0.03 }, { pos: Nt(-2.0, 1.5, -1.4), look: Nt(-0.6, 1.2, 5), fov: 38, roll: -0.02 }),
       subjects: [["the prospectors", Nt(0.5 - 0.8 * t0, 1.3, 4.5), 0.6]] }; },
   // The frozen wilderness ... one of the richest pieces of ground in America: summer, the mine and the lake, wide
-  north: (s, f) => ({ light: "northS", dof: 0, focus: Nt(2, 2, 12),
-    people: [P("mn1", ng(PORTAL[0] + 0.5, PORTAL[2] - 2.4), "grin", 0), P("mn2", ng(PORTAL[0] - 1.3, PORTAL[2] - 3.4), "laugh", 1)],
-    cam: mv(s, f, { pos: Nt(-6, 3.0, -9), look: Nt(3, 2, 12), fov: 40, roll: 0.02 }, { pos: Nt(-7, 4.4, -11), look: Nt(2, 2.2, 13), fov: 42, roll: -0.02 }),
-    subjects: [["the mine", ng(PORTAL[0], PORTAL[2], 1.5), 1], ["the lake", Nt(-12, -0.5, 36), 4]] }),
+  north: (s, f) => ({ light: "northS", dof: 0.4, focus: ng(-2.6, 5.4, 1.2),
+    people: [P("pros", ng(-3.9, 5.2), "grin", 1), P("mn1", ng(-1.7, 5.7), "laugh", -1, { wave: 0.6 })],
+    cards: [0, 1, 2].map((i) => ({ kind: "nugget" as const, p: ng(-3.0 + i * 0.4, 6.1, 0.6 + 0.1 * i), spin: i, s: 0.8 })),
+    cam: mv(s, f, { pos: Nt(-1.2, 1.9, -1.4), look: Nt(-6.5, 1.3, 11), fov: 40, roll: 0.02 }, { pos: Nt(-1.6, 2.6, -2.6), look: Nt(-7.0, 1.2, 12), fov: 42, roll: -0.02 }),
+    subjects: [["the prospectors", ng(-2.8, 5.4, 1.3), 0.6]] }),
   // Toledo did fine too: the wharf busy, the schooner in
   port2: (s, f) => { const st = SPECS.toledo3(s, f); return { ...st, people: [...(st.people ?? []), P("t1", Rv(12.0, WHARF.y, 17), "laugh", 1)] }; },
   // And every November, the two states still go to war: the face-off again, from behind the Ohio line
