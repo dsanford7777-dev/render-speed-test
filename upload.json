@@ -1,10 +1,10 @@
 {
-  "release": "Toledo-20261125-0553",
-  "asset": "Toledo.mp4",
-  "channel": "shorts",
-  "channelId": "UCl-QfCSpuFSXpego91Z5i7A",
-  "title": "Ohio and Michigan Went to War and the Only Wound Was a Penknife #history #shorts",
-  "description": "In 1835, Ohio and the Michigan Territory both claimed the Toledo Strip, the land around Toledo near the mouth of the Maumee River. Both sides called out the militia, and the only blood of the whole \"war\" came from a penknife.\n\nFacts used: Michigan's acting governor, Stevens T. Mason, was 23 for most of 1835; Ohio's governor was Robert Lucas. At Phillips Corners in April 1835, Michigan men caught an Ohio survey party and fired shots (accounts differ on whether they aimed over their heads); nobody was hurt and nine surveyors were arrested. In July 1835, Monroe County deputy sheriff Joseph Wood was stabbed with a penknife by Two Stickney (his brother was named One) during an attempted arrest in Toledo; the wound was minor. In 1836 Congress offered Michigan statehood if it gave up the strip, adding the western Upper Peninsula. A convention rejected the deal in September 1836; the \"Frostbitten Convention\" accepted it on Dec. 14, 1836. Copper was reported in the Upper Peninsula in the early 1840s, and Michigan led the nation in copper from 1847 to 1887.\n\nThe scenes are an animated dramatization.\n\n#history #shorts #toledowar",
+  "release": "ToledoLong-20261125-0701",
+  "asset": "ToledoLong.mp4",
+  "channel": "explained",
+  "channelId": "UCx1xmhy5MastJ1ug1-KqygA",
+  "title": "The War Michigan Lost and Won Anyway",
+  "description": "In 1835, Ohio and the Michigan Territory raised militias and marched them at each other over a strip of land and the little town of Toledo. There was one \"battle\", nobody was hit, and the only blood of the whole war came from a penknife held by a man named Two Stickney. Then Michigan lost the war, gave up Toledo, took a frozen wilderness nobody wanted, and found copper in it.\n\nChapters\n0:00 Two armies, one town\n0:30 A bad map\n1:23 The prize\n1:44 The Boy Governor\n2:26 The one real battle\n2:51 One and Two\n3:25 The midnight court\n4:05 The deal\n5:02 The frozen wasteland\n5:36 Who won?\n\nFacts used: the 1787 Northwest Ordinance set the line due east from the southern tip of Lake Michigan; the Mitchell Map, the standard map of the day, put that tip too far north, and Ohio's 1802 constitution bent its border up to the north cape of Maumee Bay if the line fell too far south. Two surveys (the Harris line, 1817, and the Fulton line, 1818) left a strip of about 468 square miles between them. In February 1835 Ohio extended its government over the strip, and six days later Michigan passed the Pains and Penalties Act (fines up to $1,000 or up to five years at hard labor). Michigan's acting governor, Stevens T. Mason, had taken office at 22; Ohio's governor was Robert Lucas. Ohio gathered about 600 militia and Michigan about 1,000. At Phillips Corners in April 1835, Michigan men caught an Ohio survey party and fired shots; nobody was hurt and nine surveyors were arrested. In July 1835, Monroe County deputy sheriff Joseph Wood was stabbed with a penknife by Two Stickney, son of Major Benjamin Stickney (whose other son was named One); the wound was minor, and Ohio did not hand Two over. Local histories also record a horse as the war's only death. On Sept. 7, 1835, the new Lucas County court held a secret session in Toledo by night and fled at a false rumor of Michigan militia. President Jackson removed Mason in August 1835; Michigan voters elected him governor that fall. The act of June 15, 1836 offered statehood for the strip, with the western Upper Peninsula; a convention at Ann Arbor rejected it in September 1836, and the \"Frostbitten Convention\" accepted it on Dec. 14, 1836, with a share of the federal surplus at stake. Michigan became the 26th state on Jan. 26, 1837. State geologist Douglass Houghton reported copper in the Upper Peninsula in 1841; the rush began in 1843, and Michigan led the nation in copper from 1847 to 1887. In 1973 the Supreme Court (Michigan v. Ohio) settled the Lake Erie boundary in Ohio's favor.\n\nThe scenes are an animated dramatization.\n\nThe 60-second version: https://youtu.be/apvri3tioCw\n\n#history #toledowar #michigan",
   "tags": [
     "history",
     "toledo war",
@@ -12,11 +12,14 @@
     "michigan",
     "toledo",
     "upper peninsula",
-    "1835",
+    "stevens t mason",
     "two stickney",
+    "frostbitten convention",
     "weird history",
-    "shorts"
+    "animated history",
+    "paradox town explained"
   ],
-  "publishAt": "2026-11-25T10:00:00-06:00",
-  "comment": "Who really won the Toledo War: Ohio or Michigan?"
+  "thumbnail": "public/toledolong/thumb.jpg",
+  "publishAt": "2026-11-25T12:00:00-06:00",
+  "comment": "So who really won the Toledo War: Ohio, which got its port, or Michigan, which got the copper?"
 }
