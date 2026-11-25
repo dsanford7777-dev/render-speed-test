@@ -1,11 +1,24 @@
 {
-  "release": "Centralia-20261124-1930-patch",
-  "asset": "Centralia.mp4",
-  "channel": "shorts",
-  "channelId": "UCl-QfCSpuFSXpego91Z5i7A",
-  "title": "This Town Has Been on Fire Underground for 64 Years #history #shorts",
-  "description": "In May 1962, Centralia, Pennsylvania, set its town dump on fire to clean it up before Memorial Day. The dump sat in an old strip-mine pit, and the fire most likely got into a seam of coal. It has been burning in the old mine tunnels under the town ever since.\n\nFacts used: the fire has burned beneath Centralia since at least May 27, 1962, when the borough had five volunteer firefighters burn the landfill in an abandoned strip-mine pit (the exact cause is still debated). Years of trenching and flushing failed. On Feb. 14, 1981, 12-year-old Todd Domboski fell into a smoking sinkhole in his grandmother's yard; he held on to tree roots until his cousin pulled him out, and the hole was later found to be about 150 feet deep. Congress set aside about $42 million to buy out and move the town; the state took the remaining properties by eminent domain in 1992; the Postal Service retired the 17927 ZIP code in 2002; in 2013 the last residents won the right to stay for life. The 2020 census counted 5 people. At its current rate the fire could burn for another 250 years.\n\nThe scenes are an animated dramatization.\n\n#history #shorts #centralia",
-  "tags": ["history", "centralia", "centralia pennsylvania", "mine fire", "coal fire", "ghost town", "1962", "todd domboski", "weird history", "shorts"],
-  "publishAt": "2026-11-24T15:00:00-06:00",
-  "comment": "Would you have stayed in Centralia, or taken the buyout?"
+  "release": "CentraliaLong-20261125-0009-patch",
+  "asset": "CentraliaLong.mp4",
+  "channel": "explained",
+  "channelId": "UCx1xmhy5MastJ1ug1-KqygA",
+  "title": "Why Nobody Can Put Out the Fire Under This Town",
+  "description": "In May 1962, the town of Centralia, Pennsylvania, wanted its new dump cleaned up before Memorial Day. The volunteer firemen set it on fire, the way it had been done before. The fire got into the old coal mines underneath the town, and it has been burning ever since.\n\nThis is how a dump fire emptied a town of more than 1,000 people: the gas in the basements, the boy who fell into a smoking sinkhole in his grandmother's yard, the buyout, the holdouts who fought the state for 20 years, and the highway that became a tourist attraction.\n\nChapters\n0:00 Cold open\n0:32 A coal town\n0:56 The dump\n1:53 A fire you can't reach\n2:36 The warning signs\n3:23 The hole\n4:10 Stay or go\n4:45 The holdouts\n5:37 The Graffiti Highway\n5:58 Centralia today\n\nFacts used: Centralia sits in the anthracite (hard coal) region of eastern Pennsylvania, on top of old mine workings. In May 1962 the borough council had volunteer firemen burn the new landfill in an old strip-mine pit next to the Odd Fellows Cemetery before Memorial Day; the fire was lit around May 27 and put out, then kept coming back. The most accepted account is that it got into the old mines through an unsealed opening in the pit wall; some residents always said it came from an older mine fire from the 1930s. That August, carbon monoxide was found in nearby mines and they were closed. Trenching, flushing and other projects from 1962 to 1978 cost about $3.3 million with limited results. In 1979 mayor John Coddington found the gasoline in his station's underground tank at 172°F. On Feb. 14, 1981, 12-year-old Todd Domboski fell into a steaming sinkhole in his grandmother's yard and held onto tree roots until his cousin Eric pulled him out; the hole was about 150 feet deep with lethal carbon monoxide. A federal study put the cost of digging the fire out at $663 million; residents voted in August 1983 to accept relocation, and Congress provided about $42 million. Pennsylvania took the remaining properties by eminent domain in 1992; Route 61 was closed and rerouted in 1993; the Postal Service retired ZIP code 17927 in 2002. In 2013 the last residents settled with the state: $349,500 and the right to stay for life. The closed stretch of Route 61 became the \"Graffiti Highway\" and was covered with dirt in 2020. The 2020 census counted 5 people. Estimates say the fire could burn for 250 more years.\n\nThe scenes are an animated dramatization.\n\nThe 60-second version: https://youtu.be/3wq4ureWhac\n\n#history #centralia #pennsylvania",
+  "tags": [
+    "history",
+    "centralia",
+    "centralia pennsylvania",
+    "mine fire",
+    "coal mine fire",
+    "ghost town",
+    "graffiti highway",
+    "todd domboski",
+    "weird history",
+    "animated history",
+    "paradox town explained"
+  ],
+  "thumbnail": "public/centralialong/thumb.jpg",
+  "publishAt": "2026-11-24T18:40:00-06:00",
+  "comment": "Would you have taken the buyout, or stayed in Centralia?"
 }
