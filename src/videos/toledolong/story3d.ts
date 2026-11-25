@@ -16,6 +16,7 @@ const R = (k: string, mod?: (st: St3, s: ShotDef, f: number) => St3) => (s: Shot
   return mod ? mod(w, s, f) : w;
 };
 const tt = (s: ShotDef, f: number) => secs(f - s.a);
+const subj = (sb: [string, V3, number][]) => (st: St3): St3 => ({ ...st, subjects: sb });
 /** pull the camera back (k > 1) along its line of sight */
 const far = (st: St3, k: number): St3 => ({ ...st, cam: { ...st.cam, pos: L3(st.cam.look, st.cam.pos, k) } });
 const mv = (s: ShotDef, f: number, a: Partial<Cam> & { pos: V3; look: V3 }, b: Partial<Cam> & { pos: V3; look: V3 }) => move(a, b, f, s.a, s.b, smooth, 0);
@@ -25,10 +26,10 @@ const LAMP_T: V3 = Rm(-0.2, 2.4, 0.4);
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ---------------- straight from the Short ----------------
-  hook: R("hook"), mimarch: R("mimarch"), toledo: R("toledo"), fire: R("fire"), stab: R("stab"), knife: R("knife"), rich: R("rich"),
+  hook: R("hook"), mimarch: R("mimarch"), toledo: R("toledo", subj([["the town", Rv(-12, 2.2, 4.6), 2]])), fire: R("fire"), stab: R("stab"), knife: R("knife"), rich: R("rich"),
   survey: R("survey"), strip: R("strip"), mason: R("mason"), boy: R("boy"), lucas: R("lucas"), ambush: R("ambush"), duck: R("duck"), nobody: R("nobody"),
-  one: R("one"), wood: R("wood"), tavern: R("tavern"), lived: R("lived"), ohio: R("ohio"), congress: R("congress"), deal: R("deal"), up: R("up"),
-  furious: R("furious"), snow: R("snow"), no: R("no"), broke: R("broke"), frost: R("frost"), yes2: R("yes2"), copper: R("copper"), mine: R("mine"), port: R("port"),
+  one: R("one"), wood: R("wood", (st) => ({ ...st, people: (st.people ?? []).filter((q) => q.who !== "t4") })), tavern: R("tavern"), lived: R("lived"), ohio: R("ohio"), congress: R("congress"), deal: R("deal"), up: R("up"),
+  furious: R("furious"), snow: R("snow"), no: R("no"), broke: R("broke"), frost: R("frost"), yes2: R("yes2"), copper: R("copper"), mine: R("mine"), port: R("port", subj([["the schooner", Rv(SHIP[0] - 4, 2, SHIP[2]), 1]])),
   boy2: R("boy", (st) => far(st, 1.5)), mine2: R("mine", (st) => far(st, 1.3)),
 
   // ---------------- the long-form's own ----------------
