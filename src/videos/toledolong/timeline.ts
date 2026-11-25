@@ -179,7 +179,7 @@ const raw: RawShot[] = [
   D3(46, null, "north"),
   // 9 who won?
   D3(47, null, "port2"), D3(47, "ohio", "ohio"),
-  D2(48, null, "court1973"),
+  D2(48, null, "court1973"), D3(48, "fighting", "river"),
   D3(49, null, "hook2"),
   D3(50, null, "endhook"), D2(50, "tell", "question"),
 ];
