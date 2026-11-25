@@ -59,10 +59,10 @@ const MICH: LL[] = [[-87.8, 41.62], [-87.0, 41.65], [-86.6, 41.9], [-86.3, 42.4]
 const SUP: LL[] = [[-92.1, 46.7], [-91.0, 46.9], [-90.4, 46.6], [-89.6, 46.85], [-88.4, 47.4], [-87.8, 47.45], [-88.0, 46.95], [-87.3, 46.5], [-86.5, 46.45], [-85.5, 46.75], [-84.8, 46.5], [-84.6, 46.9], [-85.0, 47.6], [-86.0, 48.9], [-88.5, 48.9], [-89.6, 48.0], [-90.5, 47.5], [-92.0, 46.8]];
 const HUR: LL[] = [[-84.7, 45.85], [-84.0, 45.95], [-83.5, 45.9], [-82.5, 45.3], [-81.7, 45.25], [-81.4, 44.9], [-81.7, 44.4], [-81.75, 43.4], [-82.4, 43.0], [-82.5, 43.6], [-83.0, 44.05], [-83.6, 44.0], [-83.4, 44.4], [-83.3, 45.0], [-84.0, 45.5]];
 const UP: LL[] = [[-90.4, 46.57], [-89.6, 46.85], [-88.4, 47.4], [-87.8, 47.45], [-88.0, 46.95], [-87.3, 46.5], [-86.5, 46.45], [-85.5, 46.75], [-84.8, 46.5], [-84.4, 46.3], [-84.1, 46.0], [-84.7, 45.9], [-85.4, 45.95], [-86.0, 45.95], [-86.7, 45.85], [-87.0, 45.6], [-87.6, 45.1], [-88.1, 45.8], [-89.0, 46.0], [-90.1, 46.3]];
-/** the strip: between Michigan's line (due east from the bottom of Lake Michigan) and Ohio's (angled up to the bay) */
+/** the strip: between Michigan's line to the south (due east from the bottom of Lake Michigan) and Ohio's to the north (angled up to the bay) */
 const STRIP: LL[] = [[-84.81, 41.62], [-83.3, 41.62], [-83.47, 41.7], [-83.45, 41.733], [-84.81, 41.696]];
 const MAUMEE: LL[] = [[-83.47, 41.69], [-83.55, 41.65], [-83.65, 41.57], [-83.9, 41.47], [-84.2, 41.35], [-84.36, 41.28]];
-/** "strip": the Toledo Strip, close (Michigan's claim north, Ohio's south); "up": the Great Lakes, the strip gone to Ohio,
+/** "strip": the Toledo Strip, close (the land between the two claimed lines); "up": the Great Lakes, the strip gone to Ohio,
  *  the Upper Peninsula picked out for Michigan */
 export const mapTex = (kind: "strip" | "up") => ctex("twMap_" + kind, 1600, 1200, (g, r) => {
   const W = 1600, H = 1200, [l0, l1, b0, b1] = kind === "strip" ? [-85.6, -82.6, 41.15, 42.3] : [-92.2, -79.0, 40.4, 48.7];
@@ -82,7 +82,7 @@ export const mapTex = (kind: "strip" | "up") => ctex("twMap_" + kind, 1600, 1200
     poly(ERIE, water, "#5a8aa0", 5);
     line(MAUMEE, "#5a8aa0", 12);
     line([[-84.81, 41.15], [-84.81, 41.76]], INK, 5, [18, 12]); line([[-85.6, 41.76], [-84.81, 41.76]], INK, 5, [18, 12]);
-    line([[-84.81, 41.696], [-83.45, 41.733]], "#2a4a8a", 7); line([[-84.81, 41.62], [-83.3, 41.62]], "#2a7a3a", 7);
+    line([[-84.81, 41.696], [-83.45, 41.733]], "#2a7a3a", 7); line([[-84.81, 41.62], [-83.3, 41.62]], "#2a4a8a", 7); // Ohio claimed the northern (Harris) line, Michigan the southern (Fulton) one
     const t = P([-83.55, 41.663]); g.fillStyle = INK; g.beginPath(); g.arc(t[0], t[1], 16, 0, 6.3); g.fill(); g.fillStyle = "#ffd166"; g.beginPath(); g.arc(t[0], t[1], 9, 0, 6.3); g.fill();
     label("MICHIGAN", [-84.5, 42.05], 88, "#2a4a8a"); label("OHIO", [-84.2, 41.35], 88, "#2a7a3a"); label("INDIANA", [-85.22, 41.45], 46, "#5a4a3a");
     label("LAKE ERIE", [-82.95, 41.98], 52, "#2a5a7a", true); label("TOLEDO", [-83.62, 41.79], 60); label("Maumee River", [-83.9, 41.4], 34, "#2a5a7a", true);

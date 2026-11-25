@@ -34,6 +34,7 @@ import { Centralia, CENTRALIA_FRAMES } from "./videos/centralia/Centralia";
 import { Toledo, TOLEDO_FRAMES } from "./videos/toledo/Toledo";
 import { HayesLong, HayesThumb, HAYESLONG_FRAMES } from "./videos/hayeslong/HayesLong";
 import { CentraliaLong, CentraliaThumb, CENTRALIALONG_FRAMES } from "./videos/centralialong/CentraliaLong";
+import { ToledoLong, ToledoThumb, TOLEDOLONG_FRAMES } from "./videos/toledolong/ToledoLong";
 import { SubscribeTag } from "./videos/shared/SubscribeTag";
 import { AbsoluteFill as AF } from "remotion";
 const SubDemo: React.FC = () => <AF><Genin /><SubscribeTag total={GENIN_FRAMES} /></AF>;
@@ -83,6 +84,8 @@ const HayesLongPadded = padded(HayesLong);
 const HayesThumbPadded = padded(HayesThumb);
 const CentraliaLongPadded = padded(CentraliaLong);
 const CentraliaThumbPadded = padded(CentraliaThumb);
+const ToledoLongPadded = padded(ToledoLong);
+const ToledoThumbPadded = padded(ToledoThumb);
 const KoepenickLongPadded = padded(KoepenickLong);
 const KoepenickThumbPadded = padded(KoepenickThumb);
 const CahabaLongPadded = padded(CahabaLong);
@@ -164,6 +167,10 @@ export const Root: React.FC = () => (<>
   <Composition id="CentraliaLongPadded" component={CentraliaLongPadded} durationInFrames={CENTRALIALONG_FRAMES + PAD} fps={30} width={1920} height={1080} />
   <Composition id="CentraliaThumb" component={CentraliaThumb} durationInFrames={10} fps={30} width={1920} height={1080} />
   <Composition id="CentraliaThumbPadded" component={CentraliaThumbPadded} durationInFrames={10 + PAD} fps={30} width={1920} height={1080} />
+  <Composition id="ToledoLong" component={ToledoLong} durationInFrames={TOLEDOLONG_FRAMES} fps={30} width={1920} height={1080} />
+  <Composition id="ToledoLongPadded" component={ToledoLongPadded} durationInFrames={TOLEDOLONG_FRAMES + PAD} fps={30} width={1920} height={1080} />
+  <Composition id="ToledoThumb" component={ToledoThumb} durationInFrames={10} fps={30} width={1920} height={1080} />
+  <Composition id="ToledoThumbPadded" component={ToledoThumbPadded} durationInFrames={10 + PAD} fps={30} width={1920} height={1080} />
   <Composition id="HayesThumbPadded" component={HayesThumbPadded} durationInFrames={10 + PAD} fps={30} width={1920} height={1080} />
   <Composition id="Koepenick" component={Koepenick} durationInFrames={KOEPENICK_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="KoepenickPadded" component={KoepenickPadded} durationInFrames={KOEPENICK_FRAMES + PAD} fps={30} width={1080} height={1920} />
