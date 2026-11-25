@@ -96,6 +96,13 @@ Fixed in the code the same day (Peigneur world and the shared `bridge/scenery.ts
 - **Place new props against what's already in the room.** Check a wall prop against stairs, shelves and furnaces before shooting it (the gas monitor was hung behind the cellar stairs and no camera could see it).
 - **An opening in a sloped wall is a dark disc laid along the wall's normal, with a rim of rocks;** a tube pushed into the slope sticks out as a floating crescent.
 
+### Added Nov 25 (Toledo War Short and long-form)
+- **A 9:16 frame is narrow: stage groups in depth, not side by side.** The half-width you can fill is about 0.24 x the distance at fov 46 (0.26 x at fov 50); two people 1.5 m apart need the camera about 5 m back. The Toledo first pass lost whole militia lines and half the tavern off the frame edges; restaged as files receding from the camera, marching toward it, or in two rows.
+- **`walker()` takes an absolute x.** In any set that isn't at the origin, pass `Wd(x, 0, 0)[0]` (or the set's helper); a bare local x walks the cast through the river town 400 m away and the shot plays empty.
+- **A map that colours two claims must put each colour on the right line.** On the Toledo map Ohio's line is the northern (Harris) one and Michigan's the southern (Fulton) one; the first draft had them swapped. Check claim colours against the facts, not just the shapes.
+- **Winter sets get no leafy trees.** Use pines only (`forest(..., 0, winter)`) when a set can show snow.
+- **A wide shot of a rock face shows its box.** A flat-topped cliff with a side wall reads as a block from far away; keep cameras close to it or turn them toward the lake and trees.
+
 If one of these can't be fixed in a reasonable time, the shot is restaged or cut so the problem is gone. The report to Daniel after an upload should have nothing under "weak spots".
 
 ## Fixing a video after it's rendered or uploaded (Nov 16)
