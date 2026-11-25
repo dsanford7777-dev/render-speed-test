@@ -31,6 +31,7 @@ import { Peigneur, PEIGNEUR_FRAMES } from "./videos/peigneur/Peigneur";
 import { PeigneurLong, PeigneurThumb, PEIGNEURLONG_FRAMES } from "./videos/peigneurlong/PeigneurLong";
 import { Hayes, HAYES_FRAMES } from "./videos/hayes/Hayes";
 import { Centralia, CENTRALIA_FRAMES } from "./videos/centralia/Centralia";
+import { Toledo, TOLEDO_FRAMES } from "./videos/toledo/Toledo";
 import { HayesLong, HayesThumb, HAYESLONG_FRAMES } from "./videos/hayeslong/HayesLong";
 import { CentraliaLong, CentraliaThumb, CENTRALIALONG_FRAMES } from "./videos/centralialong/CentraliaLong";
 import { SubscribeTag } from "./videos/shared/SubscribeTag";
@@ -77,6 +78,7 @@ const PeigneurLongPadded = padded(PeigneurLong);
 const PeigneurThumbPadded = padded(PeigneurThumb);
 const HayesPadded = padded(Hayes);
 const CentraliaPadded = padded(Centralia);
+const ToledoPadded = padded(Toledo);
 const HayesLongPadded = padded(HayesLong);
 const HayesThumbPadded = padded(HayesThumb);
 const CentraliaLongPadded = padded(CentraliaLong);
@@ -151,6 +153,8 @@ export const Root: React.FC = () => (<>
   <Composition id="PeigneurThumbPadded" component={PeigneurThumbPadded} durationInFrames={10 + PAD} fps={30} width={1920} height={1080} />
   <Composition id="Centralia" component={Centralia} durationInFrames={CENTRALIA_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="CentraliaPadded" component={CentraliaPadded} durationInFrames={CENTRALIA_FRAMES + PAD} fps={30} width={1080} height={1920} />
+  <Composition id="Toledo" component={Toledo} durationInFrames={TOLEDO_FRAMES} fps={30} width={1080} height={1920} />
+  <Composition id="ToledoPadded" component={ToledoPadded} durationInFrames={TOLEDO_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="Hayes" component={Hayes} durationInFrames={HAYES_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="HayesPadded" component={HayesPadded} durationInFrames={HAYES_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="HayesLong" component={HayesLong} durationInFrames={HAYESLONG_FRAMES} fps={30} width={1920} height={1080} />
