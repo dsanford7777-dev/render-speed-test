@@ -111,7 +111,10 @@ Fixed in the code the same day (Peigneur world and the shared `bridge/scenery.ts
 - **A subject point inside a closed building** (a castle's middle) always reads as hidden: point at the face the camera sees (the gatehouse front).
 - **Tracking shots track.** When people walk or ride across a long-form frame, the camera moves with them (or the shot is cut short); a pan the other way loses them (long-form "trample" and "detach").
 - **Long-form: reused Short shots framed for the subscribe card.** The long-form's card and mascot come in on the right; a Short shot framed with the subject right of centre (the Short's own end-card framing) collides with it. Use a long-form shot with the subject on the left (`hookL`).
-- **Board lines fit at the board's largest zoom.** `Mv` scales a board up to ~1.12; a checklist row or a label that fits at rest can run off the frame. Keep rows under ~30 characters at size 76-84.
+- **Board lines fit at the board's largest zoom.** `Mv` scales a board up to ~1.12; a checklist row or a label that fits at rest can run off the frame. Keep rows under ~30 characters at size 76-84. A line's own pop-in overshoots too: the poem board's red line at size 110 ran off both edges for four frames, so check the frames right after each line appears. The snap zoom (`m: 4`) starts at 1.42: only use it on centred text.
+- **Every party the narration names is in the shot.** "Picks a small fight with a Bolognese advance guard" played over Modenese riders alone; the long-form now cuts to the far bank with Bologna's men on it. Check each "with X" / "against X" line for X.
+- **The chapter tag and the subscribe card never sit on a label.** A chapter that opens on a map gets its tag on the free side (`right: true` in `CHAPTERS`); a board that follows a subscribe ask starts after the card has floated away (cut on a later word).
+- **Adding a cut to a long-form after a render: cut inside the existing shot** (a spec that switches at a word), not a new raw shot. Shot ids seed the hand-held sway, so a new shot shifts every later shot and a patch no longer matches the base.
 
 If one of these can't be fixed in a reasonable time, the shot is restaged or cut so the problem is gone. The report to Daniel after an upload should have nothing under "weak spots".
 
