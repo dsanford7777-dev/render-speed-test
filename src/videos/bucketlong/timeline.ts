@@ -141,7 +141,7 @@ const raw: RawShot[] = [
   D3(1, null, "well"), D3(1, "taken", "grab"),
   D3(2, null, "poet"), D3(2, "stole", "version"),
   D2(3, null, "title"),
-  D3(4, null, "hook"),
+  D3(4, null, "hookL"),
   // 1 two cities
   D2(5, null, "region:0"), D2(5, "same", "region:1"),
   D3(6, null, "walls"), D3(6, "modena", "modena"),
@@ -149,17 +149,17 @@ const raw: RawShot[] = [
   D3(8, null, "pope"), D3(8, "other", "emperor"),
   D2(9, null, "sides"),
   D3(10, null, "hate1"), D3(10, "families", "hate2"), D2(10, "border", "local:0"),
-  D2(11, null, "local:1"),
+  D2(11, null, "local:1"), D3(11, "pope", "pope"),
   // 2 the rebel
   D3(12, null, "bona"), D2(13, null, "region:2"), D3(13, "emperors", "emperor"),
   D3(14, null, "decree"), D3(14, "rebel", "rebel"),
   D2(15, null, "indulge"), D3(15, "forgiveness", "forgive"),
   // 3 a castle, not a bucket
-  D3(16, null, "furious"),
-  D3(17, null, "trample"), D2(17, "july", "raids"),
+  D2(16, null, "raids"),
+  D3(17, null, "trample"),
   D3(18, null, "trample2"),
-  D3(19, null, "night"),
-  D2(20, null, "local:2"),
+  D3(19, null, "furious"),
+  D3(20, null, "night"), D2(20, "hilltop", "local:2"),
   D3(21, null, "traitors"), D3(21, "handed", "handed"),
   D2(22, null, "notbucket"), D3(22, "castle", "castleM"),
   // 4 30,000 vs 7,000
@@ -205,7 +205,7 @@ const raw: RawShot[] = [
   D2(58, null, "salieri"),
   D3(59, null, "version"), D2(59, "two", "legend"),
   // 10 where it is today
-  D3(60, null, "hook"),
+  D3(60, null, "hookL"),
   D2(61, null, "today"),
   D3(62, null, "kept"),
   D3(63, null, "still"),

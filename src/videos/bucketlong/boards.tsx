@@ -53,7 +53,7 @@ const Region: React.FC<G> = ({ t, d, c, v }) => {
       <Tag x={mo[0] - 150} y={mo[1] - 40} text="Modena" col={MOD} s={pop(t, 6)} size={44} />
       {m !== 2 ? <At x={PR(CITY.Mantua)[0]} y={PR(CITY.Mantua)[1] - 40} s={0.85}><T size={32} col="#5a4a3a" up={false}>Mantua</T></At> : <Tag x={PR(CITY.Mantua)[0] - 120} y={PR(CITY.Mantua)[1] - 50} text="Mantua" col={MOD} s={pop(t, at([12, "mantua"], c))} size={40} />}
       {m === 1 ? <Tag x={(bo[0] + mo[0]) / 2 + 40} y={(bo[1] + mo[1]) / 2 - 90} text="about 25 miles" col={RED} s={pop(t, 14)} /> : null}
-      {m === 1 ? <Tag x={PR([10.5, 44.82])[0]} y={PR([10.5, 44.82])[1] + 40} text="the old Roman road" col="#7a5a2a" s={pop(t, at([5, "roman"], c))} size={32} /> : null}
+      {m === 1 ? <Tag x={PR([10.2, 44.8])[0]} y={PR([10.2, 44.8])[1] + 60} text="the old Roman road" col="#7a5a2a" s={pop(t, at([5, "roman"], c))} size={32} /> : null}
       {m === 2 ? <Tag x={(PR(CITY.Mantua)[0] + mo[0]) / 2 + 210} y={(PR(CITY.Mantua)[1] + mo[1]) / 2} text="Bonacolsi's lands" col={MOD} s={pop(t, at([13, "modena"], c))} /> : null}
     </Mv></Paper>
   );
@@ -76,7 +76,7 @@ const CHASE: LL[] = [[11.083, 44.5], [11.128, 44.513], [11.193, 44.546], [11.218
  *  on the way and the weir at Casalecchio */
 const Local: React.FC<G> = ({ t, d, c, v }) => {
   const m = v ?? 0, a = ease(k(t, 4, 26)), bo = PL(L.Bologna), mo = PL(L.Modena);
-  const castle = (n: string, col: string, s: number, x = false) => { const p = PL(L[n]); return s > 0 ? <g key={n} transform={`translate(${p[0]} ${p[1]}) scale(${s})`}>
+  const castle = (n: string, col: string, s: number, x = false) => { const p = PL(L[n]); return s > 0 ? <g key={n} transform={`translate(${p[0]} ${p[1]}) scale(${1.6 * s})`}>
     <path d="M-20 14 L-20 -10 L-14 -10 L-14 -16 L-6 -16 L-6 -10 L6 -10 L6 -16 L14 -16 L14 -10 L20 -10 L20 14 Z" fill={col} stroke={INK} strokeWidth={5} strokeLinejoin="round" />
     {x ? <path d="M-24 -20 L24 18 M24 -20 L-24 18" stroke={RED} strokeWidth={8} strokeLinecap="round" /> : null}</g> : null; };
   const BORDER = ["Bazzano", "Savigno", "Monteveglio", "Crespellano", "Piumazzo", "Castelfranco"];
@@ -116,11 +116,11 @@ const Local: React.FC<G> = ({ t, d, c, v }) => {
       <At x={PL([10.93, 44.39])[0] - 90} y={PL([10.93, 44.39])[1]} s={1}><T size={30} col="#2a5a7a" up={false}>Panaro</T></At>
       <At x={PL([11.25, 44.36])[0] + 70} y={PL([11.25, 44.36])[1]} s={1}><T size={30} col="#2a5a7a" up={false}>Reno</T></At>
       {m === 0 ? <Tag x={PL(L.Crespellano)[0] + 40} y={PL(L.Crespellano)[1] - 110} text="border castles" col={INK} s={pop(t, 14)} /> : null}
-      {m === 1 ? <><Tag x={PL(L.Bazzano)[0] + 160} y={PL(L.Bazzano)[1] - 60} text="Bazzano" col={BOL} s={pop(t, at([11, "bazzano"], c))} size={34} /><Tag x={PL(L.Savigno)[0] + 160} y={PL(L.Savigno)[1] - 50} text="Savigno" col={BOL} s={pop(t, at([11, "savigno"], c))} size={34} /><Tag x={960} y={150} text="1296: taken by Bologna" col={BOL} s={pop(t, 4)} size={44} /></> : null}
+      {m === 1 ? <><Tag x={PL(L.Bazzano)[0] + 160} y={PL(L.Bazzano)[1] - 60} text="Bazzano" col={BOL} s={pop(t, at([11, "bazzano"], c))} size={34} /><Tag x={PL(L.Savigno)[0] + 160} y={PL(L.Savigno)[1] - 50} text="Savigno" col={BOL} s={pop(t, at([11, "savigno"], c))} size={34} /><Tag x={960} y={220} text="1296: taken by Bologna" col={BOL} s={pop(t, 4)} size={44} /></> : null}
       {m === 2 ? <Tag x={PL(L.Monteveglio)[0] + 40} y={PL(L.Monteveglio)[1] + 90} text="Monteveglio" col={BOL} s={pop(t, 6)} size={42} /> : null}
-      {m === 3 ? <><Tag x={PL(L.Marano)[0] - 40} y={PL(L.Marano)[1] + 90} text="Marano: the fake attack" col={MOD} s={pop(t, at([30, "marano"], c))} size={36} /><Tag x={960} y={150} text="the night before" col={INK} s={pop(t, 4)} size={44} /></> : null}
+      {m === 3 ? <><Tag x={PL(L.Marano)[0] - 40} y={PL(L.Marano)[1] + 90} text="Marano: the fake attack" col={MOD} s={pop(t, at([30, "marano"], c))} size={36} /><Tag x={960} y={220} text="the night before" col={INK} s={pop(t, 4)} size={44} /></> : null}
       {m === 4 ? <><Tag x={PL(L.Zappolino)[0] + 40} y={PL(L.Zappolino)[1] - 90} text="Zappolino" col={INK} s={pop(t, 4)} size={42} /><Tag x={PL(L.Zappolino)[0] + 300} y={PL(L.Zappolino)[1] + 60} text="Bologna's army" col={BOL} s={pop(t, 10)} size={34} /></> : null}
-      {m === 5 ? <Tag x={960} y={150} text="the chase: all the way to Bologna" col={MOD} s={pop(t, 4)} size={44} /> : null}
+      {m === 5 ? <Tag x={960} y={220} text="the chase: all the way to Bologna" col={MOD} s={pop(t, 4)} size={44} /> : null}
       {m === 6 ? <Tag x={PL(L.Casalecchio)[0] + 20} y={PL(L.Casalecchio)[1] + 92} text="the weir: broken" col={RED} s={pop(t, at([42, "weir"], c))} size={34} /> : null}
     </Mv></Paper>
   );
@@ -136,13 +136,13 @@ export const BOARDS: Record<string, React.FC<G>> = {
   // ---------------- the rebel ----------------
   indulge: say([{ s: "Harm Bonacolsi...", size: 130 }, { s: "...and your sins", cue: [15, "indulgence"], size: 120 }, { s: "are forgiven", cue: [15, "forgiveness"], col: RED, size: 140 }], { dark: true, m: 4 }),
   // ---------------- a castle, not a bucket ----------------
-  raids: checks([{ s: "July: Modena's fields raided" }, { s: "August: two weeks of wrecking", cue: [18, "august"] }, { s: "September: Monteveglio", cue: [19, "september"] }], { top: "1325: it boils over", topCol: RED, size: 76 }),
+  raids: checks([{ s: "July: fields raided" }, { s: "August: two weeks of raids", cue: 14 }, { s: "September: ???", cue: 28 }], { size: 84 }),
   notbucket: say([{ s: "Not over a bucket.", size: 140 }, { s: "Over a castle.", cue: [22, "castle"], col: RED, size: 160 }], { dark: true, m: 4 }),
   // ---------------- 30,000 vs 7,000 ----------------
-  bolo: checks([{ s: "Bologna's own militia" }, { s: "Allies: Florence and Romagna", cue: [23, "florence"] }, { s: "Hired: Malatesta, lord of Rimini", cue: [23, "malatesta"] }], { top: "Bologna's army", topCol: BOL, size: 74 }),
+  bolo: checks([{ s: "Bologna's own militia" }, { s: "Allies: Florence and Romagna", cue: [23, "florence"] }, { s: "Hired: Malatesta of Rimini", cue: [23, "malatesta"] }], { top: "Bologna's army", topCol: BOL, size: 74 }),
   n30: num("30,000", "on foot (the usual figure)", { col: BOL, m: 4, sub: "+ a couple of thousand on horseback", subCue: [24, "couple"] }),
   n7: num("~7,000", "Modena's side", { col: MOD, m: 4 }),
-  allies: checks([{ s: "German professionals, from Milan" }, { s: "Mantua", cue: [27, "mantua"] }, { s: "Ferrara", cue: [27, "ferrara"] }], { top: "Modena's side", topCol: MOD, size: 80 }),
+  allies: checks([{ s: "German pros, from Milan" }, { s: "Mantua", cue: [27, "mantua"] }, { s: "Ferrara", cue: [27, "ferrara"] }], { top: "Modena's side", topCol: MOD, size: 80 }),
   // ---------------- the trick ----------------
   cheats: say([{ s: "Can't win a fair fight?", size: 120 }, { s: "Cheat.", cue: [29, "cheats"], col: RED, size: 200 }], { dark: true, m: 4 }),
   fooled: say([{ s: "Fooled.", size: 200, col: RED }, { s: "Call the men back!", cue: [32, "calling"], size: 110 }], { m: 4 }),
@@ -151,18 +151,18 @@ export const BOARDS: Record<string, React.FC<G>> = {
   griffoni: num("1,000+", "Bolognese dead", { col: BOL, m: 2, top: "Matteo Griffoni, Bologna's chronicler" }),
   // ---------------- the race and the bucket ----------------
   shame: say([{ s: "\"...to the eternal shame", size: 120 }, { s: "of Bologna\"", cue: [45, "bologna"], col: RED, size: 140 }], { dark: true, m: 0 }),
-  n26: num("26", "Bolognese nobles taken prisoner", { col: MOD, m: 4, size: 330 }),
+  n26: num("26", "nobles taken prisoner", { col: MOD, m: 4, size: 330 }),
   // ---------------- the peace ----------------
   stops: say([{ s: "And then...", size: 130 }, { s: "the war just stops.", cue: [49, "war"], col: RED, size: 130 }], { dark: true, m: 0 }),
-  peace: checks([{ s: "Monteveglio: back to Bologna" }, { s: "The other castles: back", cue: [50, "castles"] }, { s: "The prisoners: home after 11 weeks", cue: [51, "prisoners"] }], { top: "January 1326: peace", topCol: "#2f9a57", size: 74 }),
-  paper: say([{ s: "On paper:", size: 120 }, { s: "right back where it started", cue: [52, "right"], col: RED, size: 110 }], { m: 2 }),
+  peace: checks([{ s: "Monteveglio: back to Bologna" }, { s: "The other castles: back", cue: [50, "castles"] }, { s: "Prisoners: home in 11 weeks", cue: [51, "prisoners"] }], { top: "January 1326: peace", topCol: "#2f9a57", size: 74 }),
+  paper: say([{ s: "On paper:", size: 120 }, { s: "right back", cue: [52, "right"], col: RED, size: 130 }, { s: "where it started", cue: [52, "where"], col: RED, size: 120 }], { m: 2 }),
   won: say([{ s: "Modena won:", size: 120 }, { s: "a victory", cue: [53, "victory"], size: 130 }, { s: "and a bucket", cue: [53, "bucket"], col: "#c0702a", size: 150 }], { dark: true, m: 4 }),
   // ---------------- how a joke became history ----------------
   gods: say([{ s: "In the poem:", size: 110 }, { s: "the bucket starts the war", cue: [56, "stealing"], col: RED, size: 110 }, { s: "even the gods take sides", cue: [56, "gods"], size: 100 }], { m: 2 }),
-  salieri: checks([{ s: "1622: printed" }, { s: "Translated", cue: [58, "translated"] }, { s: "1772: an opera by Antonio Salieri", cue: [58, "opera"] }], { top: "A very popular joke", topCol: RED, size: 76 }),
+  salieri: checks([{ s: "1622: printed" }, { s: "Translated", cue: [58, "translated"] }, { s: "1772: Salieri's opera", cue: [58, "opera"] }], { top: "A very popular joke", topCol: RED, size: 76 }),
   legend: say([{ s: "\"Two cities went to war", size: 110 }, { s: "over a stolen bucket\"", cue: [59, "stolen"], col: RED, size: 120 }], { dark: true, m: 0 }),
   // ---------------- where it is today ----------------
-  today: checks([{ s: "The original: Modena's town hall" }, { s: "A copy: on a chain in the bell tower", cue: [62, "copy"] }], { top: "Today", topCol: MOD, size: 74 }),
+  today: checks([{ s: "Original: the town hall" }, { s: "Copy: the bell tower", cue: [62, "copy"] }], { top: "Today", topCol: MOD, size: 74 }),
   // kept left of x ~1400: the subscribe card and mascot may still be on the right when this board comes in
   question: ({ t, d, c }) => (
     <Paper tone="#141a2a"><Mv t={t} d={d} m={4}>

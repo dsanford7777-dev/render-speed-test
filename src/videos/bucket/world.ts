@@ -266,7 +266,7 @@ export class BkWorld {
     const lightA = Math.round(Math.atan2(-sunDir.y, sunDir.dot(right)) / (Math.PI / 4)) * (Math.PI / 4);
     const blink = (seed: number) => { const n2 = Math.floor((t + seed * 0.37) / 2.3), ph = (t + seed * 0.37) - n2 * 2.3; return ph < 0.13 ? 1 : 0; };
     const people = [...(st.people ?? []), ...riders].map((q0) => { const w = OUT[q0.who] ?? OUT.bo1; return { q: w.o.moustache && q0.expr === "shock" ? { ...q0, expr: "nervous" as const } : q0, w }; });
-    this.lastPeople = people.map(({ q, w }) => ({ name: q.who, p: q.p, low: !!q.low || !!q.ride, extra: !!q.extra || !!q.side, s: q.s ?? (w.o.build === "kid" ? 0.72 : 1) }));
+    this.lastPeople = people.map(({ q, w }) => ({ name: q.who, p: q.p, low: !!q.low || !!q.ride, extra: !!q.extra || !!q.side || !!q.ride, s: q.s ?? (w.o.build === "kid" ? 0.72 : 1) }));
     const key = st.key ?? [focus.x, focus.y + 2.2, focus.z - 1.5] as V3;
     let ai = 0;
     for (const { q, w } of people) {

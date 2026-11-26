@@ -82,6 +82,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "dusk", dof: 0.5, focus: hg(0, 4, 2.5), army: { bolo: { state: "stand", u: 0 }, mode: { state: "march", u: t0 } },
       cam: mv(s, f, { pos: hg(38, 2, 5), look: hg(0, 4, 2.5), fov: 30, roll: 0.03 }, { pos: hg(37, 5, 5.5), look: hg(0, 6, 2.6), fov: 30, roll: -0.02 }),
       subjects: [["the armies", hg(0, 6, 2.5), 4]] }; },
+  // the opening and closing bucket, framed at screen left so the subscribe card and mascot (right) stay clear of it
+  hookL: (s, f) => ({ light: "tower", dof: 1, closeup: true, focus: BK_C, key: WIN_T, cam: mv(s, f, { pos: add(BK_C, -0.9, -0.1, -1.9), look: add(BK_C, -0.9, -0.12, 0), fov: 40, roll: 0.03 }, { pos: add(BK_C, -0.85, -0.08, -1.7), look: add(BK_C, -0.85, -0.1, 0), fov: 40, roll: -0.02 }), subjects: [["the bucket", BK_C, 0.25]] }),
   // the thumbnail: the bucket on its chain, big, at screen left (the headline goes on the right)
   thumb: () => ({ light: "tower", dof: 1, closeup: true, focus: BK_C, key: WIN_T, cam: { pos: add(BK_C, -0.75, 0.05, -1.55), look: add(BK_C, -0.75, -0.02, 0), fov: 42, roll: 0.02 }, subjects: [["the bucket", BK_C, 0.1]] }),
   // ...outside one of the city gates, the Porta San Felice, there's a well: wide, the gate and the well together
