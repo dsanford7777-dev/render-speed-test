@@ -1,6 +1,6 @@
 # Paradox Town: how a short gets made (and checked)
 
-This file and the Claude project doc `claude/production-checklist.md` hold the same checklist (synced Nov 25, 2026).
+This file and the Claude project doc `claude/production-checklist.md` hold the same checklist (synced Nov 26, 2026).
 
 ## Pipeline
 1. **Script**: `src/videos/<short>/timeline.ts`, SEGMENTS (`say` = what the narrator reads, `show` = subtitles).
@@ -102,6 +102,16 @@ Fixed in the code the same day (Peigneur world and the shared `bridge/scenery.ts
 - **A map that colours two claims must put each colour on the right line.** On the Toledo map Ohio's line is the northern (Harris) one and Michigan's the southern (Fulton) one; the first draft had them swapped. Check claim colours against the facts, not just the shapes.
 - **Winter sets get no leafy trees.** Use pines only (`forest(..., 0, winter)`) when a set can show snow.
 - **A wide shot of a rock face shows its box.** A flat-topped cliff with a side wall reads as a block from far away; keep cameras close to it or turn them toward the lake and trees.
+
+### Added Nov 26 (War of the Bucket Short and long-form)
+- **Cameras never stand inside an army.** Instanced ranks fill a whole block; a camera inside it shows a helmet brim filling the lens. Put the camera outside the block, or hide the ranks round it with `ArmySt.hide` (bucket/world.ts). Check every shot that shows an army for ranks between the camera and the subject.
+- **Big set pieces have footprints the shots don't show.** Before standing a camera or people on a wall walk, check the gate tower's and the wall towers' boxes (the first wall-walk shots stood inside the gate tower). Same for any camera near a building: check its x, z against every box in the set.
+- **People on a wall walk stand in the gaps between merlons,** or the merlons hide them from below. Work the gap centres out from the merlon spacing, or shoot along the walk.
+- **A subject at the middle of a hollow prop** (the bucket) hits the prop's own wall in the hidden check: give it a radius bigger than the prop (0.25 for the bucket).
+- **A subject point inside a closed building** (a castle's middle) always reads as hidden: point at the face the camera sees (the gatehouse front).
+- **Tracking shots track.** When people walk or ride across a long-form frame, the camera moves with them (or the shot is cut short); a pan the other way loses them (long-form "trample" and "detach").
+- **Long-form: reused Short shots framed for the subscribe card.** The long-form's card and mascot come in on the right; a Short shot framed with the subject right of centre (the Short's own end-card framing) collides with it. Use a long-form shot with the subject on the left (`hookL`).
+- **Board lines fit at the board's largest zoom.** `Mv` scales a board up to ~1.12; a checklist row or a label that fits at rest can run off the frame. Keep rows under ~30 characters at size 76-84.
 
 If one of these can't be fixed in a reasonable time, the shot is restaged or cut so the problem is gone. The report to Daniel after an upload should have nothing under "weak spots".
 
