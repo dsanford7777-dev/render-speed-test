@@ -167,7 +167,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // That September...: Monteveglio on its hill by night, the moon behind, torches at the gate
   night: (s, f) => ({ light: "night", dof: 0, focus: add(GATE_C, 0, 4, 0), castleGate: 0, flag: "bologna",
     cam: move({ pos: hg(-6, 14, 3.5), look: hg(0, 52, 6), fov: 50, roll: 0.04 }, { pos: hg(-4, 20, 3.8), look: hg(0, 52, 6.5), fov: 48, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-    subjects: [["the castle", hg(0, 52, 6), 2]] }),
+    subjects: [["the castle", add(GATE_C, 0, 5, -1.6), 2]] }),
   // ...traitors inside Bologna's fortress: the gate swings open, two of the garrison pushing the leaves
   traitors: (s, f) => { const o = smooth((f - s.a) / 12), lp: V3 = add(GATE_C, 1.2, 0.62, 2.0), rp: V3 = add(GATE_C, -1.2, 0.62, 2.2);
     return { light: "night", dof: 1, focus: add(GATE_C, 0, 1.6, 1.9), castleGate: 0.35 + 0.65 * o, flag: "bologna", key: add(GATE_C, 2.6, 3.2, -1.0),
@@ -222,7 +222,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // The armies met at Zappolino, near sunset: the castle on its hill, Bologna's ranks on the slope, Modena's on the plain
   zappo: (s, f) => ({ light: "dusk", dof: 0, focus: hg(0, 20, 6), flag: "bologna", army: { bolo: { state: "stand", u: 0 }, mode: { state: "stand", u: 0 } },
     cam: move({ pos: hg(24, -44, 9), look: hg(-2, 22, 9), fov: 50, roll: 0.04 }, { pos: hg(18, -40, 13), look: hg(-2, 24, 9), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-    subjects: [["the castle of Zappolino", hg(0, 58, 10), 3], ["the armies", hg(0, 16, 6), 4]] }),
+    subjects: [["the castle of Zappolino", add(GATE_C, 0, 6, -1.6), 3], ["the armies", hg(0, 16, 6), 4]] }),
   // ...near sunset: Bonacolsi on his horse, the low sun behind him
   sunset: (s, f) => { const hp = hg(-1, 1.5), h: HorseSt = { k: 0, p: hp, yaw: Math.PI, gait: "stand", phase: 0, head: 0.2, rider: { who: "bona", expr: "stern", pose: 0 } };
     return { light: "dusk", dof: 1, focus: add(hp, 0, 2.2, 0), horses: [h], army: { mode: { state: "stand", u: 0, hide: (_i, p) => p[2] > -7 } },
