@@ -32,7 +32,7 @@ const ChapterTag: React.FC<{ f: number }> = ({ f }) => {
   if (t > L) return null;
   const x = ease(k(t, 0, 12)) - ease(k(t, L - 12, 12));
   return (
-    <div style={{ position: "absolute", left: 70, top: 64, transform: `translateX(${(x - 1) * 120}px)`, opacity: x, display: "flex", alignItems: "stretch", boxShadow: `0 6px 0 ${C.ink}` }}>
+    <div style={{ position: "absolute", ...(ch.right ? { right: 70 } : { left: 70 }), top: 64, transform: `translateX(${(x - 1) * (ch.right ? -120 : 120)}px)`, opacity: x, display: "flex", alignItems: "stretch", boxShadow: `0 6px 0 ${C.ink}` }}>
       <div style={{ background: C.red, border: `5px solid ${C.ink}`, padding: "8px 18px" }}><T size={34} col="#fff">{ch.num}</T></div>
       <div style={{ background: "#fffaf0", border: `5px solid ${C.ink}`, borderLeft: "none", padding: "8px 22px" }}><T size={34}>{ch.title}</T></div>
     </div>

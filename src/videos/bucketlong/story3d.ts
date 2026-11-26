@@ -4,8 +4,9 @@
 // portrait shot's width. The long-form's own shots are written for 16:9 directly.
 // Cameras sit on the -z side looking toward +z (world +x is screen LEFT). Nobody is shown hurt.
 import { SPECS as FS, SHOTS as SSH, St3, Cam, ShotDef as FShot, V3, smooth, L3, move, secs, P, walker, add, hg, hy, MO1_WELL, BUCKET_AT_WELL, GATE_C, BK_C, WIN_T } from "../bucket/story";
-import { Gt, Hl, WELL, TOWER_Z, GATE_H } from "../bucket/place";
-import { ShotDef } from "./timeline";
+import { Gt, Hl, WELL, TOWER_Z, GATE_H, RIVER_X, RIVER_Y } from "../bucket/place";
+import type { HorseSt } from "../bucket/story";
+import { ShotDef, wordAt } from "./timeline";
 
 const vfov = (v: number) => (2 * Math.atan(0.74 * Math.tan((v * Math.PI) / 360)) * 180) / Math.PI;
 const wide = (c: Cam): Cam => ({ ...c, fov: vfov(c.fov) });
@@ -82,6 +83,19 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { light: "dusk", dof: 0.5, focus: hg(0, 4, 2.5), army: { bolo: { state: "stand", u: 0 }, mode: { state: "march", u: t0 } },
       cam: mv(s, f, { pos: hg(38, 2, 5), look: hg(0, 4, 2.5), fov: 30, roll: 0.03 }, { pos: hg(37, 5, 5.5), look: hg(0, 6, 2.6), fov: 30, roll: -0.02 }),
       subjects: [["the armies", hg(0, 6, 2.5), 4]] }; },
+  // ...and picks a small fight with a Bolognese advance guard: night, the far bank of the Panaro; two Modenese riders come
+  // up out of the water at a few of Bologna's men waiting on the bank (nobody is hurt on screen)
+  skirm: (s, f) => { const t0 = tt(s, f), v = 0.6;
+    const h = (k: number, x0: number, z: number, who: string): HorseSt => { const x = x0 + v * t0, p = hg(x, z); return { k, p, yaw: 0, gait: "walk", phase: x / 1.7 + k * 0.31, head: 0.1, rider: { who, expr: "grin", pose: 0 } }; };
+    const hs = [h(0, RIVER_X + 7.6, 9.2, "rm1"), h(1, RIVER_X + 6.4, 12.4, "rm2")];
+    const men = [P("bo1", hg(RIVER_X + 12.6, 9.6), "shock", 0), P("bo2", hg(RIVER_X + 13.6, 11.4), "nervous", 0), P("bo3", hg(RIVER_X + 12.2, 13.0), "stern", 0)];
+    return { light: "night", dof: 1, focus: hg(RIVER_X + 10, 10.6, 1.5), horses: hs, people: men,
+      puffs: hs.flatMap((q, i) => [0, 1].map((k) => { const u = ((t0 * 1.5 + k * 0.5 + i * 0.3) % 1); return { p: [q.p[0] - 0.4 + 0.6 * k, Hl(0, RIVER_Y, 0)[1] + 0.15 + 0.3 * u, q.p[2] + 0.2] as V3, s: 0.3 + 0.5 * u, c: [0.85, 0.9, 1.0] as [number, number, number], a: 0.45 * (1 - u) }; })),
+      cam: mv(s, f, { pos: hg(RIVER_X + 10.4, 0.6, 1.5), look: hg(RIVER_X + 10, 11, 1.4), fov: 38, roll: 0.03 }, { pos: hg(RIVER_X + 10.0, 1.4, 1.6), look: hg(RIVER_X + 10, 11, 1.5), fov: 38, roll: -0.02 }),
+      subjects: [["the Bolognese guard", hg(RIVER_X + 12.6, 9.6, 1.4), 0.5], ["the Modenese riders", add(hs[0].p, 0, 1.8, 0), 0.4]] }; },
+  // the crossing, then a hard cut inside the same shot (so later shot ids, which seed the hand-held sway, don't change)
+  // to the skirmish on the far bank at "small (fight)"
+  feintx: (s, f) => { const cut = wordAt(30, "small") - 2; return f < cut ? SPECS.feint({ ...s, b: cut - 1 }, f) : SPECS.skirm({ ...s, a: cut }, f); },
   // the opening and closing bucket, framed at screen left so the subscribe card and mascot (right) stay clear of it
   hookL: (s, f) => ({ light: "tower", dof: 1, closeup: true, focus: BK_C, key: WIN_T, cam: mv(s, f, { pos: add(BK_C, -0.9, -0.1, -1.9), look: add(BK_C, -0.9, -0.12, 0), fov: 40, roll: 0.03 }, { pos: add(BK_C, -0.85, -0.08, -1.7), look: add(BK_C, -0.85, -0.1, 0), fov: 40, roll: -0.02 }), subjects: [["the bucket", BK_C, 0.25]] }),
   // the thumbnail: the bucket on its chain, big, at screen left (the headline goes on the right)

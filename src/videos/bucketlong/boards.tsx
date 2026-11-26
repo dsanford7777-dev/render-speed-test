@@ -158,16 +158,16 @@ export const BOARDS: Record<string, React.FC<G>> = {
   paper: say([{ s: "On paper:", size: 120 }, { s: "right back", cue: [52, "right"], col: RED, size: 130 }, { s: "where it started", cue: [52, "where"], col: RED, size: 120 }], { m: 2 }),
   won: say([{ s: "Modena won:", size: 120 }, { s: "a victory", cue: [53, "victory"], size: 130 }, { s: "and a bucket", cue: [53, "bucket"], col: "#c0702a", size: 150 }], { dark: true, m: 4 }),
   // ---------------- how a joke became history ----------------
-  gods: say([{ s: "In the poem:", size: 110 }, { s: "the bucket starts the war", cue: [56, "stealing"], col: RED, size: 110 }, { s: "even the gods take sides", cue: [56, "gods"], size: 100 }], { m: 2 }),
+  gods: say([{ s: "In the poem:", size: 110 }, { s: "the bucket starts the war", cue: [56, "stealing"], col: RED, size: 90 }, { s: "even the gods take sides", cue: [56, "gods"], size: 84 }], { m: 2 }),
   salieri: checks([{ s: "1622: printed" }, { s: "Translated", cue: [58, "translated"] }, { s: "1772: Salieri's opera", cue: [58, "opera"] }], { top: "A very popular joke", topCol: RED, size: 76 }),
   legend: say([{ s: "\"Two cities went to war", size: 110 }, { s: "over a stolen bucket\"", cue: [59, "stolen"], col: RED, size: 120 }], { dark: true, m: 0 }),
   // ---------------- where it is today ----------------
   today: checks([{ s: "Original: the town hall" }, { s: "Copy: the bell tower", cue: [62, "copy"] }], { top: "Today", topCol: MOD, size: 74 }),
-  // kept left of x ~1400: the subscribe card and mascot may still be on the right when this board comes in
+  // centred, gentle push: a snap zoom (m 4) on off-centre lines ran them off the left edge
   question: ({ t, d, c }) => (
-    <Paper tone="#141a2a"><Mv t={t} d={d} m={4}>
-      <At x={620} y={330} s={pop(t, 0)}><T size={84} col="#fff">If you were Bologna...</T></At>
-      <At x={620} y={500} s={pop(t, at([64, "would"], c))}><T size={72} col="#ffb347">would you want it back?</T></At>
+    <Paper tone="#141a2a"><Mv t={t} d={d} m={0}>
+      <At x={960} y={330} s={pop(t, 0)}><T size={84} col="#fff">If you were Bologna...</T></At>
+      <At x={960} y={500} s={pop(t, at([64, "would"], c))}><T size={72} col="#ffb347">would you want it back?</T></At>
     </Mv></Paper>
   ),
 };

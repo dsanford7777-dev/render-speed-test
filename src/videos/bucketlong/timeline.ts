@@ -116,14 +116,14 @@ export const wordAt = (seg: number, w: string, fallbackU = 0.5) => {
 };
 export const segAt = (seg: number) => Math.round(SEG_TIMES[seg][0] * FPS);
 
-export const CHAPTERS: { seg: number; num: string; title: string }[] = [
+export const CHAPTERS: { seg: number; num: string; title: string; right?: boolean }[] = [
   { seg: 5, num: "1", title: "TWO CITIES" },
   { seg: 12, num: "2", title: "THE REBEL" },
   { seg: 16, num: "3", title: "A CASTLE, NOT A BUCKET" },
   { seg: 23, num: "4", title: "30,000 VS 7,000" },
   { seg: 29, num: "5", title: "THE TRICK" },
   { seg: 34, num: "6", title: "ZAPPOLINO" },
-  { seg: 41, num: "7", title: "THE RACE AND THE BUCKET" },
+  { seg: 41, num: "7", title: "THE RACE AND THE BUCKET", right: true },
   { seg: 49, num: "8", title: "THE PEACE" },
   { seg: 54, num: "9", title: "HOW A JOKE BECAME HISTORY" },
   { seg: 60, num: "10", title: "WHERE IT IS TODAY" },
@@ -171,7 +171,7 @@ const raw: RawShot[] = [
   D3(28, null, "siege"), D3(28, "modenese", "modmarch2"),
   // 5 the trick
   D3(29, null, "sunset"), D2(29, "cheats", "cheats"),
-  D2(30, null, "local:3"), D3(30, "crosses", "feint"),
+  D2(30, null, "local:3"), D3(30, "crosses", "feintx"),
   D3(31, null, "detach"),
   D2(32, null, "fooled"),
   D3(33, null, "rebel"),
@@ -206,7 +206,7 @@ const raw: RawShot[] = [
   D3(59, null, "version"), D2(59, "two", "legend"),
   // 10 where it is today
   D3(60, null, "hookL"),
-  D2(61, null, "today"),
+  D2(61, "bucket", "today"),
   D3(62, null, "kept"),
   D3(63, null, "still"),
   D2(64, null, "question"),
