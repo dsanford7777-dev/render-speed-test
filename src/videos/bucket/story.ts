@@ -142,7 +142,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["Bologna's gate", Gt(0, GATE_H + 2.6, TOWER_Z), 1]] }),
   // ...and Modena: Modena's men under their yellow-and-blue banners, out in the hill country
   modena: (s, f) => { const ps: V3[] = [hg(-0.65, -4.2), hg(0.2, -5.0), hg(0.6, -6.4), hg(-0.4, -7.4)];
-    return { light: "field", dof: 1, focus: add(ps[1], 0, 1.5, 0), army: { mode: { state: "stand", u: 0, hide: (_i, p) => p[2] < -3.4 && p[2] > -8 && Math.abs(p[0] - Hl(0, 0, 0)[0]) < 3.2 } },
+    return { light: "field", dof: 1, focus: add(ps[1], 0, 1.5, 0), army: { mode: { state: "stand", u: 0, hide: (_i, p) => p[2] > -13.2 && Math.abs(p[0] - Hl(0, 0, 0)[0]) < 4.2 } },
       people: [P("mo1", ps[0], "stern", 1), P("mo2", ps[1], "grin", 0), P("mo3", ps[2], "stern", -1), P("mo4", ps[3], "neutral", 1, { extra: true })],
       cam: move({ pos: hg(0.2, -11.5, 1.7), look: hg(0.1, -5.2, 1.6), fov: 48, roll: -0.05 }, { pos: hg(0.0, -10.9, 1.6), look: hg(0.1, -5.2, 1.65), fov: 46, roll: 0.04 }, f, s.a, s.b, smooth, 0),
       subjects: [["Modena's men", add(ps[1], 0, 1.5, 0), 0.3]] }; },
@@ -231,7 +231,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // Bonacolsi had faked a river crossing the night before: horsemen wading the Panaro by moonlight
   feint: (s, f) => { const tt = t(f - s.a), x0 = RIVER_X - 4.5, v = 1.6;
     const h = (k: number, dx: number, z: number, who: string): HorseSt => { const x = x0 + dx + v * tt, p = hg(x, z); return { k, p, yaw: 0, gait: "walk", phase: (x / STRIDE.walk) + k * 0.31, head: 0.1, rider: { who, expr: "stern", pose: 0 } }; };
-    const hs = [h(0, 0, 9.0, "rm1"), h(1, -0.6, 14.5, "rm2"), h(2, -1.4, 19.0, "rm3")];
+    const hs = [h(0, 0, 9.0, "rm1"), h(1, -1.5, 22.0, "rm2")];
     return { light: "night", dof: 1, focus: add(hs[0].p, 0, 1.6, 0), horses: hs,
       puffs: hs.flatMap((q, i) => [0, 1].map((k) => { const u = ((tt * 1.5 + k * 0.5 + i * 0.3) % 1); return { p: [q.p[0] - 0.4 + 0.6 * k, Hl(0, RIVER_Y, 0)[1] + 0.15 + 0.3 * u, q.p[2] + 0.2] as V3, s: 0.3 + 0.5 * u, c: [0.85, 0.9, 1.0] as [number, number, number], a: 0.5 * (1 - u) }; })),
       cam: move({ pos: hg(RIVER_X - 9, 1.0, 1.4), look: hg(RIVER_X - 3, 9, 0.6), fov: 46, roll: 0.05 }, { pos: hg(RIVER_X - 8.2, 1.4, 1.5), look: hg(RIVER_X - 2, 9.5, 0.7), fov: 46, roll: -0.03 }, f, s.a, s.b, smooth, 0),
@@ -269,12 +269,11 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: move({ pos: hg(2, -4, 4.2), look: hg(0, 22, 4), fov: 50, roll: -0.04 }, { pos: hg(2.5, -2, 4.0), look: hg(0, 22, 4.2), fov: 48, roll: 0.03 }, f, s.a, s.b, smooth, 0),
       subjects: [["the battlefield", hg(0, 16, 3), 4]] }; },
   // Modena chased them all the way to Bologna's walls: from the wall walk, Bologna's people look out at Modena marching up the road
-  chase: (s, f) => { const tt = t(f - s.a), ph = (tt * 1.2 / 1.6) % 1, z0 = -3 + 1.2 * tt;
-    const man = (w: string, x: number, dz: number, k: number) => P(w, Gt(x, 0, z0 + dz), "grin", 0, { march: (ph + 0.5 * k) % 1 });
-    return { light: "day", dof: 1, focus: Gt(-16, 1.6, z0), gate: 0,
-      people: [man("mo1", -15.4, 0, 0), man("mo2", -16.8, -0.6, 1), man("mo3", -14.6, -2.0, 1), man("mo4", -17.6, -2.6, 0), man("mo2", -16.0, -4.4, 0)],
-      cam: move({ pos: Gt(-20.6, 12.7, 17.0), look: Gt(-16, 0.9, -2), fov: 40, roll: 0.04 }, { pos: Gt(-20.4, 12.9, 16.9), look: Gt(-16, 0.9, 0), fov: 40, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      subjects: [["Modena's men", Gt(-16, 1.4, z0), 0.4]] }; },
+  chase: (s, f) => { const tt = t(f - s.a);
+    const men = [["mo1", -10.0, 4.8], ["mo2", -11.2, 6.4], ["mo3", -12.4, 5.2]].map(([w, x, z], i) => walker(w as string, Gt(x as number, 0, 0)[0], 0, z as number, 0.8, tt, i % 2 ? "laugh" : "grin"));
+    return { light: "day", dof: 1, focus: add(men[1].p, 0, 1.5, 0), gate: 0, people: men,
+      cam: move({ pos: Gt(-7.5, 1.3, -4.5), look: Gt(-10.6, 3.0, 9), fov: 52, roll: 0.04 }, { pos: Gt(-7.8, 1.4, -4.0), look: Gt(-10.2, 3.2, 9), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0),
+      subjects: [["Modena's men", add(men[1].p, 0, 1.4, 0), 0.4], ["Bologna's walls", Gt(-12, 5, WALL_Z - 2.3), 1]] }; },
   // ...and instead of attacking the city: Modena's men stand before the shut gate, looking up, grinning
   outside: (s, f) => { const ps: V3[] = [Gt(-0.7, 0, 2.6), Gt(0.8, 0, 2.2), Gt(0.1, 0, 4.6), Gt(-0.3, 0, 5.4)];
     return { light: "day", dof: 1, focus: Gt(0, 2.5, 4), gate: 0, people: [P("mo1", ps[0], "grin", 0, { headTilt: -0.12 }), P("mo2", ps[1], "laugh", 0, { headTilt: -0.1 }), P("mo3", ps[2], "grin", 1), P("mo4", ps[3], "grin", -1)],
@@ -282,7 +281,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       subjects: [["Modena's men", Gt(0, 1.5, 2.0), 0.4], ["the shut gate", Gt(0, 3, TOWER_Z + 1.2), 0.6]] }; },
   // ...they held a race outside its gates: the palio, three riders flat out along the road past the gate
   race: (s, f) => { const tt = t(f - s.a), v = 13, x = -26 + v * tt, z = RACE_Z;
-    const hs = [gallop(3, Gt(x, 0, 0)[0], z - 1.6, 0, v, "pr1"), gallop(4, Gt(x - 1.6, 0, 0)[0], z + 0.6, 0, v, "pr2"), gallop(5, Gt(x - 2.2, 0, 0)[0], z + 2.8, 0, v, "pr3")];
+    const hs = [gallop(3, Gt(x, 0, 0)[0], z - 1.6, 0, v, "pr1"), gallop(4, Gt(x + 0.9, 0, 0)[0], z + 2.6, 0, v, "pr2"), gallop(5, Gt(x - 1.1, 0, 0)[0], z + 4.8, 0, v, "pr3")];
     const lk = add(hs[0].p, 0.2, 1.8, 2.0);
     return { light: "day", dof: 1, focus: lk, horses: hs, gate: 0, puffs: hs.flatMap((h) => hoofDust(h.p, v, tt, 4)),
       people: [P("mo2", Gt(x + 6, 0, -1.2), "laugh", 0, { wave: 1, extra: true })],
@@ -312,7 +311,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   jan: (s, f) => ({ light: "grey", dof: 0, focus: add(GATE_C, 0, 3, 0), castleGate: 1, flag: "bologna",
     people: [P("bo1", add(GATE_C, 1.2, 0.62, -2.0), "grin", 0, { wave: 0.8, extra: true }), P("bo2", add(GATE_C, -1.0, 0.62, -1.6), "laugh", 1, { extra: true })],
     cam: move({ pos: add(GATE_C, 1.5, 2.0, -22), look: add(GATE_C, 0, 11.5, 4), fov: 60, roll: 0.04 }, { pos: add(GATE_C, 1.0, 2.6, -24), look: add(GATE_C, 0, 12.5, 4), fov: 60, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-    subjects: [["the fortress", hg(0, 58, 12), 3], ["Bologna's flag", hg(0, HILL_C[1] + 5.6, 22 + 3.6), 1]] }),
+    subjects: [["the fortress", add(GATE_C, 0, 7, -1.6), 3], ["Bologna's flag", hg(0, HILL_C[1] + 5.6, 22 + 3.6), 1]] }),
   // Modena kept the bucket: back in the tower room, the bucket on its chain, circling it
   kept: (s, f) => ({ light: "tower", dof: 1, focus: BK_C, key: WIN_T, cam: orbit(s, f, BK_C, [-34, -8], [2.2, 1.9], [0.2, 0.05], 42), subjects: [["the bucket", BK_C, 0.25]] }),
   // Three hundred years later, a poet...: Tassoni at his desk, writing, the candle beside him
