@@ -20,7 +20,7 @@ const SH_FELT: C3 = [0.62, 0.62, 0.7];
 export type Build = "adult" | "stout" | "kid";
 export type Outfit = {
   jacket: string; pants: string; boots: string; hat?: string | null; belt?: string | null; buttons?: string; rifle?: boolean;
-  sash?: string; sword?: boolean; moustache?: string; /** visor cap: the coloured band round it */ band?: string; /** a kerchief tied over the nose and mouth (colour) */ bandana?: string; skin?: string; head?: number; cap?: string; hair?: string; dress?: string;
+  sash?: string; sword?: boolean; /** a spear held at the order instead of the rifle (medieval foot) */ spear?: boolean; /** a cross on the tunic (colour), e.g. Bologna's red cross on white */ cross?: string; moustache?: string; /** visor cap: the coloured band round it */ band?: string; /** a kerchief tied over the nose and mouth (colour) */ bandana?: string; skin?: string; head?: number; cap?: string; hair?: string; dress?: string;
   build?: Build;
   /** costume detail (front view): shirt front + lapels, tie, plaid lines, braces */
   shirt?: string; tie?: string; plaid?: string; braces?: string;
@@ -368,6 +368,13 @@ const faceSide = (p: Pen, hx: number, hy: number, W: number, expr: Expr, lid: nu
   if (expr === "nervous") p.ell(hx - 30 * u0, hy - 24 * u0, 3 * u, 5 * u, "#9fd4ff", 2 * u);
 };
 
+/** a spear from the butt a to the head b: ash shaft, an iron leaf blade at b */
+const spearAt = (p: Pen, a: P2, b: P2, u: number) => {
+  const d = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, ux = (b[0] - a[0]) / d, uy = (b[1] - a[1]) / d, nx = -uy, ny = ux, L = 34 * u, Wd = 7 * u;
+  p.band([a, b], "#8a5e36", 4.6 * u, 1.4 * u, "round");
+  const tip: P2 = [b[0] + ux * L, b[1] + uy * L], mid: P2 = [b[0] + ux * L * 0.35, b[1] + uy * L * 0.35];
+  p.poly([b, [mid[0] + nx * Wd, mid[1] + ny * Wd], tip, [mid[0] - nx * Wd, mid[1] - ny * Wd]], "#c9ced6", 1.8 * u);
+};
 // ---------------- hats ----------------
 const BONNET = "#e9cf8f", BONNET_BRIM = "#d6b46a";
 /** parts of a hat that sit behind the head (bonnet) */
@@ -505,6 +512,42 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
       p.ell(bx, by, 0.64 * W, 0.055 * HH, shade(col, 0.82), ow, 0, 360, deg);
       if (o.hat === "minerhat") { const [lx, ly] = R([[hx + 3 * u * facing, yb - 0.38 * hd]])[0]; p.ell(lx, ly, 9 * u, 8 * u, "#fff3b8", 2.2 * u, 0, 360, deg); p.ell(lx, ly, 4.5 * u, 4 * u, "#ffffff", 0, 0, 360, deg); }
     }
+  } else if (o.hat === "kettle") {
+    // medieval kettle hat (War of the Bucket, Nov 25): an iron dome with a wide, slightly drooping brim (colour = o.cap)
+    const hx = cx + 0.5 * H.asym * H.a, yb = crown + 0.3 * HH, wb = 0.5 * W, hd = 0.44 * HH, col = o.cap ?? "#8a8e96";
+    const dome: P2[] = [];
+    for (let i = 0; i <= 16; i++) { const t = (i / 16) * Math.PI; dome.push([hx - wb * Math.cos(t), yb - hd * Math.sin(t)]); }
+    const body = R(dome);
+    p.shadedFill(body, col, mul(col, [0.55, 0.56, 0.62]), light, wb, 0.4);
+    p.poly(body, null, ow);
+    p.stroke(R([[hx - 0.15 * wb, yb - hd + 4 * u], [hx - 0.45 * wb, yb - 0.4 * hd]]), 2.4 * u, "#e8ecf2");
+    const deg = (a * 180) / Math.PI, [bx, by] = R([[hx, yb + 2 * u]])[0];
+    p.ell(bx, by, side ? 0.66 * W : 0.72 * W, 0.075 * HH, shade(col, 0.78), ow, 0, 360, deg);
+  } else if (o.hat === "mitre") {
+    // a bishop's mitre (the Pope): tall white peak, gold bands down the middle and round the base (colour = o.cap)
+    const hx = cx + 0.5 * H.asym * H.a, yb = crown + 0.22 * HH, wb = 0.36 * W, ht = 0.95 * HH, col = o.cap ?? "#f4f0e6", gold = "#e0b440";
+    const body = R([[hx - wb, yb + 2 * u], [hx - wb * 1.08, yb - 0.5 * ht], [hx, yb - ht], [hx + wb * 1.08, yb - 0.5 * ht], [hx + wb, yb + 2 * u]]);
+    p.shadedFill(body, col, mul(col, SH_FELT), light, wb, 0.4);
+    p.clip(body, () => { p.band(R([[hx, yb - ht], [hx, yb + 4 * u]]), gold, 0.11 * W, 0.8 * u); p.band(R([[hx - wb - 4 * u, yb - 0.06 * HH], [hx + wb + 4 * u, yb - 0.06 * HH]]), gold, 0.1 * HH, 0.8 * u); });
+    p.poly(body, null, ow);
+    const [kx, ky] = R([[hx, yb - 0.55 * ht]])[0]; p.ell(kx, ky, 6 * u, 6 * u, "#c0353a", 1.6 * u);
+  } else if (o.hat === "crown") {
+    // a gold crown with five points and red stones (the Emperor)
+    const hx = cx + 0.5 * H.asym * H.a, yb = crown + 0.26 * HH, wb = 0.4 * W, ht = 0.34 * HH, gold = o.cap ?? "#e8c040", pts: P2[] = [[hx - wb, yb + 2 * u]];
+    for (let k = 0; k <= 8; k++) { const x = hx - wb + (2 * wb * k) / 8; pts.push([x, k % 2 ? yb - ht * 0.55 : yb - ht]); }
+    pts.push([hx + wb, yb + 2 * u]);
+    const body = R(pts);
+    p.shadedFill(body, gold, mul(gold, SH_FELT), light, wb, 0.4);
+    p.poly(body, null, ow);
+    for (const k of [-0.5, 0, 0.5]) { const [sx, sy] = R([[hx + k * wb, yb - 0.18 * ht]])[0]; p.ell(sx, sy, 4.5 * u, 4.5 * u, k ? "#2a6ac0" : "#c0353a", 1.4 * u); }
+  } else if (o.hat === "beret") {
+    // a soft flat cap worn tilted (nobles, scholars): a wide disc lying on the crown (colour = o.cap)
+    const hx = cx + 0.5 * H.asym * H.a, yb = crown + 0.2 * HH, col = o.cap ?? "#2a2430";
+    const pts: P2[] = [];
+    for (let i = 0; i <= 18; i++) { const t = (i / 18) * Math.PI * 2; pts.push([hx + 0.06 * W + 0.62 * W * Math.cos(t), yb - 0.12 * HH + 0.16 * HH * Math.sin(t) - (Math.sin(t) < 0 ? 0.12 * HH * -Math.sin(t) : 0)]); }
+    const body = R(pts);
+    p.shadedFill(body, col, mul(col, SH_FELT), light, 0.6 * W, 0.4);
+    p.poly(body, null, ow);
   } else if (o.hat === "bonnet") {
     const [bx, by] = R([[cx + (side ? 6 * u : 0), crown + 0.16 * HH]])[0];
     p.arc(bx, by, 0.5 * W, 0.2 * HH, 200, 340, 7 * u, BONNET_BRIM);
@@ -601,8 +644,8 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
   };
   const sw = mode === "march" || mode === "stroll" ? Math.sin(two * phase) : 0;
   // rifle at the order: butt by the right hip, held by the hanging right hand, muzzle past the crown
-  const R0: P2 = [300 + 47 * u, torsoBot + 0.12 * HH], R1: P2 = [300 + 64 * u, crown - 0.32 * HH];
-  const rifle = !!o.rifle && (mode === "march" || mode === "stand" || mode === "stroll");
+  const R0: P2 = [300 + 47 * u, torsoBot + (o.spear ? 0.5 : 0.12) * HH], R1: P2 = [300 + (o.spear ? 60 : 64) * u, crown - (o.spear ? 0.95 : 0.32) * HH];
+  const rifle = (!!o.rifle || !!o.spear) && (mode === "march" || mode === "stand" || mode === "stroll");
   type Arm = { pts: [P2, P2, P2]; front: boolean };
   const arms: Arm[] = [];
   if (mode === "sit") for (const side of [-1, 1]) arms.push({ pts: [sh(side), [tcx + side * (1.1 * T.a + 6 * u), sh(side)[1] + 0.4 * HH], [tcx + side * (1.2 * T.a + 10 * u), torsoBot + 0.04 * HH]], front: false });
@@ -631,7 +674,8 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
   }
   const drawArm = (a: Arm) => { p.stroke(curve(a.pts[0], a.pts[1], a.pts[2]), 5.2 * u * LOOK.limb, armCol); p.dot(a.pts[2][0], a.pts[2][1], 5.5 * u); };
   // behind the body: rifle, sword, arms
-  if (rifle) {
+  if (rifle && o.spear) spearAt(p, R0, R1, u);
+  else if (rifle) {
     p.band([R0, R1], "#7a4b2a", 5 * u, 1.5 * u, "round");
     p.band([lerp2(R0, R1, 0.6), R1], "#8d949c", 2.4 * u, 1.2 * u, "round");
   }
@@ -658,6 +702,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
         for (let y = chin - 0.1 * HH; y < torsoBot; y += 0.17 * HH) p.stroke([[tcx - 1.3 * T.a, y], [tcx + 1.3 * T.a, y]], 2.4 * u, o.plaid);
       }
       if (o.braces) for (const s of [-1, 1]) p.band([[tcx + s * 0.42 * T.a, chin - 0.2 * HH], [tcx + s * 0.5 * T.a, torsoBot + 0.05 * HH]], o.braces, 5 * u, 1.6 * u);
+      if (o.cross) { p.band([[tcx, chin - 0.3 * HH], [tcx, torsoBot + 0.1 * HH]], o.cross, 0.2 * T.a, 0); p.band([[tcx - 1.3 * T.a, chin + 0.28 * HH], [tcx + 1.3 * T.a, chin + 0.28 * HH]], o.cross, 0.2 * T.a, 0); }
       if (o.shirt) {
         const vx = tcx + 2 * u * facing, vy = chin + 0.5 * HH, top = chin - 0.2 * HH, hw = 0.5 * T.a;
         p.poly([[vx - hw, top], [vx + hw, top], [vx, vy]], o.shirt, 0);
@@ -813,8 +858,8 @@ export const bodySide = (p: Pen, o: Outfit, opts: SideOpts) => {
     const e: P2 = [S[0] + Math.sin(ang) * aLen * 0.5, S[1] + Math.cos(ang) * aLen * 0.5], a2 = ang + rad(16) * Math.sign(ang || 1);
     return [S, e, [e[0] + Math.sin(a2) * aLen * 0.5, e[1] + Math.cos(a2) * aLen * 0.5]];
   };
-  const rifle = !!o.rifle && (mode === "march" || mode === "stand");
-  const B0: P2 = [tcx + 0.72 * T.a, chin + 0.58 * HH], B1: P2 = [tcx - 0.95 * T.a - 22 * u, crown - 0.4 * HH];
+  const rifle = (!!o.rifle || !!o.spear) && (mode === "march" || mode === "stand");
+  const B0: P2 = [tcx + 0.72 * T.a, chin + (o.spear ? 1.0 : 0.58) * HH], B1: P2 = o.spear ? [tcx + 0.2 * T.a, crown - 1.0 * HH] : [tcx - 0.95 * T.a - 22 * u, crown - 0.4 * HH];
   let near: [P2, P2, P2], far: [P2, P2, P2] | null;
   if (mode === "ride") { const hN: P2 = [S[0] + 0.62 * HH, S[1] + 0.5 * HH];
     near = [S, [S[0] + 0.2 * HH, S[1] + 0.42 * HH], hN]; far = [S, [S[0] + 0.16 * HH, S[1] + 0.36 * HH], [hN[0] - 6 * u, hN[1] - 0.04 * HH]]; }
@@ -843,6 +888,7 @@ export const bodySide = (p: Pen, o: Outfit, opts: SideOpts) => {
       for (let y = chin - 0.1 * HH; y < torsoBot; y += 0.17 * HH) p.stroke([[tcx - 1.3 * T.a, y], [tcx + 1.3 * T.a, y]], 2.4 * u, o.plaid);
     }
     if (o.braces) p.band([[tcx + 0.15 * T.a, chin - 0.2 * HH], [tcx + 0.3 * T.a, torsoBot + 0.05 * HH]], o.braces, 5 * u, 1.6 * u);
+    if (o.cross) { p.band([[tcx + 0.45 * T.a, chin - 0.3 * HH], [tcx + 0.45 * T.a, torsoBot + 0.1 * HH]], o.cross, 0.2 * T.a, 0); p.band([[tcx - 0.6 * T.a, chin + 0.28 * HH], [tcx + 1.3 * T.a, chin + 0.28 * HH]], o.cross, 0.2 * T.a, 0); }
     if (o.shirt) { // shirt front seen from the side: a sliver at the chest edge, with the tie and one lapel
       const fx = tcx + 1.1 * T.a, top = chin - 0.2 * HH, vy = chin + 0.5 * HH;
       p.poly([[fx - 0.55 * T.a, top], [fx + 4 * u, top], [fx + 4 * u, vy]], o.shirt, 0);
@@ -854,7 +900,8 @@ export const bodySide = (p: Pen, o: Outfit, opts: SideOpts) => {
     if (!o.dress) for (let i = o.shirt ? 2 : 0; i < 3; i++) { const y = chin + 0.16 * HH + i * 0.24 * HH; p.dot(tcx + 0.8 * T.a, y, 3 * u, INK); p.dot(tcx + 0.8 * T.a, y, 2.2 * u, o.buttons ?? shade(o.jacket, 0.7)); }
   });
   p.inkRing(tp, ow, thick);
-  if (rifle) {
+  if (rifle && o.spear) spearAt(p, B0, B1, u);
+  else if (rifle) {
     p.band([B0, B1], "#7a4b2a", 5 * u, 1.5 * u, "round");
     p.band([lerp2(B0, B1, 0.6), B1], "#8d949c", 2.4 * u, 1.2 * u, "round");
   }

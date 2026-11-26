@@ -27,14 +27,19 @@ const clothTex = (n: number) => ctex("hsCloth" + n, 256, 192, (g) => {
   g.fillStyle = "#120c16"; g.font = "900 120px Montserrat, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(String(n), 128, 104);
 });
 
+const plainCloth = (col: string) => ctex("hsPlain" + col, 256, 192, (g) => {
+  g.fillStyle = col; g.fillRect(0, 0, 256, 192); g.fillStyle = "rgba(255,255,255,0.18)"; g.fillRect(0, 150, 256, 16); g.strokeStyle = "#120c16"; g.lineWidth = 10; g.strokeRect(5, 5, 246, 182);
+});
+
 export class Horse {
   g = new THREE.Group(); body = new THREE.Group(); neck = new THREE.Group(); head = new THREE.Group(); tail = new THREE.Group();
   saddle = new THREE.Object3D(); hands = new THREE.Object3D(); bit = new THREE.Object3D();
   private legs: Leg[] = []; private reins: THREE.Mesh; private hasRider = true; private tack: THREE.Object3D[] = [];
   private m = new THREE.Matrix4(); private v = new THREE.Vector3(); private v2 = new THREE.Vector3();
-  constructor(coat: Coat, num: number, key: string) {
+  /** plain: a saddle cloth in that colour with no race number (War of the Bucket: war horses, the palio) */
+  constructor(coat: Coat, num: number, key: string, plain?: string) {
     const C = lam("hsBody_" + key, () => ({ color: coat.body })), D = lam("hsDark_" + key, () => ({ color: coat.dark })), Lg = lam("hsLeg_" + key, () => ({ color: coat.legs }));
-    const hoofM = lam("hsHoof", () => ({ color: "#2a2622" })), white = lam("hsWhite", () => ({ color: "#f2eee4" })), tack = lam("hsTack", () => ({ color: "#3a2618" })), cloth = lam("hsClothM" + num, () => ({ map: clothTex(num) }));
+    const hoofM = lam("hsHoof", () => ({ color: "#2a2622" })), white = lam("hsWhite", () => ({ color: "#f2eee4" })), tack = lam("hsTack", () => ({ color: "#3a2618" })), cloth = plain ? lam("hsClothP" + plain, () => ({ map: plainCloth(plain) })) : lam("hsClothM" + num, () => ({ map: clothTex(num) }));
     const mesh = (geo: THREE.BufferGeometry, mat: THREE.Material, p?: [number, number, number], r?: [number, number, number], s?: [number, number, number]) => {
       const ms = new THREE.Mesh(geo, mat); if (p) ms.position.set(...p); if (r) ms.rotation.set(...r); if (s) ms.scale.set(...s); ms.castShadow = true; ms.receiveShadow = true; return ms; };
     const sph = (r: number) => new THREE.SphereGeometry(r, 14, 10);

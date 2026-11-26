@@ -32,6 +32,8 @@ import { PeigneurLong, PeigneurThumb, PEIGNEURLONG_FRAMES } from "./videos/peign
 import { Hayes, HAYES_FRAMES } from "./videos/hayes/Hayes";
 import { Centralia, CENTRALIA_FRAMES } from "./videos/centralia/Centralia";
 import { Toledo, TOLEDO_FRAMES } from "./videos/toledo/Toledo";
+import { Bucket, BUCKET_FRAMES } from "./videos/bucket/Bucket";
+import { BucketLong, BucketThumb, BUCKETLONG_FRAMES } from "./videos/bucketlong/BucketLong";
 import { HayesLong, HayesThumb, HAYESLONG_FRAMES } from "./videos/hayeslong/HayesLong";
 import { CentraliaLong, CentraliaThumb, CENTRALIALONG_FRAMES } from "./videos/centralialong/CentraliaLong";
 import { ToledoLong, ToledoThumb, TOLEDOLONG_FRAMES } from "./videos/toledolong/ToledoLong";
@@ -80,6 +82,9 @@ const PeigneurThumbPadded = padded(PeigneurThumb);
 const HayesPadded = padded(Hayes);
 const CentraliaPadded = padded(Centralia);
 const ToledoPadded = padded(Toledo);
+const BucketPadded = padded(Bucket);
+const BucketLongPadded = padded(BucketLong);
+const BucketThumbPadded = padded(BucketThumb);
 const HayesLongPadded = padded(HayesLong);
 const HayesThumbPadded = padded(HayesThumb);
 const CentraliaLongPadded = padded(CentraliaLong);
@@ -158,6 +163,12 @@ export const Root: React.FC = () => (<>
   <Composition id="CentraliaPadded" component={CentraliaPadded} durationInFrames={CENTRALIA_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="Toledo" component={Toledo} durationInFrames={TOLEDO_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="ToledoPadded" component={ToledoPadded} durationInFrames={TOLEDO_FRAMES + PAD} fps={30} width={1080} height={1920} />
+  <Composition id="Bucket" component={Bucket} durationInFrames={BUCKET_FRAMES} fps={30} width={1080} height={1920} />
+  <Composition id="BucketPadded" component={BucketPadded} durationInFrames={BUCKET_FRAMES + PAD} fps={30} width={1080} height={1920} />
+  <Composition id="BucketLong" component={BucketLong} durationInFrames={BUCKETLONG_FRAMES} fps={30} width={1920} height={1080} />
+  <Composition id="BucketLongPadded" component={BucketLongPadded} durationInFrames={BUCKETLONG_FRAMES + PAD} fps={30} width={1920} height={1080} />
+  <Composition id="BucketThumb" component={BucketThumb} durationInFrames={10} fps={30} width={1920} height={1080} />
+  <Composition id="BucketThumbPadded" component={BucketThumbPadded} durationInFrames={10 + PAD} fps={30} width={1920} height={1080} />
   <Composition id="Hayes" component={Hayes} durationInFrames={HAYES_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="HayesPadded" component={HayesPadded} durationInFrames={HAYES_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="HayesLong" component={HayesLong} durationInFrames={HAYESLONG_FRAMES} fps={30} width={1920} height={1080} />
