@@ -18,15 +18,17 @@ const R = (k: string, mod?: (st: St3, s: ShotDef, f: number) => St3) => (s: Shot
 const tt = (s: ShotDef, f: number) => secs(f - s.a);
 /** pull the camera back (k > 1) along its line of sight */
 const far = (st: St3, k: number): St3 => ({ ...st, cam: { ...st.cam, pos: L3(st.cam.look, st.cam.pos, k) } });
+/** aim the camera lower (subjects sit higher in frame, clear of the captions) */
+const up = (st: St3, dy: number): St3 => ({ ...st, cam: { ...st.cam, look: add(st.cam.look, 0, -dy, 0) } });
 const mv = (s: ShotDef, f: number, a: Partial<Cam> & { pos: V3; look: V3 }, b: Partial<Cam> & { pos: V3; look: V3 }) => move(a, b, f, s.a, s.b, smooth, 0);
 const WALK = 0.22;
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ---------------- straight from the Short ----------------
-  hook: R("hook"), tropics: R("tropics"), money: R("money"), shop: R("shop"), spell: R("spell"), war: R("war"), buy: R("buy"), paid: R("paid"), rich: R("rich"),
-  laugh: R("laugh"), advice: R("advice"), worst: R("worst"), coal: R("coal"), load: R("load"), strike: R("strike"), sold: R("sold"), pans: R("pans"), shipped: R("shipped"),
-  cook: R("cook"), cleared: R("cleared"), mansion: R("mansion"), lord: R("lord"), statues: R("statues"), himself: R("himself", (st) => far(st, 1.3)), sign: R("sign"),
-  coffin: R("coffin"), crowd: R("crowd"), wife: R("wife"), hiding: R("hiding"), caned: R("caned"), book: R("book"), readers: R("readers"), punct: R("punct"), pepper: R("pepper"),
+  hook: R("hook"), tropics: R("tropics"), money: R("money"), shop: R("shop", (st) => up(st, 0.7)), spell: R("spell", (st) => far(st, 1.4)), war: R("war"), buy: R("buy", (st) => far(st, 1.4)), paid: R("paid"), rich: R("rich", (st) => far(st, 1.4)),
+  laugh: R("laugh"), advice: R("advice", (st) => far(st, 1.25)), worst: R("worst", (st) => far(st, 1.3)), coal: R("coal", (st) => far(st, 1.4)), load: R("load"), strike: R("strike"), sold: R("sold"), pans: R("pans"), shipped: R("shipped"),
+  cook: R("cook"), cleared: R("cleared"), mansion: R("mansion", (st) => far(st, 1.2)), lord: R("lord"), statues: R("statues", (st) => ({ ...st, people: statues((_n, i) => i >= 3 && [4, 8, 10].includes(i - 3)) })), himself: R("himself", (st) => far(st, 1.3)), sign: R("sign"),
+  coffin: R("coffin"), crowd: R("crowd"), wife: R("wife"), hiding: R("hiding", (st) => far(st, 1.3)), caned: R("caned"), book: R("book"), readers: R("readers"), punct: R("punct"), pepper: R("pepper"),
 
   // ---------------- the long-form's own ----------------
   // ...and Bibles to the West Indies: the schooner at the island wharf, crates going aboard
@@ -43,7 +45,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   portwide: (s, f) => ({ light: "port", dof: 0, focus: Rv(-10, 2, 5),
     people: [walker("t1", Rv(-6, 0, 0)[0], 0, -1.0, -0.9, tt(s, f)), walker("s2", Rv(-16, 0, 0)[0], 0, 1.6, 1.1, tt(s, f)), P("t3", Rv(-12.4, WALK, 4.4), "grin", 1), P("m4", Rv(-13.4, WALK, 4.6), "neutral", -1)],
     cam: mv(s, f, { pos: Rv(14, 7.5, 12), look: Rv(-14, 1.2, 3), fov: 36, roll: 0.02 }, { pos: Rv(13, 6.5, 10), look: Rv(-16, 1.4, 3), fov: 36, roll: -0.02 }),
-    subjects: [["the town", Rv(-14, 3, 7), 3]] }),
+    subjects: [["the street", Rv(-12, 1.0, 0), 2]] }),
   // ...full of ship owners and old money: two merchants on the board walk, a sailor passing
   money2: (s, f) => ({ light: "port", dof: 0.7, focus: Rv(TAVERN.x + 1, 1.5, 4.4),
     people: [P("m1", Rv(TAVERN.x + 0.6, WALK, 4.3), "stern", 1), P("m3", Rv(TAVERN.x + 1.5, WALK, 4.5), "grin", -1), walker("s1", Rv(TAVERN.x - 3, 0, 0)[0], 0, 1.4, 1.0, tt(s, f))],
@@ -78,33 +80,33 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       subjects: [["Dexter", head(p), 0.2]] }; },
   // ...a grand mansion on High Street: slow crane along the front, the minarets and the gold eagle
   mansion2: (s, f) => ({ light: "mansion", dof: 0, focus: Mn(0, 8, HOUSE_Z), people: statues((_n, i) => i < 3),
-    cam: mv(s, f, { pos: Mn(-14, 2.5, -10), look: Mn(0, 8, HOUSE_Z), fov: 40, roll: 0.02 }, { pos: Mn(-8, 5.5, -11), look: Mn(0, 9.5, HOUSE_Z), fov: 40, roll: -0.02 }),
+    cam: mv(s, f, { pos: Mn(-15, 3.5, -15), look: Mn(0, 8, HOUSE_Z), fov: 40, roll: 0.02 }, { pos: Mn(-9, 6.5, -16), look: Mn(0, 9.5, HOUSE_Z), fov: 40, roll: -0.02 }),
     subjects: [["the mansion", Mn(0, 6, HOUSE_Z - 0.2), 3]] }),
   // ...Washington, with John Adams and Thomas Jefferson: the arch, slow push in
   arch: (s, f) => ({ light: "mansion", dof: 0.4, focus: Mn(0, ARCH_Y + 1, ARCH_Z), people: statues((n) => ["washington", "adams", "jefferson"].includes(n)),
     cam: mv(s, f, { pos: Mn(0.6, 2.6, ARCH_Z - 9.5), look: Mn(0, ARCH_Y + 0.6, ARCH_Z), fov: 34, roll: 0.02 }, { pos: Mn(0.3, 2.9, ARCH_Z - 8.0), look: Mn(0, ARCH_Y + 0.8, ARCH_Z), fov: 34, roll: -0.02 }),
     subjects: [["Washington", head(Mn(0, ARCH_Y, ARCH_Z)), 0.2]] }),
   // Around them, Napoleon, Pitt, Franklin...: along the far row of columns
-  statues2: (s, f) => ({ light: "mansion", dof: 0, focus: Mn(-6, 5, 7), people: statues((_n, i) => i >= 3),
+  statues2: (s, f) => ({ light: "mansion", dof: 0, focus: Mn(-6, 5, 7), people: statues((_n, i) => i >= 3 && COLS[i - 3][0] < 0 && COLS[i - 3][1] > 5),
     cam: mv(s, f, { pos: Mn(1.0, 2.0, -3.4), look: Mn(-7.0, 5.0, 9.5), fov: 40, roll: -0.03 }, { pos: Mn(0.8, 2.2, -1.6), look: Mn(-7.2, 5.2, 11.5), fov: 40, roll: 0.02 }),
     subjects: [["the statues", Mn(-4.2, STAT_Y + 1, 7.5), 0.5]] }),
   // ...a fine mahogany coffin: the coffin, close and low
   coffin2: (s, f) => ({ light: "wake", dof: 1, focus: Mn(0, 1.1, COFFIN[2]),
     cam: mv(s, f, { pos: Mn(-1.6, 0.9, COFFIN[2] - 2.2), look: Mn(0, 1.05, COFFIN[2]), fov: 36, roll: 0.03 }, { pos: Mn(-1.2, 0.95, COFFIN[2] - 2.0), look: Mn(0, 1.05, COFFIN[2]), fov: 36, roll: -0.02 }),
-    subjects: [["the coffin", Mn(0, 1.1, COFFIN[2]), 0.3]] }),
+    subjects: [["the coffin", Mn(0, 1.0, COFFIN[2] - 0.44), 0.1]] }),
   // Dexter watched from hiding: from the porch, behind a column, past him to the crowd
   peek: (s, f) => { const me = Mn(1.65, 0.8, HOUSE_Z - 2.3);
-    return { light: "wake", dof: 0.6, focus: head(me), people: [P("dexter", me, "grin", -1, { headTilt: 0.15 }), ...mourners((i) => "nervous", (i) => i % 2 === 1)],
+    return { light: "wake", dof: 0.6, focus: head(me), people: [P("dexter", me, "grin", -1, { headTilt: 0.15 })],
       cam: mv(s, f, { pos: Mn(3.2, 1.9, HOUSE_Z - 4.6), look: add(me, -0.3, 1.5, 0), fov: 40, roll: 0.03 }, { pos: Mn(3.0, 1.9, HOUSE_Z - 4.2), look: add(me, -0.3, 1.5, 0), fov: 40, roll: -0.02 }),
       subjects: [["Dexter", head(me), 0.2]] }; },
   // Nine years later, the Great September Gale knocked his statues down: grey, dust and leaves blowing, a statue tipping
   gale: (s, f) => { const t0 = tt(s, f), tip = Math.min(1.3, 0.25 * t0 * t0);
     const puffs = Array.from({ length: 24 }, (_, i) => { const u = ((t0 * 0.6 + i / 24) % 1); return { p: Mn(12 - 26 * u, 1 + 5 * ((i * 0.37) % 1) + 1.5 * u, 2 + 10 * ((i * 0.61) % 1)), s: 1.5 + 2 * u, c: [0.7, 0.68, 0.64] as [number, number, number], a: 0.4 * Math.sin(Math.PI * u) }; });
     // most of the columns stand empty now: only a few statues are left up
-    const keep = statues((_n, i) => [3 + 2, 3 + 7, 3 + 10].includes(i)); void tip;
+    const keep = statues((_n, i) => [3 + 6, 3 + 8, 3 + 10].includes(i)); void tip;
     return { light: "wake", dof: 0, focus: Mn(0, 4, 6), people: keep, puffs,
       cam: mv(s, f, { pos: Mn(-1.0, 2.2, -2.0), look: Mn(5.0, 4.4, 9), fov: 42, roll: 0.05 }, { pos: Mn(-1.2, 2.3, -1.4), look: Mn(5.2, 4.4, 9.5), fov: 42, roll: -0.04 }),
-      subjects: [["the statues", Mn(4.2, STAT_Y + 1, 2.5), 0.5]] }; },
+      subjects: [["the statues", Mn(6.3, STAT_Y + 1, 10), 0.5]] }; },
   // ...his house still stands on High Street: the house today, no statues, grey sky, the street empty
   today: (s, f) => ({ light: "wake", dof: 0, focus: Mn(0, 6, HOUSE_Z),
     cam: mv(s, f, { pos: Mn(6, 1.8, -12), look: Mn(0, 6, HOUSE_Z), fov: 38, roll: 0.02 }, { pos: Mn(3, 2.2, -12.5), look: Mn(0, 6.5, HOUSE_Z), fov: 38, roll: -0.02 }),
@@ -118,7 +120,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   thumb: () => { const p = DEX_HOOK; return { light: "tropic", dof: 1, focus: head(p), pans3: true, people: [P("dexter", p, "grin", 0, { hw: [holdUp(p).hand] })], pans: [holdUp(p)],
     cam: { pos: add(p, 0.9, 1.4, -3.4), look: add(p, 0.55, 1.45, 0), fov: 40, roll: 0.02 } }; },
 };
-void rain; void fire; void CRATES; void FIRE; void COLS; void DEX_COL; void DESK; void DEXSTAT; void DOOR; void WIFE; void M1_T; void M2_T; void M3_T; void M4_T; void DESK_P; void BOARD; void CANDLE_K; void Rm;
+void rain; void fire; void mourners; void CRATES; void FIRE; void COLS; void DEX_COL; void DESK; void DEXSTAT; void DOOR; void WIFE; void M1_T; void M2_T; void M3_T; void M4_T; void DESK_P; void BOARD; void CANDLE_K; void Rm;
 /** every shot is hand-held: a slow sway on top of its move */
 export const specAt = (s: ShotDef, f: number): St3 => {
   const st = SPECS[s.g](s, f), c = st.cam;

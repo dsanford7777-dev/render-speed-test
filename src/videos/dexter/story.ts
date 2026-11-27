@@ -230,17 +230,17 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: mv(s, f, { pos: WR(8.6, 13.6, 1.5), look: WR(11.4, 21, 1.1), fov: 50, roll: 0.04 }, { pos: WR(8.9, 14.4, 1.8), look: WR(11.6, 22, 1.0), fov: 50, roll: -0.03 }),
       subjects: [["Dexter", head(p), 0.2], ["the coal", Rv(COALP[0], COALP[1] + 0.7, COALP[2]), 0.6]] }; },
   // ...and it landed during a miners' strike: Newcastle, grey; idle miners by the strike board as the schooner lies in
-  strike: (s, f) => { const a = WR(10.3, 9.0), b = WR(11.4, 9.5), c = WR(12.3, 8.8);
+  strike: (s, f) => { const a = WR(10.4, 9.0), b = WR(11.3, 9.5), c = WR(12.0, 8.8);
     return { light: "newcastle", dof: 0.5, focus: WR(11, 11.5, 1.6),
       people: [P("mn1", a, "stern", 1), P("mn2", b, "stern", -1), P("mn3", c, "neutral", -1)],
       cam: kick(mv(s, f, { pos: WR(11.0, 4.2, 1.6), look: WR(11.1, 12, 1.6), fov: 52, roll: -0.04 }, { pos: WR(11.1, 4.8, 1.7), look: WR(11.2, 12.4, 1.6), fov: 52, roll: 0.03 }), f, W(4, "strike"), 0.8),
       subjects: [["the strike board", Rv(11, WHARF.y + 2.0, 10.33), 0.3], ["the miners", head(b), 0.3], ["the schooner", Rv(SHIP[0] - 4, 1.5, SHIP[2]), 1.5]] }; },
   // It sold at a premium: a buyer hands coins over a lump of coal; coins flash
-  sold: (s, f) => { const tt = t(f - s.a), b = WR(10.6, 12.4), m = WR(11.7, 12.8), hb = add(b, -0.32, 1.25, -0.3), hm = add(m, 0.32, 1.25, -0.3);
+  sold: (s, f) => { const tt = t(f - s.a), b = WR(10.6, 12.4), m = WR(11.7, 12.8), hb = add(b, 0.32, 1.25, -0.3), hm = add(m, -0.32, 1.25, -0.3);
     return { light: "newcastle", dof: 1, focus: L3(head(b), head(m), 0.5), coal: true, people: [P("buyer", b, "grin", -1, { hw: [hb] }), P("mn1", m, "laugh", 1, { hw: [hm] })],
-      cards: [{ kind: "coal", p: add(hb, -0.02, 0.09, -0.04), spin: 0.2, s: 1.1 }, ...rain("coin", add(hm, 0, -0.1, 0), tt, 10, 0.3, 0.5, 0.2, 0.7, 0.8)],
+      cards: [{ kind: "coal", p: add(hb, 0.02, 0.09, -0.04), spin: 0.2, s: 1.1 }, ...rain("coin", add(hm, 0, -0.1, 0), tt, 10, 0.3, 0.5, 0.2, 0.7, 0.8)],
       cam: kick(mv(s, f, { pos: WR(11.15, 8.4, 1.35), look: WR(11.15, 12.6, 1.25), fov: 48, roll: 0.05 }, { pos: WR(11.15, 8.8, 1.35), look: WR(11.15, 12.6, 1.25), fov: 48, roll: -0.04 }), f, W(4, "premium"), 0.8),
-      subjects: [["the buyer", head(b), 0.2], ["the coins", add(hm, 0, 0.1, 0), 0.1]] }; },
+      subjects: [["the buyer", head(b), 0.2], ["the coins", add(hm, 0, 0.15, 0), 0.1]] }; },
   // Bed warmers to the West Indies?: back in the tavern, a merchant holds up a bed warmer, laughing
   pans: (s, f) => { const p = M4_T, hand = add(p, -0.3, 1.0, -0.25);
     return { light: "tavern", dof: 1, closeup: true, focus: head(p), key: LAMP_K, people: [P("m4", p, "laugh", 0, { hw: [hand] })],
@@ -267,7 +267,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       subjects: [["Dexter", head(p), 0.2]] }; },
   // So he bought a mansion: from High Street, crane up through the arch to the house, its cupola and gold eagle
   mansion: (s, f) => ({ light: "mansion", dof: 0, focus: Mn(0, 6, HOUSE_Z), people: statues((_n, i) => i < 3 || [0, 1, 4, 5, 8, 9].includes(i - 3)),
-    cam: mv(s, f, { pos: Mn(0.6, 1.4, -8.0), look: Mn(0, 5.5, HOUSE_Z), fov: 54, roll: 0.04 }, { pos: Mn(0.4, 4.6, -10.0), look: Mn(0, 7.5, HOUSE_Z), fov: 56, roll: -0.03 }),
+    cam: mv(s, f, { pos: Mn(0.6, 1.6, -11.0), look: Mn(0, 5.5, HOUSE_Z), fov: 54, roll: 0.04 }, { pos: Mn(0.4, 4.6, -10.0), look: Mn(0, 7.5, HOUSE_Z), fov: 56, roll: -0.03 }),
     subjects: [["the mansion", Mn(0, 6, HOUSE_Z - 0.2), 3], ["the gold eagle", Mn(0, 12.9 + 2.1, HOUSE_Z + 5), 0.5]] }),
   // ...called himself Lord Timothy Dexter: on his steps, chin up, cane in hand
   lord: (s, f) => { const p = Mn(0.2, 0.8, HOUSE_Z - 1.2), hand = add(p, -0.34, 0.95, -0.25);
@@ -275,7 +275,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: kick(mv(s, f, { pos: add(p, 0.4, 0.7, -3.6), look: head(p, 1.55), fov: 46, roll: -0.05 }, { pos: add(p, 0.3, 0.6, -3.1), look: head(p, 1.6), fov: 46, roll: 0.04 }), f, W(6, "lord"), 0.8),
       subjects: [["Dexter", head(p), 0.2]] }; },
   // ...and filled the garden with about 40 wooden statues: tracking low up the path between the columns
-  statues: (s, f) => ({ light: "mansion", dof: 0, focus: Mn(0, 4.5, 8), people: statues((_n, i) => i >= 3 && COLS[i - 3][0] > 0),
+  statues: (s, f) => ({ light: "mansion", dof: 0, focus: Mn(0, 4.5, 8), people: statues((_n, i) => i >= 3 && COLS[i - 3][0] > 0 && i - 3 !== 0 && i - 3 !== 6),
     cam: mv(s, f, { pos: Mn(-0.6, 2.4, -1.0), look: Mn(6.0, 4.6, 9.5), fov: 56, roll: 0.06 }, { pos: Mn(-0.4, 2.6, 1.0), look: Mn(6.2, 4.8, 11.5), fov: 56, roll: -0.04 }),
     subjects: [["the statues", Mn(4.2, STAT_Y + 1, 7.5), 0.5]] }),
   // Washington.: low, up at the arch, Washington in the middle
@@ -306,7 +306,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     cam: mv(s, f, { pos: Mn(0.3, 1.6, COFFIN[2] - 6.6), look: Mn(0, 1.0, COFFIN[2] - 0.8), fov: 46, roll: -0.04 }, { pos: Mn(0.25, 1.6, COFFIN[2] - 6.0), look: Mn(0, 1.0, COFFIN[2] - 0.8), fov: 46, roll: 0.03 }),
     subjects: [["the coffin", Mn(0, 1.0, COFFIN[2] - 0.44), 0.1]] }),
   // About 3,000 people came: crane up over the crowd filling the lawn round the coffin
-  crowd: (s, f) => ({ light: "wake", dof: 0, focus: Mn(0, 1, COFFIN[2] - 3), people: mourners(),
+  crowd: (s, f) => ({ light: "wake", dof: 0, focus: Mn(0, 1, COFFIN[2] - 3), people: mourners(undefined, (n) => n % 4 === 3),
     cam: mv(s, f, { pos: Mn(0.3, 8.5, COFFIN[2] - 15), look: Mn(0, 0.2, COFFIN[2] - 4), fov: 66, roll: 0.03 }, { pos: Mn(0.2, 11.5, COFFIN[2] - 15.5), look: Mn(0, 0.0, COFFIN[2] - 4), fov: 66, roll: -0.03 }),
     subjects: [["the crowd", Mn(-2.2, 1.4, COFFIN[2] - 4.5), 1], ["the coffin", Mn(0, 1.24, COFFIN[2]), 0.1]] }),
   // But his wife didn't cry enough...: Elizabeth among the weeping mourners, dry-eyed, whistling
@@ -354,10 +354,10 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     return { ...hookState(), light: "tropic", dof: 1, closeup: true, focus: head(p), people: [P("dexter", p, "grin", 0, { hw: [holdUp(p).hand], headTilt: 0.1 })],
       cam: kick(snap(add(p, -0.35, 1.3, -2.9), add(p, -0.35, 1.22, 0), f, s.a, { fov: 46, roll: -0.05 }, 1.5, 6), f, W(10, "luckiest"), 0.8) } as St3; },
   // loop: back to the wharf, settling onto the opening frame (the subscribe card plays here)
-  end: (s, f) => { const h0 = hookCam(0);
-    return { ...hookState(), light: "tropic", dof: 1, closeup: true, focus: head(DEX_HOOK),
-      cam: f < s.b - 16 ? move({ ...orb(add(DEX_HOOK, -0.3, 1.2, 0), 22, 4.2, 0.2), fov: 46, roll: 0.0 }, { pos: add(DEX_HOOK, 0.35, 1.3, -3.2), look: add(DEX_HOOK, 0.55, 1.25, 0), fov: 48, roll: 0.02 }, f, s.a, s.a + 24, smooth, 0)
-        : move({ pos: add(DEX_HOOK, 0.35, 1.3, -3.2), look: add(DEX_HOOK, 0.55, 1.25, 0), fov: 48, roll: 0.02 }, h0, f, s.b - 16, s.b - 5, smooth, 0) } as St3; },
+  end: (s, f) => { const h0 = hookCam(0), hold = { pos: add(DEX_HOOK, 0.2, 1.3, -3.4), look: add(DEX_HOOK, 0.3, 1.2, 0), fov: 46, roll: 0.02 };
+    return { ...hookState(), light: "tropic", dof: 1, closeup: true, focus: head(DEX_HOOK), subjects: [["Dexter", head(DEX_HOOK), 0.2]],
+      cam: f < s.b - 16 ? move({ ...orb(add(DEX_HOOK, -0.3, 1.2, 0), 22, 4.2, 0.2), fov: 46, roll: 0.0 }, hold, f, s.a, s.a + 24, smooth, 0)
+        : move(hold, h0, f, s.b - 16, s.b - 5, smooth, 0) } as St3; },
 };
 /** the house kit, for the long-form */
 export { clamp01, smooth, expo, L3, move, orb, orbit, snap, kick, t as secs, P, walker, add, rain, stack, fling, fire, holdUp, statues, mourners, hookState, hookCam, head, DEX_HOOK, SHOP_D, DEX_T, M1_T, M2_T, M3_T, M4_T, TBL, LAMP_K, DESK_P, BOARD, CANDLE_K, DEXSTAT, SIGN, DOOR, WIFE, WR, STAT_Y, ARCH_Y, Mn };
