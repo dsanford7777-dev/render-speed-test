@@ -1,28 +1,30 @@
-// The Toledo War Short: every shot's camera, cast and props, frame by frame (house moving camera: nothing is still).
+// The Timothy Dexter Short: every shot's camera, cast and props, frame by frame (house moving camera: nothing is still).
 // Cuts come from the narration (timeline.ts), so re-timing the voice re-times the shots. Sets are in place.ts; inside
 // each, cameras sit on the -z side looking toward +z (world +x is screen LEFT), unless a shot turns round.
-// Nobody is shown hurt: the shots at Phillips Corners go over the surveyors' heads, and the penknife is a raised hand,
-// then Wood holding his side (no wound, no blood).
+// Nobody is shown hurt: the caning is Dexter bursting out with his cane raised and his wife starting away (no contact).
 import { Expr } from "../bridge/toon";
-import { V3, FPS, Rv, Wd, Rm, Nt, TAVERN, WHARF, SHIP, COMPASS, LINE_Z, TABLE, MAP, BAR, STOVE, OUTCROP, PORTAL, BLD_Z as BLD, northY } from "./place";
-import { SEG_TIMES, TOTAL, VOICE_END, wordAt } from "./timeline";
+import { V3, FPS, Rv, Wd, Rm, TAVERN, WHARF, SHIP, TABLE, BAR, CRATES, COALP, FIRE, SHOP, BLD_Z, ARCH_H, ARCH_Z, COL_H, COLS, DEX_COL, COFFIN, HOUSE_Z, DESK, DESK_Y, MAP } from "./place";
+import { SEG_TIMES, TOTAL, VOICE_END, wordAt, words } from "./timeline";
 export type { V3 };
 
 export type ShotDef = { id: number; g: string; a: number; b: number; k: "3d" };
 const A = (seg: number) => (seg === 0 ? 0 : Math.round(SEG_TIMES[seg][0] * FPS) - 2);
 const W = (seg: number, w: string) => wordAt(seg, w);
+const norm = (s: string) => s.toLowerCase().replace(/[^\w]/g, "");
+/** onset of the n-th (1-based) match of w in a segment */
+const Wn = (seg: number, w: string, n: number) => { const ws = words().filter((x) => x.seg === seg && norm(x.w) === norm(w)); const hit = ws[n - 1] ?? ws[ws.length - 1]; return hit ? Math.round(hit.s * FPS) : W(seg, w); };
 const CUTS: [string, number][] = [
-  ["hook", 0], ["knife", W(0, "only") - 2],
-  ["strip", A(1)], ["toledo", W(1, "with") - 2], ["port", W(1, "everyone") - 2],
-  ["mason", A(2)], ["boy", W(2, "its") - 2], ["mimarch", W(2, "called") - 2], ["lucas", W(2, "ohios") - 2],
-  ["survey", A(3)], ["ambush", W(3, "michigan") - 2], ["fire", W(3, "fired") - 2], ["duck", W(3, "over") - 2], ["nobody", W(3, "nobody") - 2],
-  ["wood", A(4)], ["tavern", W(4, "arrest") - 2], ["yes", W(4, "yes") - 2], ["one", W(4, "his") - 2],
-  ["stab", A(5)], ["lived", W(5, "wood") - 2], ["only", W(5, "that") - 2],
-  ["congress", A(6)], ["deal", W(6, "give") - 2], ["up", W(6, "well") - 2],
-  ["furious", A(7)], ["snow", W(7, "up") - 2], ["no", W(7, "they") - 2],
-  ["broke", A(8)], ["frost", W(8, "december") - 2], ["yes2", W(8, "said") - 2],
-  ["copper", A(9)], ["mine", W(9, "for") - 2],
-  ["ohio", A(10)], ["rich", W(10, "michigan") - 2], ["end", VOICE_END],
+  ["hook", 0], ["tropics", W(0, "to") - 2], ["money", W(0, "and") - 2],
+  ["shop", A(1)], ["spell", W(1, "could") - 2], ["war", W(1, "after") - 2], ["buy", W(1, "everyone") - 2],
+  ["paid", A(2)], ["rich", W(2, "and") - 2],
+  ["laugh", A(3)], ["advice", W(3, "story") - 2], ["worst", W(3, "worst") - 2],
+  ["coal", A(4)], ["load", W(4, "he") - 2], ["strike", W(4, "landed") - 2], ["sold", W(4, "sold") - 2],
+  ["pans", A(5)], ["shipped", W(5, "dexter") - 2], ["cook", W(5, "they") - 2], ["cleared", Wn(5, "and", 1) - 2],
+  ["mansion", A(6)], ["lord", W(6, "called") - 2], ["statues", Wn(6, "and", 1) - 2], ["wash", W(6, "washington") - 2], ["jeff", W(6, "jefferson") - 2], ["himself", Wn(6, "and", 2) - 2],
+  ["sign", A(7)], ["proud", W(7, "greatest") - 2],
+  ["coffin", A(8)], ["crowd", W(8, "about") - 2], ["wife", W(8, "but") - 2], ["hiding", W(8, "so") - 2], ["caned", W(8, "caned") - 4],
+  ["book", A(9)], ["readers", W(9, "when") - 2], ["punct", W(9, "added") - 6], ["pepper", W(9, "told") - 6],
+  ["fool", A(10)], ["lucky", W(10, "or") - 2], ["end", VOICE_END],
 ];
 export const SHOTS: ShotDef[] = CUTS.map(([g, a], i) => ({ id: i + 1, g, a, b: i === CUTS.length - 1 ? TOTAL : CUTS[i + 1][1], k: "3d" as const }));
 export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? SHOTS[SHOTS.length - 1];
@@ -36,15 +38,23 @@ export type Person3 = { who: string; p: V3; expr: Expr; look?: number; headTilt?
   side?: { phase: number; mirror: boolean; stride?: number; carry?: V3 } };
 /** musket: g = the butt at the shoulder, b = the muzzle; knife and pick: g = the hand, b = the way the blade points */
 export type Tool = { kind: "musket" | "knife" | "pick"; g: V3; b: V3 };
+/** a warming pan held at `hand`, its pan out along `dir`; roll turns it about the handle (pi/2: the lid faces the camera) */
+export type Pan = { hand: V3; dir: V3; roll?: number };
+/** a cane: g = the knob (in the hand), b = the tip */
+export type Cane = { g: V3; b: V3 };
 export type Puff = { p: V3; s: number; c: [number, number, number]; a: number; add?: boolean };
-export type CardKind = "paper" | "spark" | "flake" | "nugget";
+export type CardKind = "paper" | "spark" | "flake" | "nugget" | "note" | "coin" | "coal" | "dot" | "comma" | "qmark";
 export type Card = { kind: CardKind; p: V3; spin: number; s: number; flat?: boolean };
 export type St3 = {
-  light: "river" | "woods" | "tavern" | "congress" | "conv" | "northW" | "northS"; cam: Cam; dof?: number; focus?: V3; closeup?: boolean;
+  light: "port" | "newcastle" | "tropic" | "mansion" | "wake" | "tavern" | "study"; cam: Cam; dof?: number; focus?: V3; closeup?: boolean;
   people?: Person3[]; subjects?: [string, V3, number][];
-  tools?: Tool[]; cards?: Card[]; puffs?: Puff[];
-  /** Congress: which map is on the wall */
-  map?: "strip" | "up";
+  tools?: Tool[]; pans?: Pan[]; canes?: Cane[]; cards?: Card[]; puffs?: Puff[];
+  /** the pepper pot in a hand (its base) */
+  pot?: V3;
+  /** dressings: crates of bed warmers on the wharf, the coal heap (Newburyport side), the coffin out on the lawn */
+  pans3?: boolean; coal?: boolean; coffin?: boolean;
+  /** the study's page board */
+  page?: "pickle" | "punct";
   /** the lamp lamp-lit shadows fall from */
   key?: V3;
 };
@@ -87,253 +97,270 @@ const walker = (who: string, x0: number, y: number, z: number, v: number, tt: nu
   return { who, p, expr, side: { phase: ((d / 1.6) % 1 + 1) % 1, mirror: v < 0, stride: Math.min(1.25, Math.abs(v) / 1.6) }, ...extra };
 };
 const add = (p: V3, x: number, y: number, z: number): V3 => [p[0] + x, p[1] + y, p[2] + z];
-const carrying = (w: Person3, at: V3): Person3 => ({ ...w, side: { ...w.side!, carry: at } });
+const mv = (s: ShotDef, f: number, a: Shot, b: Shot) => move(a, b, f, s.a, s.b, smooth, 0);
+const head = (p: V3, y = 1.55): V3 => add(p, 0, y, 0);
 
-// ---------------- smoke, snow, copper ----------------
-const SMOKE: [number, number, number] = [0.86, 0.86, 0.88];
-/** musket smoke: a burst from the muzzle that rolls forward and spreads */
-const shot = (m: V3, dir: V3, tt: number, n = 6): Puff[] => tt < 0 ? [] : Array.from({ length: n }, (_, i) => { const u = Math.min(1, tt * 0.9 + i * 0.06), k = 1 - Math.exp(-3 * u);
-  return { p: add(m, dir[0] * (0.3 + 1.6 * k) + 0.25 * Math.sin(i * 2.1) * u, 0.1 * i * u + 0.15 * u, dir[2] * (0.3 + 1.6 * k) + 0.25 * Math.cos(i * 1.7) * u), s: 0.25 + 1.1 * k, c: SMOKE, a: 0.85 * (1 - u * 0.75) }; });
-/** a flash at the muzzle for 3 frames */
-const flash = (m: V3, f: number, f0: number): Puff[] => f >= f0 && f < f0 + 3 ? [{ p: m, s: 0.5, c: [1.0, 0.75, 0.3], a: 0.9, add: true }] : [];
-const snowfall = (c: V3, tt: number, n: number, w = 7, h = 5): Card[] => Array.from({ length: n }, (_, i) => { const u = (tt * 0.18 + ((i * 0.618) % 1)) % 1;
-  return { kind: "flake" as const, p: add(c, w * (((i * 0.377) % 1) - 0.5) + 0.3 * Math.sin(tt + i), h * (1 - u) - 0.5, ((i * 0.733) % 1) * 4 - 2), spin: i + tt, s: 0.7 + 0.5 * ((i * 0.31) % 1) }; });
-const ng = (x: number, z: number, y = 0): V3 => { const p = Nt(x, 0, z); return [p[0], northY(x, z) + y, z]; };
+// ---------------- money, coal, marks, fire ----------------
+/** cards falling from above c over a w x d patch, looping every `per` seconds; toward = drift toward the camera (-z) */
+const rain = (kind: CardKind, c: V3, tt: number, n: number, w = 1.6, h = 2.2, d = 0.8, per = 1.4, s = 1, toward = 0): Card[] => Array.from({ length: n }, (_, i) => {
+  const u = ((tt / per + ((i * 0.618) % 1)) % 1);
+  return { kind, p: add(c, w * (((i * 0.377) % 1) - 0.5) + 0.12 * Math.sin(tt * 3 + i), h * (1 - u), d * (((i * 0.733) % 1) - 0.5) - toward * u), spin: i * 1.3 + tt * (2 + (i % 3)), s: s * (0.8 + 0.4 * ((i * 0.29) % 1)) }; });
+/** a stack of paper notes lying flat on a table (top at y) */
+const stack = (c: V3, n: number, kind: CardKind = "note"): Card[] => Array.from({ length: n }, (_, i) => ({ kind, p: add(c, 0.12 * Math.sin(i * 2.1), 0.005 + 0.004 * i, 0.08 * Math.cos(i * 1.7)), spin: 0.4 * Math.sin(i * 1.3), s: 1, flat: true }));
+/** marks flung out of the pepper pot at the lens: from p toward the camera position cp */
+const fling = (p: V3, cp: V3, tt: number, n: number): Card[] => Array.from({ length: n }, (_, i) => {
+  const u = ((tt * 0.9 + i / n) % 1), k: CardKind = (["dot", "comma", "qmark"] as const)[i % 3], sp = 0.5 * Math.sin(i * 2.3), up = 0.4 * Math.cos(i * 1.7);
+  const q = L3(p, cp, 0.82 * u); return { kind: k, p: add(q, sp * u * 1.4, up * u + 0.6 * u * (1 - u), 0), spin: i + tt * 3, s: 0.7 + 1.6 * u }; });
+const FIREC: [number, number, number] = [1.0, 0.62, 0.22], SMOKE: [number, number, number] = [0.82, 0.8, 0.78], DUST: [number, number, number] = [0.3, 0.3, 0.32];
+const fire = (c: V3, tt: number): Puff[] => [
+  ...Array.from({ length: 5 }, (_, i) => { const u = ((tt * 2.2 + i / 5) % 1); return { p: add(c, 0.12 * Math.sin(i * 2 + tt * 5), 0.12 + 0.45 * u, 0.1 * Math.cos(i * 1.6)), s: 0.42 * (1 - u) + 0.12, c: FIREC, a: 0.95 * (1 - u), add: true }; }),
+  ...Array.from({ length: 5 }, (_, i) => { const u = ((tt * 0.45 + i / 5) % 1); return { p: add(c, 0.25 * Math.sin(i * 1.3 + tt) + 0.3 * u, 1.3 + 2.0 * u, 0.2 * u), s: 0.4 + 1.0 * u, c: SMOKE, a: 0.45 * (1 - u) }; }) ];
 
-// ---------------- the river town as the shots use it ----------------
-const BW = 0.22; // the board walk
-const WALK_Z = 4.4;
-/** the two militias facing off: two files across the street, Michigan at screen left, Ohio at screen right, receding */
-const MI_LINE = ["mi1", "mi2", "mi3", "mi4"].map((w, i): [string, V3] => [w, Rv(0.8 + 0.08 * (i % 2), 0, 0.2 + i * 1.7)]);
-const OH_LINE = ["oh1", "oh2", "oh3", "oh4"].map((w, i): [string, V3] => [w, Rv(-0.8 - 0.08 * (i % 2), 0, 1.0 + i * 1.7)]);
-const faceoff = (exM: Expr, exO: Expr): Person3[] => [...MI_LINE.map(([w, p], i) => P(w, p, i === 1 ? "grin" : exM, 1, { facing: 1 })), ...OH_LINE.map(([w, p], i) => P(w, p, i === 2 ? "grin" : exO, -1, { facing: -1 }))];
-const HOOK_POS: V3 = Rv(0.15, 1.5, -4.6), HOOK_LOOK: V3 = Rv(0, 1.25, 3.0), HOOK = { fov: 50, roll: 0.03 };
+// ---------------- the port as the shots use it ----------------
+const WY = WHARF.y, WALK = 0.22, WALK_Z = 4.4;
+/** the wharf root (where people stand on the wharf near the street) */
+const WR = (x: number, z: number, y = WY): V3 => Rv(x, y, z);
+const DEX_HOOK: V3 = WR(11.4, 12.6);
+/** Dexter holding a bed warmer up beside his face, the lid to the camera */
+const holdUp = (p: V3, side = -1): Pan => ({ hand: add(p, 0.32 * side, 1.02, -0.18), dir: [0.36 * side, 0.93, -0.05], roll: Math.PI / 2 });
+const HOOK_POS: V3 = add(DEX_HOOK, -0.3, 1.32, -3.0), HOOK_LOOK: V3 = add(DEX_HOOK, -0.3, 1.2, 0), HOOK = { fov: 46, roll: 0.03 };
 // frame 0 is the same framing as the frames after it (a slow creep, no snap), and it is also the last frame (the loop)
 const hookCam = (f: number) => move({ pos: HOOK_POS, look: HOOK_LOOK, ...HOOK }, { pos: L3(HOOK_POS, HOOK_LOOK, 0.06), look: HOOK_LOOK, ...HOOK }, f, 0, 14, smooth, 0);
-const hookState = (): Partial<St3> => ({ light: "river", people: faceoff("stern", "stern") });
-const TAV: V3 = Rv(TAVERN.x, 0, TAVERN.z);
+const hookState = (): Partial<St3> => ({ light: "tropic", pans3: true, people: [P("dexter", DEX_HOOK, "grin", 0, { hw: [holdUp(DEX_HOOK).hand] })],
+  pans: [holdUp(DEX_HOOK)], subjects: [["Dexter", head(DEX_HOOK), 0.2], ["the bed warmer", add(DEX_HOOK, -0.66, 1.9, -0.2), 0.12]] });
+const SHOP_D: V3 = Rv(SHOP[0] + 1.3, WALK, WALK_Z - 0.6);
 // ---------------- the room as the shots use it ----------------
-const TWO_P: V3 = Rm(TABLE[0] + 0.25, 0, TABLE[2] + 0.95), ONE_P: V3 = Rm(TABLE[0] - 0.6, 0, TABLE[2] + 1.1), WOOD_IN: V3 = Rm(0.62, 0, -0.35), BARMAN: V3 = Rm(0.1, 0, BAR.z + 0.62);
-/** for the stab Two is up and round the table's side, Wood facing him */
-const TWO_UP: V3 = Rm(1.3, 0, 1.0), WOOD_AT: V3 = Rm(0.6, 0, 0.75);
-const MAPC: V3 = Rm(MAP.x, MAP.y, 3.86), CG2: V3 = Rm(0.95, 0.35, 3.05);
-/** the four delegates at the convention: two rows in front of the table */
-const DELS: V3[] = [Rm(1.2, 0, 1.0), Rm(0.1, 0, 1.0), Rm(1.75, 0, 2.0), Rm(-0.5, 0, 2.0)];
-const LAMP_T: V3 = Rm(-0.2, 2.4, 0.4), LAMP_C: V3 = Rm(STOVE[0], 1.2, STOVE[2] - 0.6), WIN_C: V3 = Rm(4.4, 2.2, -1.4);
-// ---------------- the woods ----------------
-const CMP: V3 = Wd(COMPASS[0], 1.3, COMPASS[2]);
-const SV: [string, V3][] = [["sv1", Wd(COMPASS[0] - 0.45, 0, COMPASS[2] + 0.15)], ["sv2", Wd(-1.2, 0, LINE_Z + 1.6)], ["sv3", Wd(-3.4, 0, LINE_Z + 3.0)]];
-const MF: [string, V3][] = [["mf1", Wd(10.5, 0, 9.6)], ["mf2", Wd(12.2, 0, 10.8)], ["mf3", Wd(13.6, 0, 9.2)]];
-/** a Michigan man aiming: butt at his shoulder, muzzle 1.3 m toward `at`, raised by `up` */
-const aim = (p: V3, at: V3, up: number) => { const dx = at[0] - p[0], dz = at[2] - p[2], l = Math.hypot(dx, dz), d: V3 = [dx / l, 0, dz / l];
-  const g: V3 = add(p, d[0] * 0.22, 1.36, d[2] * 0.22), b: V3 = add(g, d[0] * 1.25, up, d[2] * 1.25);
-  return { d, g, b, hands: [L3(g, b, 0.12), L3(g, b, 0.48)] as V3[] }; };
-// ---------------- the north ----------------
-const ORE: V3 = ng(OUTCROP[0], OUTCROP[2] - 1.1, 0.7);
-const CART: V3 = ng(PORTAL[0], PORTAL[2] - 3.6, 0.9);
+const TBL: V3 = Rm(TABLE[0], 0.79, TABLE[2]);
+const DEX_T: V3 = Rm(TABLE[0] - 0.15, 0, TABLE[2] - 1.0), M1_T: V3 = Rm(TABLE[0] + 0.75, 0, TABLE[2] + 0.6), M2_T: V3 = Rm(TABLE[0] - 0.8, 0, TABLE[2] + 0.55), M3_T: V3 = Rm(TABLE[0] + 0.25, 0, TABLE[2] + 1.15), M4_T: V3 = Rm(TABLE[0] - 0.55, 0, TABLE[2] + 1.25);
+const LAMP_K: V3 = Rm(1.6, 2.4, 0.2);
+const DESK_P: V3 = Rm(DESK[0] - 0.05, 0, DESK[2] + 0.62), BOARD: V3 = Rm(MAP.x, MAP.y, 3.86), CANDLE_K: V3 = Rm(DESK[0] - 0.55, DESK_Y + 0.6, DESK[2] + 0.1);
+// ---------------- the mansion as the shots use it ----------------
+const Mn = Wd;
+const STAT_Y = COL_H + 0.08, ARCH_Y = ARCH_H + 0.12;
+const COL_WHO = ["napoleon", "pitt", "franklin", "stat1", "dexstat", "stat2", "stat3", "stat4", "stat1", "franklin", "pitt", "stat2"];
+/** every statue: the three on the arch, one on each column (each is "extra": the framing check only asks that none is cut) */
+const statues = (keep: (name: string, i: number) => boolean = () => true): Person3[] => [
+  P("washington", Mn(0, ARCH_Y, ARCH_Z), "stern", 0, { extra: true }), P("adams", Mn(1.45, ARCH_Y, ARCH_Z), "stern", -1, { extra: true }), P("jefferson", Mn(-1.45, ARCH_Y, ARCH_Z), "neutral", 1, { extra: true }),
+  ...COLS.map(([x, z], i) => P(COL_WHO[i], Mn(x, STAT_Y, z), i === DEX_COL ? "grin" : "stern", x > 0 ? -1 : 1, { extra: true })),
+].filter((q, i) => keep(q.who, i));
+const DEXSTAT: V3 = Mn(COLS[DEX_COL][0], STAT_Y, COLS[DEX_COL][1]), SIGN: V3 = Mn(COLS[DEX_COL][0], COL_H - 1.25, COLS[DEX_COL][1] - 0.42);
+const DOOR: V3 = Mn(0, 0.8, HOUSE_Z - 0.7);
+/** the mourners: two blocks either side of the path, facing the coffin */
+const MOURN = ["t1", "t2", "t3", "t4", "t5", "t6", "m1", "m2", "m3", "m4", "s1", "s2"];
+const mourners = (expr: (i: number) => Expr = () => "nervous", skip: (i: number) => boolean = () => false): Person3[] => {
+  const out: Person3[] = []; let i = 0;
+  for (const sx of [-1, 1]) for (let row = 0; row < 6; row++) for (let k = 0; k < 4; k++) { const n = i++; if (skip(n)) continue;
+    const x = sx * (1.7 + k * 0.85 + (row % 2) * 0.4), z = COFFIN[2] - 2.6 - row * 1.15 + 0.1 * k;
+    if (COLS.some(([cx, cz]) => Math.hypot(x - cx, z - cz) < 0.85)) continue;
+    out.push(P(MOURN[n % MOURN.length], Mn(x, 0, z), expr(n), sx > 0 ? -1 : 1, { extra: true, headTilt: 0.08 * Math.sin(n) })); }
+  return out; };
+const WIFE: V3 = Mn(-1.4, 0, COFFIN[2] - 1.4);
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
-  // Ohio and Michigan once went to war: the two militias face to face across Toledo's street (frame 0 is already close)
-  hook: (s, f) => ({ ...hookState(), light: "river", dof: 1, focus: Rv(0, 1.3, 2.0), cam: kick(hookCam(f), f, W(0, "war"), 0.7),
-    subjects: [["the Michigan militia", add(MI_LINE[0][1], 0, 1.4, 0), 0.2], ["the Ohio militia", add(OH_LINE[0][1], 0, 1.4, 0), 0.2]] }),
-  // ...and the only wound came from a penknife: in the tavern, Two Stickney holds it up, grinning
-  knife: (s, f) => { const hand: V3 = add(TWO_P, -0.22, 1.28, -0.38), tip: V3 = add(hand, 0.03, 0.2, -0.02);
-    return { light: "tavern", dof: 1, closeup: true, focus: add(hand, 0, 0.1, 0), key: LAMP_T, tools: [{ kind: "knife", g: hand, b: tip }],
-      people: [P("two", TWO_P, "grin", -1, { hw: [hand] })],
-      cam: kick(snap(add(TWO_P, -0.3, 1.45, -2.15), add(TWO_P, -0.12, 1.42, 0), f, s.a, { fov: 44, roll: -0.05 }, 1.6, 6), f, W(0, "penknife"), 0.8),
-      subjects: [["the penknife", add(hand, 0.01, 0.12, 0), 0.04], ["Two Stickney", add(TWO_P, 0, 1.5, 0), 0.2]] }; },
-  // You see, in 1835, both of them claimed the same strip of land: the map, Michigan's line and Ohio's line
-  strip: (s, f) => ({ light: "congress", map: "strip", dof: 1, focus: add(MAPC, -0.4, -0.1, 0), key: WIN_C,
-    cam: move({ pos: Rm(0.2, 1.8, -2.4), look: add(MAPC, -0.4, -0.1, 0), fov: 46, roll: -0.04 }, { pos: Rm(-0.3, 1.9, 0.9), look: add(MAPC, -0.45, -0.15, 0), fov: 44, roll: 0.03 }, f, s.a, s.b, smooth, 0),
-    subjects: [["the Toledo Strip on the map", add(MAPC, -0.45, -0.15, 0), 0.3]] }),
-  // ...with the town of Toledo on it: up over the river town, the street, the buildings, the Maumee
-  toledo: (s, f) => { const tt = t(f - s.a);
-    return { light: "river", dof: 0, focus: Rv(-14, 2, 4),
-      people: [walker("t1", -9, BW, WALK_Z, -0.9, tt + 1), walker("t2", -16, 0, 1.0, 1.1, tt), P("t3", Rv(-21.5, BW, WALK_Z), "grin", 1, { extra: true }), P("t4", Rv(-22.4, BW, WALK_Z + 0.3), "smile", -1, { extra: true })],
-      cam: move({ pos: Rv(6.0, 4.5, -2.0), look: Rv(-16, 1.2, 4.0), fov: 52, roll: 0.04 }, { pos: Rv(6.5, 7.0, -2.6), look: Rv(-16, 0.6, 4.0), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the town", Rv(-13, 3, BLD + 1), 2]] }; },
-  // Everyone thought Toledo would be the next great port: the wharf, a schooner tied up, crates going ashore
-  port: (s, f) => ({ light: "river", dof: 1, focus: Rv(14, 1.5, 22),
-    people: [P("t2", Rv(11.4, WHARF.y, 19.5), "grin", 1), P("t3", Rv(10.6, WHARF.y, 22.5), "smile", -1, { wave: 0.5 })],
-    cam: move({ pos: Rv(9.0, 3.0, 6.0), look: Rv(14, 1.2, 25), fov: 50, roll: 0.05 }, { pos: Rv(9.6, 3.6, 7.0), look: Rv(15, 1.6, 26), fov: 48, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-    subjects: [["the schooner", Rv(SHIP[0] - 4, 2, SHIP[2]), 1], ["the wharf", Rv(11, WHARF.y, 18), 1]] }),
-  // Michigan wasn't even a state yet: its governor on the board walk outside the tavern
-  mason: (s, f) => { const p = Rv(TAVERN.x + 2.2, BW, WALK_Z - 0.2);
-    return { light: "river", dof: 1, focus: add(p, 0, 1.4, 0), people: [P("mason", p, "stern", -1), P("t1", Rv(TAVERN.x - 1.2, BW, WALK_Z + 0.2), "neutral", 1, { extra: true })],
-      cam: move({ pos: Rv(TAVERN.x + 4.6, 1.6, 0.0), look: add(p, -0.4, 1.4, 0), fov: 44, roll: -0.05 }, { pos: Rv(TAVERN.x + 4.0, 1.55, 0.6), look: add(p, -0.5, 1.4, 0), fov: 42, roll: 0.04 }, f, s.a, s.b, smooth, 0),
-      subjects: [["Mason", add(p, 0, 1.4, 0), 0.2]] }; },
-  // Its governor was 23: close on young Mason, grinning
-  boy: (s, f) => { const p = Rv(TAVERN.x + 2.2, BW, WALK_Z - 0.2);
-    return { light: "river", dof: 1, closeup: true, focus: add(p, 0, 1.6, 0), people: [P("mason", p, f >= W(2, "23") ? "grin" : "smile", -1)],
-      cam: kick(snap(add(p, 0.75, 1.62, -1.9), add(p, 0.05, 1.58, 0), f, s.a, { fov: 40, roll: 0.04 }, 1.7, 6), f, W(2, "23"), 0.8),
-      subjects: [["Mason", add(p, 0, 1.6, 0), 0.2]] }; },
-  // ...and he called out the militia: Michigan's men march down the street, past the camera
-  mimarch: (s, f) => { const tt = t(f - s.a), ph = (tt * 1.1 / 1.6) % 1;
-    const row = (w: string, x: number, z0: number, k: number) => P(w, Rv(x, 0, z0 - 1.1 * tt), k ? "stern" : "grin", 0, { march: (ph + 0.5 * k) % 1 });
-    return { light: "river", dof: 1, focus: Rv(0, 1.3, 3.6 - 1.1 * tt),
-      people: [row("mi1", 0.45, 4.2, 0), row("mi2", -0.45, 4.2, 1), row("mi3", 0.45, 5.8, 1), row("mi4", -0.45, 5.8, 0)],
-      cam: move({ pos: Rv(0.3, 0.9, -3.6), look: Rv(0, 1.35, 4), fov: 50, roll: 0.06 }, { pos: Rv(-0.2, 0.95, -3.9), look: Rv(0, 1.4, 3), fov: 50, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the militia", Rv(0, 1.3, 3.8 - 1.1 * tt), 0.3]] }; },
-  // Ohio's governor called out his: Lucas on the board walk, Ohio's men lined up in the street before him
-  lucas: (s, f) => { const p = Rv(-21, BW, WALK_Z - 0.3);
-    return { light: "river", dof: 1, focus: add(p, 0, 1.4, 0),
-      people: [P("lucas", p, "stern", 0, { wave: 0.8 }), P("oh1", Rv(-20.35, 0, 1.6), "stern", -1, { facing: -1 }), P("oh2", Rv(-21.65, 0, 1.8), "grin", 1, { facing: 1 })],
-      cam: move({ pos: Rv(-20.7, 1.5, -2.9), look: Rv(-21, 1.45, 3.4), fov: 48, roll: 0.05 }, { pos: Rv(-21.1, 1.55, -2.4), look: Rv(-21, 1.5, 3.4), fov: 46, roll: -0.04 }, f, s.a, s.b, smooth, 0),
-      subjects: [["Lucas", add(p, 0, 1.45, 0), 0.2], ["the Ohio militia", Rv(-20.35, 1.3, 1.6), 0.2]] }; },
-  // The one real battle? Phillips Corners: the Ohio survey crew in the woods, the compass on its staff, the chain
-  survey: (s, f) => ({ light: "woods", dof: 1, focus: CMP,
-    people: [P(SV[0][0], SV[0][1], "neutral", -1, { hw: [add(CMP, 0.1, -0.05, -0.12)] }), P(SV[1][0], SV[1][1], "whistle", 1), P(SV[2][0], SV[2][1], "neutral", 1)],
-    cam: move({ pos: Wd(-1.9, 1.45, 0.7), look: Wd(-2.3, 1.25, 6.0), fov: 48, roll: -0.05 }, { pos: Wd(-2.0, 1.5, 1.3), look: Wd(-2.2, 1.25, 6.0), fov: 46, roll: 0.03 }, f, s.a, s.b, smooth, 0),
-    subjects: [["the compass", CMP, 0.1], ["the surveyors", add(SV[0][1], 0, 1.4, 0), 0.2]] }),
-  // Michigan men caught an Ohio survey crew: they come out of the trees, rifles up; the surveyors turn
-  ambush: (s, f) => { const tt = t(f - s.a), seen = f >= W(3, "crew"), ph = (tt * 1.2 / 1.6) % 1;
-    const man = (w: string, x: number, z0: number, k: number) => P(w, Wd(x, 0, z0 - 1.2 * tt), "stern", 0, { march: (ph + 0.5 * k) % 1 });
-    return { light: "woods", dof: 1, focus: Wd(-1.2, 1.3, 9),
-      people: [man("mi1", -1.0, 16.5, 0), man("mi3", 0.3, 17.4, 1), man("mi2", -2.3, 17.6, 1),
-        P(SV[0][0], SV[0][1], seen ? "shock" : "neutral", seen ? 0 : -1), P(SV[1][0], SV[1][1], seen ? "shock" : "whistle", 0)],
-      cam: move({ pos: Wd(-2.2, 1.5, 0.8), look: Wd(-1.7, 1.4, 12), fov: 50, roll: 0.05 }, { pos: Wd(-2.1, 1.55, 1.2), look: Wd(-1.6, 1.4, 12), fov: 50, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the Michigan men", Wd(-1.0, 1.3, 16.5 - 1.2 * tt), 0.3], ["the surveyors", add(SV[1][1], 0, 1.4, 0), 0.2]] }; },
-  // ...and fired: three muskets, flashes, smoke rolling (aimed high, over the surveyors)
-  fire: (s, f) => { const f0 = W(3, "fired") + 1, tt = t(f - f0), target = Wd(-1, 0, 5.5);
-    const guns = MF.map(([, p], i) => aim(p, target, 0.32 + 0.04 * i));
-    return { light: "woods", dof: 1, focus: add(MF[1][1], 0, 1.4, 0),
-      tools: guns.map((g) => ({ kind: "musket" as const, g: g.g, b: g.b })),
-      people: MF.map(([w, p], i) => P(w, p, f >= f0 ? "stern" : "grin", 1, { hw: guns[i].hands })),
-      puffs: guns.flatMap((g, i) => [...flash(g.b, f, f0 + i * 2), ...shot(g.b, g.d, t(f - f0 - i * 2), 5)]),
-      cam: kick(move({ pos: Wd(5.5, 1.5, 4.0), look: Wd(12, 1.4, 10), fov: 46, roll: -0.05 }, { pos: Wd(5.0, 1.45, 4.6), look: Wd(12, 1.45, 10), fov: 44, roll: 0.04 }, f, s.a, s.b, smooth, 0), f, f0, 1.2),
-      subjects: [["the Michigan men", add(MF[1][1], 0, 1.4, 0), 0.2]] }; void tt; },
-  // ...over their heads, or at them: the surveyors duck, smoke drifting over them
-  duck: (s, f) => { const tt = t(f - s.a);
-    return { light: "woods", dof: 1, focus: add(SV[0][1], 0.3, 1.1, 0.5),
-      people: [P(SV[0][0], SV[0][1], "shock", 1, { tilt: 0.22, s: 0.95 }), P(SV[1][0], SV[1][1], "shock", -1, { tilt: -0.18 }), P(SV[2][0], Wd(-3.0, 0, 7.0), "nervous", 1, { tilt: 0.12 })],
-      puffs: Array.from({ length: 10 }, (_, i) => { const u = (tt * 0.25 + i / 10) % 1; return { p: Wd(1.5 - 6 * u, 2.5 + 0.3 * Math.sin(i), 6.4 + 1.2 * Math.cos(i * 1.7)), s: 0.9 + 0.8 * u, c: SMOKE, a: 0.5 * Math.sin(Math.PI * u) }; }),
-      cam: move({ pos: Wd(-2.2, 1.2, 1.8), look: Wd(-2.0, 1.3, 6.5), fov: 50, roll: 0.06 }, { pos: Wd(-2.15, 1.18, 1.95), look: Wd(-2.1, 1.35, 6.5), fov: 50, roll: -0.04 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the surveyors", add(SV[0][1], 0, 1.3, 0), 0.2]] }; },
-  // Nobody was hit: the surveyors run for it, out of the clearing, the staff left standing
-  nobody: (s, f) => { const tt = t(f - s.a);
-    return { light: "woods", dof: 1, focus: Wd(-2.8 - 2.6 * smooth((f - s.a) / Math.max(1, s.b - s.a)), 1.2, 6.5),
-      people: [walker("sv1", Wd(-2.2, 0, 0)[0], 0, 5.6, -3.0, tt, "shock"), walker("sv2", Wd(-1.4, 0, 0)[0], 0, 7.8, -3.0, tt + 0.1, "shock"), walker("sv3", Wd(-3.4, 0, 0)[0], 0, 7.2, -3.0, tt, "nervous")],
-      cam: move({ pos: Wd(-2.4, 1.4, -0.4), look: Wd(-2.8, 1.2, 6.5), fov: 50, roll: -0.05 }, { pos: Wd(-4.8, 1.4, -0.2), look: Wd(-5.6, 1.2, 6.5), fov: 50, roll: 0.04 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the surveyors", Wd(-2.8 - 3.0 * tt, 1.3, 6.5), 0.6]] }; },
-  // Then a Michigan deputy sheriff, Joseph Wood, went into Toledo: along the board walk toward the tavern
-  wood: (s, f) => { const tt = t(f - s.a), w = walker("wood", TAVERN.x + 6.0, BW, 3.6, -1.05, tt), lk = add(w.p, -0.3, 1.35, 0.6);
-    return { light: "river", dof: 1, focus: add(w.p, 0, 1.4, 0), people: [w, P("t4", Rv(TAVERN.x - 1.6, BW, WALK_Z + 0.4), "nervous", 1, { extra: true })],
-      cam: { pos: add(lk, 0.5, 0.15, -4.6), look: lk, fov: 46, roll: 0.03 * Math.sin(tt * 1.3) },
-      subjects: [["Wood", add(w.p, 0, 1.4, 0), 0.2]] }; },
-  // ...to arrest a man named Two Stickney: inside the tavern, Wood at the door, Two at his table
-  tavern: (s, f) => ({ light: "tavern", dof: 1, focus: add(TWO_P, -0.5, 1.4, 0), key: LAMP_T,
-    people: [P("wood", WOOD_IN, "stern", 1, { facing: 1 }), P("two", TWO_P, f >= W(4, "two") ? "grin" : "neutral", -1), P("barman", BARMAN, "nervous", 1, { extra: true })],
-    cam: move({ pos: Rm(0.85, 1.6, -3.9), look: Rm(0.95, 1.35, 1.0), fov: 50, roll: 0.05 }, { pos: Rm(0.95, 1.6, -3.5), look: Rm(1.0, 1.35, 1.0), fov: 48, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-    subjects: [["Two Stickney", add(TWO_P, 0, 1.4, 0), 0.2], ["Wood", add(WOOD_IN, 0, 1.4, 0), 0.2]] }),
-  // Yes, Two: close on him, grinning
-  yes: (s, f) => ({ light: "tavern", dof: 1, closeup: true, focus: add(TWO_P, 0, 1.6, 0), key: LAMP_T, people: [P("two", TWO_P, "grin", -1, { headTilt: 0.12 })],
-    cam: kick(snap(add(TWO_P, -0.5, 1.62, -1.7), add(TWO_P, 0, 1.58, 0), f, s.a, { fov: 40, roll: -0.04 }, 1.7, 6), f, W(4, "two."), 0.7),
-    subjects: [["Two Stickney", add(TWO_P, 0, 1.6, 0), 0.2]] }),
-  // His brother was named One: One steps in beside him and waves
-  one: (s, f) => { const m = L3(TWO_P, ONE_P, 0.5);
-    return { light: "tavern", dof: 1, focus: add(m, 0, 1.4, 0), key: LAMP_T,
-      people: [P("two", TWO_P, "grin", -1), P("one", ONE_P, "laugh", 1, { wave: 0.7 })],
-      cam: move({ pos: add(m, -0.2, 1.55, -3.8), look: add(m, 0, 1.4, 0), fov: 46, roll: 0.04 }, { pos: add(m, 0.1, 1.55, -3.4), look: add(m, 0, 1.42, 0), fov: 46, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      subjects: [["One", add(ONE_P, 0, 1.4, 0), 0.2], ["Two", add(TWO_P, 0, 1.4, 0), 0.2]] }; },
-  // Two Stickney pulled out a penknife and stabbed him: the knife comes up, Wood flinches (nothing shown)
-  stab: (s, f) => { const go = smooth((f - W(5, "penknife")) / 8), hit = f >= W(5, "stabbed"), wp = WOOD_AT, hand: V3 = add(TWO_UP, 0.05 - 0.2 * go, 1.15 + 0.35 * go, -0.3), tip: V3 = add(hand, -0.12, 0.16, -0.02);
-    const m = L3(TWO_UP, wp, 0.5);
-    return { light: "tavern", dof: 1, focus: add(m, 0, 1.4, 0), key: LAMP_T, tools: [{ kind: "knife", g: hand, b: tip }],
-      people: [P("two", TWO_UP, hit ? "stern" : "grin", -1, { hw: [hand], facing: -1 }), P("wood", wp, hit ? "shock" : "stern", 1, { tilt: hit ? -0.1 : 0, facing: 1 })],
-      cam: kick(move({ pos: add(m, 0.1, 1.55, -3.7), look: add(m, 0, 1.4, 0), fov: 44, roll: -0.05 }, { pos: add(m, -0.1, 1.5, -3.2), look: add(m, 0, 1.42, 0), fov: 44, roll: 0.05 }, f, s.a, s.b, smooth, 0), f, W(5, "stabbed"), 1.2),
-      subjects: [["the penknife", add(hand, -0.05, 0.08, 0), 0.04], ["Wood", add(wp, 0, 1.4, 0), 0.2]] }; },
-  // Wood lived: he holds his side and breathes out
-  lived: (s, f) => { const wp = WOOD_AT;
-    return { light: "tavern", dof: 1, closeup: true, focus: add(wp, 0, 1.55, 0), key: LAMP_T, people: [P("wood", wp, f >= W(5, "lived") ? "relief" : "dazed", 0, { hw: [add(wp, -0.2, 0.78, -0.14)] })],
-      cam: snap(add(wp, -0.3, 1.6, -1.9), add(wp, 0, 1.45, 0), f, s.a, { fov: 42, roll: 0.04 }, 1.6, 6),
-      subjects: [["Wood", add(wp, 0, 1.5, 0), 0.2]] }; },
-  // That was the only blood of the entire war: back out in the street, the militias standing about, bored
-  only: (s, f) => ({ light: "river", dof: 0, focus: Rv(0, 1.2, 3.0),
-    people: [...MI_LINE.map(([w, p], i) => P(w, p, i === 0 ? "whistle" : "neutral", 1, { headTilt: 0.1 })), ...OH_LINE.map(([w, p], i) => P(w, p, i === 1 ? "whistle" : "neutral", -1, { headTilt: -0.1 }))],
-    cam: move({ pos: Rv(0.2, 3.4, -5.2), look: Rv(0, 0.9, 3.0), fov: 50, roll: 0.04 }, { pos: Rv(0, 4.4, -6.0), look: Rv(0, 0.8, 3.0), fov: 50, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-    subjects: [["the militias", Rv(0, 1.2, 2.0), 0.6]] }),
-  // Washington finally stepped in: Congress, the members by the speaker's desk, the map behind them
-  congress: (s, f) => ({ light: "congress", map: "strip", dof: 1, focus: Rm(0.5, 1.6, 2.0), key: WIN_C,
-    people: [P("cg1", Rm(-0.3, 0, 1.2), "stern", 1), P("cg2", CG2, "neutral", -1), P("cg3", Rm(1.3, 0, 0.8), "stern", -1)],
-    cam: move({ pos: Rm(0.2, 1.7, -4.4), look: Rm(0.5, 1.7, 2.4), fov: 50, roll: -0.04 }, { pos: Rm(0.6, 1.75, -3.8), look: Rm(0.5, 1.75, 2.4), fov: 48, roll: 0.03 }, f, s.a, s.b, smooth, 0),
-    subjects: [["Congress", Rm(0.5, 1.5, 1.2), 0.3], ["the map", add(MAPC, 0.3, 0, 0), 0.5]] }),
-  // Congress told Michigan: give up Toledo: one points at the strip on the map
-  deal: (s, f) => { const tip = Rm(0.5, 1.95, 3.72);
-    return { light: "congress", map: "strip", dof: 1, focus: L3(add(CG2, 0, 1.5, 0), MAPC, 0.5), key: WIN_C,
-      people: [P("cg2", CG2, "stern", -1, { hw: [tip], facing: -1 })],
-      cam: move({ pos: Rm(0.0, 1.9, -0.9), look: Rm(0.45, 1.85, 3.3), fov: 48, roll: 0.05 }, { pos: Rm(0.15, 1.95, -0.4), look: Rm(0.45, 1.9, 3.4), fov: 46, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the map", add(MAPC, -0.4, -0.1, 0), 0.4], ["the congressman", add(CG2, 0, 1.4, 0), 0.2]] }; },
-  // ...and we'll throw in the Upper Peninsula: the map now shows the whole north, the peninsula in gold
-  up: (s, f) => ({ light: "congress", map: "up", dof: 1, focus: MAPC, key: WIN_C,
-    cam: kick(snap(Rm(0.1, 2.0, 0.9), add(MAPC, 0, 0.1, 0), f, s.a, { fov: 46, roll: 0.03 }, 1.8, 6), f, W(6, "upper"), 0.8),
-    subjects: [["the Upper Peninsula", add(MAPC, 0.1, 0.5, 0), 0.3]] }),
-  // Michigan was furious: Mason and two delegates in the tavern, shouting
-  furious: (s, f) => { const mp = Rm(0.6, 0, 1.4), d1 = Rm(1.15, 0, 2.15), d2 = Rm(0.0, 0, 1.9);
-    return { light: "tavern", dof: 1, focus: add(mp, 0, 1.5, 0), key: LAMP_T,
-      people: [P("mason", mp, "shock", 0, { wave: 0.9 }), P("d1", d1, "stern", -1), P("d2", d2, "shock", 1)],
-      cam: kick(move({ pos: add(mp, -0.1, 1.5, -3.6), look: add(mp, 0, 1.45, 0.3), fov: 48, roll: -0.06 }, { pos: add(mp, 0.1, 1.55, -3.2), look: add(mp, 0, 1.5, 0.3), fov: 46, roll: 0.05 }, f, s.a, s.b, smooth, 0), f, W(7, "furious"), 1.0),
-      subjects: [["Mason", add(mp, 0, 1.5, 0), 0.2]] }; },
-  // Up there was supposed to be nothing but snow and trees: the Upper Peninsula in winter
-  snow: (s, f) => { const tt = t(f);
-    return { light: "northW", dof: 0, focus: Nt(-8, 2, 12), cards: snowfall(Nt(-6, 1.8, 3), tt, 60, 9, 5),
-      cam: move({ pos: Nt(2, 1.8, -6), look: Nt(-10, 2.4, 12), fov: 52, roll: 0.04 }, { pos: Nt(0, 2.6, -8), look: Nt(-12, 3.0, 14), fov: 52, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the snowy pines", Nt(-14, 4, 13), 2]] }; },
-  // They voted no: the delegates in the tavern, arms folded, stern
-  no: (s, f) => { const ps: V3[] = [Rm(1.0, 0, 1.2), Rm(0.1, 0, 1.2), Rm(1.45, 0, 2.1), Rm(-0.35, 0, 1.95)];
-    return { light: "tavern", dof: 1, focus: Rm(0.5, 1.5, 1.6), key: LAMP_T,
-      people: ["d1", "d2", "d3", "d4"].map((w, i) => P(w, ps[i], "stern", i % 2 ? 1 : -1, { headTilt: i % 2 ? -0.1 : 0.1 })),
-      cam: kick(move({ pos: Rm(0.5, 1.6, -3.6), look: Rm(0.5, 1.45, 1.6), fov: 48, roll: 0.05 }, { pos: Rm(0.5, 1.6, -3.2), look: Rm(0.5, 1.5, 1.6), fov: 46, roll: -0.03 }, f, s.a, s.b, smooth, 0), f, W(7, "no"), 1.0),
-      subjects: [["the delegates", Rm(0.5, 1.5, 1.6), 0.3]] }; },
-  // Then, broke and stuck: the convention cabin, Mason by the stove, worried
-  broke: (s, f) => { const mp = Rm(STOVE[0] - 1.0, 0, STOVE[2] - 0.3);
-    return { light: "conv", dof: 1, focus: add(mp, 0, 1.5, 0), key: LAMP_C, people: [P("mason", mp, "nervous", 1, { headTilt: -0.1 })],
-      cam: move({ pos: add(mp, -1.4, 1.6, -2.9), look: add(mp, 0.4, 1.35, 0), fov: 44, roll: -0.05 }, { pos: add(mp, -1.0, 1.55, -2.5), look: add(mp, 0.4, 1.4, 0), fov: 42, roll: 0.04 }, f, s.a, s.b, smooth, 0),
-      subjects: [["Mason", add(mp, 0, 1.5, 0), 0.2]] }; },
-  // ...they met again in December, at the Frostbitten Convention: delegates in coats, frost on the windows, the stove
-  frost: (s, f) => { const ps = DELS, tt = t(f);
-    return { light: "conv", dof: 1, focus: Rm(0.6, 1.5, 1.5), key: LAMP_C,
-      people: ["d1", "d2", "d3", "d4"].map((w, i) => P(w, ps[i], i % 2 ? "nervous" : "neutral", i % 2 ? 1 : -1)),
-      puffs: ps.map((p, i) => { const u = (tt * 0.7 + i * 0.3) % 1; return { p: add(p, (i % 2 ? -0.15 : 0.15) - 0.3 * u, 1.55 + 0.15 * u, -0.25 - 0.2 * u), s: 0.12 + 0.3 * u, c: [0.96, 0.97, 1.0] as [number, number, number], a: 0.4 * (1 - u) }; }),
-      cam: move({ pos: Rm(0.4, 1.75, -4.4), look: Rm(0.6, 1.6, 1.6), fov: 50, roll: 0.04 }, { pos: Rm(0.6, 1.8, -3.9), look: Rm(0.6, 1.65, 1.6), fov: 48, roll: -0.03 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the delegates", Rm(0.6, 1.5, 1.5), 0.3], ["the frosted window", Rm(1.7, 1.9, 3.98), 0.2]] }; },
-  // ...and said yes: hands up, grins
-  yes2: (s, f) => { const ps = DELS, up = f >= W(8, "yes");
-    return { light: "conv", dof: 1, focus: Rm(0.6, 1.5, 1.5), key: LAMP_C,
-      people: ["d1", "d2", "d3", "d4"].map((w, i) => P(w, ps[i], up ? "laugh" : "grin", i % 2 ? 1 : -1, { wave: up ? 0.9 : 0.4 })),
-      cam: kick(move({ pos: Rm(0.6, 1.6, -3.6), look: Rm(0.6, 1.55, 1.6), fov: 50, roll: -0.04 }, { pos: Rm(0.6, 1.6, -3.4), look: Rm(0.6, 1.6, 1.6), fov: 50, roll: 0.04 }, f, s.a, s.b, smooth, 0), f, W(8, "yes"), 1.0),
-      subjects: [["the delegates", Rm(0.6, 1.6, 1.5), 0.3]] }; },
-  // A few years later, they found copper up there: summer, a prospector's pick at the outcrop, the copper showing
-  copper: (s, f) => { const p = ng(-2.0, 5.4), sw = 0.5 + 0.5 * Math.sin(t(f) * 5), hand = add(p, -0.3, 1.2 + 0.25 * sw, 0.1), head = add(hand, -0.2, 0.35 - 0.5 * sw, 0.35);
-    return { light: "northS", dof: 1, focus: ORE, tools: [{ kind: "pick", g: hand, b: head }],
-      people: [P("pros", p, f >= W(9, "copper") ? "grin" : "neutral", -1, { hw: [hand] })],
-      cards: f >= W(9, "copper") ? [0, 1, 2].map((i) => ({ kind: "nugget" as const, p: add(ORE, -0.2 + i * 0.3, 0.25 + 0.1 * i, -0.5), spin: i, s: 0.8 })) : [],
-      cam: kick(move({ pos: ng(-2.2, 1.4, 1.5), look: ng(-2.6, 6.4, 0.9), fov: 48, roll: 0.05 }, { pos: ng(-2.35, 1.6, 1.45), look: ng(-2.65, 6.4, 0.85), fov: 48, roll: -0.04 }, f, s.a, s.b, smooth, 0), f, W(9, "copper"), 0.8),
-      subjects: [["the copper", add(ORE, 0, 0.35, -0.5), 0.15], ["the prospector", add(p, 0, 1.4, 0), 0.2]] }; },
-  // For 40 years, Michigan mined more copper than any state: the mine, a cart heaped with copper, miners pushing it out
-  mine: (s, f) => { const tt = t(f - s.a), cz = PORTAL[2] - 3.6 - 0.35 * tt, cp = ng(PORTAL[0], cz, 0.9);
-    return { light: "northS", dof: 1, focus: cp,
-      people: [P("mn1", ng(PORTAL[0] + 0.5, cz + 1.25), "grin", 0, { hw: [add(cp, 0.4, 0.15, 0.75)] }), P("mn2", ng(PORTAL[0] - 1.2, cz - 0.6), "laugh", 1, { wave: 0.6 })],
-      cam: move({ pos: ng(PORTAL[0] - 3.5, PORTAL[2] - 10, 1.8), look: add(cp, 0, 0.4, 1.0), fov: 48, roll: -0.04 }, { pos: ng(PORTAL[0] - 3.3, PORTAL[2] - 9.6, 1.7), look: add(cp, 0, 0.4, 0.9), fov: 48, roll: 0.04 }, f, s.a, s.b, smooth, 0),
-      subjects: [["the mine", ng(PORTAL[0], PORTAL[2], 1.5), 0.6], ["the copper cart", cp, 0.4]] }; },
-  // Ohio got Toledo: Lucas on Toledo's board walk, his men cheering
-  ohio: (s, f) => { const p = Rv(-21, BW, WALK_Z - 0.3);
-    return { light: "river", dof: 1, focus: add(p, 0, 1.4, 0),
-      people: [P("lucas", p, "laugh", 0), P("oh1", Rv(-20.45, 0, 1.6), "laugh", -1, { wave: 0.9 }), P("oh2", Rv(-21.65, 0, 1.8), "grin", 1, { wave: 0.6 })],
-      cam: kick(move({ pos: Rv(-21.2, 1.5, -2.4), look: Rv(-21, 1.45, 3.4), fov: 48, roll: -0.05 }, { pos: Rv(-21.0, 1.55, -2.2), look: Rv(-21, 1.5, 3.4), fov: 48, roll: 0.04 }, f, s.a, s.b, smooth, 0), f, W(10, "toledo"), 0.8),
-      subjects: [["Lucas", add(p, 0, 1.45, 0), 0.2]] }; },
-  // Michigan got rich: Mason by the copper cart, laughing
-  rich: (s, f) => { const mp = ng(PORTAL[0] - 1.35, PORTAL[2] - 4.4), lk = ng(PORTAL[0] - 1.0, PORTAL[2] - 4.0, 1.25);
-    return { light: "northS", dof: 1, focus: add(mp, 0, 1.4, 0), people: [P("mason", mp, "laugh", 1, { wave: 0.8 })],
-      cards: [0, 1].map((i) => ({ kind: "nugget" as const, p: add(mp, -0.25 - 0.1 * i, 1.0 + 0.12 * i, -0.25), spin: i * 2, s: 0.7 })),
-      cam: kick(move({ pos: add(lk, -0.2, 0.35, -3.9), look: lk, fov: 52, roll: 0.05 }, { pos: add(lk, -0.1, 0.3, -3.6), look: lk, fov: 52, roll: -0.04 }, f, s.a, s.b, smooth, 0), f, W(10, "rich"), 1.0),
-      subjects: [["Mason", add(mp, 0, 1.5, 0), 0.2], ["the copper cart", add(CART, -0.4, 0.35, -0.7), 0.2]] }; },
-  // loop: back to the face-off in the street, settling onto the opening frame
+  // This man shipped 42,000 bed warmers...: Dexter on a West Indies wharf, holding one up, grinning (frame 0 already close)
+  hook: (s, f) => ({ ...hookState(), light: "tropic", dof: 1, closeup: true, focus: head(DEX_HOOK), cam: kick(hookCam(f), f, W(0, "42000"), 0.6) }) as St3,
+  // ...to the tropics: crane up over the wharf, the crates of bed warmers, the schooner, the palms on the far shore
+  tropics: (s, f) => ({ light: "tropic", dof: 0, focus: WR(11, 15.5, 1.0), pans3: true,
+    people: [P("dexter", WR(10.2, 13.6), "grin", 1, { wave: 0.8 }), P("s1", WR(11.5, 14.4), "neutral", -1), P("i1", WR(11.9, 17.6), "grin", 0, { extra: true })],
+    cam: mv(s, f, { pos: Rv(8.2, 1.2, 9.0), look: WR(11.6, 16.5, 1.2), fov: 50, roll: 0.05 }, { pos: Rv(7.6, 3.6, 7.8), look: WR(12, 19, 1.0), fov: 54, roll: -0.03 }),
+    subjects: [["the crates of bed warmers", add(Rv(CRATES[0], CRATES[1], CRATES[2]), 0, 0.9, 0), 0.6]] }),
+  // And he made money: gold coins pour down on him, at the lens; he laughs
+  money: (s, f) => { const tt = t(f - s.a), p = DEX_HOOK;
+    return { light: "tropic", dof: 1, closeup: true, focus: head(p), pans3: true, people: [P("dexter", p, "laugh", 0, { headTilt: 0.12, wave: 1 })],
+      cards: rain("coin", add(p, 0, 1.0, -0.5), tt, 26, 1.8, 2.4, 0.8, 1.1, 0.75, 0.5).filter((c) => Math.abs(c.p[0] - p[0]) > 0.3 || c.p[1] < p[1] + 1.15),
+      cam: kick(snap(add(p, 0.1, 1.3, -2.5), head(p, 1.2), f, s.a, { fov: 46, roll: -0.05 }, 1.6, 6), f, W(0, "money"), 1.0),
+      subjects: [["Dexter", head(p), 0.2]] }; },
+  // You see, Timothy Dexter was a leather worker: in front of his shop in Newburyport, hides hung by the door
+  shop: (s, f) => ({ light: "port", dof: 0.6, focus: head(SHOP_D, 1.4), people: [P("dexterw", SHOP_D, "grin", 0, { wave: 0.6 })],
+    cam: mv(s, f, { pos: Rv(SHOP[0] + 1.3, 1.6, -1.6), look: Rv(SHOP[0] + 1.5, 2.9, 5.0), fov: 56, roll: -0.04 }, { pos: Rv(SHOP[0] + 1.3, 1.6, -1.0), look: Rv(SHOP[0] + 1.5, 3.0, 5.0), fov: 56, roll: 0.03 }),
+    subjects: [["Dexter", head(SHOP_D), 0.2], ["his shop sign", Rv(SHOP[0], 3.9, BLD_Z - 0.06), 0.3], ["the hides", Rv(SHOP[0] + 2.6, 1.9, BLD_Z - 0.62), 0.3]] }),
+  // ...who could barely spell: close, squinting at a letter he holds
+  spell: (s, f) => { const p = SHOP_D, hand = add(p, -0.25, 1.32, -0.35);
+    return { light: "port", dof: 1, closeup: true, focus: head(p), people: [P("dexterw", p, "nervous", 1, { headTilt: 0.14, hw: [hand] })],
+      cards: [{ kind: "paper", p: add(hand, -0.02, 0.12, -0.03), spin: 0.15, s: 1.1 }],
+      cam: snap(add(p, -0.25, 1.3, -1.9), add(p, -0.12, 1.22, 0), f, s.a, { fov: 44, roll: 0.06 }, 1.6, 6),
+      subjects: [["Dexter", head(p), 0.2], ["the letter", add(hand, -0.02, 0.12, -0.03), 0.05]] }; },
+  // After the Revolution, he bought up war money: the tavern, stacks of paper notes on the table, Dexter and two merchants
+  war: (s, f) => ({ light: "tavern", dof: 1, focus: TBL, key: LAMP_K, cards: [...stack(add(TBL, 0.2, 0, -0.1), 8), ...stack(add(TBL, -0.25, 0, 0.15), 6)],
+    people: [P("dexterw", DEX_T, "grin", 0, { hw: [add(TBL, 0.0, 0.05, -0.35)] }), P("m1", M1_T, "laugh", -1), P("m2", M2_T, "grin", 1)],
+    cam: mv(s, f, { pos: Rm(TABLE[0] + 0.5, 2.3, TABLE[2] - 4.2), look: add(TBL, 0.05, 0.35, 0.2), fov: 52, roll: 0.05 }, { pos: Rm(TABLE[0] + 0.3, 2.4, TABLE[2] - 3.8), look: add(TBL, 0.05, 0.3, 0.2), fov: 52, roll: -0.03 }),
+    subjects: [["the paper money", add(TBL, 0, 0.02, 0), 0.2], ["Dexter", head(DEX_T), 0.2]] }),
+  // ...everyone thought was worthless: he sweeps the notes into his arms, notes flying at the lens
+  buy: (s, f) => { const tt = t(f - s.a);
+    return { light: "tavern", dof: 1, closeup: true, focus: head(DEX_T), key: LAMP_K, people: [P("dexterw", DEX_T, "laugh", 0, { wave: 1 })],
+      cards: [...rain("note", add(DEX_T, 0, 0.9, -0.4), tt, 16, 2.0, 2.2, 0.6, 1.2, 0.6, 0.5).filter((c) => Math.abs(c.p[0] - DEX_T[0]) > 0.35 || c.p[1] < 1.1), ...stack(add(TBL, 0.2, 0, -0.1), 6)],
+      cam: kick(snap(add(DEX_T, 0.15, 1.3, -2.3), head(DEX_T, 1.2), f, s.a, { fov: 46, roll: 0.05 }, 1.5, 6), f, W(1, "worthless"), 0.9),
+      subjects: [["Dexter", head(DEX_T), 0.2]] }; },
+  // Then Massachusetts paid its notes back in full: gold coins rain down on the table and the notes
+  paid: (s, f) => { const tt = t(f - s.a);
+    return { light: "tavern", dof: 1, focus: TBL, key: LAMP_K, people: [P("dexterw", DEX_T, "shock", 0), P("m1", M1_T, "shock", -1)],
+      cards: [...stack(add(TBL, 0.2, 0, -0.1), 8), ...rain("coin", add(TBL, 0, 0.1, 0), tt, 30, 1.2, 1.6, 0.9, 1.0, 1.0)],
+      cam: mv(s, f, { pos: Rm(TABLE[0] + 0.2, 2.6, TABLE[2] - 3.9), look: add(TBL, 0.1, 0.25, -0.2), fov: 52, roll: -0.05 }, { pos: Rm(TABLE[0] + 0.25, 2.5, TABLE[2] - 3.5), look: add(TBL, 0.1, 0.3, -0.2), fov: 52, roll: 0.04 }),
+      subjects: [["the coins", add(TBL, 0, 0.3, 0), 0.3]] }; },
+  // ...and Dexter was suddenly rich: close, laughing, coins bouncing past
+  rich: (s, f) => { const tt = t(f - s.a);
+    return { light: "tavern", dof: 1, closeup: true, focus: head(DEX_T), key: LAMP_K, people: [P("dexterw", DEX_T, "laugh", 0, { wave: 0.9, headTilt: -0.1 })],
+      cards: rain("coin", add(DEX_T, 0, 1.0, -0.4), tt, 22, 1.8, 2.2, 0.7, 1.0, 0.75, 0.5).filter((c) => Math.abs(c.p[0] - DEX_T[0]) > 0.32 || c.p[1] < 1.12),
+      cam: kick(snap(add(DEX_T, -0.2, 1.3, -2.2), head(DEX_T, 1.2), f, s.a, { fov: 44, roll: -0.06 }, 1.6, 6), f, W(2, "rich"), 1.0),
+      subjects: [["Dexter", head(DEX_T), 0.2]] }; },
+  // Newburyport's merchants laughed at him: the four round the table, an orbit
+  laugh: (s, f) => ({ light: "tavern", dof: 1, focus: add(TBL, 0, 0.7, 0.4), key: LAMP_K,
+    people: [P("m1", M1_T, "laugh", -1, { wave: 0.7 }), P("m2", M2_T, "laugh", 1), P("m3", M3_T, "grin", 0), P("m4", M4_T, "laugh", 1, { wave: 0.5 })],
+    cam: orbit(s, f, add(TBL, 0, 0.75, 0.6), [-14, 8], [4.4, 4.1], [0.6, 0.5], 52),
+    subjects: [["the merchants", add(TBL, 0, 0.8, 0.6), 0.4]] }),
+  // The story goes, they gave him the worst advice: a merchant leans in to Dexter, sly
+  advice: (s, f) => { const a = Rm(TABLE[0] - 0.3, 0, TABLE[2] - 0.75), b = Rm(TABLE[0] + 0.32, 0, TABLE[2] - 0.55);
+    return { light: "tavern", dof: 1, focus: L3(head(a), head(b), 0.5), key: LAMP_K, people: [P("dexterw", a, "neutral", -1, { facing: -1 }), P("m2", b, "grin", 1, { facing: 1, headTilt: 0.12 })],
+      cam: mv(s, f, { pos: Rm(TABLE[0] + 0.0, 1.4, TABLE[2] - 4.4), look: Rm(TABLE[0] + 0.0, 1.25, TABLE[2] - 0.6), fov: 46, roll: 0.05 }, { pos: Rm(TABLE[0] + 0.0, 1.4, TABLE[2] - 4.0), look: Rm(TABLE[0] + 0.0, 1.25, TABLE[2] - 0.6), fov: 46, roll: -0.04 }),
+      subjects: [["Dexter", head(a), 0.2], ["the merchant", head(b), 0.2]] }; },
+  // ...the worst advice they could think of: the merchant, snap close, grinning
+  worst: (s, f) => { const b = Rm(TABLE[0] + 0.32, 0, TABLE[2] - 0.55);
+    return { light: "tavern", dof: 1, closeup: true, focus: head(b), key: LAMP_K, people: [P("m2", b, "grin", 0, { headTilt: 0.12 })],
+      cam: kick(snap(add(b, 0.25, 1.3, -2.0), head(b, 1.22), f, s.a, { fov: 42, roll: -0.06 }, 1.6, 6), f, W(3, "worst"), 0.8),
+      subjects: [["the merchant", head(b), 0.2]] }; },
+  // Ship coal to Newcastle: another merchant says it, holding up a lump of coal
+  coal: (s, f) => { const p = M3_T, hand = add(p, -0.3, 1.38, -0.32);
+    return { light: "tavern", dof: 1, closeup: true, focus: head(p), key: LAMP_K, people: [P("m3", p, "grin", 0, { hw: [hand] })],
+      cards: [{ kind: "coal", p: add(hand, -0.02, 0.1, -0.04), spin: 0.3, s: 1.1 }],
+      cam: snap(add(p, -0.2, 1.3, -2.2), add(p, -0.15, 1.22, 0), f, s.a, { fov: 44, roll: 0.05 }, 1.6, 6),
+      subjects: [["the merchant", head(p), 0.2], ["the coal", add(hand, -0.02, 0.1, -0.04), 0.06]] }; },
+  // He did...: on the Newburyport wharf, the coal heap and the schooner loaded with coal, Dexter nodding
+  load: (s, f) => { const p = WR(10.0, 18.2);
+    return { light: "port", dof: 0.6, focus: head(p), coal: true, people: [P("dexter", p, "grin", 1, { wave: 0.6 }), P("s2", WR(11.4, 19.6), "neutral", -1)],
+      cam: mv(s, f, { pos: WR(8.6, 13.6, 1.5), look: WR(11.4, 21, 1.1), fov: 50, roll: 0.04 }, { pos: WR(8.9, 14.4, 1.8), look: WR(11.6, 22, 1.0), fov: 50, roll: -0.03 }),
+      subjects: [["Dexter", head(p), 0.2], ["the coal", Rv(COALP[0], COALP[1] + 0.7, COALP[2]), 0.6]] }; },
+  // ...and it landed during a miners' strike: Newcastle, grey; idle miners by the strike board as the schooner lies in
+  strike: (s, f) => { const a = WR(10.3, 9.0), b = WR(11.4, 9.5), c = WR(12.3, 8.8);
+    return { light: "newcastle", dof: 0.5, focus: WR(11, 11.5, 1.6),
+      people: [P("mn1", a, "stern", 1), P("mn2", b, "stern", -1), P("mn3", c, "neutral", -1)],
+      cam: kick(mv(s, f, { pos: WR(11.0, 4.2, 1.6), look: WR(11.1, 12, 1.6), fov: 52, roll: -0.04 }, { pos: WR(11.1, 4.8, 1.7), look: WR(11.2, 12.4, 1.6), fov: 52, roll: 0.03 }), f, W(4, "strike"), 0.8),
+      subjects: [["the strike board", Rv(11, WHARF.y + 2.0, 10.33), 0.3], ["the miners", head(b), 0.3], ["the schooner", Rv(SHIP[0] - 4, 1.5, SHIP[2]), 1.5]] }; },
+  // It sold at a premium: a buyer hands coins over a lump of coal; coins flash
+  sold: (s, f) => { const tt = t(f - s.a), b = WR(10.6, 12.4), m = WR(11.7, 12.8), hb = add(b, -0.32, 1.25, -0.3), hm = add(m, 0.32, 1.25, -0.3);
+    return { light: "newcastle", dof: 1, focus: L3(head(b), head(m), 0.5), coal: true, people: [P("buyer", b, "grin", -1, { hw: [hb] }), P("mn1", m, "laugh", 1, { hw: [hm] })],
+      cards: [{ kind: "coal", p: add(hb, -0.02, 0.09, -0.04), spin: 0.2, s: 1.1 }, ...rain("coin", add(hm, 0, -0.1, 0), tt, 10, 0.3, 0.5, 0.2, 0.7, 0.8)],
+      cam: kick(mv(s, f, { pos: WR(11.15, 8.4, 1.35), look: WR(11.15, 12.6, 1.25), fov: 48, roll: 0.05 }, { pos: WR(11.15, 8.8, 1.35), look: WR(11.15, 12.6, 1.25), fov: 48, roll: -0.04 }), f, W(4, "premium"), 0.8),
+      subjects: [["the buyer", head(b), 0.2], ["the coins", add(hm, 0, 0.1, 0), 0.1]] }; },
+  // Bed warmers to the West Indies?: back in the tavern, a merchant holds up a bed warmer, laughing
+  pans: (s, f) => { const p = M4_T, hand = add(p, -0.3, 1.0, -0.25);
+    return { light: "tavern", dof: 1, closeup: true, focus: head(p), key: LAMP_K, people: [P("m4", p, "laugh", 0, { hw: [hand] })],
+      pans: [{ hand, dir: [-0.5, 0.86, -0.1], roll: Math.PI / 2 }],
+      cam: kick(snap(add(p, -0.4, 1.35, -3.1), add(p, -0.4, 1.3, 0), f, s.a, { fov: 46, roll: 0.06 }, 1.6, 6), f, W(5, "indies"), 0.7),
+      subjects: [["the merchant", head(p), 0.2], ["the bed warmer", add(hand, -0.48, 0.82, -0.1), 0.12]] }; },
+  // Dexter bragged he shipped 42,000: the West Indies wharf, the crates piled high, Dexter on top of the cargo with a pan
+  shipped: (s, f) => { const p = WR(9.9, 14.6);
+    return { light: "tropic", dof: 0.5, focus: head(p), pans3: true, people: [P("dexter", p, "grin", 1, { hw: [holdUp(p, 1).hand] })],
+      pans: [holdUp(p, 1)],
+      cam: mv(s, f, { pos: WR(9.0, 9.4, 1.0), look: WR(10.9, 15.8, 1.6), fov: 52, roll: -0.05 }, { pos: WR(9.3, 10.2, 1.2), look: WR(11.0, 16.0, 1.6), fov: 52, roll: 0.04 }),
+      subjects: [["Dexter", head(p), 0.2], ["the crates", add(Rv(CRATES[0], CRATES[1], CRATES[2]), 0, 0.9, 0), 0.6]] }; },
+  // They used them for cooking: an islander cooks over the fire in a bed warmer's pan, smoke rising
+  cook: (s, f) => { const tt = t(f - s.a), fc = Rv(FIRE[0], 0, FIRE[2]), cook = Rv(FIRE[0] + 0.25, 0, FIRE[2] + 1.0), hand = add(cook, -0.25, 1.05, -0.15);
+    return { light: "tropic", dof: 1, focus: add(fc, 0, 0.6, -0.4), people: [P("i2", cook, "grin", 0, { hw: [hand] }), P("i3", Rv(FIRE[0] - 0.5, 0, FIRE[2] + 1.7), "grin", 1)],
+      pans: [{ hand, dir: [-0.1, -0.42, -0.9] }], puffs: fire(add(fc, 0, 0.05, 0), tt),
+      cam: mv(s, f, { pos: Rv(FIRE[0] + 0.2, 2.3, FIRE[2] - 4.0), look: add(fc, 0.2, 0.75, 0.6), fov: 48, roll: 0.05 }, { pos: Rv(FIRE[0] + 0.2, 2.2, FIRE[2] - 3.5), look: add(fc, 0.2, 0.8, 0.6), fov: 48, roll: -0.04 }),
+      subjects: [["the cook", head(cook), 0.2], ["the pan over the fire", add(hand, -0.1, -0.4, -0.86), 0.12]] }; },
+  // ...and he cleared 79%: Dexter laughing, close, the pan over his shoulder
+  cleared: (s, f) => { const p = DEX_HOOK;
+    return { light: "tropic", dof: 1, closeup: true, focus: head(p), pans3: true, people: [P("dexter", p, "laugh", 0, { headTilt: -0.1, hw: [add(p, 0.3, 1.2, -0.2)] })],
+      pans: [{ hand: add(p, 0.3, 1.2, -0.2), dir: [0.45, 0.6, 0.66] }],
+      cam: kick(snap(add(p, 0.35, 1.3, -2.4), head(p, 1.25), f, s.a, { fov: 44, roll: 0.06 }, 1.6, 6), f, W(5, "79"), 1.0),
+      subjects: [["Dexter", head(p), 0.2]] }; },
+  // So he bought a mansion: from High Street, crane up through the arch to the house, its cupola and gold eagle
+  mansion: (s, f) => ({ light: "mansion", dof: 0, focus: Mn(0, 6, HOUSE_Z), people: statues((_n, i) => i < 3 || [0, 1, 4, 5, 8, 9].includes(i - 3)),
+    cam: mv(s, f, { pos: Mn(0.6, 1.4, -8.0), look: Mn(0, 5.5, HOUSE_Z), fov: 54, roll: 0.04 }, { pos: Mn(0.4, 4.6, -10.0), look: Mn(0, 7.5, HOUSE_Z), fov: 56, roll: -0.03 }),
+    subjects: [["the mansion", Mn(0, 6, HOUSE_Z - 0.2), 3], ["the gold eagle", Mn(0, 12.9 + 2.1, HOUSE_Z + 5), 0.5]] }),
+  // ...called himself Lord Timothy Dexter: on his steps, chin up, cane in hand
+  lord: (s, f) => { const p = Mn(0.2, 0.8, HOUSE_Z - 1.2), hand = add(p, -0.34, 0.95, -0.25);
+    return { light: "mansion", dof: 1, focus: head(p), people: [P("dexter", p, "grin", 0, { headTilt: -0.12, hw: [hand] })], canes: [{ g: hand, b: add(p, -0.42, 0.02, -0.4) }],
+      cam: kick(mv(s, f, { pos: add(p, 0.4, 0.7, -3.6), look: head(p, 1.55), fov: 46, roll: -0.05 }, { pos: add(p, 0.3, 0.6, -3.1), look: head(p, 1.6), fov: 46, roll: 0.04 }), f, W(6, "lord"), 0.8),
+      subjects: [["Dexter", head(p), 0.2]] }; },
+  // ...and filled the garden with about 40 wooden statues: tracking low up the path between the columns
+  statues: (s, f) => ({ light: "mansion", dof: 0, focus: Mn(0, 4.5, 8), people: statues((_n, i) => i >= 3 && COLS[i - 3][0] > 0),
+    cam: mv(s, f, { pos: Mn(-0.6, 2.4, -1.0), look: Mn(6.0, 4.6, 9.5), fov: 56, roll: 0.06 }, { pos: Mn(-0.4, 2.6, 1.0), look: Mn(6.2, 4.8, 11.5), fov: 56, roll: -0.04 }),
+    subjects: [["the statues", Mn(4.2, STAT_Y + 1, 7.5), 0.5]] }),
+  // Washington.: low, up at the arch, Washington in the middle
+  wash: (s, f) => ({ light: "mansion", dof: 1, focus: head(Mn(0, ARCH_Y, ARCH_Z)), people: statues((n) => ["washington", "adams", "jefferson"].includes(n)),
+    cam: snap(Mn(0.2, 3.2, ARCH_Z - 8.2), Mn(0, ARCH_Y + 0.7, ARCH_Z), f, s.a, { fov: 46, roll: 0.05 }, 1.3, 6),
+    subjects: [["Washington", head(Mn(0, ARCH_Y, ARCH_Z)), 0.2]] }),
+  // Jefferson.: whip to Jefferson, close
+  jeff: (s, f) => { const p = Mn(-1.45, ARCH_Y, ARCH_Z);
+    return { light: "mansion", dof: 1, closeup: true, focus: head(p), people: statues((n) => n === "jefferson"),
+      cam: snap(add(p, -0.2, 0.2, -2.3), head(p, 1.45), f, s.a, { fov: 44, roll: -0.06 }, 1.5, 6),
+      subjects: [["Jefferson", head(p), 0.2]] }; },
+  // And himself.: snap to Dexter's own statue on its column, the real Dexter below pointing up at it
+  himself: (s, f) => { const me = Mn(COLS[DEX_COL][0] - 0.2, 0, COLS[DEX_COL][1] - 1.6);
+    return { light: "mansion", dof: 0.6, focus: add(DEXSTAT, 0, 1.0, 0), people: [...statues((n) => n === "dexstat"), P("dexter", me, "grin", -1, { wave: 1, headTilt: -0.15 })],
+      cam: kick(snap(Mn(1.6, 1.6, 1.2), add(DEXSTAT, 0, -1.6, 0), f, s.a, { fov: 58, roll: 0.05 }, 1.4, 6), f, Wn(6, "himself", 2), 0.9),
+      subjects: [["Dexter's statue", add(DEXSTAT, 0, 1.5, 0), 0.2], ["Dexter", head(me), 0.2]] }; },
+  // His statue's sign said...: up the column from the sign to the statue
+  sign: (s, f) => ({ light: "mansion", dof: 1, focus: SIGN,
+    cam: mv(s, f, { pos: add(SIGN, 0.25, -0.15, -2.4), look: add(SIGN, 0, -0.12, 0), fov: 46, roll: -0.04 }, { pos: add(SIGN, 0.15, -0.15, -2.8), look: add(SIGN, 0, -0.12, 0), fov: 46, roll: 0.03 }),
+    subjects: [["the sign", SIGN, 0.15]] }),
+  // ...the greatest philosopher in the Western world: Dexter under his statue, chest out, the camera circling
+  proud: (s, f) => { const me = Mn(COLS[DEX_COL][0] - 0.1, 0, COLS[DEX_COL][1] - 1.3);
+    return { light: "mansion", dof: 0.5, focus: head(me), people: [...statues((n) => n === "dexstat"), P("dexter", me, "grin", 0, { headTilt: -0.14 })],
+      cam: orbit(s, f, add(me, 0.05, 2.9, 0.6), [-52, -34], [5.8, 5.6], [-1.1, -1.0], 58),
+      subjects: [["Dexter", head(me), 0.2], ["Dexter's statue", add(DEXSTAT, 0, 1.4, 0), 0.2]] }; },
+  // Then he faked his own death: grey day, the coffin on its trestles on the path, two mourners with bowed heads
+  coffin: (s, f) => ({ light: "wake", dof: 0.8, focus: Mn(0, 1.0, COFFIN[2]), people: [P("t1", Mn(-0.55, 0, COFFIN[2] - 1.7), "nervous", 1, { headTilt: 0.15 }), P("t2", Mn(0.6, 0, COFFIN[2] - 1.8), "nervous", -1, { headTilt: 0.15 })],
+    cam: mv(s, f, { pos: Mn(0.3, 1.6, COFFIN[2] - 6.6), look: Mn(0, 1.0, COFFIN[2] - 0.8), fov: 46, roll: -0.04 }, { pos: Mn(0.25, 1.6, COFFIN[2] - 6.0), look: Mn(0, 1.0, COFFIN[2] - 0.8), fov: 46, roll: 0.03 }),
+    subjects: [["the coffin", Mn(0, 1.0, COFFIN[2] - 0.44), 0.1]] }),
+  // About 3,000 people came: crane up over the crowd filling the lawn round the coffin
+  crowd: (s, f) => ({ light: "wake", dof: 0, focus: Mn(0, 1, COFFIN[2] - 3), people: mourners(),
+    cam: mv(s, f, { pos: Mn(0.3, 8.5, COFFIN[2] - 15), look: Mn(0, 0.2, COFFIN[2] - 4), fov: 66, roll: 0.03 }, { pos: Mn(0.2, 11.5, COFFIN[2] - 15.5), look: Mn(0, 0.0, COFFIN[2] - 4), fov: 66, roll: -0.03 }),
+    subjects: [["the crowd", Mn(-2.2, 1.4, COFFIN[2] - 4.5), 1], ["the coffin", Mn(0, 1.24, COFFIN[2]), 0.1]] }),
+  // But his wife didn't cry enough...: Elizabeth among the weeping mourners, dry-eyed, whistling
+  wife: (s, f) => ({ light: "wake", dof: 1, focus: head(WIFE), people: [P("wife", WIFE, "whistle", 0), P("t4", Mn(-0.75, 0, COFFIN[2] - 0.4), "nervous", -1, { headTilt: 0.15 }), P("t6", Mn(-2.05, 0, COFFIN[2] - 0.3), "nervous", 1, { headTilt: 0.12 })],
+    cam: mv(s, f, { pos: add(WIFE, 0.0, 1.35, -3.6), look: head(WIFE, 1.25), fov: 46, roll: 0.05 }, { pos: add(WIFE, 0.0, 1.35, -3.2), look: head(WIFE, 1.25), fov: 46, roll: -0.04 }),
+    subjects: [["his wife", head(WIFE), 0.2]] }),
+  // ...so the dead man came out of hiding: Dexter bursts out of his front door, cane raised, at the lens
+  hiding: (s, f) => { const tt = t(f - s.a), p = add(DOOR, 0, 0, -Math.min(1.6, 1.8 * tt)), hand = add(p, -0.3, 2.0, -0.15);
+    return { light: "wake", dof: 1, focus: head(p), people: [P("dexter", p, "shock", 0, { hw: [hand], headTilt: -0.08 })], canes: [{ g: hand, b: add(hand, -0.35, 0.75, 0.2) }],
+      cam: kick(mv(s, f, { pos: add(DOOR, 0.3, 0.7, -5.0), look: head(DOOR, 1.25), fov: 48, roll: -0.06 }, { pos: add(DOOR, 0.25, 0.6, -4.2), look: head(add(DOOR, 0, 0, -1.4), 1.25), fov: 46, roll: 0.05 }), f, s.a + 3, 1.0),
+      subjects: [["Dexter", head(p), 0.2], ["the cane", hand, 0.1]] }; },
+  // ...and caned her: his wife starts away, Dexter behind her with the cane up (no blow is shown)
+  caned: (s, f) => { const w = add(WIFE, 0.35, 0, 0.1), d = add(WIFE, -0.45, 0, 1.1), hand = add(d, 0.28, 2.05, -0.1);
+    return { light: "wake", dof: 1, focus: L3(head(w), head(d), 0.5), people: [P("wife", w, "shock", -1, { facing: -1 }), P("dexter", d, "shock", 1, { hw: [hand] })], canes: [{ g: hand, b: add(hand, 0.25, 0.8, 0.15) }],
+      cam: kick(mv(s, f, { pos: add(WIFE, -0.05, 1.4, -4.4), look: add(L3(head(w), head(d), 0.5), 0, -0.25, 0), fov: 46, roll: 0.06 }, { pos: add(WIFE, -0.05, 1.4, -4.0), look: add(L3(head(w), head(d), 0.5), 0, -0.25, 0), fov: 46, roll: -0.05 }), f, W(8, "caned"), 0.8),
+      subjects: [["his wife", head(w), 0.2], ["Dexter", head(d), 0.2]] }; },
+  // He even wrote a book with no punctuation: the study, Dexter at his standing desk writing, the page on the board
+  book: (s, f) => { const hand = Rm(DESK[0] - 0.25, DESK_Y + 0.06, DESK[2] + 0.05);
+    return { light: "study", dof: 0.6, focus: head(DESK_P), key: CANDLE_K, page: "pickle", people: [P("dexter", DESK_P, "grin", 0, { hw: [hand] })],
+      cam: mv(s, f, { pos: Rm(-0.8, 1.5, DESK[2] - 4.6), look: Rm(0, 1.6, DESK[2]), fov: 52, roll: 0.05 }, { pos: Rm(-0.6, 1.55, DESK[2] - 4.1), look: Rm(0, 1.62, DESK[2]), fov: 52, roll: -0.03 }),
+      subjects: [["Dexter", head(DESK_P), 0.2], ["the page", BOARD, 0.2]] }; },
+  // When readers complained: two readers in the tavern, frowning over his pages
+  readers: (s, f) => { const a = Rm(TABLE[0] - 0.25, 0, TABLE[2] - 0.75), b = Rm(TABLE[0] + 0.45, 0, TABLE[2] - 0.55), ha = add(a, -0.28, 1.3, -0.3), hb = add(b, 0.28, 1.3, -0.3);
+    return { light: "tavern", dof: 1, focus: L3(head(a), head(b), 0.5), key: LAMP_K, people: [P("t3", a, "shock", 0, { hw: [ha] }), P("t5", b, "stern", 0, { hw: [hb] })],
+      cards: [{ kind: "paper", p: add(ha, -0.02, 0.12, -0.03), spin: 0.1, s: 1.1 }, { kind: "paper", p: add(hb, 0.02, 0.12, -0.03), spin: -0.12, s: 1.1 }],
+      cam: mv(s, f, { pos: Rm(TABLE[0] + 0.1, 1.4, TABLE[2] - 4.4), look: Rm(TABLE[0] + 0.1, 1.3, TABLE[2] - 0.6), fov: 46, roll: -0.05 }, { pos: Rm(TABLE[0] + 0.1, 1.4, TABLE[2] - 4.0), look: Rm(TABLE[0] + 0.1, 1.3, TABLE[2] - 0.6), fov: 46, roll: 0.04 }),
+      subjects: [["the readers", L3(head(a), head(b), 0.5), 0.3]] }; },
+  // ...he added a page of just periods and commas: push in on the board, the page of stops; Dexter beside it, proud
+  punct: (s, f) => { const me = Rm(-1.05, 0, 2.5);
+    return { light: "study", dof: 0.5, focus: BOARD, key: CANDLE_K, page: "punct", people: [P("dexter", me, "grin", -1, { wave: 0.8 })],
+      cam: kick(mv(s, f, { pos: Rm(-0.5, 1.7, -1.6), look: Rm(-0.4, 1.75, 3.8), fov: 54, roll: -0.04 }, { pos: Rm(-0.4, 1.7, -0.8), look: Rm(-0.35, 1.78, 3.8), fov: 54, roll: 0.03 }), f, W(9, "commas"), 0.7),
+      subjects: [["the page of punctuation", BOARD, 0.2], ["Dexter", head(me), 0.2]] }; },
+  // ...and told them to salt and pepper it as they pleased: he shakes a pepper pot at us and the marks fly at the lens
+  pepper: (s, f) => { const tt = t(f - s.a), p = Rm(0.1, 0, 0.9), hand = add(p, -0.3, 1.45, -0.4), cp = add(p, -0.05, 1.5, -2.3);
+    return { light: "study", dof: 1, closeup: true, focus: head(p), key: CANDLE_K, page: "punct", people: [P("dexter", p, "laugh", 0, { hw: [add(hand, 0, 0.03 * Math.sin(tt * 30), 0)] })],
+      pot: add(hand, -0.02, 0.02 + 0.03 * Math.sin(tt * 30), -0.05), cards: fling(add(hand, 0, 0.15, -0.1), cp, tt, 18),
+      cam: kick({ pos: add(cp, 0, -0.15, 0), look: head(p, 1.2), fov: 46, roll: 0.04 * Math.sin(tt * 1.5) }, f, W(9, "pepper"), 0.8),
+      subjects: [["Dexter", head(p), 0.2], ["the pepper pot", add(hand, -0.02, 0.1, -0.05), 0.06]] }; },
+  // So... was he a fool,: Dexter on the island wharf with his bed warmer, the camera circling
+  fool: (s, f) => { const p = DEX_HOOK;
+    return { ...hookState(), light: "tropic", dof: 1, focus: head(p), people: [P("dexter", p, "whistle", 0, { hw: [holdUp(p).hand] })],
+      cam: mv(s, f, { pos: add(p, 0.5, 1.3, -3.3), look: add(p, -0.35, 1.2, 0), fov: 46, roll: 0.04 }, { pos: add(p, -0.1, 1.3, -3.1), look: add(p, -0.35, 1.2, 0), fov: 46, roll: -0.03 }), subjects: [["Dexter", head(p), 0.2]] } as St3; },
+  // ...or the luckiest man who ever lived?: snap close on his grin
+  lucky: (s, f) => { const p = DEX_HOOK;
+    return { ...hookState(), light: "tropic", dof: 1, closeup: true, focus: head(p), people: [P("dexter", p, "grin", 0, { hw: [holdUp(p).hand], headTilt: 0.1 })],
+      cam: kick(snap(add(p, -0.35, 1.3, -2.9), add(p, -0.35, 1.22, 0), f, s.a, { fov: 46, roll: -0.05 }, 1.5, 6), f, W(10, "luckiest"), 0.8) } as St3; },
+  // loop: back to the wharf, settling onto the opening frame (the subscribe card plays here)
   end: (s, f) => { const h0 = hookCam(0);
-    return { ...hookState(), light: "river", dof: 1, focus: Rv(0, 1.3, 2.0),
-      cam: move({ ...orb(Rv(0, 1.3, 3.0), 18, 8, 2.2), fov: 50, roll: 0.0 }, h0, f, s.a, s.b - 10, smooth, 0) }; },
+    return { ...hookState(), light: "tropic", dof: 1, closeup: true, focus: head(DEX_HOOK),
+      cam: f < s.b - 16 ? move({ ...orb(add(DEX_HOOK, -0.3, 1.2, 0), 22, 4.2, 0.2), fov: 46, roll: 0.0 }, { pos: add(DEX_HOOK, 0.35, 1.3, -3.2), look: add(DEX_HOOK, 0.55, 1.25, 0), fov: 48, roll: 0.02 }, f, s.a, s.a + 24, smooth, 0)
+        : move({ pos: add(DEX_HOOK, 0.35, 1.3, -3.2), look: add(DEX_HOOK, 0.55, 1.25, 0), fov: 48, roll: 0.02 }, h0, f, s.b - 16, s.b - 5, smooth, 0) } as St3; },
 };
 /** the house kit, for the long-form */
-export { clamp01, smooth, expo, L3, move, orb, orbit, snap, kick, t as secs, P, walker, add, shot, flash, snowfall, aim, hookState, faceoff, MI_LINE, OH_LINE, TWO_P, ONE_P, MAPC };
+export { clamp01, smooth, expo, L3, move, orb, orbit, snap, kick, t as secs, P, walker, add, rain, stack, fling, fire, holdUp, statues, mourners, hookState, hookCam, head, DEX_HOOK, SHOP_D, DEX_T, M1_T, M2_T, M3_T, M4_T, TBL, LAMP_K, DESK_P, BOARD, CANDLE_K, DEXSTAT, SIGN, DOOR, WIFE, WR, STAT_Y, ARCH_Y, Mn };
 
 /** every shot is hand-held: a slow sway on top of its move (not the loop frames) */
 export const specAt = (s: ShotDef, f: number): St3 => {
@@ -342,7 +369,7 @@ export const specAt = (s: ShotDef, f: number): St3 => {
   return { ...st, focus: st.focus ?? c.look, cam: { ...c, look: [c.look[0] + sw * Math.sin(f * 0.21 + id), c.look[1] + sw * 0.8 * Math.sin(f * 0.17 + 1.3 * id), c.look[2] + sw * Math.sin(f * 0.13 + 2.1 * id)] } };
 };
 /** a sideways blur on the cuts that whip */
-const WHIP = new Set(["strip", "toledo", "mason", "mimarch", "survey", "fire", "wood", "stab", "only", "congress", "furious", "snow", "broke", "copper", "ohio", "rich"]);
+const WHIP = new Set(["tropics", "shop", "war", "laugh", "coal", "strike", "pans", "cook", "mansion", "jeff", "coffin", "hiding", "book", "readers", "fool"]);
 export const whipAt = (s: ShotDef, f: number) => (WHIP.has(s.g) ? Math.max(0, 1 - Math.abs(f - (s.a + 2)) / 4) : 0);
 
 // ---------------- name tags and stamps (Shorts: nothing important above y = 19 %) ----------------
@@ -350,35 +377,35 @@ export type Item = { key: string; kind: "stamp" | "pill" | "call"; text: string;
 const B = (g: string) => SHOTS.find((x) => x.g === g)!.b;
 const S0 = (g: string) => SHOTS.find((x) => x.g === g)!.a;
 export const ITEMS = (): Item[] => ([
-  { key: "war", kind: "stamp", text: "OHIO vs. MICHIGAN", f0: 6, f1: B("hook"), y: 23, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 96 },
-  { key: "wound", kind: "call", text: "THE ONLY WOUND", f0: W(0, "wound"), f1: B("knife"), y: 23, fg: "#ffd166", size: 110 },
-  { key: "1835", kind: "pill", text: "1835", sub: "both claimed the Toledo Strip", f0: W(1, "1835"), f1: B("strip"), y: 22, size: 84 },
-  { key: "toledo", kind: "pill", text: "TOLEDO", sub: "on the Maumee River", f0: W(1, "toledo"), f1: B("toledo"), y: 22, size: 84 },
-  { key: "port", kind: "call", text: "THE NEXT GREAT PORT", f0: W(1, "next"), f1: B("port"), y: 23, fg: "#ffd166", size: 96 },
-  { key: "terr", kind: "pill", text: "MICHIGAN", sub: "a territory, not a state", f0: W(2, "state"), f1: B("mason"), y: 22, size: 84 },
-  { key: "mason", kind: "pill", text: "GOV. STEVENS T. MASON", f0: S0("boy") + 3, f1: W(2, "23"), y: 22, size: 64 },
-  { key: "23", kind: "stamp", text: "AGE 23", f0: W(2, "23"), f1: B("boy"), y: 23, rot: -4, bg: "#2f2a3a", fg: "#ffffff", size: 130 },
-  { key: "lucas", kind: "pill", text: "GOV. ROBERT LUCAS", sub: "Ohio", f0: S0("lucas") + 3, f1: B("lucas"), y: 22, size: 70 },
-  { key: "battle", kind: "stamp", text: "THE ONE REAL BATTLE", f0: S0("survey") + 2, f1: B("survey"), y: 23, rot: 3, bg: "#2f2a3a", fg: "#ffffff", size: 96 },
-  { key: "phil", kind: "pill", text: "PHILLIPS CORNERS", sub: "April 1835", f0: W(3, "phillips"), f1: B("ambush"), y: 22, size: 76 },
-  { key: "nobody", kind: "stamp", text: "NOBODY WAS HIT", f0: W(3, "nobody"), f1: B("nobody"), y: 23, rot: -4, bg: "#2f9a57", fg: "#ffffff", size: 110 },
-  { key: "wood", kind: "pill", text: "DEPUTY JOSEPH WOOD", sub: "Michigan", f0: W(4, "joseph"), f1: B("wood"), y: 22, size: 70 },
-  { key: "two", kind: "pill", text: "TWO STICKNEY", f0: W(4, "two"), f1: B("tavern"), y: 22, size: 80 },
-  { key: "yes", kind: "stamp", text: "YES, TWO.", f0: W(4, "yes"), f1: B("yes"), y: 23, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 130 },
-  { key: "one", kind: "pill", text: "HIS BROTHER: ONE", f0: W(4, "one"), f1: B("one"), y: 22, size: 76 },
-  { key: "lived", kind: "stamp", text: "WOOD LIVED", f0: W(5, "lived"), f1: B("lived"), y: 23, rot: 4, bg: "#2f9a57", fg: "#ffffff", size: 120 },
-  { key: "blood", kind: "call", text: "THE ONLY BLOOD OF THE WAR", f0: W(5, "only"), f1: B("only"), y: 23, fg: "#ff6b5a", size: 84 },
-  { key: "dc", kind: "pill", text: "CONGRESS", sub: "Washington, 1836", f0: W(6, "congress"), f1: B("congress"), y: 22, size: 84 },
-  { key: "give", kind: "stamp", text: "GIVE UP TOLEDO", f0: W(6, "give"), f1: B("deal"), y: 23, rot: -3, bg: "#2f2a3a", fg: "#ffffff", size: 110 },
-  { key: "up", kind: "call", text: "+ THE UPPER PENINSULA", f0: W(6, "upper"), f1: B("up"), y: 23, fg: "#ffd166", size: 56 },
-  { key: "furious", kind: "stamp", text: "FURIOUS", f0: W(7, "furious"), f1: B("furious"), y: 23, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 140 },
-  { key: "no", kind: "stamp", text: "VOTED NO", f0: W(7, "no"), f1: B("no"), y: 23, rot: 4, bg: "#e0332e", fg: "#ffffff", size: 130 },
-  { key: "dec", kind: "pill", text: "DECEMBER 1836", f0: W(8, "december"), f1: W(8, "frostbitten"), y: 22, size: 84 },
-  { key: "frost", kind: "pill", text: "THE FROSTBITTEN CONVENTION", f0: W(8, "frostbitten"), f1: B("frost"), y: 22, size: 60 },
-  { key: "yes2", kind: "stamp", text: "YES", f0: W(8, "yes"), f1: B("yes2"), y: 23, rot: -4, bg: "#2f9a57", fg: "#ffffff", size: 150 },
-  { key: "cu", kind: "call", text: "COPPER", f0: W(9, "copper"), f1: B("copper"), y: 23, fg: "#ff9a4a", size: 150 },
-  { key: "40", kind: "call", text: "40 YEARS", f0: W(9, "40"), f1: W(9, "more"), y: 23, fg: "#ffd166", size: 140 },
-  { key: "no1", kind: "stamp", text: "#1 IN THE U.S.", f0: W(9, "more"), f1: B("mine"), y: 23, rot: -4, bg: "#c0702a", fg: "#ffffff", size: 120 },
-  { key: "oh", kind: "pill", text: "OHIO: TOLEDO", f0: W(10, "ohio"), f1: B("ohio"), y: 22, size: 84 },
-  { key: "mi", kind: "pill", text: "MICHIGAN: RICH", f0: W(10, "michigan"), f1: B("rich"), y: 22, size: 84 },
+  { key: "42k", kind: "stamp", text: "42,000", f0: W(0, "42000"), f1: B("hook"), y: 24, rot: -4, bg: "#e0a32e", fg: "#1e1a22", size: 150 },
+  { key: "trop", kind: "call", text: "TO THE TROPICS", f0: S0("tropics") + 2, f1: B("tropics"), y: 24, fg: "#ffd166", size: 104 },
+  { key: "dex", kind: "pill", text: "TIMOTHY DEXTER", sub: "Newburyport, Mass.", f0: W(1, "timothy"), f1: B("shop"), y: 22, size: 78 },
+  { key: "spell", kind: "call", text: "COULD BARELY SPELL", f0: W(1, "barely"), f1: B("spell"), y: 24, fg: "#ffd166", size: 92 },
+  { key: "worthless", kind: "stamp", text: "WORTHLESS?", f0: W(1, "worthless"), f1: B("buy"), y: 24, rot: -4, bg: "#2f2a3a", fg: "#ffffff", size: 120 },
+  { key: "full", kind: "stamp", text: "PAID IN FULL", f0: W(2, "full"), f1: B("paid"), y: 24, rot: 4, bg: "#2f9a57", fg: "#ffffff", size: 120 },
+  { key: "rich", kind: "call", text: "RICH!", f0: W(2, "rich"), f1: B("rich"), y: 24, fg: "#ffd166", size: 160 },
+  { key: "worst", kind: "stamp", text: "THE WORST ADVICE", f0: W(3, "worst"), f1: B("worst"), y: 24, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 100 },
+  { key: "nc", kind: "pill", text: "NEWCASTLE", sub: "England's coal capital", f0: W(4, "newcastle"), f1: B("coal"), y: 22, size: 84 },
+  { key: "strike", kind: "stamp", text: "MINERS ON STRIKE", f0: W(4, "strike"), f1: B("strike"), y: 24, rot: 4, bg: "#2f2a3a", fg: "#ffffff", size: 100 },
+  { key: "sold", kind: "stamp", text: "SOLD!", f0: W(4, "premium"), f1: B("sold"), y: 24, rot: -4, bg: "#2f9a57", fg: "#ffffff", size: 150 },
+  { key: "wi", kind: "pill", text: "THE WEST INDIES", sub: "where it never gets cold", f0: W(5, "west"), f1: B("pans"), y: 22, size: 76 },
+  { key: "42k2", kind: "stamp", text: "42,000", f0: W(5, "42000"), f1: B("shipped"), y: 24, rot: 4, bg: "#e0a32e", fg: "#1e1a22", size: 150 },
+  { key: "79", kind: "stamp", text: "79% PROFIT", f0: W(5, "79"), f1: B("cleared"), y: 24, rot: -4, bg: "#2f9a57", fg: "#ffffff", size: 120 },
+  { key: "lord", kind: "pill", text: "\"LORD\" TIMOTHY DEXTER", f0: W(6, "lord"), f1: B("lord"), y: 22, size: 64 },
+  { key: "40", kind: "call", text: "40 STATUES", f0: W(6, "40"), f1: B("statues"), y: 24, fg: "#ffd166", size: 120 },
+  { key: "wash", kind: "pill", text: "WASHINGTON", f0: W(6, "washington"), f1: B("wash"), y: 22, size: 84 },
+  { key: "jeff", kind: "pill", text: "JEFFERSON", f0: W(6, "jefferson"), f1: B("jeff"), y: 22, size: 84 },
+  { key: "me", kind: "stamp", text: "AND HIMSELF", f0: Wn(6, "himself", 2), f1: B("himself"), y: 24, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 120 },
+  { key: "east", kind: "pill", text: "FIRST IN THE EAST", f0: W(7, "east"), f1: W(7, "west"), y: 22, size: 76 },
+  { key: "west", kind: "pill", text: "FIRST IN THE WEST", f0: W(7, "west"), f1: W(7, "greatest"), y: 22, size: 76 },
+  { key: "phil", kind: "pill", text: "THE GREATEST PHILOSOPHER", sub: "in the Western world", f0: W(7, "greatest"), f1: B("proud"), y: 22, size: 56 },
+  { key: "fake", kind: "stamp", text: "FAKE FUNERAL", f0: W(8, "faked"), f1: B("coffin"), y: 24, rot: -4, bg: "#2f2a3a", fg: "#ffffff", size: 110 },
+  { key: "3000", kind: "call", text: "3,000 MOURNERS", f0: W(8, "3000"), f1: B("crowd"), y: 24, fg: "#ffd166", size: 100 },
+  { key: "cry", kind: "call", text: "NOT ONE TEAR", f0: W(8, "cry"), f1: B("wife"), y: 24, fg: "#ffd166", size: 110 },
+  { key: "alive", kind: "stamp", text: "NOT DEAD", f0: S0("hiding") + 3, f1: B("hiding"), y: 24, rot: 4, bg: "#e0332e", fg: "#ffffff", size: 130 },
+  { key: "nop", kind: "stamp", text: "NO PUNCTUATION", f0: W(9, "punctuation"), f1: B("book"), y: 24, rot: -4, bg: "#2f2a3a", fg: "#ffffff", size: 100 },
+  { key: "salt", kind: "call", text: "SALT AND PEPPER IT", f0: W(9, "salt"), f1: B("pepper"), y: 24, fg: "#ffd166", size: 96 },
+  { key: "fool", kind: "stamp", text: "A FOOL?", f0: W(10, "fool"), f1: B("fool"), y: 24, rot: -4, bg: "#2f2a3a", fg: "#ffffff", size: 140 },
+  { key: "lucky", kind: "stamp", text: "OR JUST LUCKY?", f0: W(10, "luckiest"), f1: B("lucky"), y: 24, rot: 4, bg: "#e0a32e", fg: "#1e1a22", size: 110 },
 ] as Item[]).filter((i) => i.f1 > i.f0);
+void TAVERN; void BAR;

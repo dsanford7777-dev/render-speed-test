@@ -33,6 +33,7 @@ import { Hayes, HAYES_FRAMES } from "./videos/hayes/Hayes";
 import { Centralia, CENTRALIA_FRAMES } from "./videos/centralia/Centralia";
 import { Toledo, TOLEDO_FRAMES } from "./videos/toledo/Toledo";
 import { Dexter, DEXTER_FRAMES } from "./videos/dexter/Dexter";
+import { DexterLong, DexterThumb, DEXTERLONG_FRAMES } from "./videos/dexterlong/DexterLong";
 import { Bucket, BUCKET_FRAMES } from "./videos/bucket/Bucket";
 import { BucketLong, BucketThumb, BUCKETLONG_FRAMES } from "./videos/bucketlong/BucketLong";
 import { HayesLong, HayesThumb, HAYESLONG_FRAMES } from "./videos/hayeslong/HayesLong";
@@ -84,6 +85,8 @@ const HayesPadded = padded(Hayes);
 const CentraliaPadded = padded(Centralia);
 const ToledoPadded = padded(Toledo);
 const DexterPadded = padded(Dexter);
+const DexterLongPadded = padded(DexterLong);
+const DexterThumbPadded = padded(DexterThumb);
 const BucketPadded = padded(Bucket);
 const BucketLongPadded = padded(BucketLong);
 const BucketThumbPadded = padded(BucketThumb);
@@ -167,6 +170,10 @@ export const Root: React.FC = () => (<>
   <Composition id="ToledoPadded" component={ToledoPadded} durationInFrames={TOLEDO_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="Dexter" component={Dexter} durationInFrames={DEXTER_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="DexterPadded" component={DexterPadded} durationInFrames={DEXTER_FRAMES + PAD} fps={30} width={1080} height={1920} />
+  <Composition id="DexterLong" component={DexterLong} durationInFrames={DEXTERLONG_FRAMES} fps={30} width={1920} height={1080} />
+  <Composition id="DexterLongPadded" component={DexterLongPadded} durationInFrames={DEXTERLONG_FRAMES + PAD} fps={30} width={1920} height={1080} />
+  <Composition id="DexterThumb" component={DexterThumb} durationInFrames={10} fps={30} width={1920} height={1080} />
+  <Composition id="DexterThumbPadded" component={DexterThumbPadded} durationInFrames={10 + PAD} fps={30} width={1920} height={1080} />
   <Composition id="Bucket" component={Bucket} durationInFrames={BUCKET_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="BucketPadded" component={BucketPadded} durationInFrames={BUCKET_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="BucketLong" component={BucketLong} durationInFrames={BUCKETLONG_FRAMES} fps={30} width={1920} height={1080} />

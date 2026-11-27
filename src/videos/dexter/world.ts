@@ -1,8 +1,9 @@
-// The Toledo War Short's world: four sets (tsets.ts), only the one in shot is switched on.
+// The Dexter Short's world: four sets (dsets.ts), only the one in shot is switched on.
 // Look: character look B (bridge/toon.ts) and the background rules: sets carry no ink line, every light has a source,
 // characters cast real shadows (a shadow twin turned to the light), grass near the camera on every lawn.
-// Posed per frame: the river (waves), the room's three dressings (tavern / Congress / convention) and its map, the north
-// in winter or summer; tools in hands (musket, penknife, pick); cards (paper, sparks, snowflakes, copper); puffs.
+// Posed per frame: the port in three dressings (Newburyport, Newcastle, the West Indies), the mansion (the coffin for
+// the wake), the room's two dressings (tavern / study) and the study's page board; props in hands (warming pans, a
+// cane); cards (paper money, gold coins, coal, punctuation marks); puffs (cooking smoke, coal dust).
 import * as THREE from "three";
 import { V, lam, Kit } from "../bridge/build";
 import { Pen, bodyFront, bodySide, fxContact, Outfit } from "../bridge/toon";
@@ -10,76 +11,87 @@ import { LIGHTS, LOOK, LightPreset, WorldLook } from "../bridge/lights";
 import { TONE, CHAR, untone } from "../bridge/shade";
 import { NOINK, AFTERINK } from "../bridge/ink";
 import { Pool, Actor, Fx } from "../bridge/cast";
-import { ctex } from "../bridge/paint";
 import { Grass } from "../bridge/grass";
+import { ctex } from "../bridge/paint";
 import { M } from "../frozen/fsets";
 import { puffTex, sheetTex } from "../frozen/paint";
 import { V3, FPS, SET, RIVER_SUN, WOODS_SUN, NORTH_SUN } from "./place";
-import { buildRiver, buildWoods, buildRoom, buildNorth, RiverSet, WoodsSet, RoomSet, NorthSet } from "./dsets";
+import { buildRiver, buildWoods, buildRoom, buildNorth, RiverSet, WoodsSet, RoomSet, NorthSet, warmingPan } from "./dsets";
+import { noteTex, coinTex, coalTex, markTex } from "./dpaint";
 import type { St3, CardKind } from "./story";
 type Light = St3["light"];
 
 const D = LIGHTS.day;
 const LP: Record<Light, LightPreset> = {
-  // the river town, 1835: a clear summer day
-  river: { ...D, fogNear: 70, fogFar: 560, lit: [1.36, 1.28, 1.12], shade: [0.44, 0.47, 0.6], lift: [0.06, 0.06, 0.09], charTint: [1.02, 0.98, 0.93], sideTint: [0.9, 0.9, 0.95], hemiI: 0.64, sunI: 2.3, sunCol: "#fff0d0", sky: "#b9d2ea", ground: "#5a6040", fog: "#c9d6e0" },
-  // the woods at Phillips Corners: leafy light
-  woods: { ...D, fogNear: 30, fogFar: 260, lit: [1.26, 1.24, 1.04], shade: [0.4, 0.46, 0.5], lift: [0.05, 0.07, 0.07], charTint: [1.0, 0.99, 0.92], sideTint: [0.9, 0.92, 0.92], hemiI: 0.62, sunI: 2.1, sunCol: "#fff2cc", sky: "#b4cfa8", ground: "#4a5a30", fog: "#b8c8b0" },
+  // Newburyport, the 1790s: a clear New England day
+  port: { ...D, fogNear: 70, fogFar: 560, lit: [1.36, 1.28, 1.12], shade: [0.44, 0.47, 0.6], lift: [0.06, 0.06, 0.09], charTint: [1.02, 0.98, 0.93], sideTint: [0.9, 0.9, 0.95], hemiI: 0.64, sunI: 2.3, sunCol: "#fff0d0", sky: "#b9d2ea", ground: "#5a6040", fog: "#c9d6e0" },
+  // Newcastle upon Tyne: grey, sooty, low soft light
+  newcastle: { ...D, fogNear: 40, fogFar: 300, lit: [1.06, 1.06, 1.08], shade: [0.42, 0.44, 0.5], lift: [0.07, 0.07, 0.08], charTint: [0.98, 0.97, 0.96], sideTint: [0.9, 0.9, 0.92], hemiI: 0.8, sunI: 1.1, sunCol: "#e8e6e0", sky: "#9a9ca0", ground: "#4a4a44", fog: "#a8a8a6" },
+  // the West Indies: hot, high sun, saturated
+  tropic: { ...D, fogNear: 90, fogFar: 640, lit: [1.44, 1.34, 1.1], shade: [0.42, 0.46, 0.62], lift: [0.06, 0.06, 0.09], charTint: [1.03, 0.99, 0.92], sideTint: [0.92, 0.9, 0.94], hemiI: 0.62, sunI: 2.6, sunCol: "#fff2c8", sky: "#8ec4ec", ground: "#6a6a3a", fog: "#cfe2ec" },
+  // the mansion on High Street: a bright day
+  mansion: { ...D, fogNear: 70, fogFar: 520, lit: [1.34, 1.27, 1.12], shade: [0.44, 0.47, 0.6], lift: [0.06, 0.06, 0.09], charTint: [1.02, 0.98, 0.93], sideTint: [0.9, 0.9, 0.95], hemiI: 0.64, sunI: 2.2, sunCol: "#fff0d0", sky: "#b9d2ea", ground: "#5a6040", fog: "#c9d6e0" },
+  // the mock wake: the same lawn under an overcast sky
+  wake: { ...D, fogNear: 50, fogFar: 380, lit: [1.1, 1.1, 1.12], shade: [0.44, 0.46, 0.54], lift: [0.07, 0.07, 0.08], charTint: [1.0, 0.98, 0.96], sideTint: [0.9, 0.9, 0.93], hemiI: 0.78, sunI: 1.2, sunCol: "#eceae4", sky: "#a8aab0", ground: "#4e5640", fog: "#b4b6b8" },
   // the tavern: two oil lanterns and a window
   tavern: { ...D, fogNear: 30, fogFar: 200, lit: [0.8, 0.66, 0.5], shade: [0.21, 0.17, 0.15], lift: [0.04, 0.03, 0.03], charTint: [1.05, 0.95, 0.83], sideTint: [0.92, 0.86, 0.78], hemiI: 0.36, sunI: 0, sunCol: "#ffe0b0", sky: "#8a7a68", ground: "#3a2a20", fog: "#1a1410" },
-  // Congress: tall daylit windows, plaster
-  congress: { ...D, fogNear: 30, fogFar: 200, lit: [1.06, 1.02, 0.94], shade: [0.34, 0.33, 0.38], lift: [0.05, 0.05, 0.06], charTint: [1.02, 0.98, 0.94], sideTint: [0.92, 0.9, 0.9], hemiI: 0.5, sunI: 0, sunCol: "#f6f2e8", sky: "#d8d0c0", ground: "#6a5a48", fog: "#3a342c" },
-  // the Frostbitten Convention: grey window light, the stove the only warmth
-  conv: { ...D, fogNear: 30, fogFar: 200, lit: [0.72, 0.72, 0.8], shade: [0.2, 0.2, 0.26], lift: [0.04, 0.04, 0.06], charTint: [1.0, 0.95, 0.92], sideTint: [0.9, 0.88, 0.9], hemiI: 0.42, sunI: 0, sunCol: "#ffb070", sky: "#9aa4b0", ground: "#2a2622", fog: "#181a1e" },
-  // the Upper Peninsula in winter: overcast, snow light
-  northW: { ...D, fogNear: 40, fogFar: 420, lit: [1.16, 1.18, 1.24], shade: [0.46, 0.5, 0.62], lift: [0.08, 0.08, 0.11], charTint: [1.0, 0.98, 0.98], sideTint: [0.92, 0.92, 0.96], hemiI: 0.74, sunI: 1.3, sunCol: "#e8eef6", sky: "#c2ccd6", ground: "#8a8c90", fog: "#d2d8de" },
-  // the Upper Peninsula in summer
-  northS: { ...D, fogNear: 70, fogFar: 560, lit: [1.34, 1.28, 1.12], shade: [0.44, 0.47, 0.6], lift: [0.06, 0.06, 0.09], charTint: [1.02, 0.98, 0.93], sideTint: [0.9, 0.9, 0.95], hemiI: 0.64, sunI: 2.2, sunCol: "#fff0d0", sky: "#b9d2ea", ground: "#5a6040", fog: "#c9d6e0" },
+  // the study: the candle and the window
+  study: { ...D, fogNear: 30, fogFar: 200, lit: [0.92, 0.84, 0.7], shade: [0.26, 0.22, 0.2], lift: [0.05, 0.04, 0.04], charTint: [1.04, 0.96, 0.86], sideTint: [0.92, 0.88, 0.82], hemiI: 0.44, sunI: 0, sunCol: "#ffe8c0", sky: "#a89880", ground: "#3a2a20", fog: "#1e1814" },
 };
 const LK: WorldLook = LOOK.day;
-const BG: Record<Light, string> = { river: "#c9d6e0", woods: "#b8c8b0", tavern: "#1a1410", congress: "#3a342c", conv: "#181a1e", northW: "#d2d8de", northS: "#c9d6e0" };
-const SUN: Record<Light, V3> = { river: RIVER_SUN, woods: WOODS_SUN, tavern: [0, 1, 0], congress: [0, 1, 0], conv: [0, 1, 0], northW: NORTH_SUN, northS: NORTH_SUN };
-const SETOF: Record<Light, "river" | "woods" | "room" | "north"> = { river: "river", woods: "woods", tavern: "room", congress: "room", conv: "room", northW: "north", northS: "north" };
+const BG: Record<Light, string> = { port: "#c9d6e0", newcastle: "#a8a8a6", tropic: "#cfe2ec", mansion: "#c9d6e0", wake: "#b4b6b8", tavern: "#1a1410", study: "#1e1814" };
+const SUN: Record<Light, V3> = { port: RIVER_SUN, newcastle: [-0.3, 0.75, -0.6], tropic: [-0.35, 0.82, -0.45], mansion: WOODS_SUN, wake: [-0.3, 0.78, -0.55], tavern: [0, 1, 0], study: [0, 1, 0] };
+const SETOF: Record<Light, "river" | "woods" | "room" | "north"> = { port: "river", newcastle: "river", tropic: "river", mansion: "woods", wake: "woods", tavern: "room", study: "room" };
 /** lamp-lit sets: characters take light from the point lights, their shadows fall from the key lamp */
-const LAMPLIT = new Set<Light>(["tavern", "congress", "conv"]);
+const LAMPLIT = new Set<Light>(["tavern", "study"]);
+void NORTH_SUN;
 
-// ---------------- cast (1835-36, then the 1840s mines) ----------------
+// ---------------- cast (Newburyport, the 1790s) ----------------
 type Who = { o: Outfit; seed: number; key: string };
 const who = (o: Outfit, seed: number, key: string): Who => ({ o, seed, key });
-/** militia: their own clothes, a rifle; Michigan in blues and browns, Ohio in greens and greys */
-const MI = (jacket: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#3a3a44", boots: "#1e1a20", hat: "shako", cap: "#2a2a34", buttons: "#c9a23a", skin: "#f0d2b0", belt: "#e9e2cf", rifle: true, ...extra });
-const OH = (jacket: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#4a4a3e", boots: "#2a221c", hat: "fedora", cap: "#3a3a30", buttons: "#c9c6be", skin: "#ecc8a4", belt: "#8a6a3a", rifle: true, ...extra });
-const SURV = (jacket: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#5a4a3a", boots: "#2a221c", hat: "fedora", cap: "#6a5a40", buttons: jacket, skin: "#f0d2b0", shirt: "#efe6cf", braces: "#4a3020", ...extra });
-const GENT = (jacket: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#2a2a32", boots: "#1a1618", hat: "tophat", cap: "#1e1e24", buttons: jacket, skin: "#f0d2b0", shirt: "#f6f2e8", tie: "#f6f2e8", ...extra });
+const GENT = (jacket: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#e8dcc0", boots: "#1a1618", hat: "tricorn", cap: "#24202a", buttons: "#c9a23a", skin: "#f0d2b0", shirt: "#f6f2e8", tie: "#f6f2e8", ...extra });
+const SAIL = (jacket: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#d8d0bc", boots: "#2a221c", hat: "cap", cap: "#2a2a3a", buttons: jacket, skin: "#e8c4a0", shirt: "#efe6cf", ...extra });
+const ISL = (jacket: string, skin: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#e8e0cc", boots: "#3a2a20", hat: "fedora", cap: "#d8c08a", buttons: jacket, skin, shirt: "#f4efe0", ...extra });
+/** a painted wooden statue on a column: ordinary costume colours, a touch flatter (they are painted wood), never blinks */
+const STAT = (jacket: string, extra: Partial<Outfit> = {}): Outfit => ({ jacket, pants: "#e8dcc0", boots: "#2a2420", hat: "tricorn", cap: "#2a2630", buttons: "#d8b04a", skin: "#e8c09a", shirt: "#f6f2e8", ...extra });
 const OUT: Record<string, Who> = {
-  // Stevens T. Mason, Michigan's "boy governor", 23: young, dark hair, no moustache
-  mason: who(GENT("#2a3a5a", { skin: "#f5d6b8", tie: "#2a2a32" }), 301, "mason"),
-  // Robert Lucas, Ohio's governor: older, grey
-  lucas: who(GENT("#2a2a2e", { moustache: "#c9c6be", skin: "#e8c4a0", build: "stout" }), 302, "lucas"),
-  mi1: who(MI("#2a4a7a", { moustache: "#3a2a20" }), 303, "mi1"), mi2: who(MI("#3a5a8a", { skin: "#e0b48c" }), 304, "mi2"), mi3: who(MI("#5a4a3a", { build: "stout" }), 305, "mi3"), mi4: who(MI("#2a3a5a", { skin: "#c8946a", moustache: "#2a1a12" }), 306, "mi4"),
-  // the Michigan men at Phillips Corners hold 3D muskets (they fire them), so no rifle on the card
-  mf1: who(MI("#2a4a7a", { moustache: "#3a2a20", rifle: false }), 340, "mf1"), mf2: who(MI("#5a4a3a", { build: "stout", rifle: false }), 341, "mf2"), mf3: who(MI("#3a5a8a", { skin: "#e0b48c", rifle: false }), 342, "mf3"),
-  oh1: who(OH("#4a5a3a", { moustache: "#6a4a2a" }), 307, "oh1"), oh2: who(OH("#5a5a52", { skin: "#e0b48c" }), 308, "oh2"), oh3: who(OH("#3a4a3a", { build: "stout" }), 309, "oh3"), oh4: who(OH("#6a6a5a", { skin: "#f5c9a0" }), 310, "oh4"),
-  sv1: who(SURV("#7a5a3a", { moustache: "#5a3a20" }), 311, "sv1"), sv2: who(SURV("#5a6a7a", { hat: "cap", cap: "#4a4a3a" }), 312, "sv2"), sv3: who(SURV("#8a7a5a", { skin: "#e8c4a0", build: "stout" }), 313, "sv3"),
-  // Joseph Wood, Monroe County deputy sheriff
-  wood: who({ jacket: "#5a4232", pants: "#3a3a40", boots: "#1e1a20", hat: "fedora", cap: "#2a2420", buttons: "#d8b84a", skin: "#f0d2b0", moustache: "#4a3020", shirt: "#efe6cf", tie: "#2a2a2a", belt: "#2a221c" }, 314, "wood"),
-  // the Stickneys of Toledo
-  two: who({ jacket: "#6a3a2a", pants: "#4a4a3a", boots: "#2a221c", hat: "cap", cap: "#3a3028", buttons: "#6a3a2a", skin: "#f0d2b0", plaid: "#3a2418", shirt: "#efe6cf" }, 315, "two"),
-  one: who({ jacket: "#3a5a4a", pants: "#4a4a3a", boots: "#2a221c", hat: "hair", hair: "#6a4a2a", buttons: "#3a5a4a", skin: "#f0d2b0", moustache: "#6a4a2a", shirt: "#efe6cf", braces: "#3a2418" }, 316, "one"),
-  barman: who({ jacket: "#efe6cf", pants: "#3a3a40", boots: "#2a221c", hat: "hair", hair: "#3a2a20", buttons: "#efe6cf", skin: "#e8c4a0", moustache: "#3a2a20", shirt: "#efe6cf" }, 317, "barman"),
-  // Congress
-  cg1: who(GENT("#2a2a32", { hat: "hair", hair: "#8a8a92", moustache: "#8a8a92" }), 318, "cg1"), cg2: who(GENT("#4a3e34", { hat: "hair", hair: "#3a2a20", build: "stout", tie: "#7a2a24" }), 319, "cg2"), cg3: who(GENT("#3a4a3a", { hat: "hair", hair: "#c9c6be" }), 320, "cg3"),
-  // the delegates, in their winter coats
-  d1: who(GENT("#3a2a24", { moustache: "#5a4a3a" }), 321, "d1"), d2: who(GENT("#2a3430", { hat: "hair", hair: "#8a8a8a", build: "stout" }), 322, "d2"), d3: who(GENT("#4a3a4a", { hat: "fedora", cap: "#2a2a2a" }), 323, "d3"), d4: who(GENT("#2e2e36", { skin: "#e0b48c", moustache: "#2a1a12" }), 324, "d4"),
-  // the river town
-  t1: who({ jacket: "#6a5a7a", pants: "#3a3a44", boots: "#2a221c", hat: "bonnet", cap: "#e9e2cf", dress: "#7a6a8a", buttons: "#6a5a7a", skin: "#f5d2b4" }, 325, "t1"),
-  t2: who({ jacket: "#7a4a3a", pants: "#4a4a3a", boots: "#2a221c", hat: "cap", cap: "#4a3a2a", buttons: "#7a4a3a", skin: "#e8c4a0", shirt: "#efe6cf", braces: "#3a2418" }, 326, "t2"),
-  t3: who({ jacket: "#efe6cf", pants: "#5a4a3a", boots: "#2a221c", hat: "hair", hair: "#c9a060", buttons: "#efe6cf", skin: "#f0d2b0", braces: "#4a3020" }, 327, "t3"),
-  t4: who({ jacket: "#3a6a6a", pants: "#3a3a44", boots: "#2a221c", hat: "bonnet", cap: "#d8c0a0", dress: "#4a7a7a", buttons: "#3a6a6a", skin: "#f0d2b8" }, 328, "t4"),
-  // the copper country: a prospector and miners
-  pros: who({ jacket: "#7a5a3a", pants: "#4a4a3e", boots: "#2a221c", hat: "fedora", cap: "#5a4a32", buttons: "#7a5a3a", skin: "#e8c4a0", moustache: "#8a6a4a", plaid: "#4a2a1a", shirt: "#efe6cf" }, 329, "pros"),
-  mn1: who({ jacket: "#4a5a6a", pants: "#3e3a40", boots: "#1e1a20", hat: "minerhat", cap: "#3a3430", buttons: "#4a5a6a", skin: "#ecc8a4", braces: "#5a4028", moustache: "#3a2a20" }, 330, "mn1"),
-  mn2: who({ jacket: "#6a4a3a", pants: "#3e3a40", boots: "#1e1a20", hat: "minerhat", cap: "#3a3430", buttons: "#6a4a3a", skin: "#e0b48c", braces: "#5a4028", build: "stout" }, 331, "mn2"),
+  // Timothy Dexter: a dark green coat, a cocked hat, a big grin (his portrait has the hat, the cane and the dog)
+  dexter: who(GENT("#2e5a3a", { cap: "#1e1c22", band: "#d8b04a", skin: "#f2d0ae", tie: "#f6f2e8", build: "stout" }), 401, "dexter"),
+  // Dexter in his leather days: a work shirt and an apron-brown waistcoat, no hat
+  dexterw: who({ jacket: "#7a5232", pants: "#5a4a3a", boots: "#2a221c", hat: "hair", hair: "#6a4a2a", buttons: "#7a5232", skin: "#f2d0ae", shirt: "#efe6cf", braces: "#4a3020", build: "stout" }, 401, "dexterw"),
+  // Elizabeth, his wife
+  wife: who({ jacket: "#3a3a4a", pants: "#2a2a32", boots: "#1e1a20", hat: "bonnet", cap: "#e9e2cf", dress: "#4a4a5e", buttons: "#3a3a4a", skin: "#f5d6b8" }, 402, "wife"),
+  // Newburyport's merchants: wigs, cocked hats, fine coats
+  m1: who(GENT("#4a2a3a", { moustache: "#8a8a92", hat: "hair", hair: "#e8e6e0" }), 403, "m1"), m2: who(GENT("#2a3a5a", { build: "stout" }), 404, "m2"),
+  m3: who(GENT("#5a4a2a", { skin: "#e8c4a0", hat: "hair", hair: "#d8d6d0" }), 405, "m3"), m4: who(GENT("#3a2a22", { moustache: "#3a2a20" }), 406, "m4"),
+  // sailors and dockers
+  s1: who(SAIL("#2a3a5a"), 407, "s1"), s2: who(SAIL("#6a3a2a", { skin: "#c8946a" }), 408, "s2"), s3: who(SAIL("#3a5a4a", { hat: "hair", hair: "#3a2a20", moustache: "#3a2a20" }), 409, "s3"),
+  // Newcastle's miners, idle on strike: dark jackets, caps, coal-smudged
+  mn1: who({ jacket: "#3a3a40", pants: "#2e2c30", boots: "#1e1a20", hat: "cap", cap: "#2a2a2e", buttons: "#3a3a40", skin: "#d8b896", braces: "#4a3a2a", moustache: "#2a2220" }, 410, "mn1"),
+  mn2: who({ jacket: "#4a4038", pants: "#2e2c30", boots: "#1e1a20", hat: "cap", cap: "#3a3430", buttons: "#4a4038", skin: "#e0c0a0", braces: "#2a2220", build: "stout" }, 411, "mn2"),
+  mn3: who({ jacket: "#2e3440", pants: "#2e2c30", boots: "#1e1a20", hat: "hair", hair: "#5a4030", buttons: "#2e3440", skin: "#e8c8a8" }, 412, "mn3"),
+  // a Newcastle buyer
+  buyer: who(GENT("#3a3a44", { hat: "tophat", cap: "#2e2a36", pants: "#3a3a40" }), 413, "buyer"),
+  // the islands: planters and cooks
+  i1: who(ISL("#e8dcc0", "#b07c54"), 414, "i1"), i2: who(ISL("#c95a3a", "#a87048", { hat: "hair", hair: "#1e1a1a", dress: "#d8743a" }), 415, "i2"), i3: who(ISL("#f2ecd8", "#b8805a", { moustache: "#1e1a1a" }), 416, "i3"),
+  // townsfolk and mourners (the wake), readers
+  t1: who({ jacket: "#6a5a7a", pants: "#3a3a44", boots: "#2a221c", hat: "bonnet", cap: "#e9e2cf", dress: "#3a3a46", buttons: "#6a5a7a", skin: "#f5d2b4" }, 417, "t1"),
+  t2: who({ jacket: "#2a2a30", pants: "#2a2a32", boots: "#2a221c", hat: "tricorn", cap: "#1e1c22", buttons: "#2a2a30", skin: "#e8c4a0", shirt: "#efe6cf" }, 418, "t2"),
+  t3: who({ jacket: "#3a2a2a", pants: "#2a2a32", boots: "#2a221c", hat: "hair", hair: "#c9a060", buttons: "#3a2a2a", skin: "#f0d2b0", shirt: "#efe6cf" }, 419, "t3"),
+  t4: who({ jacket: "#2a3a3a", pants: "#3a3a44", boots: "#2a221c", hat: "bonnet", cap: "#d8c0a0", dress: "#2a3434", buttons: "#2a3a3a", skin: "#f0d2b8" }, 420, "t4"),
+  t5: who({ jacket: "#2e2a34", pants: "#2a2a32", boots: "#2a221c", hat: "tophat", cap: "#2e2a36", buttons: "#2e2a34", skin: "#e0b48c", moustache: "#2a1a12" }, 421, "t5"),
+  t6: who({ jacket: "#4a3a4a", pants: "#3a3a44", boots: "#2a221c", hat: "bonnet", cap: "#e9e2cf", dress: "#3a2e3a", buttons: "#4a3a4a", skin: "#c8946a" }, 422, "t6"),
+  // the statues: Washington in his blue and buff, Adams, Jefferson (red hair), Dexter himself, Napoleon, Pitt, Franklin
+  washington: who(STAT("#2a4a8a", { pants: "#e8d8b0", hat: "hair", hair: "#f2f0ea", skin: "#ecc8a4", buttons: "#e8c45a", sash: "#e8d8b0" }), 430, "washington"),
+  adams: who(STAT("#4a3a2a", { hat: "hair", hair: "#e8e6e0", build: "stout" }), 431, "adams"),
+  jefferson: who(STAT("#6a3a2a", { hat: "hair", hair: "#c8643a", skin: "#f0cca8" }), 432, "jefferson"),
+  dexstat: who(STAT("#2e5a3a", { cap: "#1e1c22", band: "#e8c45a", skin: "#f2d0ae", build: "stout" }), 433, "dexstat"),
+  napoleon: who(STAT("#2a3a6a", { pants: "#f2ecd8", cap: "#1e1c22", band: "#e8c45a", sash: "#c0353a" }), 434, "napoleon"),
+  pitt: who(STAT("#3a2a2a", { hat: "hair", hair: "#e8e6e0", pants: "#2a2a2e" }), 435, "pitt"),
+  franklin: who(STAT("#6a5a3a", { hat: "hair", hair: "#e8e6e0", build: "stout", skin: "#ecc8a4" }), 436, "franklin"),
+  stat1: who(STAT("#8a2a2a", { hat: "hair", hair: "#3a2a20" }), 437, "stat1"), stat2: who(STAT("#2a6a5a", { cap: "#2a2630" }), 438, "stat2"),
+  stat3: who(STAT("#e8dcc0", { hat: "hair", hair: "#e8c45a", dress: "#f2ecd8", skin: "#f2d6b8" }), 439, "stat3"), stat4: who(STAT("#5a3a6a", { hat: "crown" }), 440, "stat4"),
+  man: who(GENT("#3a3a3a"), 499, "man"),
 };
 
 const SUc = 0.00216;
@@ -111,6 +123,7 @@ export class TwWorld {
   private river: RiverSet; private woods: WoodsSet; private room: RoomSet; private north: NorthSet;
   private grassR: Grass; private grassW: Grass; private grassN: Grass; private northGrass = false;
   private tools: { g: THREE.Group; barrel: THREE.Mesh; heads: Record<string, THREE.Object3D> }[] = [];
+  private pans: THREE.Group[] = []; private canes: THREE.Group[] = []; private pot = new THREE.Group();
   private cards: Record<CardKind, CardPool>;
   private puffs: THREE.Sprite[] = [];
   private lastPeople: { name: string; p: V3; low: boolean; extra: boolean; s: number }[] = [];
@@ -134,7 +147,15 @@ export class TwWorld {
       const pick = new THREE.Group(); { const bb = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.05, 0.05), iron); pick.add(bb); for (const sx of [-1, 1]) { const tp = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.14, 6), iron); tp.rotation.z = -sx * Math.PI / 2; tp.position.x = sx * 0.4; pick.add(tp); } }
       const heads = { stock, knife, pick }; for (const h of Object.values(heads)) g.add(h);
       shadowAll(g); g.visible = false; R.add(g); this.tools.push({ g, barrel, heads }); }
-    this.cards = { paper: new CardPool(R, sheetTex(), 24, 0.24, 0.3, NOINK), spark: new CardPool(R, sparkTex(), 40, 0.14, 0.14, AFTERINK), flake: new CardPool(R, flakeTex(), 80, 0.09, 0.09, AFTERINK), nugget: new CardPool(R, nuggetTex(), 30, 0.22, 0.22, NOINK) };
+    // warming pans to hold (the handle's grip is 0.95 m from the pan's centre along local +x), and canes
+    for (let i = 0; i < 6; i++) { const g = warmingPan(1); g.visible = false; R.add(g); this.pans.push(g); }
+    const caneW = M("dxCane", "#3a2418"), knob = M("dxKnob", "#d8b04a", { emissive: "#5a3a08", emissiveIntensity: 0.3 });
+    for (let i = 0; i < 2; i++) { const g = new THREE.Group(); g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.012, 1, 8).translate(0, -0.5, 0), caneW)); g.add(new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 8), knob)); shadowAll(g); g.visible = false; R.add(g); this.canes.push(g); }
+    { const pw = M("dxPewter", "#b8bcc4", { emissive: "#3a3c44", emissiveIntensity: 0.3 }); this.pot.add(new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.13, 14).translate(0, 0.065, 0), pw)); this.pot.add(new THREE.Mesh(new THREE.SphereGeometry(0.046, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2).translate(0, 0.13, 0), pw));
+      for (let k = 0; k < 5; k++) this.pot.add(new THREE.Mesh(new THREE.SphereGeometry(0.007, 6, 4).translate(0.022 * Math.cos(k * 1.26), 0.172, 0.022 * Math.sin(k * 1.26)), M("dxPotHole", "#1e1a22"))); shadowAll(this.pot); this.pot.visible = false; R.add(this.pot); }
+    this.cards = { paper: new CardPool(R, sheetTex(), 24, 0.24, 0.3, NOINK), spark: new CardPool(R, sparkTex(), 40, 0.14, 0.14, AFTERINK), flake: new CardPool(R, flakeTex(), 80, 0.09, 0.09, AFTERINK), nugget: new CardPool(R, nuggetTex(), 30, 0.22, 0.22, NOINK),
+      note: new CardPool(R, noteTex(), 60, 0.34, 0.21, NOINK), coin: new CardPool(R, coinTex(), 70, 0.14, 0.14, NOINK), coal: new CardPool(R, coalTex(), 40, 0.24, 0.24, NOINK),
+      dot: new CardPool(R, markTex("."), 30, 0.22, 0.22, AFTERINK), comma: new CardPool(R, markTex(","), 30, 0.22, 0.22, AFTERINK), qmark: new CardPool(R, markTex("?"), 30, 0.22, 0.22, AFTERINK) };
     const puffT = puffTex();
     for (let i = 0; i < 64; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: puffT, transparent: true, depthWrite: false, fog: false })); s.visible = false; s.layers.set(AFTERINK); R.add(s); this.puffs.push(s); }
     void lam;
@@ -168,17 +189,17 @@ export class TwWorld {
     const flick = (k: number) => 1 + 0.14 * Math.sin(t * 9 + k) + 0.08 * Math.sin(t * 23 + 2 * k);
 
     // ---------------- the sets ----------------
-    this.river.group.visible = set === "river"; this.woods.group.visible = set === "woods"; this.room.group.visible = set === "room"; this.north.group.visible = set === "north";
-    if (set === "river") { this.river.drift(t); this.river.water.U.uSun.value.set(...SUN[light]); this.grassR.update(cam); }
-    if (set === "woods") { this.woods.drift(t); this.grassW.update(cam); }
-    if (set === "room") { const Rm = this.room; Rm.tavern.visible = light === "tavern"; Rm.congress.visible = light === "congress"; Rm.conv.visible = light === "conv";
-      Rm.map.map = Rm.mapTex[st.map ?? "strip"]; Rm.map.needsUpdate = true;
+    this.river.group.visible = set === "river"; this.woods.group.visible = set === "woods"; this.room.group.visible = set === "room"; this.north.group.visible = false;
+    if (set === "river") { const Rv = this.river, trop = light === "tropic", nc = light === "newcastle";
+      Rv.trees.visible = !trop; Rv.palms.visible = trop; Rv.pans.visible = !!st.pans3 || trop; Rv.coal.visible = !!st.coal || nc; Rv.strike.visible = nc;
+      Rv.skies.day.visible = light === "port"; Rv.skies.grey.visible = nc; Rv.skies.hot.visible = trop;
+      Rv.drift(t); Rv.water.U.uSun.value.set(...SUN[light]); this.grassR.update(cam); }
+    if (set === "woods") { const Mn = this.woods; Mn.coffin.visible = light === "wake" || !!st.coffin; Mn.skies.day.visible = light !== "wake"; Mn.skies.grey.visible = light === "wake"; Mn.drift(t); this.grassW.update(cam); }
+    if (set === "room") { const Rm = this.room; Rm.tavern.visible = light === "tavern"; Rm.study.visible = light === "study"; Rm.congress.visible = false; Rm.conv.visible = false;
+      Rm.map.map = Rm.mapTex[st.page ?? "pickle"]; Rm.map.needsUpdate = true;
       Rm.lamps.forEach((l, i) => { l.intensity = light === "tavern" ? 9 * flick(i) * 0.95 : 0; });
-      Rm.win.intensity = light === "congress" ? 16 : light === "conv" ? 6 : light === "tavern" ? 3 : 0;
-      Rm.stove.intensity = light === "conv" ? 10 * flick(2) : 0; Rm.stoveGlow.visible = light === "conv"; Rm.drift(t); }
-    if (set === "north") { const N = this.north, win = light === "northW"; N.winter.visible = win; N.summer.visible = !win; N.copper.visible = !win; N.drift(t); N.water.U.uSun.value.set(...SUN[light]);
-      this.northGrass = !win; this.grassN.update(cam); }
-
+      Rm.win.intensity = light === "study" ? 7 : light === "tavern" ? 3 : 0; Rm.candle.intensity = light === "study" ? 7 * flick(3) : 0;
+      Rm.stove.intensity = 0; Rm.stoveGlow.visible = false; Rm.drift(t); }
     // ---------------- props ----------------
     this.tools.forEach((tl, i) => { const q = st.tools?.[i]; tl.g.visible = !!q; if (!q) return;
       const gp = V(...q.g), bp = V(...q.b), d = bp.clone().sub(gp), len = d.length(); d.normalize();
@@ -186,6 +207,10 @@ export class TwWorld {
       tl.barrel.visible = gun; if (gun) { tl.barrel.position.copy(gp).addScaledVector(d, len / 2); tl.barrel.quaternion.setFromUnitVectors(V(0, 1, 0), d); tl.barrel.scale.set(1, len, 1); }
       const head = gun ? "stock" : q.kind;
       for (const [k, h] of Object.entries(tl.heads)) { h.visible = k === head; if (k !== head) continue; h.position.copy(k === "pick" ? bp : gp); h.quaternion.setFromUnitVectors(V(0, 1, 0), k === "stock" ? d : d.clone().negate()); if (k === "pick") h.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, Math.PI / 2))); } });
+    this.pans.forEach((g, i) => { const q = st.pans?.[i]; g.visible = !!q; if (!q) return; const dir = V(...q.dir).normalize(); g.position.set(q.hand[0] + dir.x * 0.95, q.hand[1] + dir.y * 0.95, q.hand[2] + dir.z * 0.95);
+      g.quaternion.setFromUnitVectors(V(1, 0, 0), dir.clone().negate()); if (q.roll) g.rotateX(q.roll); });
+    this.canes.forEach((g, i) => { const q = st.canes?.[i]; g.visible = !!q; if (!q) return; const d = V(...q.b).sub(V(...q.g)), len = d.length(); g.position.set(...q.g); g.quaternion.setFromUnitVectors(V(0, -1, 0), d.normalize()); g.scale.set(1, len, 1); });
+    this.pot.visible = !!st.pot; if (st.pot) { this.pot.position.set(...st.pot); this.pot.rotation.set(0.25 * Math.sin(t * 30), 0, 0.3); }
     for (const p of Object.values(this.cards)) p.hide();
     const cn: Record<string, number> = {};
     for (const cd of st.cards ?? []) { const k = cn[cd.kind] ?? 0; cn[cd.kind] = k + 1; this.cards[cd.kind].put(k, cd.p, cam, cd.spin, cd.s, !!cd.flat); }
@@ -203,7 +228,7 @@ export class TwWorld {
     for (const { q, w } of people) {
       if (!this.frustum.intersectsSphere(this.sph.set(this.v.set(q.p[0], q.p[1] + 1.1, q.p[2]), 3.5))) continue;
       const d = cam.position.distanceTo(this.v.set(q.p[0], q.p[1] + 1.2, q.p[2]));
-      const [cw, ch, kk] = tier(d), act = this.actor(ai++), bl = blink(w.seed), ks = q.s ?? (w.o.build === "kid" ? 0.72 : 1);
+      const [cw, ch, kk] = tier(d), act = this.actor(ai++), bl = w.key.startsWith("stat") || ["washington", "adams", "jefferson", "dexstat", "napoleon", "pitt", "franklin"].includes(w.key) ? 0 : blink(w.seed), ks = q.s ?? (w.o.build === "kid" ? 0.72 : 1);
       const o3 = V(...q.p), nx = cam.position.x - q.p[0], nz2 = cam.position.z - q.p[2], nl2 = Math.hypot(nx, nz2) || 1, n3 = V(nx / nl2, 0, nz2 / nl2), crs = V(n3.z, 0, -n3.x);
       const onCard = (wp: THREE.Vector3): [number, number] => { const dir = wp.clone().sub(cam.position), tt = o3.clone().sub(cam.position).dot(n3) / dir.dot(n3), pc = cam.position.clone().addScaledVector(dir, tt); return [pc.clone().sub(o3).dot(crs) / ks, (pc.y - q.p[1]) / ks]; };
       const mirror = !!q.side && (q.side.mirror !== (right.x < 0));
@@ -231,7 +256,7 @@ export class TwWorld {
     }
     for (let i = ai; i < this.actors.length; i++) this.actors[i].mesh.visible = this.actors[i].caster.visible = false;
     // ---- contact shadows ----
-    const cc = set === "room" ? "#2a2420" : set === "north" && light === "northW" ? "#8a8c96" : "#5a5248";
+    const cc = set === "room" ? "#2a2420" : light === "newcastle" ? "#4a4848" : "#5a5248";
     let fi = 0;
     for (const { q } of people) {
       if (q.low || q.air) continue;

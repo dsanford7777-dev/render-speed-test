@@ -1,4 +1,4 @@
-// The Toledo War Short: the four sets (place.ts says where). Built to the background rules and the production
+// The Dexter Short: the four sets (place.ts says where). Built to the background rules and the production
 // checklist: every post reaches the ground, nothing floats, far ground has texture, signs are whole words, every light
 // has a source, trees keep clear of buildings and cameras, skies are closed, water moves and breaks at its edges.
 import * as THREE from "three";
@@ -9,8 +9,9 @@ import { M, noInk, shadowAll, sheet, rodGeo, houseAt, flame, waterMat, glow } fr
 import { foamTex } from "../frozen/fpaint";
 import { NOINK } from "../bridge/ink";
 import { signTex } from "../cahaba/cpaint";
-import { SET, ST_Z0, ST_Z1, BLD_Z, BANK_Z0, BANK_Z1, bankZ, WATER_Y, FAR_Z, riverY, TAVERN, WHARF, SHIP, LINE_Z, COMPASS, CLEAR_R, ROOM, BAR, TABLE, MAP, STOVE, SHORE_Z, LAKE_Y, OUTCROP, PORTAL, northY } from "./place";
-import { logTex, clapTex, streetTex, snowTex, copperRockTex, frostTex, twSkyTex, mapTex, rep } from "./dpaint";
+import { SET, ST_Z0, ST_Z1, BLD_Z, BANK_Z0, BANK_Z1, bankZ, WATER_Y, FAR_Z, riverY, TAVERN, WHARF, SHIP, ROOM, BAR, TABLE, MAP, STOVE, SHORE_Z, LAKE_Y, OUTCROP, PORTAL, northY,
+  CRATES, COALP, FIRE, SHOP, HS_Z0, HS_Z1, FENCE_Z, ARCH_W, ARCH_H, ARCH_Z, PATH_W, HOUSE_Z, HOUSE_W, HOUSE_D, HOUSE_H, COL_H, COLS, DEX_COL, COFFIN, DESK, DESK_Y } from "./place";
+import { logTex, clapTex, streetTex, snowTex, copperRockTex, frostTex, twSkyTex, rep, pageTex, brickTex } from "./dpaint";
 
 const M4 = (x: number, y: number, z: number, ry = 0, s = 1) => new THREE.Matrix4().compose(V(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, ry, 0)), V(s, s, s));
 type Fol = { g: THREE.BufferGeometry; m: THREE.Matrix4; tint?: number }[];
@@ -51,9 +52,33 @@ const cabin = (G: THREE.Object3D, x: number, z: number, w: number, d: number, h:
 };
 
 // =====================================================================================================================
-export type RiverSet = { group: THREE.Group; water: ReturnType<typeof waterMat>; foam: THREE.Mesh[]; ship: THREE.Group; turf: (x: number, z: number) => number | null; dust: ReturnType<typeof dustMotes>; drift: (t: number) => void };
+export type RiverSet = { group: THREE.Group; water: ReturnType<typeof waterMat>; foam: THREE.Mesh[]; ship: THREE.Group; turf: (x: number, z: number) => number | null; dust: ReturnType<typeof dustMotes>; drift: (t: number) => void;
+  /** dressings: the pines (Newburyport, Newcastle), the palms (West Indies), crates of bed warmers, the coal heap, the strike board; skies */
+  trees: THREE.Group; palms: THREE.Group; pans: THREE.Group; coal: THREE.Group; strike: THREE.Group; skies: Record<"day" | "grey" | "hot", THREE.Mesh> };
+/** a palm: a leaning, ringed trunk and a fan of drooping fronds (two tones), every frond attached at the crown */
+const palmAt = (G: THREE.Object3D, x: number, y: number, z: number, h: number, lean: number, seed: number) => {
+  const g = new THREE.Group(), trunk = M("dxPalmTrunk", "#9a7a54"), ring = M("dxPalmRing", "#6a5236"), fr = [M("dxFrondA", "#4f9a4a"), M("dxFrondB", "#3a7a3c")];
+  const tilt = new THREE.Group(); tilt.rotation.z = lean; g.add(tilt);
+  tilt.add(new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.26, h, 10).translate(0, h / 2, 0), trunk));
+  for (let k = 1; k < 9; k++) tilt.add(new THREE.Mesh(new THREE.TorusGeometry(0.22 - k * 0.006, 0.035, 5, 14).rotateX(Math.PI / 2).translate(0, (k / 9) * h, 0), ring));
+  for (let k = 0; k < 10; k++) { const a = (k / 10) * Math.PI * 2 + seed, len = 2.6 + 0.4 * Math.sin(k * 1.7 + seed);
+    const f = new THREE.Group(); f.position.set(0, h - 0.05, 0); f.rotation.y = -a; tilt.add(f);
+    const shp = new THREE.Shape([new THREE.Vector2(0, -0.05), new THREE.Vector2(len * 0.45, -0.34), new THREE.Vector2(len, 0), new THREE.Vector2(len * 0.45, 0.34), new THREE.Vector2(0, 0.05)]);
+    const fg = new THREE.ShapeGeometry(shp); fg.rotateX(-Math.PI / 2); const pp = fg.attributes.position as THREE.BufferAttribute; for (let i = 0; i < pp.count; i++) { const u = pp.getX(i) / len; pp.setY(i, -0.9 * u * u - 0.1 * u); } fg.computeVertexNormals();
+    f.add(new THREE.Mesh(fg, fr[k % 2])); }
+  tilt.add(new THREE.Mesh(new THREE.SphereGeometry(0.3, 8, 6).translate(0, h - 0.1, 0), M("dxCoco", "#5a4226")));
+  g.position.set(x, y, z); g.rotation.y = seed; shadowAll(g); G.add(g); return g; };
+/** a warming pan: a lidded brass pan on a long wooden handle (local: the pan's centre at the origin, the handle along +x) */
+export const warmingPan = (scale = 1) => { const g = new THREE.Group(), brass = M("dxBrass", "#d8a83a", { emissive: "#5a3a08", emissiveIntensity: 0.35 }), dk = M("dxBrassD", "#a8782a"), wd = M("dxPanWood", "#6a4226");
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.15, 0.08, 18), dk)); const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.175, 0.175, 0.025, 18).translate(0, 0.05, 0), brass); g.add(lid);
+  for (let k = 0; k < 6; k++) { const a = (k / 6) * Math.PI * 2; g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.01, 6).translate(Math.cos(a) * 0.09, 0.066, Math.sin(a) * 0.09), dk)); }
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.026, 0.95, 8).rotateZ(Math.PI / 2).translate(0.64, 0.0, 0), wd));
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.12, 8).rotateZ(Math.PI / 2).translate(0.2, 0, 0), brass));
+  g.scale.setScalar(scale); shadowAll(g); return g; };
 export function buildRiver(): RiverSet {
   const G = new THREE.Group(), ox = SET.river[0], b = new Batch();
+  const trees = new THREE.Group(), palms = new THREE.Group(), pans = new THREE.Group(), coal = new THREE.Group(), strike = new THREE.Group(); G.add(trees, palms, pans, coal, strike);
+  const r = (k: number) => ((k * 9301 + 49297) % 233280) / 233280;
   const wood = lam("twWood", () => ({ map: planksHD(), color: "#8a6a4a" })), dark = lam("twWoodD", () => ({ map: planksHD(), color: "#5a4230" }));
   // ground: grass everywhere, the street on top, the bank down to the river, gravel at the water line, the far bank
   { const g = sheet(ox - 160, ox + 160, -80, 110, 160, 120, (x, z) => riverY(x - ox, z) + (z < BANK_Z0 || z > FAR_Z + 4 ? 0.05 * Math.sin(x * 0.7 + z * 0.4) : 0), 4);
@@ -68,15 +93,19 @@ export function buildRiver(): RiverSet {
   b.add(B(ox - 60, 0, ST_Z1 + 0.2, ox - 4, 0.22, BLD_Z - 0.05, 2), wood);
   for (let x = -59; x <= -5; x += 3) b.add(B(ox + x - 0.08, 0, ST_Z1 + 0.25, ox + x + 0.08, 0.22, ST_Z1 + 0.4), dark);
   // the buildings along the far side of the street (screen right): log stores, frame houses; the tavern with its sign
-  { const logM = lam("twLogM", () => ({ map: rep(logTex(), 1.5, 1) })), logM2 = lam("twLogM2", () => ({ map: rep(logTex("twLog2", "#7a5a3e"), 1.5, 1) }));
+  { const logM = lam("dxClapW", () => ({ map: rep(clapTex("#e6e0d2"), 2, 1.4) })), logM2 = lam("dxBrickM", () => ({ map: rep(brickTex(), 3, 2) }));
     cabin(G, ox + TAVERN.x, BLD_Z, 8, 7, 4.2, logM, "#5a4636", true);
     sign(G, "TAVERN", ox + TAVERN.x, 4.9, BLD_Z - 0.04, 3.4, 0.8, "#3a2418", "#f2d68a");
     b.add(B(ox + TAVERN.x - 4.4, 3.05, BLD_Z - 1.6, ox + TAVERN.x + 4.4, 3.15, BLD_Z), dark); // porch roof
     for (const sx of [-4.2, 4.2]) b.add(B(ox + TAVERN.x + sx - 0.08, 0, BLD_Z - 1.6, ox + TAVERN.x + sx + 0.08, 3.05, BLD_Z - 1.44), dark);
     cabin(G, ox - 24, BLD_Z, 9, 8, 4.6, logM2, "#4a3a2e");
-    sign(G, "GENERAL STORE", ox - 24, 5.25, BLD_Z - 0.04, 5.0, 0.75, "#f2ecdc", "#2a1a12");
+    sign(G, "T. DEXTER|HIDES & GLOVES", ox + SHOP[0], 3.9, BLD_Z - 0.04, 3.2, 1.1, "#2a3a5a", "#f2e6c8");
+    // hides hung on a rail beside his door (posts to the board walk)
+    { const hb = new Batch(), hx = ox + SHOP[0] + 2.6; hb.add(B(hx - 1.3, 2.55, BLD_Z - 0.55, hx + 1.3, 2.62, BLD_Z - 0.48), dark); for (const sx of [-1.25, 1.25]) hb.add(B(hx + sx - 0.05, 0.22, BLD_Z - 0.56, hx + sx + 0.05, 2.62, BLD_Z - 0.46), dark); hb.build(G, true);
+      [-0.75, 0.05, 0.85].forEach((dx, k) => { const pts: THREE.Vector2[] = []; for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2, rr = 0.42 + 0.08 * Math.sin(i * 2.7 + k) ; pts.push(new THREE.Vector2(Math.cos(a) * rr * 0.8, Math.sin(a) * rr * 1.15)); }
+        const hm = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape(pts)), M("dxHide" + k, ["#8a5a32", "#a87040", "#6a4224"][k])); hm.position.set(hx + dx, 1.9, BLD_Z - 0.6); hm.rotation.y = Math.PI; G.add(hm); }); }
     houseAt(b, G, ox - 35, BLD_Z + 3, 7, 6, 4.4, "#c9b48a", "#5a4a3e", false, 0);
-    cabin(G, ox - 45, BLD_Z, 8, 7, 4.0, lam("twClapM", () => ({ map: rep(clapTex("#d8cdb0"), 2, 1.4) })), "#4a3e34");
+    cabin(G, ox - 45, BLD_Z, 8, 7, 4.0, lam("twClapM", () => ({ map: rep(clapTex("#9aaab4"), 2, 1.4) })), "#4a3e34");
     houseAt(b, G, ox - 56, BLD_Z + 3, 7, 6, 4.2, "#a8846a", "#4a3e34", false, 0);
     cabin(G, ox - 6.5, BLD_Z + 1, 4.5, 6, 3.6, logM2, "#4a3a2e");
     // across the street (near side, behind the cameras for most shots): a few more, for the reverse angles
@@ -117,46 +146,119 @@ export function buildRiver(): RiverSet {
     for (let i = 0; i < 110; i++) { const x = -150 + r(i) * 300, z = FAR_Z + 8 + r(i + 400) * 50; spots.push([ox + x, riverY(x, z), z, 0.8 + r(i + 900) * 0.5]); }
     for (let i = 0; i < 26; i++) { const x = -150 + r(i + 77) * 100; if (x > -64) continue; const z = 20 + r(i + 177) * 12; spots.push([ox + x, 0, z, 0.8 + r(i + 277) * 0.4]); }
     for (let i = 0; i < 24; i++) { const x = -80 + r(i + 55) * 70, z = BLD_Z + 13 + r(i + 155) * 8; if (x > -10) continue; spots.push([ox + x, 0, z, 0.8 + r(i + 255) * 0.4]); }
-    forest(G, spots.filter(([x, , z]) => z < bankZ(x - ox) - 1 || z > FAR_Z + 6), "river", 0.55); }
-  skyPl(G, twSkyTex("day"), "#6c9acc", ox, 30, 230, 160, -20);
+    forest(trees, spots.filter(([x, , z]) => z < bankZ(x - ox) - 1 || z > FAR_Z + 6), "river", 0.55);
+    // the West Indies: palms on the near bank, along the street ends and over the far bank (none on the wharf or the street)
+    const pal: [number, number][] = [[2.5, 7.2], [6.8, 6.4], [15.5, 7.6], [19, 6.8], [-2.8, 7.4], [-66, 4], [-70, 9], [24, 7.4]];
+    pal.forEach(([x, z], i) => palmAt(palms, ox + x, 0, z, 6.2 + 1.3 * Math.sin(i * 2.3), 0.08 * Math.sin(i * 1.9) + 0.06, i * 1.3));
+    for (let i = 0; i < 40; i++) { const x = -140 + r(i + 600) * 280, z = FAR_Z + 6 + r(i + 700) * 30; palmAt(palms, ox + x, riverY(x, z), z, 7 + 3 * r(i + 800), 0.1 * (r(i + 900) - 0.5), i); } }
+  // the islanders' cooking fire: a ring of stones, crossed sticks, ash (the flames are puffs, posed per shot)
+  { const [fx, , fz] = FIRE, st = M("dxFireSt", "#7a7068"), ash = M("dxAsh", "#3a3430"); for (let k = 0; k < 9; k++) { const a = (k / 9) * Math.PI * 2, rk = new THREE.Mesh(rockGeo(0.16, k + 70, 0, 0.7), st); rk.position.set(ox + fx + Math.cos(a) * 0.5, 0.06, fz + Math.sin(a) * 0.5); palms.add(rk); }
+    const ad = new THREE.Mesh(new THREE.CircleGeometry(0.42, 14), ash); ad.rotation.x = -Math.PI / 2; ad.position.set(ox + fx, 0.03, fz); palms.add(ad);
+    for (const a of [0.3, 1.4, 2.5]) palms.add(new THREE.Mesh(rodGeo(V(ox + fx + Math.cos(a) * 0.45, 0.06, fz + Math.sin(a) * 0.45), V(ox + fx - Math.cos(a) * 0.3, 0.2, fz - Math.sin(a) * 0.3), 0.04), M("dxStick", "#5a3a22")));
+    for (const sx of [-0.7, 0.7]) palms.add(new THREE.Mesh(rodGeo(V(ox + fx + sx, 0, fz), V(ox + fx + sx * 0.95, 1.1, fz), 0.03), M("dxStick", "#5a3a22")));
+    palms.add(new THREE.Mesh(rodGeo(V(ox + fx - 0.75, 1.08, fz), V(ox + fx + 0.75, 1.08, fz), 0.025), M("dxStick", "#5a3a22"))); }
+  // the cargo on the wharf: crates of bed warmers, a few out on top; the coal heap with a shovel and a barrow; the strike board
+  { const [cx, cy, cz] = CRATES, crate = lam("dxCrate", () => ({ map: planksHD(), color: "#b08a5a" }));
+    const cb = new Batch(); for (const [dx, dz, dy] of [[-0.6, 0, 0], [0.6, 0, 0], [0, 1.15, 0], [-0.6, 0, 0.9], [0.55, 1.2, 0.9]] as [number, number, number][]) cb.add(B(ox + cx + dx - 0.55, cy + dy, cz + dz - 0.5, ox + cx + dx + 0.55, cy + dy + 0.9, cz + dz + 0.5, 1), crate); cb.build(pans, true);
+    for (const [dx, dy, dz, ry] of [[0.6, 0.92, -0.1, 0.4], [0.3, 0.95, 0.25, 2.2], [-0.4, 1.82, 0.1, -0.6]] as [number, number, number, number][]) { const wp = warmingPan(1); wp.position.set(ox + cx + dx, cy + dy, cz + dz); wp.rotation.y = ry; pans.add(wp); }
+    const [kx, ky, kz] = COALP, cm = M("dxCoalM", "#2a282e"), cs = M("dxCoalS", "#4a4e5a");
+    for (let i = 0; i < 26; i++) { const a = r(i + 40) * Math.PI * 2, d = 1.15 * Math.sqrt(r(i + 41)), hh = 0.95 * (1 - d / 1.3); const rk = new THREE.Mesh(rockGeo(0.32 + 0.22 * r(i + 42), i + 5, 0, 0.8), i % 4 ? cm : cs); rk.position.set(ox + kx + Math.cos(a) * d, ky + 0.1 + hh * r(i + 43), kz + Math.sin(a) * d * 0.8); coal.add(rk); }
+    const heap = new THREE.Mesh(new THREE.ConeGeometry(1.4, 1.1, 10).translate(ox + kx, ky + 0.55, kz), cm); coal.add(heap);
+    for (let i = 0; i < 14; i++) { const rk = new THREE.Mesh(rockGeo(0.22 + 0.1 * r(i + 90), i + 31, 0, 0.8), cm); rk.position.set(ox + SHIP[0] - 3 + 2.4 * r(i + 91), SHIP[1] + 1.4, SHIP[2] - 0.8 + 1.6 * r(i + 92)); coal.add(rk); }
+    const bw = new Batch(); bw.add(B(ox + kx + 1.6, ky + 0.35, kz - 0.4, ox + kx + 2.4, ky + 0.65, kz + 0.4, 1), crate); bw.add(new THREE.CylinderGeometry(0.2, 0.2, 0.08, 12).rotateX(Math.PI / 2).translate(ox + kx + 2.5, ky + 0.2, kz), M("dxIron", "#2e2a2c"));
+    for (const dz of [-0.3, 0.3]) bw.add(rodGeo(V(ox + kx + 1.6, ky + 0.45, kz + dz), V(ox + kx + 0.9, ky + 0.75, kz + dz), 0.03), crate);
+    for (const dz of [-0.3, 0.3]) bw.add(B(ox + kx + 1.7 - 0.03, ky, kz + dz - 0.03, ox + kx + 1.7 + 0.03, ky + 0.36, kz + dz + 0.03), crate);
+    bw.build(coal, true); shadowAll(coal);
+    const sb = new Batch(); for (const sx of [-1.0, 1.0]) sb.add(B(ox + 11 + sx - 0.06, WHARF.y, 10.4 - 0.06, ox + 11 + sx + 0.06, WHARF.y + 2.6, 10.4 + 0.06), M("dxPost", "#4a3424")); sb.build(strike, true);
+    sign(strike, "STRIKE!|NO COAL DUG", ox + 11, WHARF.y + 2.0, 10.33, 2.4, 1.1, "#f2ecdc", "#a8231e"); shadowAll(strike); }
+  const skies = { day: skyPl(G, twSkyTex("day"), "#6c9acc", ox, 30, 230, 160, -20), grey: skyPl(G, twSkyTex("grey"), "#6e7278", ox, 30, 229, 160, -20), hot: skyPl(G, twSkyTex("hot"), "#3a8ad8", ox, 30, 228, 160, -20) };
   const dust = dustMotes(V(ox, 2, 4), V(40, 4, 20), 160, new THREE.Color(1, 0.95, 0.8), 0.04, 0.35); G.add(dust.points);
   b.build(G, true); noInk(G);
-  const turf = (x: number, z: number) => { const lx = x - ox; if (z > ST_Z0 - 0.1 && z < ST_Z1 + 0.1) return null; if (z > ST_Z1 && z < BLD_Z + 10 && lx < -4) return null; if (z > bankZ(lx) + 0.5 && z < FAR_Z + 4) return null; if (lx > WHARF.x0 - 0.3 && lx < WHARF.x1 + 0.3 && z > BANK_Z0 - 1.6) return null; return riverY(lx, z) + 0.05 * Math.sin(x * 0.7 + z * 0.4); };
-  return { group: G, water, foam, ship, turf, dust, drift: (t) => { water.U.uTime.value = t; dust.drift(t); } };
+  const turf = (x: number, z: number) => { const lx = x - ox; if (z > ST_Z0 - 0.1 && z < ST_Z1 + 0.1) return null; if (z > ST_Z1 && z < BLD_Z + 10 && lx < -4) return null; if (z > bankZ(lx) + 0.5 && z < FAR_Z + 4) return null; if (lx > WHARF.x0 - 0.3 && lx < WHARF.x1 + 0.3 && z > BANK_Z0 - 1.6) return null; if (Math.hypot(lx - FIRE[0], z - FIRE[2]) < 0.75) return null; return riverY(lx, z) + 0.05 * Math.sin(x * 0.7 + z * 0.4); };
+  return { group: G, water, foam, ship, turf, dust, drift: (t) => { water.U.uTime.value = t; dust.drift(t); }, trees, palms, pans, coal, strike, skies };
 }
 
 // =====================================================================================================================
-export type WoodsSet = { group: THREE.Group; turf: (x: number, z: number) => number | null; dust: ReturnType<typeof dustMotes>; drift: (t: number) => void };
+export type WoodsSet = { group: THREE.Group; turf: (x: number, z: number) => number | null; dust: ReturnType<typeof dustMotes>; drift: (t: number) => void; coffin: THREE.Group; lid: THREE.Object3D; skies: Record<"day" | "grey", THREE.Mesh> };
+/** Lord Dexter's mansion on High Street (set-local, the cameras on the street side, -z, looking toward the house, +z) */
 export function buildWoods(): WoodsSet {
-  const G = new THREE.Group(), ox = SET.woods[0], b = new Batch();
-  const gy = (x: number, z: number) => 0.06 * Math.sin(x * 0.5 + z * 0.3) + 0.05 * Math.sin(x * 1.3 - z * 0.9);
-  { const g = sheet(ox - 120, ox + 120, -60, 120, 120, 90, gy, 4), m = new THREE.Mesh(g, lam("twWoodsM", () => ({ map: dirtTex("twWoodsT", "#5a6a32"), color: "#8a9a5a" }))); m.receiveShadow = true; G.add(m); }
-  // the survey line: stakes every 4 m with red rags, the chain lying along it, a blazed tree; the compass on its staff
-  const stake = lam("twStake", () => ({ map: planksHD(), color: "#c9a87a" })), rag = M("twRag", "#c0392b"), iron = M("twChain", "#3a3638");
-  for (let x = -40; x <= 40; x += 4) { const y = gy(ox + x, LINE_Z); b.add(B(ox + x - 0.05, y - 0.3, LINE_Z - 0.05, ox + x + 0.05, y + 1.1, LINE_Z + 0.05), stake); b.add(B(ox + x - 0.02, y + 0.95, LINE_Z - 0.1, ox + x + 0.02, y + 1.05, LINE_Z - 0.06), rag); }
-  for (let x = -14; x < 10; x += 0.32) b.add(B(ox + x, gy(ox + x, LINE_Z - 0.4), LINE_Z - 0.43, ox + x + 0.22, gy(ox + x, LINE_Z - 0.4) + 0.04, LINE_Z - 0.37), iron);
-  { const [cx, , cz] = COMPASS, y = gy(ox + cx, cz); b.add(new THREE.CylinderGeometry(0.03, 0.03, 1.45, 6).translate(ox + cx, y + 0.72 - 0.2, cz), M("twStaff", "#7a5a3a"));
-    b.add(new THREE.CylinderGeometry(0.17, 0.17, 0.06, 16).translate(ox + cx, y + 1.28, cz), M("twBrass", "#c9a23a"));
-    for (const sx of [-1, 1]) b.add(B(ox + cx + sx * 0.16 - 0.015, y + 1.28, cz - 0.015, ox + cx + sx * 0.16 + 0.015, y + 1.5, cz + 0.015), M("twBrass", "#c9a23a")); }
-  // stumps and logs in the clearing; a surveyors' pack and a felled tree at its edge
-  for (const [x, z, r] of [[6, 2, 0.4], [-9, 10, 0.5], [12, 11, 0.45], [-15, 1, 0.35]] as [number, number, number][]) b.add(new THREE.CylinderGeometry(r, r * 1.15, 0.5, 9).translate(ox + x, gy(ox + x, z) + 0.15, z), M("twStump", "#7a5a3a"));
-  b.add(new THREE.CylinderGeometry(0.35, 0.4, 7, 9).rotateZ(Math.PI / 2).translate(ox + 9, gy(ox + 9, 14) + 0.3, 14), M("twLogF", "#6a5034"));
-  // the forest round the clearing, with brush at its edge
-  { const spots: [number, number, number, number][] = [], brush: Fol = [], r = (k: number) => ((k * 9301 + 49297) % 233280) / 233280;
-    for (let i = 0; i < 320; i++) { const a = r(i) * Math.PI * 2, d = CLEAR_R + 2 + r(i + 999) * 60, x = Math.cos(a) * d * 1.6, z = 8 + Math.sin(a) * d; if (z < -12) continue; spots.push([ox + x, gy(ox + x, z), z, 0.85 + r(i + 333) * 0.45]); }
-    forest(G, spots, "woods", 0.6);
-    for (let i = 0; i < 90; i++) { const a = r(i + 50) * Math.PI * 2, d = CLEAR_R + r(i + 150) * 4, x = Math.cos(a) * d * 1.6, z = 8 + Math.sin(a) * d; if (z < -6) continue; brush.push({ g: bushGeo(0.7 + r(i + 250) * 0.5, i + 9, 5), m: M4(ox + x, gy(ox + x, z) - 0.1, z, i), tint: 0.85 + 0.3 * r(i + 350) }); }
-    const bm = new THREE.Mesh(mergeFacets(brush), lam("twBrush", () => ({ color: "#5a7a3a", vertexColors: true, flatShading: true }))); shadowAll(bm); G.add(bm); }
-  skyPl(G, twSkyTex("day"), "#6c9acc", ox, 8, 200, 160, -20);
-  const dust = dustMotes(V(ox, 2, 6), V(30, 4, 20), 200, new THREE.Color(1, 0.96, 0.82), 0.04, 0.45); G.add(dust.points);
-  b.build(G, true); noInk(G);
-  // grass only round the clearing's edge: the floor is trodden earth and leaves (people stand in it, not knee-deep)
-  const turf = (x: number, z: number) => { const lx = (x - ox) / 1.6, lz = z - 8; return lx * lx + lz * lz < (CLEAR_R - 1.5) ** 2 ? null : gy(x, z); };
-  return { group: G, turf, dust, drift: (t) => dust.drift(t) };
+  const G = new THREE.Group(), ox = SET.woods[0], b = new Batch(), r = (k: number) => ((k * 9301 + 49297) % 233280) / 233280;
+  const gy = (x: number, z: number) => (z < FENCE_Z ? 0 : 0.03 * Math.sin(x * 0.5 + z * 0.3) + 0.03 * Math.sin(x * 1.3 - z * 0.9));
+  const white = M("dxPaintW", "#eeeae0"), trim = M("dxTrim", "#fbf8f0"), gold = M("dxGold", "#e0b040", { emissive: "#6a4a08", emissiveIntensity: 0.45 }), dark = lam("dxWoodD", () => ({ map: planksHD(), color: "#4a3424" }));
+  // ground: the lawn, High Street's dirt in front, the gravel path from the gate to the door
+  { const g = sheet(ox - 140, ox + 140, -70, 120, 140, 95, (x, z) => gy(x - ox, z), 4), m = new THREE.Mesh(g, lam("dxLawnM", () => ({ map: dirtTex("dxLawnT", "#4e6e30"), color: "#8aa05e" }))); m.receiveShadow = true; G.add(m); }
+  { const g = new THREE.PlaneGeometry(280, HS_Z1 - HS_Z0, 1, 1); g.rotateX(-Math.PI / 2); const uv = g.attributes.uv as THREE.BufferAttribute; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 44, uv.getY(i));
+    const st = new THREE.Mesh(g, lam("twStreetM", () => ({ map: rep(streetTex(), 1, 1) }))); st.position.set(ox, 0.06, (HS_Z0 + HS_Z1) / 2); st.receiveShadow = true; G.add(st); }
+  { const g = new THREE.PlaneGeometry(PATH_W * 2, HOUSE_Z - FENCE_Z + 0.5); g.rotateX(-Math.PI / 2); const pm = new THREE.Mesh(g, lam("dxGravel", () => ({ map: dirtTex("dxGravelT", "#c8b898"), color: "#e0d4bc" }))); pm.position.set(ox, 0.07, (HOUSE_Z + FENCE_Z) / 2); pm.receiveShadow = true; G.add(pm); }
+  // the white picket fence along the street, open at the gate
+  for (let x = -40; x <= 40; x += 0.32) { if (Math.abs(x) < ARCH_W / 2 - 0.2) continue; b.add(B(ox + x - 0.05, 0, FENCE_Z - 0.03, ox + x + 0.05, 1.05, FENCE_Z + 0.03), white); }
+  for (const y of [0.35, 0.8]) for (const s0 of [-1, 1]) b.add(B(ox + s0 * (ARCH_W / 2 - 0.2), y, FENCE_Z + 0.03, ox + s0 * 40, y + 0.08, FENCE_Z + 0.09), white);
+  // the great arch over the gate: two square pillars, a deep beam, a half-round under it; the three statues stand on top
+  { const hw = ARCH_W / 2; for (const s0 of [-1, 1]) { b.add(B(ox + s0 * hw - 0.45, 0, ARCH_Z - 0.45, ox + s0 * hw + 0.45, ARCH_H - 0.7, ARCH_Z + 0.45, 1), white); b.add(B(ox + s0 * hw - 0.55, ARCH_H - 0.85, ARCH_Z - 0.55, ox + s0 * hw + 0.55, ARCH_H - 0.7, ARCH_Z + 0.55), trim); b.add(B(ox + s0 * hw - 0.55, 0, ARCH_Z - 0.55, ox + s0 * hw + 0.55, 0.3, ARCH_Z + 0.55), trim); }
+    b.add(B(ox - hw - 0.7, ARCH_H - 0.7, ARCH_Z - 0.6, ox + hw + 0.7, ARCH_H, ARCH_Z + 0.6, 1), white); b.add(B(ox - hw - 0.8, ARCH_H, ARCH_Z - 0.7, ox + hw + 0.8, ARCH_H + 0.12, ARCH_Z + 0.7), trim);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(hw - 0.45, 0.16, 8, 28, Math.PI), trim); ring.position.set(ox, ARCH_H - 0.7 - (hw - 0.45) * 0.55, ARCH_Z - 0.3); ring.scale.set(1, 0.55, 1); G.add(ring); }
+  // the statue columns: plinth, a fluted white shaft, a capital and a square top a statue stands on
+  COLS.forEach(([x, z], i) => { b.add(B(ox + x - 0.55, 0, z - 0.55, ox + x + 0.55, 0.45, z + 0.55, 1), trim); b.add(new THREE.CylinderGeometry(0.3, 0.36, COL_H - 0.75, 14).translate(ox + x, 0.45 + (COL_H - 0.75) / 2, z), white);
+    b.add(new THREE.CylinderGeometry(0.46, 0.32, 0.22, 14).translate(ox + x, COL_H - 0.19, z), trim); b.add(B(ox + x - 0.55, COL_H - 0.08, z - 0.55, ox + x + 0.55, COL_H + 0.08, z + 0.55), trim); void i; });
+  // Dexter's sign on the front of his own column
+  { const [x, z] = COLS[DEX_COL]; sign(G, "I AM THE FIRST IN THE EAST|THE FIRST IN THE WEST|AND THE GREATEST PHILOSOPHER|IN THE WESTERN WORLD", ox + x, COL_H - 1.25, z - 0.4, 1.5, 1.0, "#f6ecd2", "#2a1a12"); }
+  // the house: three storeys of white clapboard, a hipped roof, a cupola with a gold eagle, minarets with gold balls,
+  // a portico with columns at the door; windows with dark glass, white frames and green shutters
+  { const hw = HOUSE_W / 2, z0 = HOUSE_Z, z1 = HOUSE_Z + HOUSE_D, H = HOUSE_H, clap = lam("dxHouseClap", () => ({ map: rep(clapTex("#f4f0e6"), 6, 4) }));
+    G.add(new THREE.Mesh(boxGeo(V(ox - hw, 0, z0), V(ox + hw, H, z1), 2), clap));
+    b.add(B(ox - hw - 0.15, 0, z0 - 0.15, ox + hw + 0.15, 0.6, z1 + 0.15, 1), M("dxFound", "#a89a8a"));
+    b.add(B(ox - hw - 0.3, H - 0.25, z0 - 0.3, ox + hw + 0.3, H, z1 + 0.3), trim);
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(Math.SQRT2 / 2, 1, 4, 1).rotateY(Math.PI / 4), lam("dxRoof", () => ({ map: planksHD(), color: "#4a4650" }))); roof.scale.set(HOUSE_W + 0.6, 3.2, HOUSE_D + 0.6); roof.position.set(ox, H + 1.6, (z0 + z1) / 2); G.add(roof);
+    const cy = H + 2.4, cz = (z0 + z1) / 2; b.add(new THREE.CylinderGeometry(1.0, 1.0, 1.6, 8).translate(ox, cy + 0.8, cz), white); b.add(new THREE.CylinderGeometry(1.15, 1.15, 0.12, 8).translate(ox, cy + 1.66, cz), trim);
+    const dome = new THREE.Mesh(new THREE.SphereGeometry(1.0, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), M("dxDome", "#5a7a6a")); dome.position.set(ox, cy + 1.7, cz); G.add(dome);
+    // the gold eagle: body, head, spread wings, on a ball
+    const eg = new THREE.Group(); eg.position.set(ox, cy + 2.95, cz); G.add(eg);
+    eg.add(new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 8).translate(0, -0.25, 0), gold)); eg.add(new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 8).scale(0.8, 1.2, 0.8).translate(0, 0.2, 0), gold)); eg.add(new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 8).translate(0, 0.62, -0.05), gold));
+    eg.add(new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.18, 6).rotateX(-Math.PI / 2).translate(0, 0.6, -0.24), M("dxBeak", "#c98a20")));
+    for (const s0 of [-1, 1]) { const w = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(1.1, 0.55), new THREE.Vector2(1.25, 0.1), new THREE.Vector2(0.95, -0.15), new THREE.Vector2(0.7, -0.05), new THREE.Vector2(0.45, -0.25)])), gold);
+      w.position.set(s0 * 0.15, 0.25, 0); w.scale.set(s0, 1, 1); w.rotation.y = -s0 * 0.25; eg.add(w); }
+    for (const sx of [-1, 1]) { const mx = ox + sx * (hw - 1.2), mz = z0 + 1.2; b.add(new THREE.CylinderGeometry(0.28, 0.34, 3.2, 10).translate(mx, H + 1.4, mz), white); b.add(new THREE.ConeGeometry(0.34, 0.9, 10).translate(mx, H + 3.45, mz), M("dxDome", "#5a7a6a"));
+      const ball = new THREE.Mesh(new THREE.SphereGeometry(0.26, 12, 8), gold); ball.position.set(mx, H + 4.1, mz); G.add(ball); }
+    const glass = new THREE.MeshLambertMaterial({ color: "#2e3a46" }), shut = M("dxShut", "#2e5a3a");
+    for (let fl = 0; fl < 3; fl++) for (let k = 0; k < 7; k++) { const x = -hw + 1.6 + k * ((HOUSE_W - 3.2) / 6), y = 1.8 + fl * 2.85; if (fl === 0 && k === 3) continue;
+      const wm = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 1.6), glass); wm.rotation.y = Math.PI; wm.position.set(ox + x, y, z0 - 0.02); G.add(wm);
+      b.add(B(ox + x - 0.62, y - 0.9, z0 - 0.08, ox + x + 0.62, y - 0.8, z0), trim); b.add(B(ox + x - 0.62, y + 0.8, z0 - 0.08, ox + x + 0.62, y + 0.92, z0), trim);
+      for (const sx of [-1, 1]) b.add(B(ox + x + sx * 0.55 - 0.24, y - 0.8, z0 - 0.06, ox + x + sx * 0.55 + 0.24, y + 0.8, z0 - 0.02), shut); }
+    const door = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 2.5), M("dxDoor", "#2a3a2e")); door.rotation.y = Math.PI; door.position.set(ox, 1.85, z0 - 0.03); G.add(door);
+    b.add(B(ox - 1.8, 0.6, z0 - 2.4, ox + 1.8, 0.8, z0, 1), trim); for (const st of [0, 1, 2]) b.add(B(ox - 1.6, 0.2 * st, z0 - 2.4 - 0.35 * (3 - st), ox + 1.6, 0.2 * (st + 1), z0 - 2.4, 1), M("dxStep", "#c8c0b4"));
+    for (const sx of [-1.45, 1.45]) b.add(new THREE.CylinderGeometry(0.16, 0.18, 3.3, 12).translate(ox + sx, 0.8 + 1.65, z0 - 2.1), white);
+    const ped = new THREE.ExtrudeGeometry(new THREE.Shape([new THREE.Vector2(-2.0, 0), new THREE.Vector2(0, 1.0), new THREE.Vector2(2.0, 0)]), { depth: 2.5, bevelEnabled: false }); ped.translate(ox, 4.1, z0 - 2.5); G.add(new THREE.Mesh(ped, trim));
+    b.add(B(ox - 2.0, 3.85, z0 - 2.5, ox + 2.0, 4.15, z0), trim); }
+  // the mock wake: the coffin on two trestles before the steps, its lid off and propped beside it
+  const coffin = new THREE.Group(); G.add(coffin); let lid: THREE.Object3D;
+  { const [x, , z] = COFFIN, mah = M("dxMahog", "#5a2a1c"), brass = M("dxBrassC", "#d8a83a");
+    const shp = new THREE.Shape([new THREE.Vector2(-0.28, -1.0), new THREE.Vector2(0.28, -1.0), new THREE.Vector2(0.36, 0.45), new THREE.Vector2(0.24, 1.0), new THREE.Vector2(-0.24, 1.0), new THREE.Vector2(-0.36, 0.45)]);
+    const box = new THREE.ExtrudeGeometry(shp, { depth: 0.42, bevelEnabled: false }); box.rotateX(-Math.PI / 2); box.rotateY(Math.PI / 2); box.translate(ox + x, 0.78, z); coffin.add(new THREE.Mesh(box, mah));
+    const lg = new THREE.ExtrudeGeometry(shp, { depth: 0.06, bevelEnabled: false }); lg.rotateX(-Math.PI / 2); lg.rotateY(Math.PI / 2); lg.translate(ox + x, 1.2, z); const l = new THREE.Mesh(lg, M("dxMahogL", "#6a3424")); coffin.add(l); lid = l;
+    for (const dx of [-0.6, 0.6]) { const tb = new Batch(); tb.add(B(ox + x + dx - 0.05, 0.7, z - 0.4, ox + x + dx + 0.05, 0.78, z + 0.4), dark); for (const dz of [-0.35, 0.35]) tb.add(rodGeo(V(ox + x + dx, 0.74, z + dz), V(ox + x + dx + 0.18 * Math.sign(dz), 0, z + dz * 1.25), 0.035), dark); tb.build(coffin, true); }
+    for (const dx of [-0.5, 0, 0.5]) coffin.add(new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.14, 8).rotateZ(Math.PI / 2).translate(ox + x + dx, 0.98, z - 0.37), brass));
+    shadowAll(coffin); }
+  // across High Street: three neighbours' houses facing the mansion (for the shots from the porch)
+  for (const [x, c] of [[-14, "#c9b48a"], [0, "#a8846a"], [16, "#d8cdb0"]] as [number, string][]) houseAt(b, G, ox + x, HS_Z0 - 7, 9, 7, 6.5, c, "#4a3e34", false, Math.PI);
+  // elms round the house and along the far side, clear of the house, the columns, the arch and every camera spot
+  { const spots: [number, number, number, number][] = [];
+    for (let i = 0; i < 70; i++) { const x = -80 + r(i) * 160, z = HOUSE_Z + HOUSE_D + 6 + r(i + 200) * 40; spots.push([ox + x, gy(x, z), z, 0.9 + r(i + 300) * 0.5]); }
+    for (let i = 0; i < 30; i++) { const sx = r(i + 400) < 0.5 ? -1 : 1, x = sx * (HOUSE_W / 2 + 7 + r(i + 500) * 30), z = 4 + r(i + 600) * 30; spots.push([ox + x, gy(x, z), z, 0.9 + r(i + 700) * 0.4]); }
+    for (let i = 0; i < 30; i++) { const x = -90 + r(i + 800) * 180, z = HS_Z0 - 22 - r(i + 900) * 30; spots.push([ox + x, 0, z, 0.9 + r(i + 950) * 0.4]); }
+    forest(G, spots, "mansion", 0.85); }
+  const skies = { day: skyPl(G, twSkyTex("day"), "#6c9acc", ox, 8, 220, 160, -20), grey: skyPl(G, twSkyTex("grey"), "#6e7278", ox, 8, 219, 160, -20) };
+  const dust = dustMotes(V(ox, 2, 4), V(30, 4, 20), 160, new THREE.Color(1, 0.96, 0.82), 0.04, 0.4); G.add(dust.points);
+  b.build(G, true); shadowAll(G); noInk(G);
+  const turf = (x: number, z: number) => { const lx = x - ox; if (z < FENCE_Z + 0.1) return null; if (Math.abs(lx) < PATH_W + 0.1 && z < HOUSE_Z) return null;
+    if (Math.abs(lx) < HOUSE_W / 2 + 0.4 && z > HOUSE_Z - 2.9 && z < HOUSE_Z + HOUSE_D + 0.4) return null;
+    for (const [cx, cz] of COLS) if (Math.abs(lx - cx) < 0.65 && Math.abs(z - cz) < 0.65) return null;
+    if (Math.abs(Math.abs(lx) - ARCH_W / 2) < 0.65 && Math.abs(z - ARCH_Z) < 0.65) return null;
+    if (Math.abs(lx - COFFIN[0]) < 1.3 && Math.abs(z - COFFIN[2]) < 1.5) return null; return gy(lx, z); };
+  return { group: G, turf, dust, drift: (t) => dust.drift(t), coffin, lid: lid!, skies };
 }
 
 // =====================================================================================================================
-export type RoomSet = { group: THREE.Group; tavern: THREE.Group; congress: THREE.Group; conv: THREE.Group; map: THREE.MeshLambertMaterial; mapTex: Record<"strip" | "up", THREE.Texture>;
+export type RoomSet = { group: THREE.Group; tavern: THREE.Group; congress: THREE.Group; conv: THREE.Group; study: THREE.Group; candle: THREE.PointLight; map: THREE.MeshLambertMaterial; mapTex: Record<"pickle" | "punct", THREE.Texture>;
   lamps: THREE.PointLight[]; win: THREE.PointLight; stove: THREE.PointLight; stoveGlow: THREE.Sprite; dust: ReturnType<typeof dustMotes>; drift: (t: number) => void };
 export function buildRoom(): RoomSet {
   const G = new THREE.Group(), ox = SET.room[0], tavern = new THREE.Group(), congress = new THREE.Group(), conv = new THREE.Group(); G.add(tavern, congress, conv);
@@ -193,8 +295,34 @@ export function buildRoom(): RoomSet {
     // tall windows in the side wall with daylight
     for (const z of [-3.6, -0.8]) { const wn = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 2.2), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.6, 1.6, 1.55) })); wn.rotation.y = -Math.PI / 2; wn.position.set(ox + w - 0.02, 1.9, z); congress.add(wn); } }
   bc.build(congress, true);
-  const map = new THREE.MeshLambertMaterial({ map: mapTex("strip") }), mapTx = { strip: mapTex("strip"), up: mapTex("up") };
-  { const mp = new THREE.Mesh(new THREE.PlaneGeometry(MAP.w, MAP.h), map); mp.rotation.y = Math.PI; mp.position.set(ox + MAP.x, MAP.y, z1 - 0.13); congress.add(mp); }
+  const map = new THREE.MeshLambertMaterial({ map: pageTex("pickle") }), mapTx = { pickle: pageTex("pickle"), punct: pageTex("punct") };
+  // ---- Dexter's study: panelled plaster, bookshelves, a window, a tall standing desk with a candle, a quill and ink, and
+  // the page board on the back wall above the desk (it shows the page he is on: his book's opening, then the page of stops) ----
+  const study = new THREE.Group(); G.add(study);
+  let candle: THREE.PointLight;
+  { const bs = new Batch(), plaster = M("dxStPlaster", "#e8d8b8"), panel = lam("dxStPanel", () => ({ map: planksHD(), color: "#6a4a32" })); walls(bs, plaster, M("twCeil", "#f0e8d8"));
+    bs.add(B(ox - w, 0, z1 - 0.06, ox + w, 1.0, z1), panel); for (const sx of [-1, 1]) bs.add(B(ox + sx * (w - 0.06), 0, z0, ox + sx * w, 1.0, z1), panel);
+    // shelves of books either side of the board
+    for (const sx of [-1, 1]) { const x0 = sx * 2.2, x1 = sx * 4.6; bs.add(B(ox + x0, 0, z1 - 0.45, ox + x1, 2.9, z1 - 0.4), panel);
+      for (const y of [0.9, 1.55, 2.2]) { bs.add(B(ox + x0, y, z1 - 0.45, ox + x1, y + 0.05, z1 - 0.05), panel); let x = Math.min(x0, x1) + 0.06, k = 0;
+        while (x < Math.max(x0, x1) - 0.12) { const bw = 0.07 + 0.05 * ((k * 7) % 3) / 2, bh = 0.42 + 0.14 * ((k * 5) % 4) / 3; bs.add(B(ox + x, y + 0.05, z1 - 0.38, ox + x + bw, y + 0.05 + bh, z1 - 0.12), M("dxBook" + (k % 5), ["#7a2a24", "#2a4a3a", "#3a3a5a", "#8a6a3a", "#4a2a1a"][k % 5])); x += bw + 0.01; k++; } } }
+    // the board frame
+    bs.add(B(ox + MAP.x - MAP.w / 2 - 0.12, MAP.y - MAP.h / 2 - 0.12, z1 - 0.12, ox + MAP.x + MAP.w / 2 + 0.12, MAP.y + MAP.h / 2 + 0.12, z1 - 0.04), M("dxFrame", "#c9a23a"));
+    // the standing desk: a sloped top on four legs, a ledge, the ink pot, the quill, a stack of written pages
+    const [dx, , dz] = DESK, oak = lam("twRmOak", () => ({ map: planksHD(), color: "#6a4630" }));
+    const top = new THREE.Mesh(boxGeo(V(-0.75, -0.03, -0.35), V(0.75, 0.03, 0.35), 1), oak); top.position.set(ox + dx, DESK_Y, dz); top.rotation.x = -0.28; study.add(top);
+    for (const [lx, lz] of [[-0.68, -0.28], [0.68, -0.28], [-0.68, 0.28], [0.68, 0.28]]) bs.add(B(ox + dx + lx - 0.04, 0, dz + lz - 0.04, ox + dx + lx + 0.04, DESK_Y - (lz < 0 ? 0.1 : -0.08), dz + lz + 0.04), oak);
+    bs.add(B(ox + dx - 0.75, DESK_Y + 0.1, dz + 0.3, ox + dx + 0.75, DESK_Y + 0.14, dz + 0.4), oak);
+    bs.add(new THREE.CylinderGeometry(0.045, 0.05, 0.08, 10).translate(ox + dx + 0.5, DESK_Y + 0.18, dz + 0.35), M("dxInk", "#1a1a22"));
+    bs.add(rodGeo(V(ox + dx + 0.5, DESK_Y + 0.2, dz + 0.35), V(ox + dx + 0.42, DESK_Y + 0.5, dz + 0.3), 0.008), M("dxQuill", "#f4f0e6"));
+    const pg = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.55), M("dxPage", "#f2ead2")); pg.position.set(ox + dx - 0.15, DESK_Y + 0.04, dz - 0.02); pg.rotation.set(-Math.PI / 2 - 0.28, 0, 0.05); study.add(pg);
+    // a candle on the desk's ledge (its flame is the room's warm light) and the window's cool light from the side
+    bs.add(new THREE.CylinderGeometry(0.035, 0.04, 0.22, 10).translate(ox + dx - 0.55, DESK_Y + 0.25, dz + 0.35), M("dxWax", "#f4ecd4")); flame(study, V(ox + dx - 0.55, DESK_Y + 0.41, dz + 0.35), 0.035);
+    candle = new THREE.PointLight("#ffc880", 0, 8, 1.4); candle.position.set(ox + dx - 0.55, DESK_Y + 0.55, dz + 0.2); study.add(candle);
+    const wn = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.8), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.5, 1.5, 1.45) })); wn.rotation.y = -Math.PI / 2; wn.position.set(ox + w - 0.02, 1.9, -1.2); study.add(wn);
+    const rug = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 2.2), M("dxRug", "#7a2a2a")); rug.rotation.x = -Math.PI / 2; rug.position.set(ox, 0.012, 0.6); study.add(rug);
+    bs.build(study, true); }
+  { const mp = new THREE.Mesh(new THREE.PlaneGeometry(MAP.w, MAP.h), map); mp.rotation.y = Math.PI; mp.position.set(ox + MAP.x, MAP.y, z1 - 0.13); study.add(mp); }
   // ---- the Frostbitten Convention: log walls, frosted windows, an iron stove glowing, benches of delegates, a table ----
   { const logM = lam("twRmLogC", () => ({ map: rep(logTex("twRmLogCT", "#8a6a4a"), 3, 1.1) })); walls(bv, logM, dark);
     for (let z = z0 + 1; z < z1; z += 2.2) bv.add(B(ox - w, h - 0.3, z, ox + w, h, z + 0.25), dark);
@@ -215,7 +343,7 @@ export function buildRoom(): RoomSet {
   const stoveGlow = glow(new THREE.Color(1.0, 0.55, 0.2), 1.4); stoveGlow.position.set(ox + STOVE[0], 0.6, STOVE[2] - 0.5); conv.add(stoveGlow);
   const dust = dustMotes(V(ox, 1.6, 0), V(8, 2.8, 8), 200, new THREE.Color(1, 0.9, 0.7), 0.03, 0.45); G.add(dust.points);
   noInk(G);
-  return { group: G, tavern, congress, conv, map, mapTex: mapTx, lamps, win, stove, stoveGlow, dust, drift: (t) => dust.drift(t) };
+  return { group: G, tavern, congress, conv, study, candle: candle!, map, mapTex: mapTx, lamps, win, stove, stoveGlow, dust, drift: (t) => dust.drift(t) };
 }
 
 // =====================================================================================================================

@@ -1,4 +1,4 @@
-// The Toledo Short's 3D layer: one persistent canvas (the world is built once per render tab), posed per frame from the
+// The Dexter Short's 3D layer: one persistent canvas (the world is built once per render tab), posed per frame from the
 // current shot's spec (story.ts). Same render stack as the Shorts: InkPass -> lens blur -> bloom + tone map + grade.
 // Hidden (and the world switched off) while a non-3D shot is on screen.
 import React, { useEffect, useMemo, useState } from "react";
@@ -17,7 +17,7 @@ import { TwWorld } from "./world";
 import { SPECS, specAt, whipAt, ShotDef } from "./story";
 
 const sat = (k: number) => GRADES.day.sat.map((x) => x * k) as [number, number, number];
-const GR: Record<"river" | "woods" | "tavern" | "congress" | "conv" | "northW" | "northS", GradeParams> = { river: { ...GRADES.day, sat: sat(0.95), vig: [0.3, 0.36] }, woods: { ...GRADES.day, sat: sat(0.92), vig: [0.34, 0.34] }, tavern: { ...GRADES.day, sat: sat(0.95), vig: [0.44, 0.26] }, congress: { ...GRADES.day, sat: sat(0.92), vig: [0.36, 0.32] }, conv: { ...GRADES.day, sat: sat(0.82), vig: [0.46, 0.26] }, northW: { ...GRADES.day, sat: sat(0.85), vig: [0.3, 0.36] }, northS: { ...GRADES.day, sat: sat(0.98), vig: [0.3, 0.36] } };
+const GR: Record<"port" | "newcastle" | "tropic" | "mansion" | "wake" | "tavern" | "study", GradeParams> = { port: { ...GRADES.day, sat: sat(0.95), vig: [0.3, 0.36] }, newcastle: { ...GRADES.day, sat: sat(0.78), vig: [0.34, 0.34] }, tropic: { ...GRADES.day, sat: sat(1.05), vig: [0.28, 0.36] }, mansion: { ...GRADES.day, sat: sat(0.95), vig: [0.3, 0.36] }, wake: { ...GRADES.day, sat: sat(0.82), vig: [0.36, 0.32] }, tavern: { ...GRADES.day, sat: sat(0.95), vig: [0.44, 0.26] }, study: { ...GRADES.day, sat: sat(0.95), vig: [0.42, 0.28] } };
 const QA = !!(getInputProps() as { qa?: boolean }).qa;
 
 const makeBloom = () => {

@@ -1,4 +1,4 @@
-// "The Town That Has Been on Fire for 64 Years" (Paradox Town #18): Toledo, Pennsylvania. One persistent 3D
+// "The Man Whose Worst Ideas Made Him Rich" (Paradox Town Short #21): Timothy Dexter, Newburyport, 1790s. One persistent 3D
 // canvas posed per frame (View3D), name tags and stamps, captions on top. Narration is muxed in later (public/centralia/voice.mp3).
 import React, { useMemo } from "react";
 import { AbsoluteFill, Audio, getInputProps, staticFile, useCurrentFrame } from "remotion";

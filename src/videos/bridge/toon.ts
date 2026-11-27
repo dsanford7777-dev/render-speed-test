@@ -450,6 +450,16 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
     p.poly(body, null, ow);
     const [bx, by] = R([[hx, yb + 1 * u]])[0];
     p.ell(bx, by, 0.55 * W, 0.05 * HH, "#1d1b22", ow, 0, 360, (a * 180) / Math.PI);
+  } else if (o.hat === "tricorn") {
+    // the 1700s cocked hat (colour = o.cap, trim = o.band): a low crown, the brim turned up into three points, the front one low
+    const hx = cx + 0.5 * H.asym * H.a, yb = crown + 0.18 * HH, col = o.cap ?? "#24202a";
+    const top = R([...sag(yb, 0.4 * W).map(([x, y]) => [x + hx - cx, y] as P2).reverse(), [hx - 0.34 * W, yb - 0.36 * HH], [hx, yb - 0.46 * HH], [hx + 0.34 * W, yb - 0.36 * HH]]);
+    p.shadedFill(top, col, mul(col, SH_FELT), light, 0.4 * W, 0.4);
+    p.poly(top, null, ow);
+    const brim = R([[hx - 0.8 * W, yb - 0.36 * HH], [hx - 0.56 * W, yb - 0.02 * HH], [hx, yb + 0.12 * HH], [hx + 0.56 * W, yb - 0.02 * HH], [hx + 0.8 * W, yb - 0.36 * HH], [hx + 0.44 * W, yb - 0.14 * HH], [hx, yb - 0.05 * HH], [hx - 0.44 * W, yb - 0.14 * HH]]);
+    p.shadedFill(brim, shade(col, 0.92), mul(shade(col, 0.92), SH_FELT), light, 0.8 * W, 0.4);
+    p.poly(brim, null, ow);
+    p.stroke(R([[hx - 0.56 * W, yb - 0.02 * HH], [hx, yb + 0.12 * HH], [hx + 0.56 * W, yb - 0.02 * HH]]), 3 * u, o.band ?? "#c9a23a");
   } else if (o.hat === "fedora") {
     // soft felt hat: low pinched crown, dark band, wide brim (colour = o.cap); as wide as the head at the brim, centred on its bulge
     const hx = cx + 0.5 * H.asym * H.a, yb = crown + 0.2 * HH, ht = 0.42 * HH, wb = 0.415 * W, wt = 0.33 * W, col = o.cap ?? "#4a4652";

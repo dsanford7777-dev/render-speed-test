@@ -101,15 +101,14 @@ export const wordAt = (seg: number, w: string, fallbackU = 0.5) => {
 export const segAt = (seg: number) => Math.round(SEG_TIMES[seg][0] * FPS);
 
 export const CHAPTERS: { seg: number; num: string; title: string }[] = [
-  { seg: 5, num: "1", title: "A BAD MAP" },
-  { seg: 12, num: "2", title: "THE PRIZE" },
-  { seg: 15, num: "3", title: "THE BOY GOVERNOR" },
-  { seg: 21, num: "4", title: "THE ONE REAL BATTLE" },
-  { seg: 24, num: "5", title: "ONE AND TWO" },
-  { seg: 29, num: "6", title: "THE MIDNIGHT COURT" },
-  { seg: 34, num: "7", title: "THE DEAL" },
-  { seg: 42, num: "8", title: "THE FROZEN WASTELAND" },
-  { seg: 47, num: "9", title: "WHO WON?" },
+  { seg: 4, num: "1", title: "A POOR BOY FROM MALDEN" },
+  { seg: 9, num: "2", title: "WORTHLESS MONEY" },
+  { seg: 14, num: "3", title: "THE WORST ADVICE" },
+  { seg: 20, num: "4", title: "IN HIS OWN WORDS" },
+  { seg: 27, num: "5", title: "LORD TIMOTHY" },
+  { seg: 34, num: "6", title: "THE FAKE FUNERAL" },
+  { seg: 40, num: "7", title: "A BOOK WITH NO STOPS" },
+  { seg: 43, num: "8", title: "FOOL OR GENIUS?" },
 ];
 
 // ---------------- shots ----------------
@@ -120,66 +119,63 @@ type RawShot = { s: number; w: string | null; k: Kind; g: string };
 const D3 = (s: number, w: string | null, g: string): RawShot => ({ s, w, k: "3d", g }), D2 = (s: number, w: string | null, g: string): RawShot => ({ s, w, k: "2d", g });
 const raw: RawShot[] = [
   // cold open
-  D3(0, null, "hook"), D3(0, "marched", "mimarch"), D3(0, "over", "toledo"),
-  D3(1, null, "mimarch2"), D3(1, "battle", "fire"),
-  D3(2, null, "stab"), D3(2, "held", "knife"),
-  D2(3, null, "strangest"), D3(3, "ended", "rich"),
-  D2(4, null, "title"),
-  // 1 a bad map
-  D2(5, null, "lines:0"),
-  D2(6, null, "lines:1"),
-  D2(7, null, "lines:2"),
-  D2(8, null, "lines:3"),
-  D3(9, null, "survey"), D2(9, "tip", "lines:4"),
-  D2(10, null, "lines:5"),
-  D2(11, null, "lines:6"), D3(11, "near", "toledo2"),
-  // 2 the prize
-  D3(12, null, "river"), D2(12, "because", "canals"),
-  D2(13, null, "lines:7"),
-  D3(14, null, "port"), D3(14, "toledo", "toledo3"),
-  // 3 the boy governor
-  D3(15, null, "strip"), D2(15, "then", "statehood"),
-  D3(16, null, "mason"), D3(16, "22", "boy"), D2(16, "people", "boygov"),
-  D3(17, null, "lucas"),
-  D2(18, null, "feb"),
-  D2(19, null, "pains"),
-  D3(20, null, "lucas2"), D3(20, "mason", "mimarch"), D2(20, "1,000", "armies"),
-  // 4 the one real battle
-  D3(21, null, "survey2"), D2(21, "phillips", "phillips"),
-  D3(22, null, "ambush"), D3(22, "fired", "fire"), D3(22, "over", "duck"),
-  D3(23, null, "nobody"), D2(23, "nine", "nine"), D3(23, "reported", "mimarch3"),
-  // 5 one and two
-  D3(24, null, "tavern0"),
-  D2(25, null, "sons"), D3(25, "named", "one"),
-  D3(26, null, "wood"), D3(26, "two", "tavern"), D3(26, "penknife", "stab"),
-  D3(27, null, "lived"), D3(27, "two", "tworun"),
-  D2(28, null, "onlyblood"),
-  // 6 the midnight court
-  D2(29, null, "lucascounty"), D3(29, "after", "ohio"),
-  D2(30, null, "sept"), D3(30, "held", "court"),
-  D3(31, null, "court2"), D2(31, "not", "notcoming"),
-  D2(32, null, "jackson"), D3(32, "removed", "masonsad"),
-  D3(33, null, "boy2"),
-  // 7 the deal
-  D3(34, null, "congress"), D3(34, "michigan", "deal"),
-  D3(35, null, "up"),
-  D3(36, null, "furious"), D3(36, "upper", "snow"),
-  D2(37, null, "annarbor"), D3(37, "they", "no"),
-  D3(38, null, "broke"), D2(38, "federal", "surplus"),
-  D3(39, null, "frost"),
-  D3(40, null, "yes2"),
-  D2(41, null, "statehood2"),
-  // 8 the frozen wasteland
-  D3(42, null, "snow2"),
-  D2(43, null, "houghton"), D3(43, "couple", "copper"),
-  D3(44, null, "prospect"), D3(44, "mines", "mine"),
-  D2(45, null, "n40"), D3(45, "40", "mine2"),
-  D3(46, null, "north"),
-  // 9 who won?
-  D3(47, null, "port2"), D3(47, "ohio", "ohio"),
-  D2(48, null, "court1973"), D3(48, "fighting", "river"),
-  D3(49, null, "hook2"),
-  D3(50, null, "endhook"), D2(50, "tell", "question"),
+  D3(0, null, "hook"), D3(0, "coal", "load"), D3(0, "bibles", "shipped2"),
+  D3(1, null, "laugh"), D3(1, "every", "money"),
+  D3(2, null, "lord"), D2(2, "luckiest", "title"),
+  D3(3, null, "foolL"),
+  // 1 a poor boy from Malden
+  D2(4, null, "malden"),
+  D2(5, null, "farm"), D3(5, "apprenticed", "shop"),
+  D3(6, null, "portwide"), D3(6, "full", "money2"),
+  D3(7, null, "couple"),
+  D3(8, null, "shop"), D3(8, "she", "wifeshop"),
+  // 2 worthless money
+  D2(9, null, "cont"), D3(9, "paper", "war"),
+  D2(10, null, "worthless"), D3(10, "not", "spell"),
+  D3(11, null, "buy"), D3(11, "pennies", "war2"),
+  D2(12, null, "cent"),
+  D2(13, null, "full"), D3(13, "and", "paid"), D3(13, "suddenly", "rich"),
+  // 3 the worst advice
+  D3(14, null, "laugh2"), D2(14, "fool", "notimp"),
+  D2(15, null, "legend"), D3(15, "merchants", "advice"), D3(15, "worst", "worst"),
+  D3(16, null, "coal"), D3(16, "england", "load"),
+  D2(17, null, "coals"),
+  D3(18, null, "ncwide"), D3(18, "miners", "strike"), D3(18, "town", "sold"),
+  D2(19, null, "mittens"),
+  // 4 in his own words
+  D3(20, null, "book2"), D2(20, "doesn't", "ownbook"),
+  D3(21, null, "pans"), D2(21, "dreamed", "dream"),
+  D3(22, null, "shipped"), D2(22, "islands", "n42k"), D3(22, "cold", "tropics"),
+  D3(23, null, "cook"), D3(23, "claimed", "cleared"), D2(23, "later", "ladles"),
+  D2(24, null, "bibles"), D3(24, "shipped", "shipped2"),
+  D2(25, null, "whale"),
+  D3(26, null, "fool2"), D2(26, "we", "generous"),
+  // 5 Lord Timothy
+  D3(27, null, "money"),
+  D3(28, null, "mansion"), D3(28, "minarets", "mansion2"), D3(28, "calling", "lord"),
+  D3(29, null, "statues"), D2(29, "40", "n40"),
+  D3(30, null, "arch"),
+  D3(31, null, "statues2"), D3(31, "two", "himself"),
+  D3(32, null, "sign"), D2(32, "first", "signboard"),
+  D2(33, null, "poet"),
+  // 6 the fake funeral
+  D2(34, null, "miss"),
+  D3(35, null, "coffin"), D3(35, "mahogany", "coffin2"),
+  D3(36, null, "crowd"), D2(36, "3,000", "n3000"),
+  D3(37, null, "peek"), D3(37, "his", "wife"),
+  D3(38, null, "hiding"), D3(38, "caned", "caned"), D2(38, "that's", "accounts"),
+  D2(39, null, "ghost"),
+  // 7 a book with no stops
+  D3(40, null, "book"), D2(40, "called", "pickle"),
+  D2(41, null, "n9000"), D3(41, "readers", "readers"),
+  D3(42, null, "punct"), D3(42, "salt", "pepper"),
+  // 8 fool or genius?
+  D2(43, null, "died"),
+  D3(44, null, "gale"),
+  D2(45, null, "todaylist"), D3(45, "house", "today"),
+  D2(46, null, "biographer"),
+  D3(47, null, "luckyL"),
+  D2(48, null, "endq"),
 ];
 export type ShotDef = RawShot & { id: number; a: number; b: number };
 export const SHOTS: ShotDef[] = raw.map((r, i) => ({ ...r, id: i + 1, a: 0, b: 0 }));

@@ -1,5 +1,7 @@
-// The Toledo War Short's painted textures: logs, clapboard, the dirt street, snow, copper rock, frosted glass, skies,
-// and the hand-drawn map of the Toledo Strip / the Great Lakes (stylised, drawn in code from rough coordinates).
+// The Dexter Short's painted textures: clapboard, the dirt street, skies (Newburyport day, Newcastle grey, West Indies
+// hot), the book's pages (A Pickle for the Knowing Ones: its title page and the page of punctuation), paper money, gold
+// coins, lumps of coal, punctuation marks, brick. (Logs, snow, copper rock, frost and the Toledo map are left from the
+// world this was built from.)
 import * as THREE from "three";
 import { ctex } from "../bridge/paint";
 
@@ -46,10 +48,10 @@ export const frostTex = () => ctex("twFrost", 512, 512, (g, r) => {
   for (let i = 0; i < 120; i++) { const cx = r() > 0.5 ? r() * 120 : 512 - r() * 120, cy = r() > 0.5 ? r() * 120 : 512 - r() * 120; g.strokeStyle = "rgba(255,255,255,0.9)"; g.lineWidth = 2; g.beginPath(); g.moveTo(cx, cy); const a = r() * 6.28; for (let k = 1; k < 5; k++) g.lineTo(cx + Math.cos(a + (r() - 0.5)) * k * 18, cy + Math.sin(a + (r() - 0.5)) * k * 18); g.stroke(); }
   g.strokeStyle = "#5a4636"; g.lineWidth = 18; g.strokeRect(0, 0, 512, 512); g.lineWidth = 12; g.beginPath(); g.moveTo(256, 0); g.lineTo(256, 512); g.moveTo(0, 256); g.lineTo(512, 256); g.stroke();
 });
-export const twSkyTex = (kind: "day" | "winter") => ctex("twSky_" + kind, 1024, 1024, (g, r) => {
-  const [a, b, c] = kind === "winter" ? ["#8a98aa", "#bcc6d0", "#e2e6ea"] : ["#6c9acc", "#acc8e2", "#eae6da"];
+export const twSkyTex = (kind: "day" | "winter" | "grey" | "hot") => ctex("twSky_" + kind, 1024, 1024, (g, r) => {
+  const [a, b, c] = kind === "winter" ? ["#8a98aa", "#bcc6d0", "#e2e6ea"] : kind === "grey" ? ["#6e7278", "#9a9ca0", "#c4c2bc"] : kind === "hot" ? ["#3a8ad8", "#8ec4ec", "#f4ecd2"] : ["#6c9acc", "#acc8e2", "#eae6da"];
   const gr = g.createLinearGradient(0, 0, 0, 1024); gr.addColorStop(0, a); gr.addColorStop(0.6, b); gr.addColorStop(1, c); g.fillStyle = gr; g.fillRect(0, 0, 1024, 1024);
-  for (let i = 0; i < 22; i++) { const x = r() * 1024, y = 200 + r() * 560, w = 140 + r() * 300; for (let k = 0; k < 5; k++) { g.fillStyle = kind === "winter" ? (k % 2 ? "rgba(240,242,246,0.4)" : "rgba(150,158,170,0.35)") : (k % 2 ? "rgba(255,255,255,0.55)" : "rgba(220,228,236,0.4)"); g.beginPath(); g.ellipse(x + (r() - 0.5) * w * 0.6, y + (r() - 0.5) * 30, w * (0.3 + 0.3 * r()), 18 + r() * 22, 0, 0, 6.3); g.fill(); } }
+  for (let i = 0; i < 22; i++) { const x = r() * 1024, y = 200 + r() * 560, w = 140 + r() * 300; for (let k = 0; k < 5; k++) { g.fillStyle = kind === "grey" ? (k % 2 ? "rgba(120,122,128,0.45)" : "rgba(80,82,88,0.4)") : kind === "winter" ? (k % 2 ? "rgba(240,242,246,0.4)" : "rgba(150,158,170,0.35)") : (k % 2 ? "rgba(255,255,255,0.55)" : "rgba(220,228,236,0.4)"); g.beginPath(); g.ellipse(x + (r() - 0.5) * w * 0.6, y + (r() - 0.5) * 30, w * (0.3 + 0.3 * r()), 18 + r() * 22, 0, 0, 6.3); g.fill(); } }
 });
 
 // ---------------- the map ----------------
@@ -102,4 +104,65 @@ export const mapTex = (kind: "strip" | "up") => ctex("twMap_" + kind, 1600, 1200
   }
   // a hand-ruled frame
   g.strokeStyle = "#5a4630"; g.lineWidth = 14; g.strokeRect(14, 14, W - 28, H - 28); g.lineWidth = 3; g.strokeRect(34, 34, W - 68, H - 68);
+});
+
+// ---------------- Dexter's own things ----------------
+const fitText = (g: CanvasRenderingContext2D, s: string, x: number, y: number, size: number, maxW: number, col: string, font = "Georgia, 'DejaVu Serif', serif", weight = "700") => {
+  let z = size; g.font = `${weight} ${z}px ${font}`; while (g.measureText(s).width > maxW && z > 8) { z -= 2; g.font = `${weight} ${z}px ${font}`; }
+  g.fillStyle = col; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(s, x, y);
+};
+/** old paper: warm, foxed, darker at the edges */
+const oldPaper = (g: CanvasRenderingContext2D, r: () => number, w: number, h: number, base = "#efe2c2") => {
+  g.fillStyle = base; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 260; i++) { g.fillStyle = r() > 0.5 ? "rgba(120,80,30,0.06)" : "rgba(255,250,235,0.08)"; g.beginPath(); g.ellipse(r() * w, r() * h, 6 + r() * 40, 4 + r() * 24, r() * 3, 0, 6.3); g.fill(); }
+  const gr = g.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.35, w / 2, h / 2, Math.max(w, h) * 0.7); gr.addColorStop(0, "rgba(0,0,0,0)"); gr.addColorStop(1, "rgba(110,70,30,0.35)"); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+};
+// Dexter's own words (1802, public domain), as he spelled them, run on with no stops: the page the camera reads
+const PICKLE = "I Dreamed of warming pans three Nits that thay would doue in the west ingas I got not more than fortey two thousand put them into nine vessels for difernt parts of the west ingas the pans thay mad yous of them for Coucking I cleared sevinty nine per sent and I made or cleared forty seven thousands Dolors this is the truth I am the first Lord in the younited States".split(" ");
+/** the book's pages on the study board: "pickle" its title and a run of his text; "punct" the page of stops and marks */
+export const pageTex = (kind: "pickle" | "punct") => ctex("dxPage_" + kind, 1300, 880, (g, r) => {
+  const w = 1300, h = 880; oldPaper(g, r, w, h);
+  g.strokeStyle = "#3a2a1a"; g.lineWidth = 10; g.strokeRect(24, 24, w - 48, h - 48); g.lineWidth = 3; g.strokeRect(42, 42, w - 84, h - 84);
+  if (kind === "pickle") {
+    fitText(g, "A PICKLE FOR THE KNOWING ONES", w / 2, 120, 84, w - 180, "#2a1a10");
+    fitText(g, "OR PLAIN TRUTHS IN A HOMESPUN DRESS", w / 2, 200, 44, w - 260, "#5a3a20", undefined, "400");
+    fitText(g, "BY TIMOTHY DEXTER", w / 2, 262, 42, w - 260, "#2a1a10");
+    g.fillStyle = "#3a2a1a"; g.fillRect(w / 2 - 260, 305, 520, 4);
+    g.font = "400 40px Georgia, 'DejaVu Serif', serif"; g.textAlign = "left"; g.textBaseline = "alphabetic"; g.fillStyle = "#2a1a10";
+    let x = 90, y = 380; for (const wd of [...PICKLE, ...PICKLE]) { const ww = g.measureText(wd + " ").width; if (x + ww > w - 90) { x = 90; y += 60; } if (y > h - 70) break; g.fillText(wd, x, y); x += ww; }
+  } else {
+    fitText(g, "FOR THE KNOWING ONES:", w / 2, 110, 64, w - 200, "#2a1a10");
+    g.font = "700 64px Georgia, 'DejaVu Serif', serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = "#2a1a10";
+    const row = ". , ; : ! ? . , ; : ! ? . , ; : ! ?";
+    for (let i = 0; i < 9; i++) g.fillText(row, w / 2, 210 + i * 72);
+  }
+});
+/** a paper note of the war: "CONTINENTAL CURRENCY", a denomination, a seal */
+export const noteTex = () => ctex("dxNote", 256, 160, (g, r) => {
+  g.clearRect(0, 0, 256, 160); g.fillStyle = "#e4d9b0"; g.fillRect(8, 8, 240, 144); for (let i = 0; i < 60; i++) { g.fillStyle = "rgba(90,70,30,0.08)"; g.fillRect(8 + r() * 230, 8 + r() * 140, 10 + r() * 20, 2); }
+  g.strokeStyle = "#1e1a22"; g.lineWidth = 7; g.strokeRect(8, 8, 240, 144); g.strokeStyle = "#4a5a3a"; g.lineWidth = 3; g.strokeRect(20, 20, 216, 120);
+  fitText(g, "CONTINENTAL", 128, 46, 30, 196, "#2a2a1a"); fitText(g, "CURRENCY", 128, 76, 24, 160, "#2a2a1a");
+  g.fillStyle = "#6a2a20"; g.beginPath(); g.arc(128, 116, 18, 0, 6.3); g.fill(); fitText(g, "$1", 128, 117, 20, 30, "#f2e6c8");
+});
+/** a gold coin, face on */
+export const coinTex = () => ctex("dxCoin", 96, 96, (g) => {
+  g.clearRect(0, 0, 96, 96); g.fillStyle = "#e0b040"; g.beginPath(); g.arc(48, 48, 38, 0, 6.3); g.fill(); g.strokeStyle = "#1e1a22"; g.lineWidth = 6; g.stroke();
+  g.strokeStyle = "#a87a20"; g.lineWidth = 4; g.beginPath(); g.arc(48, 48, 27, 0, 6.3); g.stroke(); g.fillStyle = "#fff0b0"; g.beginPath(); g.ellipse(36, 34, 9, 6, -0.6, 0, 6.3); g.fill();
+});
+/** a lump of coal: black, faceted, a blue-grey sheen on its facets */
+export const coalTex = () => ctex("dxCoal", 96, 96, (g, r) => {
+  g.clearRect(0, 0, 96, 96); const pts: [number, number][] = []; for (let k = 0; k < 7; k++) { const a = (k / 7) * 6.283, rr = 24 + r() * 16; pts.push([48 + Math.cos(a) * rr, 48 + Math.sin(a) * rr * 0.85]); }
+  g.fillStyle = "#26242a"; g.beginPath(); pts.forEach(([x, y], k) => (k ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); g.fill();
+  g.fillStyle = "#5a6070"; g.beginPath(); g.moveTo(pts[0][0], pts[0][1]); g.lineTo(48, 44); g.lineTo(pts[1][0], pts[1][1]); g.closePath(); g.fill();
+  g.strokeStyle = "#0e0c10"; g.lineWidth = 5; g.beginPath(); pts.forEach(([x, y], k) => (k ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); g.stroke();
+});
+/** a punctuation mark flying out of the pepper pot: big, black, with a white outline so it reads on any wall */
+export const markTex = (ch: string) => ctex("dxMark_" + ch.charCodeAt(0), 128, 128, (g) => {
+  g.clearRect(0, 0, 128, 128); g.font = "900 120px Georgia, 'DejaVu Serif', serif"; g.textAlign = "center"; g.textBaseline = "middle";
+  g.lineWidth = 14; g.strokeStyle = "#fffaf0"; g.strokeText(ch, 64, 60); g.fillStyle = "#1e1a22"; g.fillText(ch, 64, 60);
+});
+/** red brick with pale mortar */
+export const brickTex = () => ctex("dxBrick", 512, 512, (g, r) => {
+  g.fillStyle = "#d8cbb4"; g.fillRect(0, 0, 512, 512);
+  for (let y = 0, row = 0; y < 512; y += 32, row++) for (let x = -(row % 2) * 32; x < 512; x += 64) { const c = ["#9a4a34", "#a8563c", "#8a3e2c", "#b06048"][Math.floor(r() * 4)]; g.fillStyle = c; g.fillRect(x + 3, y + 3, 58, 26); }
 });
