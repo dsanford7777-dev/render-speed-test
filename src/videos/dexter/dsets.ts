@@ -101,8 +101,8 @@ export function buildRiver(): RiverSet {
     cabin(G, ox - 24, BLD_Z, 9, 8, 4.6, logM2, "#4a3a2e");
     sign(G, "T. DEXTER|HIDES & GLOVES", ox + SHOP[0], 3.9, BLD_Z - 0.04, 3.2, 1.1, "#2a3a5a", "#f2e6c8");
     // hides hung on a rail beside his door (posts to the board walk)
-    { const hb = new Batch(), hx = ox + SHOP[0] + 2.6; hb.add(B(hx - 1.3, 2.55, BLD_Z - 0.55, hx + 1.3, 2.62, BLD_Z - 0.48), dark); for (const sx of [-1.25, 1.25]) hb.add(B(hx + sx - 0.05, 0.22, BLD_Z - 0.56, hx + sx + 0.05, 2.62, BLD_Z - 0.46), dark); hb.build(G, true);
-      [-0.75, 0.05, 0.85].forEach((dx, k) => { const pts: THREE.Vector2[] = []; for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2, rr = 0.42 + 0.08 * Math.sin(i * 2.7 + k) ; pts.push(new THREE.Vector2(Math.cos(a) * rr * 0.8, Math.sin(a) * rr * 1.15)); }
+    { const hb = new Batch(), hx = ox + SHOP[0] + 1.75; hb.add(B(hx - 0.95, 2.55, BLD_Z - 0.55, hx + 0.95, 2.62, BLD_Z - 0.48), dark); for (const sx of [-0.9, 0.9]) hb.add(B(hx + sx - 0.05, 0.22, BLD_Z - 0.56, hx + sx + 0.05, 2.62, BLD_Z - 0.46), dark); hb.build(G, true);
+      [-0.55, 0.05, 0.6].forEach((dx, k) => { const pts: THREE.Vector2[] = []; for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2, rr = 0.34 + 0.07 * Math.sin(i * 2.7 + k) ; pts.push(new THREE.Vector2(Math.cos(a) * rr * 0.8, Math.sin(a) * rr * 1.15)); }
         const hm = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape(pts)), M("dxHide" + k, ["#8a5a32", "#a87040", "#6a4224"][k])); hm.position.set(hx + dx, 1.9, BLD_Z - 0.6); hm.rotation.y = Math.PI; G.add(hm); }); }
     houseAt(b, G, ox - 35, BLD_Z + 3, 7, 6, 4.4, "#c9b48a", "#5a4a3e", false, 0);
     cabin(G, ox - 45, BLD_Z, 8, 7, 4.0, lam("twClapM", () => ({ map: rep(clapTex("#9aaab4"), 2, 1.4) })), "#4a3e34");

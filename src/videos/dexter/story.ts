@@ -172,8 +172,8 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       subjects: [["Dexter", head(p), 0.2]] }; },
   // You see, Timothy Dexter was a leather worker: in front of his shop in Newburyport, hides hung by the door
   shop: (s, f) => ({ light: "port", dof: 0.6, focus: head(SHOP_D, 1.4), people: [P("dexterw", SHOP_D, "grin", 0, { wave: 0.6 })],
-    cam: mv(s, f, { pos: Rv(SHOP[0] + 1.3, 1.6, -1.6), look: Rv(SHOP[0] + 1.5, 2.9, 5.0), fov: 56, roll: -0.04 }, { pos: Rv(SHOP[0] + 1.3, 1.6, -1.0), look: Rv(SHOP[0] + 1.5, 3.0, 5.0), fov: 56, roll: 0.03 }),
-    subjects: [["Dexter", head(SHOP_D), 0.2], ["his shop sign", Rv(SHOP[0], 3.9, BLD_Z - 0.06), 0.3], ["the hides", Rv(SHOP[0] + 2.6, 1.9, BLD_Z - 0.62), 0.3]] }),
+    cam: mv(s, f, { pos: Rv(SHOP[0] + 0.5, 1.7, -2.4), look: Rv(SHOP[0] + 0.35, 2.7, 5.0), fov: 56, roll: -0.04 }, { pos: Rv(SHOP[0] + 0.45, 1.7, -1.9), look: Rv(SHOP[0] + 0.35, 2.75, 5.0), fov: 56, roll: 0.03 }),
+    subjects: [["Dexter", head(SHOP_D), 0.2], ["his shop sign", Rv(SHOP[0], 3.9, BLD_Z - 0.06), 0.3], ["the hides", Rv(SHOP[0] + 1.75, 1.9, BLD_Z - 0.62), 0.3]] }),
   // ...who could barely spell: close, squinting at a letter he holds
   spell: (s, f) => { const p = SHOP_D, hand = add(p, -0.25, 1.32, -0.35);
     return { light: "port", dof: 1, closeup: true, focus: head(p), people: [P("dexterw", p, "nervous", 1, { headTilt: 0.14, hw: [hand] })],
@@ -230,7 +230,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: mv(s, f, { pos: WR(8.6, 13.6, 1.5), look: WR(11.4, 21, 1.1), fov: 50, roll: 0.04 }, { pos: WR(8.9, 14.4, 1.8), look: WR(11.6, 22, 1.0), fov: 50, roll: -0.03 }),
       subjects: [["Dexter", head(p), 0.2], ["the coal", Rv(COALP[0], COALP[1] + 0.7, COALP[2]), 0.6]] }; },
   // ...and it landed during a miners' strike: Newcastle, grey; idle miners by the strike board as the schooner lies in
-  strike: (s, f) => { const a = WR(10.4, 9.0), b = WR(11.3, 9.5), c = WR(12.0, 8.8);
+  strike: (s, f) => { const a = WR(10.4, 9.0), b = WR(11.3, 9.5), c = WR(11.75, 8.8);
     return { light: "newcastle", dof: 0.5, focus: WR(11, 11.5, 1.6),
       people: [P("mn1", a, "stern", 1), P("mn2", b, "stern", -1), P("mn3", c, "neutral", -1)],
       cam: kick(mv(s, f, { pos: WR(11.0, 4.2, 1.6), look: WR(11.1, 12, 1.6), fov: 52, roll: -0.04 }, { pos: WR(11.1, 4.8, 1.7), look: WR(11.2, 12.4, 1.6), fov: 52, roll: 0.03 }), f, W(4, "strike"), 0.8),
@@ -254,11 +254,11 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: mv(s, f, { pos: WR(9.0, 9.4, 1.0), look: WR(10.9, 15.8, 1.6), fov: 52, roll: -0.05 }, { pos: WR(9.3, 10.2, 1.2), look: WR(11.0, 16.0, 1.6), fov: 52, roll: 0.04 }),
       subjects: [["Dexter", head(p), 0.2], ["the crates", add(Rv(CRATES[0], CRATES[1], CRATES[2]), 0, 0.9, 0), 0.6]] }; },
   // They used them for cooking: an islander cooks over the fire in a bed warmer's pan, smoke rising
-  cook: (s, f) => { const tt = t(f - s.a), fc = Rv(FIRE[0], 0, FIRE[2]), cook = Rv(FIRE[0] + 0.25, 0, FIRE[2] + 1.0), hand = add(cook, -0.25, 1.05, -0.15);
+  cook: (s, f) => { const tt = t(f - s.a), fc = Rv(FIRE[0], 0, FIRE[2]), cook = Rv(FIRE[0] + 0.95, 0, FIRE[2] + 0.45), hand = add(cook, -0.42, 1.0, -0.15);
     return { light: "tropic", dof: 1, focus: add(fc, 0, 0.6, -0.4), people: [P("i2", cook, "grin", 0, { hw: [hand] }), P("i3", Rv(FIRE[0] - 0.5, 0, FIRE[2] + 1.7), "grin", 1)],
-      pans: [{ hand, dir: [-0.1, -0.42, -0.9] }], puffs: fire(add(fc, 0, 0.05, 0), tt),
+      pans: [{ hand, dir: [-0.6, -0.67, -0.45] }], puffs: fire(add(fc, 0, 0.05, 0), tt),
       cam: mv(s, f, { pos: Rv(FIRE[0] + 0.2, 2.3, FIRE[2] - 4.0), look: add(fc, 0.2, 0.75, 0.6), fov: 48, roll: 0.05 }, { pos: Rv(FIRE[0] + 0.2, 2.2, FIRE[2] - 3.5), look: add(fc, 0.2, 0.8, 0.6), fov: 48, roll: -0.04 }),
-      subjects: [["the cook", head(cook), 0.2], ["the pan over the fire", add(hand, -0.1, -0.4, -0.86), 0.12]] }; },
+      subjects: [["the cook", head(cook), 0.2], ["the pan over the fire", add(hand, -0.57, -0.64, -0.43), 0.12]] }; },
   // ...and he cleared 79%: Dexter laughing, close, the pan over his shoulder
   cleared: (s, f) => { const p = DEX_HOOK;
     return { light: "tropic", dof: 1, closeup: true, focus: head(p), pans3: true, people: [P("dexter", p, "laugh", 0, { headTilt: -0.1, hw: [add(p, 0.3, 1.2, -0.2)] })],
@@ -266,7 +266,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: kick(snap(add(p, 0.35, 1.3, -2.4), head(p, 1.25), f, s.a, { fov: 44, roll: 0.06 }, 1.6, 6), f, W(5, "79"), 1.0),
       subjects: [["Dexter", head(p), 0.2]] }; },
   // So he bought a mansion: from High Street, crane up through the arch to the house, its cupola and gold eagle
-  mansion: (s, f) => ({ light: "mansion", dof: 0, focus: Mn(0, 6, HOUSE_Z), people: statues((_n, i) => i < 3 || [0, 1, 4, 5, 8, 9].includes(i - 3)),
+  mansion: (s, f) => ({ light: "mansion", dof: 0, focus: Mn(0, 6, HOUSE_Z), people: statues((_n, i) => i < 3 || [4, 5, 8, 9].includes(i - 3)),
     cam: mv(s, f, { pos: Mn(0.6, 1.6, -11.0), look: Mn(0, 5.5, HOUSE_Z), fov: 54, roll: 0.04 }, { pos: Mn(0.4, 4.6, -10.0), look: Mn(0, 7.5, HOUSE_Z), fov: 56, roll: -0.03 }),
     subjects: [["the mansion", Mn(0, 6, HOUSE_Z - 0.2), 3], ["the gold eagle", Mn(0, 12.9 + 2.1, HOUSE_Z + 5), 0.5]] }),
   // ...called himself Lord Timothy Dexter: on his steps, chin up, cane in hand
@@ -294,7 +294,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       subjects: [["Dexter's statue", add(DEXSTAT, 0, 1.5, 0), 0.2], ["Dexter", head(me), 0.2]] }; },
   // His statue's sign said...: up the column from the sign to the statue
   sign: (s, f) => ({ light: "mansion", dof: 1, focus: SIGN,
-    cam: mv(s, f, { pos: add(SIGN, 0.25, -0.15, -2.4), look: add(SIGN, 0, -0.12, 0), fov: 46, roll: -0.04 }, { pos: add(SIGN, 0.15, -0.15, -2.8), look: add(SIGN, 0, -0.12, 0), fov: 46, roll: 0.03 }),
+    cam: mv(s, f, { pos: add(SIGN, 0.25, -0.15, -3.5), look: add(SIGN, 0, -0.12, 0), fov: 46, roll: -0.04 }, { pos: add(SIGN, 0.15, -0.15, -3.9), look: add(SIGN, 0, -0.12, 0), fov: 46, roll: 0.03 }),
     subjects: [["the sign", SIGN, 0.15]] }),
   // ...the greatest philosopher in the Western world: Dexter under his statue, chest out, the camera circling
   proud: (s, f) => { const me = Mn(COLS[DEX_COL][0] - 0.1, 0, COLS[DEX_COL][1] - 1.3);
@@ -306,7 +306,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     cam: mv(s, f, { pos: Mn(0.3, 1.6, COFFIN[2] - 6.6), look: Mn(0, 1.0, COFFIN[2] - 0.8), fov: 46, roll: -0.04 }, { pos: Mn(0.25, 1.6, COFFIN[2] - 6.0), look: Mn(0, 1.0, COFFIN[2] - 0.8), fov: 46, roll: 0.03 }),
     subjects: [["the coffin", Mn(0, 1.0, COFFIN[2] - 0.44), 0.1]] }),
   // About 3,000 people came: crane up over the crowd filling the lawn round the coffin
-  crowd: (s, f) => ({ light: "wake", dof: 0, focus: Mn(0, 1, COFFIN[2] - 3), people: mourners(undefined, (n) => n % 4 === 3),
+  crowd: (s, f) => ({ light: "wake", dof: 0, focus: Mn(0, 1, COFFIN[2] - 3), people: mourners(undefined, (n) => { const k = n % 4, row = Math.floor((n % 24) / 4); return k === 3 || (k === 2 && row % 2 === 1); }),
     cam: mv(s, f, { pos: Mn(0.3, 8.5, COFFIN[2] - 15), look: Mn(0, 0.2, COFFIN[2] - 4), fov: 66, roll: 0.03 }, { pos: Mn(0.2, 11.5, COFFIN[2] - 15.5), look: Mn(0, 0.0, COFFIN[2] - 4), fov: 66, roll: -0.03 }),
     subjects: [["the crowd", Mn(-2.2, 1.4, COFFIN[2] - 4.5), 1], ["the coffin", Mn(0, 1.24, COFFIN[2]), 0.1]] }),
   // But his wife didn't cry enough...: Elizabeth among the weeping mourners, dry-eyed, whistling
@@ -335,9 +335,9 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: mv(s, f, { pos: Rm(TABLE[0] + 0.1, 1.4, TABLE[2] - 4.4), look: Rm(TABLE[0] + 0.1, 1.3, TABLE[2] - 0.6), fov: 46, roll: -0.05 }, { pos: Rm(TABLE[0] + 0.1, 1.4, TABLE[2] - 4.0), look: Rm(TABLE[0] + 0.1, 1.3, TABLE[2] - 0.6), fov: 46, roll: 0.04 }),
       subjects: [["the readers", L3(head(a), head(b), 0.5), 0.3]] }; },
   // ...he added a page of just periods and commas: push in on the board, the page of stops; Dexter beside it, proud
-  punct: (s, f) => { const me = Rm(-1.05, 0, 2.5);
+  punct: (s, f) => { const me = Rm(-0.75, 0, 2.2);
     return { light: "study", dof: 0.5, focus: BOARD, key: CANDLE_K, page: "punct", people: [P("dexter", me, "grin", -1, { wave: 0.8 })],
-      cam: kick(mv(s, f, { pos: Rm(-0.5, 1.7, -1.6), look: Rm(-0.4, 1.75, 3.8), fov: 54, roll: -0.04 }, { pos: Rm(-0.4, 1.7, -0.8), look: Rm(-0.35, 1.78, 3.8), fov: 54, roll: 0.03 }), f, W(9, "commas"), 0.7),
+      cam: kick(mv(s, f, { pos: Rm(-0.5, 1.6, -1.6), look: Rm(-0.4, 1.55, 3.8), fov: 54, roll: -0.04 }, { pos: Rm(-0.4, 1.6, -0.8), look: Rm(-0.35, 1.58, 3.8), fov: 54, roll: 0.03 }), f, W(9, "commas"), 0.7),
       subjects: [["the page of punctuation", BOARD, 0.2], ["Dexter", head(me), 0.2]] }; },
   // ...and told them to salt and pepper it as they pleased: he shakes a pepper pot at us and the marks fly at the lens
   pepper: (s, f) => { const tt = t(f - s.a), p = Rm(0.1, 0, 0.9), hand = add(p, -0.3, 1.45, -0.4), cp = add(p, -0.05, 1.5, -2.3);

@@ -60,7 +60,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   wifeshop: (s, f) => { const b = Rv(SHOP[0] + 3.4, WALK, 4.5);
     return { light: "port", dof: 0.8, focus: head(b), people: [P("wife", b, "grin", 0), P("t4", Rv(SHOP[0] + 4.4, WALK, 4.2), "neutral", -1)],
       cam: mv(s, f, { pos: Rv(SHOP[0] + 3.4, 1.4, -2.8), look: Rv(SHOP[0] + 3.4, 1.7, 5), fov: 38, roll: 0.03 }, { pos: Rv(SHOP[0] + 3.3, 1.4, -2.4), look: Rv(SHOP[0] + 3.4, 1.7, 5), fov: 38, roll: -0.02 }),
-      subjects: [["Elizabeth", head(b), 0.2], ["the hides", Rv(SHOP[0] + 2.6, 1.9, BLD_Z - 0.62), 0.3]] }; },
+      subjects: [["Elizabeth", head(b), 0.2], ["the hides", Rv(SHOP[0] + 1.75, 1.9, BLD_Z - 0.62), 0.3]] }; },
   // ...for pennies on the dollar: the stacks of notes on the table, close and low
   war2: (s, f) => ({ light: "tavern", dof: 1, focus: TBL, key: LAMP_K, cards: [...stack(add(TBL, 0.2, 0, -0.1), 10), ...stack(add(TBL, -0.25, 0, 0.15), 8), ...stack(add(TBL, 0.05, 0, 0.35), 6)],
     cam: mv(s, f, { pos: add(TBL, 0.6, 0.35, -1.6), look: add(TBL, 0, 0.0, 0), fov: 36, roll: 0.04 }, { pos: add(TBL, 0.4, 0.45, -1.4), look: add(TBL, 0, 0.0, 0), fov: 36, roll: -0.03 }),
