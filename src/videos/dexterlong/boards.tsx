@@ -37,7 +37,7 @@ export const BOARDS: Record<string, React.FC<G>> = {
   generous: say([{ s: "We only have", size: 120 }, { s: "his word for it", cue: [26, "word"], size: 130, col: RED }], { m: 2 }),
   // ---------------- 5 Lord Timothy ----------------
   lord: say([{ s: "\"LORD\"", size: 190, col: GOLD }, { s: "Timothy Dexter", cue: [28, "timothy"], size: 120 }], { dark: true, m: 4 }),
-  n40: num("40", "wooden statues on tall columns", { col: GOLD, m: 4, size: 330, sub: "carved by Joseph Wilson", subCue: 0 }),
+  n40: num("40", "wooden statues", { col: GOLD, m: 4, size: 330, sub: "on tall columns, carved by Joseph Wilson", subCue: 0 }),
   signboard: say([{ s: "\"I am the first in the East,", size: 76 }, { s: "the first in the West,", cue: [32, "west"], size: 76 }, { s: "and the greatest philosopher", cue: [32, "greatest"], size: 76, col: RED }, { s: "in the Western world\"", cue: [32, "western"], size: 76, col: RED }], { m: 2 }),
   poet: say([{ s: "His own poet:", size: 100 }, { s: "Jonathan Plummer", cue: [33, "jonathan"], size: 130, col: RED }, { s: "a fish seller", cue: [33, "fish"], size: 84 }], { m: 2 }),
   // ---------------- 6 the fake funeral ----------------
@@ -55,9 +55,9 @@ export const BOARDS: Record<string, React.FC<G>> = {
   // kept left of x ~1400: the subscribe card and mascot are still on the right when this board comes in
   endq: ({ t, d, c }) => (
     <Paper tone="#141a2a"><Mv t={t} d={d} m={4}>
-      <At x={720} y={300} s={pop(t, 0)}><T size={72} col="#fff">A fool who got lucky...</T></At>
-      <At x={720} y={470} s={pop(t, at([48, "genius"], c))}><T size={76} col="#ffb347">or a genius who let</T></At>
-      <At x={720} y={570} s={pop(t, at([48, "everyone"], c))}><T size={76} col="#ffb347">everyone think so?</T></At>
+      <At x={620} y={330} s={pop(t, 0)}><T size={64} col="#fff">A fool who got lucky...</T></At>
+      <At x={620} y={480} s={pop(t, at([48, "genius"], c))}><T size={66} col="#ffb347">or a genius who let</T></At>
+      <At x={620} y={570} s={pop(t, at([48, "everyone"], c))}><T size={66} col="#ffb347">everyone think so?</T></At>
     </Mv></Paper>
   ),
 };

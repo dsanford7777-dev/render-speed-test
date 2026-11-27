@@ -54,7 +54,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // The next year, he married Elizabeth Frothingham: the two of them before his shop
   couple: (s, f) => { const a = add(SHOP_D, 0.45, 0, 0), b = add(SHOP_D, -0.45, 0, 0.1);
     return { light: "port", dof: 0.8, focus: L3(head(a), head(b), 0.5), people: [P("dexterw", a, "grin", -1, { facing: -1 }), P("wife", b, "neutral", 1, { facing: 1 })],
-      cam: mv(s, f, { pos: add(SHOP_D, 0.2, 1.3, -4.4), look: add(SHOP_D, 0, 1.5, 0.4), fov: 38, roll: -0.03 }, { pos: add(SHOP_D, 0.1, 1.35, -3.9), look: add(SHOP_D, 0, 1.5, 0.4), fov: 38, roll: 0.02 }),
+      cam: mv(s, f, { pos: add(SHOP_D, 0.2, 0.95, -4.4), look: add(SHOP_D, 0, 1.02, 0.4), fov: 38, roll: -0.03 }, { pos: add(SHOP_D, 0.1, 0.95, -3.9), look: add(SHOP_D, 0, 1.02, 0.4), fov: 38, roll: 0.02 }),
       subjects: [["Dexter", head(a), 0.2], ["Elizabeth", head(b), 0.2]] }; },
   // She ran a little shop of her own: Elizabeth at the next door along, the hides behind
   wifeshop: (s, f) => { const b = Rv(SHOP[0] + 3.4, WALK, 4.5);
