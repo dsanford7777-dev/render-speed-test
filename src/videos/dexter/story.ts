@@ -379,7 +379,7 @@ export type Item = { key: string; kind: "stamp" | "pill" | "call"; text: string;
 const B = (g: string) => SHOTS.find((x) => x.g === g)!.b;
 const S0 = (g: string) => SHOTS.find((x) => x.g === g)!.a;
 export const ITEMS = (): Item[] => ([
-  { key: "42k", kind: "stamp", text: "42,000", f0: W(0, "42000"), f1: B("hook"), y: 50, rot: -4, bg: "#e0a32e", fg: "#1e1a22", size: 150 },
+  { key: "42k", kind: "stamp", text: "42,000", f0: W(0, "42000"), f1: B("hook"), y: 56, rot: -4, bg: "#e0a32e", fg: "#1e1a22", size: 150 },
   { key: "trop", kind: "call", text: "TO THE TROPICS", f0: S0("tropics") + 2, f1: B("tropics"), y: 24, fg: "#ffd166", size: 104 },
   { key: "dex", kind: "pill", text: "TIMOTHY DEXTER", sub: "Newburyport, Mass.", f0: W(1, "timothy"), f1: B("shop"), y: 22, size: 78 },
   { key: "spell", kind: "call", text: "COULD BARELY SPELL", f0: W(1, "barely"), f1: B("spell"), y: 24, fg: "#ffd166", size: 92 },
