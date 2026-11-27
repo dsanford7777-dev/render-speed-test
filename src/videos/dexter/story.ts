@@ -53,6 +53,8 @@ export type St3 = {
   pot?: V3;
   /** dressings: crates of bed warmers on the wharf, the coal heap (Newburyport side), the coffin out on the lawn */
   pans3?: boolean; coal?: boolean; coffin?: boolean;
+  /** hide the strike board (a shot whose camera stands right under it) */
+  nostrike?: boolean;
   /** the study's page board */
   page?: "pickle" | "punct";
   /** the lamp lamp-lit shadows fall from */
@@ -237,7 +239,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       subjects: [["the strike board", Rv(11, WHARF.y + 2.0, 10.33), 0.3], ["the miners", head(b), 0.3], ["the schooner", Rv(SHIP[0] - 4, 1.5, SHIP[2]), 1.5]] }; },
   // It sold at a premium: a buyer hands coins over a lump of coal; coins flash
   sold: (s, f) => { const tt = t(f - s.a), b = WR(10.6, 12.4), m = WR(11.7, 12.8), hb = add(b, 0.32, 1.25, -0.3), hm = add(m, -0.32, 1.25, -0.3);
-    return { light: "newcastle", dof: 1, focus: L3(head(b), head(m), 0.5), coal: true, people: [P("buyer", b, "grin", -1, { hw: [hb] }), P("mn1", m, "laugh", 1, { hw: [hm] })],
+    return { light: "newcastle", dof: 1, focus: L3(head(b), head(m), 0.5), coal: true, nostrike: true, people: [P("buyer", b, "grin", -1, { hw: [hb] }), P("mn1", m, "laugh", 1, { hw: [hm] })],
       cards: [{ kind: "coal", p: add(hb, 0.02, 0.09, -0.04), spin: 0.2, s: 1.1 }, ...rain("coin", add(hm, 0, -0.1, 0), tt, 10, 0.3, 0.5, 0.2, 0.7, 0.8)],
       cam: kick(mv(s, f, { pos: WR(11.15, 8.4, 1.35), look: WR(11.15, 12.6, 1.25), fov: 48, roll: 0.05 }, { pos: WR(11.15, 8.8, 1.35), look: WR(11.15, 12.6, 1.25), fov: 48, roll: -0.04 }), f, W(4, "premium"), 0.8),
       subjects: [["the buyer", head(b), 0.2], ["the coins", add(hm, 0, 0.15, 0), 0.1]] }; },
@@ -377,7 +379,7 @@ export type Item = { key: string; kind: "stamp" | "pill" | "call"; text: string;
 const B = (g: string) => SHOTS.find((x) => x.g === g)!.b;
 const S0 = (g: string) => SHOTS.find((x) => x.g === g)!.a;
 export const ITEMS = (): Item[] => ([
-  { key: "42k", kind: "stamp", text: "42,000", f0: W(0, "42000"), f1: B("hook"), y: 24, rot: -4, bg: "#e0a32e", fg: "#1e1a22", size: 150 },
+  { key: "42k", kind: "stamp", text: "42,000", f0: W(0, "42000"), f1: B("hook"), y: 50, rot: -4, bg: "#e0a32e", fg: "#1e1a22", size: 150 },
   { key: "trop", kind: "call", text: "TO THE TROPICS", f0: S0("tropics") + 2, f1: B("tropics"), y: 24, fg: "#ffd166", size: 104 },
   { key: "dex", kind: "pill", text: "TIMOTHY DEXTER", sub: "Newburyport, Mass.", f0: W(1, "timothy"), f1: B("shop"), y: 22, size: 78 },
   { key: "spell", kind: "call", text: "COULD BARELY SPELL", f0: W(1, "barely"), f1: B("spell"), y: 24, fg: "#ffd166", size: 92 },
@@ -395,10 +397,10 @@ export const ITEMS = (): Item[] => ([
   { key: "40", kind: "call", text: "40 STATUES", f0: W(6, "40"), f1: B("statues"), y: 24, fg: "#ffd166", size: 120 },
   { key: "wash", kind: "pill", text: "WASHINGTON", f0: W(6, "washington"), f1: B("wash"), y: 22, size: 84 },
   { key: "jeff", kind: "pill", text: "JEFFERSON", f0: W(6, "jefferson"), f1: B("jeff"), y: 22, size: 84 },
-  { key: "me", kind: "stamp", text: "AND HIMSELF", f0: Wn(6, "himself", 2), f1: B("himself"), y: 24, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 120 },
+  { key: "me", kind: "stamp", text: "AND HIMSELF", f0: Wn(6, "himself", 2), f1: B("himself"), y: 46, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 120 },
   { key: "east", kind: "pill", text: "FIRST IN THE EAST", f0: W(7, "east"), f1: W(7, "west"), y: 22, size: 76 },
   { key: "west", kind: "pill", text: "FIRST IN THE WEST", f0: W(7, "west"), f1: W(7, "greatest"), y: 22, size: 76 },
-  { key: "phil", kind: "pill", text: "THE GREATEST PHILOSOPHER", sub: "in the Western world", f0: W(7, "greatest"), f1: B("proud"), y: 22, size: 56 },
+  { key: "phil", kind: "pill", text: "THE GREATEST PHILOSOPHER", sub: "in the Western world", f0: W(7, "greatest"), f1: B("proud"), y: 44, size: 56 },
   { key: "fake", kind: "stamp", text: "FAKE FUNERAL", f0: W(8, "faked"), f1: B("coffin"), y: 24, rot: -4, bg: "#2f2a3a", fg: "#ffffff", size: 110 },
   { key: "3000", kind: "call", text: "3,000 MOURNERS", f0: W(8, "3000"), f1: B("crowd"), y: 24, fg: "#ffd166", size: 100 },
   { key: "cry", kind: "call", text: "NOT ONE TEAR", f0: W(8, "cry"), f1: B("wife"), y: 24, fg: "#ffd166", size: 110 },

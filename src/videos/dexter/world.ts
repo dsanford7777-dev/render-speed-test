@@ -191,7 +191,7 @@ export class TwWorld {
     // ---------------- the sets ----------------
     this.river.group.visible = set === "river"; this.woods.group.visible = set === "woods"; this.room.group.visible = set === "room"; this.north.group.visible = false;
     if (set === "river") { const Rv = this.river, trop = light === "tropic", nc = light === "newcastle";
-      Rv.trees.visible = !trop; Rv.palms.visible = trop; Rv.pans.visible = !!st.pans3 || trop; Rv.coal.visible = !!st.coal || nc; Rv.strike.visible = nc;
+      Rv.trees.visible = !trop; Rv.palms.visible = trop; Rv.pans.visible = !!st.pans3 || trop; Rv.coal.visible = !!st.coal || nc; Rv.strike.visible = nc && !st.nostrike;
       Rv.skies.day.visible = light === "port"; Rv.skies.grey.visible = nc; Rv.skies.hot.visible = trop;
       Rv.drift(t); Rv.water.U.uSun.value.set(...SUN[light]); this.grassR.update(cam); }
     if (set === "woods") { const Mn = this.woods; Mn.coffin.visible = light === "wake" || !!st.coffin; Mn.skies.day.visible = light !== "wake"; Mn.skies.grey.visible = light === "wake"; Mn.drift(t); this.grassW.update(cam); }
