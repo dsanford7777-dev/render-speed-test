@@ -27,7 +27,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ---------------- straight from the Short ----------------
   hook: R("hook"), tropics: R("tropics"), money: R("money"), shop: R("shop", (st) => up(st, 0.7)), spell: R("spell", (st) => far(st, 1.4)), war: R("war"), buy: R("buy", (st) => far(st, 1.4)), paid: R("paid"), rich: R("rich", (st) => far(st, 1.4)),
   laugh: R("laugh"), advice: R("advice", (st) => far(st, 1.25)), worst: R("worst", (st) => far(st, 1.3)), coal: R("coal", (st) => far(st, 1.4)), load: R("load"), strike: R("strike"), sold: R("sold"), pans: R("pans"), shipped: R("shipped"),
-  cook: R("cook"), cleared: R("cleared"), mansion: R("mansion", (st) => far(st, 1.2)), lord: R("lord"), statues: R("statues", (st) => ({ ...st, people: statues((_n, i) => i >= 3 && [4, 8, 10].includes(i - 3)) })), himself: R("himself", (st) => far(st, 1.3)), sign: R("sign"),
+  cook: R("cook"), cleared: R("cleared"), mansion: R("mansion", (st) => far(st, 1.2)), lord: R("lord"), statues: R("statues", (st) => ({ ...st, people: statues((_n, i) => i >= 3 && [4, 8, 10].includes(i - 3)) })), himself: R("himself", (st) => up(far(st, 1.3), 0.6)), sign: R("sign"),
   coffin: R("coffin"), crowd: R("crowd"), wife: R("wife"), hiding: R("hiding", (st) => far(st, 1.3)), caned: R("caned"), book: R("book"), readers: R("readers"), punct: R("punct"), pepper: R("pepper"),
 
   // ---------------- the long-form's own ----------------
