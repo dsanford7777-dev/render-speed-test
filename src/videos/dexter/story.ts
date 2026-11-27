@@ -255,10 +255,10 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       subjects: [["Dexter", head(p), 0.2], ["the crates", add(Rv(CRATES[0], CRATES[1], CRATES[2]), 0, 0.9, 0), 0.6]] }; },
   // They used them for cooking: an islander cooks over the fire in a bed warmer's pan, smoke rising
   cook: (s, f) => { const tt = t(f - s.a), fc = Rv(FIRE[0], 0, FIRE[2]), cook = Rv(FIRE[0] + 0.95, 0, FIRE[2] + 0.45), hand = add(cook, -0.42, 1.0, -0.15);
-    return { light: "tropic", dof: 1, focus: add(fc, 0, 0.6, -0.4), people: [P("i2", cook, "grin", 0, { hw: [hand] }), P("i3", Rv(FIRE[0] - 0.5, 0, FIRE[2] + 1.7), "grin", 1)],
+    return { light: "tropic", dof: 1, focus: add(fc, 0, 0.6, -0.4), people: [P("i2", cook, "grin", 0, { hw: [hand] }), P("i3", Rv(FIRE[0] - 0.15, 0, FIRE[2] + 1.9), "grin", 1)],
       pans: [{ hand, dir: [-0.6, -0.67, -0.45] }], puffs: fire(add(fc, 0, 0.05, 0), tt),
-      cam: mv(s, f, { pos: Rv(FIRE[0] + 0.2, 2.3, FIRE[2] - 4.0), look: add(fc, 0.2, 0.75, 0.6), fov: 48, roll: 0.05 }, { pos: Rv(FIRE[0] + 0.2, 2.2, FIRE[2] - 3.5), look: add(fc, 0.2, 0.8, 0.6), fov: 48, roll: -0.04 }),
-      subjects: [["the cook", head(cook), 0.2], ["the pan over the fire", add(hand, -0.57, -0.64, -0.43), 0.12]] }; },
+      cam: mv(s, f, { pos: Rv(FIRE[0] + 0.45, 2.3, FIRE[2] - 4.2), look: add(fc, 0.45, 0.75, 0.6), fov: 48, roll: 0.05 }, { pos: Rv(FIRE[0] + 0.45, 2.2, FIRE[2] - 3.8), look: add(fc, 0.45, 0.8, 0.6), fov: 48, roll: -0.04 }),
+      subjects: [["the cook", head(cook), 0.2], ["the pan over the fire", add(hand, -0.57, -0.64, -0.43), 0.24]] }; },
   // ...and he cleared 79%: Dexter laughing, close, the pan over his shoulder
   cleared: (s, f) => { const p = DEX_HOOK;
     return { light: "tropic", dof: 1, closeup: true, focus: head(p), pans3: true, people: [P("dexter", p, "laugh", 0, { headTilt: -0.1, hw: [add(p, 0.3, 1.2, -0.2)] })],
