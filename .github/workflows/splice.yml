@@ -27,10 +27,11 @@ jobs:
           TOT=$(N base.mp4); PN=$(N patch.mp4)
           [ "$PN" -eq $((B - A + 1)) ] || { echo "patch has $PN frames, range needs $((B - A + 1))"; exit 1; }
           E="-c:v libx264 -crf 16 -preset medium -pix_fmt yuv420p -an -video_track_timescale 15360"
-          ffmpeg -loglevel error -y -i base.mp4 -vf "trim=end_frame=$A,setpts=PTS-STARTPTS" $E a.mp4
+          # a patch that starts at frame 0 has no "before" part (an empty a.mp4 breaks the concat)
+          if [ "$A" -gt 0 ]; then ffmpeg -loglevel error -y -i base.mp4 -vf "trim=end_frame=$A,setpts=PTS-STARTPTS" $E a.mp4; fi
           ffmpeg -loglevel error -y -i patch.mp4 -vf "setpts=PTS-STARTPTS" $E b.mp4
           ffmpeg -loglevel error -y -i base.mp4 -vf "trim=start_frame=$((B + 1)),setpts=PTS-STARTPTS" $E c.mp4
-          printf "file a.mp4\nfile b.mp4\nfile c.mp4\n" > list.txt
+          { [ "$A" -gt 0 ] && echo "file a.mp4"; echo "file b.mp4"; echo "file c.mp4"; } > list.txt
           ffmpeg -loglevel error -y -f concat -safe 0 -i list.txt -i base.mp4 -map 0:v -map 1:a -c copy -movflags +faststart "$C.mp4"
           OUT=$(N "$C.mp4"); [ "$OUT" -eq "$TOT" ] || { echo "spliced video has $OUT frames, base has $TOT"; exit 1; }
           TAG="$C-$(date -u +%Y%m%d-%H%M)-patch"
