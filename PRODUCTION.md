@@ -116,6 +116,15 @@ Fixed in the code the same day (Peigneur world and the shared `bridge/scenery.ts
 - **The chapter tag and the subscribe card never sit on a label.** A chapter that opens on a map gets its tag on the free side (`right: true` in `CHAPTERS`); a board that follows a subscribe ask starts after the card has floated away (cut on a later word).
 - **Adding a cut to a long-form after a render: cut inside the existing shot** (a spec that switches at a word), not a new raw shot. Shot ids seed the hand-held sway, so a new shot shifts every later shot and a patch no longer matches the base.
 
+### Added Nov 27 (Timothy Dexter Short and long-form)
+- **Faces sit above the captions.** In a 9:16 close-up aim the camera ~0.3 m below the eyes (look at y ≈ 1.2 for a standing card), so the face lands at ~35–45 % of the frame; captions start at 61 %. In 16:9 re-shoots (`R()`) use `up()`/`far()` in dexterlong/story3d.ts for the same.
+- **Stamps never cover what is held up.** The default stamp height (24 %) sits on a raised prop or a statue on its column; put the stamp below the face in those shots (~56 % on a close-up, ~45 % on a wide). Check the first and last frame each stamp is up.
+- **A subject point inside a solid prop reads as hidden** (a coffin's middle, a pan's centre): point at the face the camera sees, or give the subject a radius bigger than the prop.
+- **Signs and boards the camera stands under get cut by the top edge** (the strike board over the wharf, the shop sign over a two-shot): aim lower so they leave the frame entirely, or hide them for that shot (`nostrike` in the Dexter world).
+- **Crowds fit the frame or thin out.** A crowd wider than the frame leaves half-people at both edges: drop the outer files (`mourners(..., skip)`) and widen the lens, rather than marking them extra.
+- **Smoke rises past whoever stands behind the fire.** Put the cook beside the fire, not behind it.
+- **Splice: a patch can start at frame 0** (the "before" part is skipped). Two range renders that finish in the same minute collide on the release tag; re-run the failed stitch job.
+
 If one of these can't be fixed in a reasonable time, the shot is restaged or cut so the problem is gone. The report to Daniel after an upload should have nothing under "weak spots".
 
 ## Fixing a video after it's rendered or uploaded (Nov 16)
