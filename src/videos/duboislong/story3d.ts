@@ -127,7 +127,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   town3: R("town", (st) => far(st, 1.2)),
   // To this day, signs in town spell it out: the sign today, the DOO-BOYS plate, close and low
   signL: (s, f) => ({ light: "today", dof: 0.4, focus: Rv(WSIGN[0], 1.9, WSIGN[2]), plate: true,
-    cam: mv(s, f, { pos: Rv(WSIGN[0] + 0.6, 1.2, WSIGN[2] - 4.6), look: Rv(WSIGN[0], 2.0, WSIGN[2]), fov: 40, roll: 0.02 }, { pos: Rv(WSIGN[0] + 0.3, 1.25, WSIGN[2] - 4.0), look: Rv(WSIGN[0], 2.0, WSIGN[2]), fov: 40, roll: -0.02 }),
+    cam: mv(s, f, { pos: Rv(WSIGN[0] + 0.6, 1.4, WSIGN[2] - 4.8), look: Rv(WSIGN[0], 1.9, WSIGN[2]), fov: 44, roll: 0.02 }, { pos: Rv(WSIGN[0] + 0.3, 1.45, WSIGN[2] - 4.3), look: Rv(WSIGN[0], 1.9, WSIGN[2]), fov: 44, roll: -0.02 }),
     subjects: [["the town's sign", SIGN_TOP, 0.3], ["the plate", Rv(WSIGN[0], 1.15, WSIGN[2] - 0.15), 0.2]] }),
   // ...maybe it's just how cowboys read the word: two ranchers squint at the post office sign
   cowboys: (s, f) => { const a = PO(0.5, 2.4), b = PO(-0.6, 2.3);
@@ -163,7 +163,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     cam: mv(s, f, { pos: Ms(1.4, 1.4, CHAPEL_Z - 8.0), look: Ms(0.2, 1.75, CHAPEL_Z - 1.5), fov: 36, roll: 0.02 }, { pos: Ms(0.8, 1.45, CHAPEL_Z - 7.4), look: Ms(0.1, 1.75, CHAPEL_Z - 1.5), fov: 36, roll: -0.02 }),
     subjects: [["Roberts", head(ROB), 0.2]] }),
   // the thumbnail: the local under the town's sign, grinning
-  thumb: () => ({ ...hookState("grin"), light: "today", dof: 0.6, focus: head(SIGN_MAN), cam: { pos: add(SIGN_MAN, 0.9, 1.45, -3.8), look: add(SIGN_MAN, 0.55, 1.95, 1.0), fov: 42, roll: 0.02 } }) as St3,
+  thumb: () => ({ ...hookState("grin"), light: "today", dof: 0.6, focus: head(SIGN_MAN), cam: { pos: add(SIGN_MAN, 1.35, 1.55, -2.6), look: add(SIGN_MAN, 0.95, 2.0, 1.0), fov: 46, roll: 0.02 } }) as St3,
 };
 void HOOK_POS; void HOOK_LOOK; void MAP; void up;
 /** every shot is hand-held: a slow sway on top of its move */

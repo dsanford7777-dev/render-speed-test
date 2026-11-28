@@ -11,7 +11,7 @@ INK, GOLD = (20, 16, 34), (255, 214, 64)
 im = Image.open(src).convert("RGB").resize((1920, 1080), Image.LANCZOS)
 im = ImageEnhance.Brightness(im).enhance(1.12); im = ImageEnhance.Color(im).enhance(1.15); im = ImageEnhance.Contrast(im).enhance(1.08)
 lines = [("SAID WRONG", (255, 255, 255), 190), ("ON PURPOSE?", GOLD, 360)]
-f = ImageFont.truetype(FONT, 132); x0 = 60
+f = ImageFont.truetype(FONT, 118); x0 = 50
 sh = Image.new("RGBA", im.size, (0, 0, 0, 0)); ds = ImageDraw.Draw(sh)
 for w, c, y in lines: ds.text((x0 + 8, y + 14), w, font=f, fill=(0, 0, 0, 170), anchor="lm", stroke_width=22, stroke_fill=(0, 0, 0, 170))
 b = sh.filter(ImageFilter.GaussianBlur(4)); im.paste(b, (0, 0), b)
