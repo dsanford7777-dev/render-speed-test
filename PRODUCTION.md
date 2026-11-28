@@ -1,6 +1,6 @@
 # Paradox Town: how a short gets made (and checked)
 
-This file and the Claude project doc `claude/production-checklist.md` hold the same checklist (synced Nov 27, 2026).
+This file and the Claude project doc `claude/production-checklist.md` hold the same checklist (synced Nov 28, 2026).
 
 ## Pipeline
 1. **Script**: `src/videos/<short>/timeline.ts`, SEGMENTS (`say` = what the narrator reads, `show` = subtitles).
@@ -124,6 +124,16 @@ Fixed in the code the same day (Peigneur world and the shared `bridge/scenery.ts
 - **Crowds fit the frame or thin out.** A crowd wider than the frame leaves half-people at both edges: drop the outer files (`mourners(..., skip)`) and widen the lens, rather than marking them extra.
 - **Smoke rises past whoever stands behind the fire.** Put the cook beside the fire, not behind it.
 - **Splice: a patch can start at frame 0** (the "before" part is skipped). Two range renders that finish in the same minute collide on the release tag; re-run the failed stitch job.
+
+### Added Nov 28 (Dubois Short and long-form)
+- **Signs over a door hang below the eave.** A sign put above a cabin door ends up inside the gable's front face and the roof hides it from every camera; hang it from the porch beam (Dubois: the post office sign) and list it as a subject so the hidden check sees it.
+- **A sign right over the people gets cut by the top edge in close shots.** Hide it for those shots (`posign: false` in the Dubois world), as with `nostrike`.
+- **A close-up next to a big sign is shot from the side** so the sign is out of frame rather than cut by the edge; recheck the same shot in 16:9, where the wider frame brings the sign back.
+- **A reverse angle in a room needs the fourth wall.** Without it the subject stands in front of a dark void (the Washington office got a front wall with windows and drapes).
+- **Riders and horses keep clear of tree spots.** Cottonwoods line the creek bank; horses were moved 2.5 m off the tree line so no trunk passes through a horse or rider.
+- **Track a moving horse in 9:16 every frame** (camera position and look follow the horse's x, the look a little ahead of it); a move from a start to an end point lets the horse run off the frame edge.
+- **A round prop that doesn't read is cut.** The mail sack (a squashed sphere) read as an egg at the frame edge and was removed.
+- **No call over the hook's sign.** A 24 % call sat on the town's name in the opening shot; the sign is the hook, so the call was dropped.
 
 If one of these can't be fixed in a reasonable time, the shot is restaged or cut so the problem is gone. The report to Daniel after an upload should have nothing under "weak spots".
 

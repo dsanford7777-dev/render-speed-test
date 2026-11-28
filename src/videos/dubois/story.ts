@@ -189,7 +189,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   clerk: (s, f) => { const hand = add(CLERK, -0.4, 1.55, 0.3);
     return { light: "capitol", dof: 0.6, focus: head(CLERK), key: WIN_K, page: "app", people: [P("clerk", CLERK, "neutral", -1, { hw: [hand] })],
       cam: mv(s, f, { pos: Rm(0.85, 1.55, -1.2), look: Rm(1.15, 1.7, 3.6), fov: 50, roll: -0.04 }, { pos: Rm(0.95, 1.6, -0.6), look: Rm(1.1, 1.7, 3.6), fov: 50, roll: 0.03 }),
-      subjects: [["the clerk", head(CLERK), 0.2], ["the application", BOARD, 0.3]] }; },
+      subjects: [["the clerk", head(CLERK), 0.2], ["the application", Rm(0.6, 2.3, 3.86), 0.3]] }; },
   // ...in red ink: the page now, Tibo struck through, Dubois written over it in red
   red: (s, f) => ({ light: "capitol", dof: 0.6, focus: L3(TIBO, DUB, 0.5), key: WIN_K, page: "red",
     cam: kick(snap(Rm(-0.1, 1.6, 1.1), L3(TIBO, DUB, 0.45), f, s.a, { fov: 46, roll: -0.05 }, 1.6, 6), f, W(4, "red"), 1.0),
