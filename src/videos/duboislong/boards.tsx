@@ -64,9 +64,9 @@ export const BOARDS: Record<string, React.FC<G>> = {
   // kept left of x ~1400: the subscribe card and mascot are still on the right when this board comes in
   endq: ({ t, d, c }) => (
     <Paper tone="#141a2a"><Mv t={t} d={d} m={4}>
-      <At x={640} y={330} s={pop(t, 0)}><T size={64} col="#fff">If a stranger renamed your town...</T></At>
-      <At x={640} y={480} s={pop(t, at([53, "his"], c))}><T size={72} col="#ffb347">his way...</T></At>
-      <At x={640} y={580} s={pop(t, at([53, "yours"], c))}><T size={72} col="#ffb347">or yours?</T></At>
+      <At x={960} y={360} s={pop(t, 0)}><T size={64} col="#fff">If a stranger renamed your town...</T></At>
+      <At x={960} y={520} s={pop(t, at([53, "his"], c))}><T size={110} col="#ffb347">his way...</T></At>
+      <At x={960} y={660} s={pop(t, at([53, "yours"], c))}><T size={110} col="#ffb347">or yours?</T></At>
     </Mv></Paper>
   ),
 };
