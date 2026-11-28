@@ -3,7 +3,7 @@
 // same moment after the cut), and the camera's vertical field of view is narrowed so the framing keeps roughly the
 // portrait shot's width. The long-form's own shots are written for 16:9 directly.
 // Cameras sit on the -z side looking toward +z (world +x is screen LEFT).
-import { SPECS as FS, SHOTS as SSH, St3, Cam, ShotDef as FShot, V3, smooth, L3, move, orbit, secs, P, horse, add, head, hookState, PO, SIGN_MAN, SIGN_TOP, HOOK_POS, HOOK_LOOK, TBL, LAMP_K, WIN_K, BOARD, FRED, ROB, SH1, SH2, SHK, Ms } from "../dubois/story";
+import { SPECS as FS, SHOTS as SSH, St3, Cam, ShotDef as FShot, V3, smooth, L3, move, orbit, secs, P, horse, add, head, hookState, PO, POSIGN, SIGN_MAN, SIGN_TOP, HOOK_POS, HOOK_LOOK, TBL, LAMP_K, WIN_K, BOARD, FRED, ROB, SH1, SH2, SHK, Ms } from "../dubois/story";
 import { Rv, Rm, POST, BLD_Z, WSIGN, TABLE, DESK, DESK_Y, MAP, CHAPEL_Z, MHOUSE, riverY } from "../dubois/place";
 /** a horse on the settlement ground at set-local x, z */
 const gy = (x: number, z: number) => riverY(x, z);
@@ -89,7 +89,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   postmaster: (s, f) => { const a = PO(0.2, 4.4);
     return { light: "valley", dof: 0.6, focus: head(a), people: [P("smith", a, "grin", 0, { headTilt: -0.08 })],
       cam: mv(s, f, { pos: add(a, 0.4, 1.0, -4.6), look: add(a, 0.1, 2.3, 1.0), fov: 40, roll: 0.02 }, { pos: add(a, 0.3, 1.1, -4.2), look: add(a, 0.1, 2.3, 1.0), fov: 40, roll: -0.02 }),
-      subjects: [["Smith", head(a), 0.2], ["the post office sign", Rv(POST.x, 3.75, BLD_Z - 0.06), 0.3]] }; },
+      subjects: [["Smith", head(a), 0.2], ["the post office sign", POSIGN, 0.3]] }; },
   // ...Smith couldn't even write: Smith squints at the form, Simpson takes the pen
   write2: (s, f) => { const a = Rm(TABLE[0] - 0.25, 0, TABLE[2] - 0.8), b = Rm(TABLE[0] + 0.65, 0, TABLE[2] - 0.45);
     return { light: "cabin", dof: 1, focus: head(b), key: LAMP_K, people: [P("simpson", a, "grin", 0), P("smith", b, "nervous", 1, { headTilt: 0.15 })],
@@ -129,7 +129,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   cowboys: (s, f) => { const a = PO(0.5, 2.4), b = PO(-0.6, 2.3);
     return { light: "valley", dof: 0.6, focus: L3(head(a), head(b), 0.5), people: [P("r2", a, "nervous", 0, { headTilt: 0.15 }), P("r3", b, "nervous", 0, { headTilt: -0.12 })],
       cam: mv(s, f, { pos: add(L3(a, b, 0.5), 0.4, 1.2, -4.0), look: add(L3(a, b, 0.5), 0, 2.2, 2.0), fov: 40, roll: 0.02 }, { pos: add(L3(a, b, 0.5), 0.2, 1.2, -3.6), look: add(L3(a, b, 0.5), 0, 2.2, 2.0), fov: 40, roll: -0.02 }),
-      subjects: [["the ranchers", L3(head(a), head(b), 0.5), 0.3], ["the post office sign", Rv(POST.x, 3.75, BLD_Z - 0.06), 0.3]] }; },
+      subjects: [["the ranchers", L3(head(a), head(b), 0.5), 0.3], ["the post office sign", POSIGN, 0.3]] }; },
   // The little post office also had an interesting new neighbor: a rider far off across the creek, coming in
   butchfar: (s, f) => { const x = 30 - 2.0 * tt(s, f);
     return { light: "valley", dof: 0, focus: Rv(x, 2, 34), horses: [horse(1, Rv(x, 0, 0)[0], gy(x, 34), 34, -2.0, "walk", "butch", "grin"), horse(2, Rv(x + 3.0, 0, 0)[0], gy(x + 3, 35.5), 35.5, -2.0, "walk", null), horse(3, Rv(x + 5.6, 0, 0)[0], gy(x + 5.6, 34.6), 34.6, -2.0, "walk", null)],

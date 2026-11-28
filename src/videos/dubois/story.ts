@@ -111,6 +111,8 @@ const horse = (k: number, x: number, y: number, z: number, v: number, gait: Gait
 /** in front of the post office (under its porch roof), the store, the welcome sign (today) */
 const PO = (x: number, z = 4.3): V3 => Rv(POST.x + x, 0, z);
 const SIGN_MAN: V3 = Rv(WSIGN[0] + 0.45, 0, WSIGN[2] - 2.2);
+/** the post office sign, hung from the porch beam */
+const POSIGN: V3 = Rv(POST.x, 2.32, BLD_Z - 1.66);
 const SIGN_TOP: V3 = Rv(WSIGN[0], 2.75, WSIGN[2] - 0.15);
 const HOOK_POS: V3 = Rv(WSIGN[0] + 0.3, 1.75, WSIGN[2] - 4.65), HOOK_LOOK: V3 = Rv(WSIGN[0] + 0.2, 1.26, WSIGN[2]), HOOK = { fov: 64, roll: 0.03 };
 // frame 0 is the same framing as the frames after it (a slow creep, no snap), and it is also the last frame (the loop)
@@ -139,7 +141,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   valley: (s, f) => ({ light: "valley", dof: 0, focus: Rv(-10, 2, 10), posign: false,
     people: [P("smith", PO(1.0), "neutral", 1, { extra: true }), P("r1", PO(-0.4), "neutral", -1, { extra: true })],
     cam: mv(s, f, { pos: Rv(14, 1.8, -9), look: Rv(-6, 2.0, 14), fov: 56, roll: 0.04 }, { pos: Rv(12, 7.5, -12), look: Rv(-8, 1.0, 16), fov: 58, roll: -0.03 }),
-    subjects: [["the cabins", Rv(-13, 2, BLD_Z + 1), 2], ["the creek", Rv(-4, -1.1, 22), 2]] }),
+    subjects: [["the cabins", Rv(-6.5, 1.5, BLD_Z + 2), 1]] }),
   // ...a few ranchers: three homesteaders in front of Charles Smith's cabin, talking
   ranchers: (s, f) => { const a = PO(1.2, 3.9), b = PO(0.0, 3.6), c = PO(-1.2, 4.0);
     return { light: "valley", dof: 0.8, focus: head(b), posign: false, people: [P("smith", a, "grin", -1), P("r1", b, "neutral", 0), P("r2", c, "grin", 1)],
@@ -164,7 +166,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   write: (s, f) => { const a = Rm(TABLE[0] - 0.25, 0, TABLE[2] - 0.8), b = Rm(TABLE[0] + 0.65, 0, TABLE[2] - 0.45), hand = add(TBL, -0.2, 0.04, -0.3);
     return { light: "cabin", dof: 1, focus: L3(head(a), head(b), 0.5), key: LAMP_K, people: [P("simpson", a, "neutral", 0, { hw: [hand], headTilt: 0.18 }), P("smith", b, "grin", 1)],
       cards: [{ kind: "paper", p: add(TBL, -0.12, 0.012, -0.12), spin: 0.2, s: 1.4, flat: true }],
-      cam: mv(s, f, { pos: Rm(TABLE[0] + 0.25, 2.6, TABLE[2] - 3.4), look: add(TBL, 0.15, 0.3, -0.2), fov: 50, roll: 0.05 }, { pos: Rm(TABLE[0] + 0.2, 2.7, TABLE[2] - 3.0), look: add(TBL, 0.15, 0.25, -0.2), fov: 50, roll: -0.03 }),
+      cam: mv(s, f, { pos: Rm(TABLE[0] + 0.25, 2.3, TABLE[2] - 3.6), look: add(TBL, 0.15, 0.55, -0.2), fov: 56, roll: 0.05 }, { pos: Rm(TABLE[0] + 0.2, 2.35, TABLE[2] - 3.3), look: add(TBL, 0.15, 0.5, -0.2), fov: 56, roll: -0.03 }),
       subjects: [["Simpson", head(a), 0.2], ["the form", add(TBL, -0.12, 0.02, -0.12), 0.08]] }; },
   // ...Tibo: Washington; the application on the office's wall board, the name in black ink
   tibo: (s, f) => ({ light: "capitol", dof: 0.6, focus: TIBO, key: WIN_K, page: "app",
@@ -177,7 +179,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // The Shoshone used it as a fond nickname: Roberts and a Shoshone friend sharing a joke, close two-shot
   nick: (s, f) => { const a = add(ROB, 0, 0, 0.3), b = add(SH1, 0.25, 0, 0.3);
     return { light: "mission", dof: 1, focus: L3(head(a), head(b), 0.5), people: [P("roberts", a, "laugh", 1, { facing: 1 }), P("sh1", b, "laugh", -1, { facing: -1, wave: 0.6 })],
-      cam: mv(s, f, { pos: add(L3(a, b, 0.5), 0.2, 1.35, -3.3), look: add(L3(a, b, 0.5), 0, 1.25, 0), fov: 46, roll: -0.05 }, { pos: add(L3(a, b, 0.5), -0.1, 1.35, -3.0), look: add(L3(a, b, 0.5), 0, 1.25, 0), fov: 46, roll: 0.04 }),
+      cam: mv(s, f, { pos: add(L3(a, b, 0.5), 0.2, 1.35, -4.2), look: add(L3(a, b, 0.5), 0, 1.25, 0), fov: 48, roll: -0.05 }, { pos: add(L3(a, b, 0.5), -0.1, 1.35, -3.9), look: add(L3(a, b, 0.5), 0, 1.25, 0), fov: 48, roll: 0.04 }),
       subjects: [["Roberts", head(a), 0.2], ["his friend", head(b), 0.2]] }; },
   // ...a Welsh priest named John Roberts: snap to Roberts, close
   roberts: (s, f) => ({ light: "mission", dof: 1, closeup: true, focus: head(ROB), people: [P("roberts", ROB, "grin", 0, { headTilt: 0.06 })],
@@ -194,7 +196,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["the red ink", DUB, 0.1]] }),
   // Their town would be called Dubois: back on Horse Creek, the settlers read the letter, shocked
   letter: (s, f) => { const a = PO(0.3, 3.8), hand = add(a, -0.28, 1.3, -0.32);
-    return { light: "valley", dof: 1, focus: head(a), people: [P("smith", a, "shock", 0, { hw: [hand] }), P("r1", PO(-0.8, 4.3), "shock", 1), P("r2", PO(1.0, 4.5), "nervous", -1)],
+    return { light: "valley", dof: 1, focus: head(a), people: [P("smith", a, "shock", 0, { hw: [hand] }), P("r1", PO(-0.25, 4.7), "shock", 1), P("r2", PO(1.0, 4.5), "nervous", -1)],
       cards: [{ kind: "paper", p: add(hand, -0.02, 0.12, -0.03), spin: 0.15, s: 1.2 }],
       cam: kick(mv(s, f, { pos: add(a, 0.2, 1.4, -3.4), look: add(a, 0.2, 1.3, 0.4), fov: 50, roll: 0.05 }, { pos: add(a, 0.15, 1.4, -3.0), look: add(a, 0.2, 1.3, 0.4), fov: 50, roll: -0.04 }), f, W(4, "dubois"), 0.8),
       subjects: [["Smith", head(a), 0.2], ["the letter", add(hand, -0.02, 0.12, -0.03), 0.05]] }; },
@@ -216,9 +218,9 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["Fred Dubois", head(FRED), 0.2]] }),
   // Who swapped the names? Nobody agrees.: the settlers before the new post office, scratching their heads
   who: (s, f) => { const a = PO(0.9, 3.7), b = PO(-0.3, 3.5), c = PO(-1.5, 3.9);
-    return { light: "valley", dof: 0.6, focus: head(b), people: [P("smith", a, "nervous", -1, { headTilt: 0.15 }), P("r1", b, "nervous", 0, { headTilt: -0.12 }), P("r3", c, "nervous", 1)],
+    return { light: "valley", dof: 0.6, focus: head(b), people: [P("smith", a, "nervous", -1, { headTilt: 0.15 }), P("r1", b, "nervous", 0, { headTilt: -0.12 }), P("r3", add(c, 0.4, 0, 0.4), "nervous", 1)],
       cam: kick(mv(s, f, { pos: add(b, 0.2, 1.7, -5.4), look: add(b, 0.1, 1.8, 1.0), fov: 54, roll: -0.04 }, { pos: add(b, 0.15, 1.6, -4.8), look: add(b, 0.1, 1.8, 1.0), fov: 54, roll: 0.03 }), f, W(6, "nobody"), 0.8),
-      subjects: [["the settlers", head(b), 0.4], ["the post office sign", Rv(POST.x, 3.75, BLD_Z - 0.06), 0.3]] }; },
+      subjects: [["the settlers", head(b), 0.4], ["the post office sign", POSIGN, 0.3]] }; },
   // Some say his friend, Wyoming's man in Congress, picked it: Carey and Dubois shake hands
   friend: (s, f) => { const hm = add(L3(FRED, CAREY, 0.5), 0, 1.05, -0.22);
     return { light: "capitol", dof: 1, focus: L3(head(FRED), head(CAREY), 0.5), key: WIN_K, page: "map", people: [P("dubois", FRED, "grin", 1, { facing: 1, hw: [hm] }), P("carey", CAREY, "grin", -1, { facing: -1, hw: [hm] })],
@@ -245,10 +247,10 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   town: (s, f) => { const a = PO(1.2, 3.8), b = PO(0.0, 3.5), c = PO(-1.2, 3.9), k = PO(0.6, 2.8);
     return { light: "valley", dof: 0.6, focus: head(b), people: [P("smith", a, "grin", -1), P("r1", b, "grin", 0), P("wife1", c, "grin", 1), P("kid", k, "grin", 0)],
       cam: mv(s, f, { pos: add(b, 0.0, 1.0, -5.6), look: add(b, 0, 1.9, 1.0), fov: 54, roll: 0.04 }, { pos: add(b, 0.0, 1.1, -5.0), look: add(b, 0, 1.9, 1.0), fov: 54, roll: -0.03 }),
-      subjects: [["the settlers", head(b), 0.4], ["the post office sign", Rv(POST.x, 3.75, BLD_Z - 0.06), 0.3]] }; },
+      subjects: [["the settlers", head(b), 0.4], ["the post office sign", POSIGN, 0.3]] }; },
   // DOO-boys.: they shout it, the kid loudest, at the lens
   shout: (s, f) => { const k = PO(0.4, 2.6), a = PO(1.3, 3.5), b = PO(-0.6, 3.6);
-    return { light: "valley", dof: 1, focus: head(k, 1.15), people: [P("kid", k, "laugh", 0, { wave: 1 }), P("smith", a, "laugh", -1, { wave: 0.8 }), P("r1", b, "laugh", 1)],
+    return { light: "valley", dof: 1, focus: head(k, 1.15), people: [P("kid", k, "laugh", 0, { wave: 1 }), P("smith", add(a, -0.4, 0, 0), "laugh", -1, { wave: 0.8 })],
       cam: kick(snap(add(k, 0.1, 1.1, -2.6), add(k, 0.25, 1.2, 0.5), f, s.a, { fov: 54, roll: 0.06 }, 1.6, 5), f, W(8, "dooboys"), 1.2),
       subjects: [["the kid", head(k, 1.15), 0.15], ["Smith", head(a), 0.2]] }; },
   // On purpose.: Smith, close, a sly grin
@@ -258,7 +260,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       subjects: [["Smith", head(a), 0.2]] }; },
   // Every single time.: crane up over the settlement, everyone waving, the creek and the peaks behind
   every: (s, f) => ({ light: "valley", dof: 0, focus: Rv(-12, 1.5, 4),
-    people: [P("smith", PO(1.2, 3.8), "laugh", -1, { wave: 1 }), P("r1", PO(0.0, 3.5), "laugh", 0, { wave: 0.8 }), P("wife1", PO(-1.2, 3.9), "grin", 1, { wave: 1 }), P("kid", PO(0.6, 2.8), "laugh", 0, { wave: 1 }), P("r2", PO(-2.6, 3.4), "grin", 1, { wave: 0.6 }), P("r3", PO(2.6, 3.4), "grin", -1, { wave: 0.7 })],
+    people: [P("smith", PO(1.2, 3.8), "laugh", -1, { wave: 1 }), P("r1", PO(0.0, 3.5), "laugh", 0, { wave: 0.8 }), P("wife1", PO(-1.2, 3.9), "grin", 1, { wave: 1 }), P("kid", PO(0.6, 2.8), "laugh", 0, { wave: 1 }), P("r2", PO(-2.0, 4.4), "grin", 1, { wave: 0.6 }), P("r3", PO(2.0, 4.4), "grin", -1, { wave: 0.7 })],
     cam: mv(s, f, { pos: Rv(POST.x + 0.3, 2.0, -5.5), look: Rv(POST.x, 1.6, 4.0), fov: 56, roll: 0.03 }, { pos: Rv(POST.x + 0.2, 7.5, -8.5), look: Rv(POST.x, 0.6, 6.0), fov: 58, roll: -0.03 }),
     subjects: [["the settlers", Rv(POST.x, 1.6, 3.6), 1]] }),
   // More than 130 years later, they still do: today, the sign by the road, two locals beside it
@@ -273,7 +275,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ...and everybody knows you're not from there: the two locals turn and stare at him
   stare: (s, f) => { const a = SIGN_MAN, b = add(SIGN_MAN, -1.3, 0, 0.4), v = add(SIGN_MAN, 1.4, 0, -1.2);
     return { light: "today", dof: 0.6, focus: L3(head(a), head(b), 0.5), people: [P("local", a, "stern", 1, { facing: 1 }), P("local2", b, "stern", 1, { facing: 1 }), P("tourist", v, "nervous", -1, { facing: -1 })],
-      cam: kick(mv(s, f, { pos: Rv(WSIGN[0] + 1.6, 1.6, WSIGN[2] - 9.6), look: Rv(WSIGN[0] + 0.4, 1.7, WSIGN[2] - 1.5), fov: 50, roll: 0.05 }, { pos: Rv(WSIGN[0] + 1.4, 1.6, WSIGN[2] - 8.8), look: Rv(WSIGN[0] + 0.4, 1.7, WSIGN[2] - 1.5), fov: 50, roll: -0.04 }), f, W(9, "not"), 0.8),
+      cam: kick(mv(s, f, { pos: Rv(WSIGN[0] + 1.6, 1.6, WSIGN[2] - 9.6), look: Rv(WSIGN[0] + 0.7, 1.7, WSIGN[2] - 1.5), fov: 50, roll: 0.05 }, { pos: Rv(WSIGN[0] + 1.4, 1.6, WSIGN[2] - 8.8), look: Rv(WSIGN[0] + 0.7, 1.7, WSIGN[2] - 1.5), fov: 50, roll: -0.04 }), f, W(9, "not"), 0.8),
       subjects: [["the locals", head(a), 0.2], ["the visitor", head(v), 0.2]] }; },
   // Oh, and that first winter? Butch Cassidy moved in on the same creek: Butch rides along the creek bank with his horses
   butch: (s, f) => { const tt = t(f - s.a), x = -2 + 2.6 * tt;
@@ -294,12 +296,12 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["the local", head(SIGN_MAN), 0.2]] }) as St3,
   // loop: back to the sign, settling onto the opening frame (the subscribe card plays here)
   end: (s, f) => { const h0 = hookCam(0), hold = { pos: add(SIGN_MAN, -2.6, 1.45, -1.6), look: add(SIGN_MAN, 0.15, 1.25, -0.4), fov: 56, roll: 0.02 };
-    return { ...hookState(), light: "today", dof: 0.8, closeup: true, focus: head(SIGN_MAN),
+    return { ...hookState(), light: "today", dof: 0.8, closeup: true, focus: head(SIGN_MAN), subjects: [["the local", head(SIGN_MAN), 0.2]],
       cam: f < s.b - 9 ? move({ pos: add(SIGN_MAN, -2.95, 1.6, -1.95), look: add(SIGN_MAN, 0.15, 1.25, -0.4), fov: 56, roll: 0.0 }, hold, f, s.a, s.a + 24, smooth, 0)
         : move(hold, h0, f, s.b - 9, s.b - 3, smooth, 0) } as St3; },
 };
 /** the house kit, for the long-form */
-export { clamp01, smooth, expo, L3, move, orb, orbit, snap, kick, t as secs, P, walker, horse, add, head, hookState, hookCam, PO, SIGN_MAN, SIGN_TOP, HOOK_POS, HOOK_LOOK, TBL, LAMP_K, WIN_K, BOARD, TIBO, DUB, CLERK, FRED, CAREY, ROB, SH1, SH2, SHK, Ms };
+export { clamp01, smooth, expo, L3, move, orb, orbit, snap, kick, t as secs, P, walker, horse, add, head, hookState, hookCam, PO, POSIGN, SIGN_MAN, SIGN_TOP, HOOK_POS, HOOK_LOOK, TBL, LAMP_K, WIN_K, BOARD, TIBO, DUB, CLERK, FRED, CAREY, ROB, SH1, SH2, SHK, Ms };
 
 /** every shot is hand-held: a slow sway on top of its move (not the loop frames) */
 export const specAt = (s: ShotDef, f: number): St3 => {

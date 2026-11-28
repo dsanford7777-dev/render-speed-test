@@ -71,7 +71,7 @@ export function buildRiver(): RiverSet {
   // the cabins along the far side of the track (screen right): squared logs, board roofs; the post office with its sign
   { const logA = lam("dbLogA", () => ({ map: rep(logTex("dbLogAT", "#8a6a4a"), 2, 1.1) })), logB = lam("dbLogB", () => ({ map: rep(logTex("dbLogBT", "#7a5a3c"), 2, 1.1) }));
     cabin(G, ox + POST.x, BLD_Z, 7, 6, 3.4, logA, "#5a4636", true);
-    poSign = sign(G, "POST OFFICE", ox + POST.x, 3.75, BLD_Z - 0.04, 3.0, 0.62, "#2a3a6a", "#f2e6c8");
+    poSign = sign(G, "POST OFFICE", ox + POST.x, 2.32, BLD_Z - 1.64, 2.6, 0.5, "#2a3a6a", "#f2e6c8"); // hung from the porch beam
     b.add(B(ox + POST.x - 3.8, 2.55, BLD_Z - 1.6, ox + POST.x + 3.8, 2.65, BLD_Z), dark); // porch roof
     for (const sx of [-3.6, 3.6]) b.add(B(ox + POST.x + sx - 0.08, 0, BLD_Z - 1.6, ox + POST.x + sx + 0.08, 2.55, BLD_Z - 1.44), dark);
     b.add(B(ox + POST.x + 1.2, 0.45, BLD_Z - 0.75, ox + POST.x + 3.2, 0.52, BLD_Z - 0.35), dark); for (const sx of [1.3, 3.1]) b.add(B(ox + POST.x + sx - 0.05, 0, BLD_Z - 0.7, ox + POST.x + sx + 0.05, 0.45, BLD_Z - 0.4), dark); // a bench
