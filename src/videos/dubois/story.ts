@@ -188,7 +188,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // But the application came back... changed: the clerk at the board in Washington, pen raised
   clerk: (s, f) => { const hand = add(CLERK, -0.4, 1.55, 0.3);
     return { light: "capitol", dof: 0.6, focus: head(CLERK), key: WIN_K, page: "app", people: [P("clerk", CLERK, "neutral", -1, { hw: [hand] })],
-      cam: mv(s, f, { pos: Rm(0.85, 1.55, -1.2), look: Rm(0.95, 1.7, 3.6), fov: 50, roll: -0.04 }, { pos: Rm(0.85, 1.6, -0.6), look: Rm(0.9, 1.7, 3.6), fov: 50, roll: 0.03 }),
+      cam: mv(s, f, { pos: Rm(0.85, 1.55, -1.2), look: Rm(1.15, 1.7, 3.6), fov: 50, roll: -0.04 }, { pos: Rm(0.95, 1.6, -0.6), look: Rm(1.1, 1.7, 3.6), fov: 50, roll: 0.03 }),
       subjects: [["the clerk", head(CLERK), 0.2], ["the application", BOARD, 0.3]] }; },
   // ...in red ink: the page now, Tibo struck through, Dubois written over it in red
   red: (s, f) => ({ light: "capitol", dof: 0.6, focus: L3(TIBO, DUB, 0.5), key: WIN_K, page: "red",
@@ -196,7 +196,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["the red ink", DUB, 0.1]] }),
   // Their town would be called Dubois: back on Horse Creek, the settlers read the letter, shocked
   letter: (s, f) => { const a = PO(0.3, 3.8), hand = add(a, -0.28, 1.3, -0.32);
-    return { light: "valley", dof: 1, focus: head(a), people: [P("smith", a, "shock", 0, { hw: [hand] }), P("r1", PO(-0.25, 4.7), "shock", 1), P("r2", PO(1.0, 4.5), "nervous", -1)],
+    return { light: "valley", dof: 1, focus: head(a), posign: false, people: [P("smith", a, "shock", 0, { hw: [hand] }), P("r1", PO(-0.25, 4.7), "shock", 1), P("r2", PO(1.0, 4.5), "nervous", -1)],
       cards: [{ kind: "paper", p: add(hand, -0.02, 0.12, -0.03), spin: 0.15, s: 1.2 }],
       cam: kick(mv(s, f, { pos: add(a, 0.2, 1.4, -3.4), look: add(a, 0.2, 1.3, 0.4), fov: 50, roll: 0.05 }, { pos: add(a, 0.15, 1.4, -3.0), look: add(a, 0.2, 1.3, 0.4), fov: 50, roll: -0.04 }), f, W(4, "dubois"), 0.8),
       subjects: [["Smith", head(a), 0.2], ["the letter", add(hand, -0.02, 0.12, -0.03), 0.05]] }; },
@@ -250,7 +250,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       subjects: [["the settlers", head(b), 0.4], ["the post office sign", POSIGN, 0.3]] }; },
   // DOO-boys.: they shout it, the kid loudest, at the lens
   shout: (s, f) => { const k = PO(0.4, 2.6), a = PO(1.3, 3.5), b = PO(-0.6, 3.6);
-    return { light: "valley", dof: 1, focus: head(k, 1.15), people: [P("kid", k, "laugh", 0, { wave: 1 }), P("smith", add(a, -0.4, 0, 0), "laugh", -1, { wave: 0.8 })],
+    return { light: "valley", dof: 1, focus: head(k, 1.15), posign: false, people: [P("kid", k, "laugh", 0, { wave: 1 }), P("smith", add(a, -0.4, 0, 0), "laugh", -1, { wave: 0.8 })],
       cam: kick(snap(add(k, 0.1, 1.1, -2.6), add(k, 0.25, 1.2, 0.5), f, s.a, { fov: 54, roll: 0.06 }, 1.6, 5), f, W(8, "dooboys"), 1.2),
       subjects: [["the kid", head(k, 1.15), 0.15], ["Smith", head(a), 0.2]] }; },
   // On purpose.: Smith, close, a sly grin
@@ -279,12 +279,13 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       subjects: [["the locals", head(a), 0.2], ["the visitor", head(v), 0.2]] }; },
   // Oh, and that first winter? Butch Cassidy moved in on the same creek: Butch rides along the creek bank with his horses
   butch: (s, f) => { const tt = t(f - s.a), x = -2 + 2.6 * tt;
-    return { light: "valley", dof: 0.5, focus: Rv(x, 2, 12.5), horses: [horse(1, Rv(x, 0, 0)[0], riverY(x, 12.5), 12.5, 2.6, "trot", "butch", "grin"), horse(2, Rv(x - 3.2, 0, 0)[0], riverY(x - 3.2, 13.6), 13.6, 2.6, "trot", null), horse(3, Rv(x - 5.8, 0, 0)[0], riverY(x - 5.8, 12.9), 12.9, 2.6, "trot", null)],
-      cam: mv(s, f, { pos: Rv(-2.3, 1.5, 7.4), look: Rv(-1.2, 1.9, 12.5), fov: 50, roll: 0.04 }, { pos: Rv(-2 + 2.6 * t(s.b - s.a) - 0.2, 1.5, 7.6), look: Rv(-2 + 2.6 * t(s.b - s.a) - 0.6, 1.9, 12.5), fov: 50, roll: -0.03 }),
-      subjects: [["Butch Cassidy", Rv(x, 2.3, 12.5), 0.3]] }; },
+    const u = smooth((f - s.a) / Math.max(1, s.b - s.a));
+    return { light: "valley", dof: 0.5, focus: Rv(x, 2, 10.8), horses: [horse(1, Rv(x, 0, 0)[0], riverY(x, 10.8), 10.8, 2.6, "trot", "butch", "grin"), horse(2, Rv(x - 3.4, 0, 0)[0], riverY(x - 3.4, 11.9), 11.9, 2.6, "trot", null), horse(3, Rv(x - 6.2, 0, 0)[0], riverY(x - 6.2, 11.2), 11.2, 2.6, "trot", null)],
+      cam: { pos: Rv(x - 0.4, 1.6, 3.4), look: Rv(x + 0.25, 1.85, 10.8), fov: 52, roll: 0.04 - 0.07 * u },
+      subjects: [["Butch Cassidy", Rv(x, 2.3, 10.8), 0.3]] }; },
   // ...on the same creek: Butch beside his horse by the water, grinning at us
-  creek: (s, f) => { const p = Rv(-1.0, riverY(-1.0, 13.6), 13.6);
-    return { light: "valley", dof: 1, focus: head(p), people: [P("butch", p, "grin", 0, { headTilt: 0.08 })], horses: [{ k: 1, p: Rv(-2.6, riverY(-2.6, 14.6), 14.6), yaw: Math.PI, gait: "stand", phase: 0, head: 0.3 }],
+  creek: (s, f) => { const p = Rv(-1.0, riverY(-1.0, 11.0), 11.0);
+    return { light: "valley", dof: 1, focus: head(p), people: [P("butch", p, "grin", 0, { headTilt: 0.08 })], horses: [{ k: 1, p: Rv(-2.6, riverY(-2.6, 12.0), 12.0), yaw: Math.PI, gait: "stand", phase: 0, head: 0.3 }],
       cam: kick(snap(add(p, 0.25, 1.25, -2.3), head(p, 1.22), f, s.a, { fov: 46, roll: 0.05 }, 1.6, 6), f, W(10, "creek"), 0.6),
       subjects: [["Butch Cassidy", head(p), 0.2]] }; },
   // So... if a stranger renamed your town: back at the sign today, the local asks us
@@ -318,7 +319,6 @@ export type Item = { key: string; kind: "stamp" | "pill" | "call"; text: string;
 const B = (g: string) => SHOTS.find((x) => x.g === g)!.b;
 const S0 = (g: string) => SHOTS.find((x) => x.g === g)!.a;
 export const ITEMS = (): Item[] => ([
-  { key: "wrong", kind: "call", text: "SAYS IT WRONG", f0: W(0, "wrong"), f1: B("hook"), y: 24, fg: "#ffd166", size: 104 },
   { key: "purpose", kind: "stamp", text: "ON PURPOSE", f0: W(0, "purpose"), f1: B("purpose"), y: 56, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 130 },
   { key: "hc", kind: "pill", text: "HORSE CREEK, WYOMING", sub: "1889", f0: W(1, "horse"), f1: B("ranchers"), y: 22, size: 64 },
   { key: "po", kind: "call", text: "A POST OFFICE?", f0: W(1, "post"), f1: B("wanted"), y: 24, fg: "#ffd166", size: 104 },
