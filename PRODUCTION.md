@@ -134,6 +134,8 @@ Fixed in the code the same day (Peigneur world and the shared `bridge/scenery.ts
 - **Track a moving horse in 9:16 every frame** (camera position and look follow the horse's x, the look a little ahead of it); a move from a start to an end point lets the horse run off the frame edge.
 - **A round prop that doesn't read is cut.** The mail sack (a squashed sphere) read as an egg at the frame edge and was removed.
 - **No call over the hook's sign.** A 24 % call sat on the town's name in the opening shot; the sign is the hook, so the call was dropped.
+- **The word the line is about must be whole in frame.** The clerk shot cut the proposed name off at "Ti…"; the camera was moved until the clerk and "Tibo" were both whole.
+- **Long-form boards are laid out on 1920 × 1080.** The closing question board used x = 640 (a 1280-wide layout) and its first line ran off the left edge; check every `At x=` in a new boards file is centred on 960 unless deliberately offset.
 
 If one of these can't be fixed in a reasonable time, the shot is restaged or cut so the problem is gone. The report to Daniel after an upload should have nothing under "weak spots".
 
