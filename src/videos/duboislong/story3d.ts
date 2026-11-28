@@ -136,14 +136,14 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       subjects: [["the ranchers", L3(head(a), head(b), 0.5), 0.3], ["the post office sign", POSIGN, 0.3]] }; },
   // The little post office also had an interesting new neighbor: a rider far off across the creek, coming in
   butchfar: (s, f) => { const x = 30 - 2.0 * tt(s, f);
-    return { light: "valley", dof: 0, focus: Rv(x, 2, 34), horses: [horse(1, Rv(x, 0, 0)[0], gy(x, 34), 34, -2.0, "walk", "butch", "grin"), horse(2, Rv(x + 3.0, 0, 0)[0], gy(x + 3, 35.5), 35.5, -2.0, "walk", null), horse(3, Rv(x + 5.6, 0, 0)[0], gy(x + 5.6, 34.6), 34.6, -2.0, "walk", null)],
-      cam: mv(s, f, { pos: Rv(POST.x + 14, 1.8, 6), look: Rv(24, 2.4, 34), fov: 36, roll: 0.02 }, { pos: Rv(POST.x + 14, 1.9, 6.5), look: Rv(20, 2.4, 34), fov: 36, roll: -0.02 }),
-      subjects: [["the rider", Rv(x, 4.6, 34), 0.6]] }; },
+    return { light: "valley", dof: 0, focus: Rv(x, 4, 38.5), horses: [horse(1, Rv(x, 0, 0)[0], gy(x, 38.5), 38.5, -2.0, "walk", "butch", "grin"), horse(2, Rv(x + 3.0, 0, 0)[0], gy(x + 3, 39.6), 39.6, -2.0, "walk", null), horse(3, Rv(x + 5.6, 0, 0)[0], gy(x + 5.6, 38.9), 38.9, -2.0, "walk", null)],
+      cam: mv(s, f, { pos: Rv(POST.x + 14, 1.8, 6), look: Rv(24, 4.2, 38.5), fov: 36, roll: 0.02 }, { pos: Rv(POST.x + 14, 1.9, 6.5), look: Rv(20, 4.2, 38.5), fov: 36, roll: -0.02 }),
+      subjects: [["the rider", Rv(x, gy(x, 38.5) + 2.2, 38.5), 0.6]] }; },
   // ...and a love of horse racing: Butch's horses trotting past along the bank, low
   herd: (s, f) => { const x = 14 - 3.0 * tt(s, f);
-    return { light: "valley", dof: 0.3, focus: Rv(x, 1.6, 12.5), horses: [horse(1, Rv(x, 0, 0)[0], gy(x, 12.5), 12.5, -3.0, "trot", "butch", "grin"), horse(2, Rv(x + 2.8, 0, 0)[0], gy(x + 2.8, 13.8), 13.8, -3.0, "trot", null), horse(3, Rv(x + 5.4, 0, 0)[0], gy(x + 5.4, 12.9), 12.9, -3.0, "trot", null)],
-      cam: mv(s, f, { pos: Rv(13, 0.8, 4.0), look: Rv(12, 1.6, 12.5), fov: 38, roll: -0.02 }, { pos: Rv(14 - 3.0 * secs(s.b - s.a) + 1.0, 0.8, 4.2), look: Rv(14 - 3.0 * secs(s.b - s.a) + 0.6, 1.6, 12.5), fov: 38, roll: 0.02 }),
-      subjects: [["the horses", Rv(x + 2.8, 1.4, 13.8), 0.6]] }; },
+    return { light: "valley", dof: 0.3, focus: Rv(x, 1.6, 10.6), horses: [horse(1, Rv(x, 0, 0)[0], gy(x, 10.6), 10.6, -3.0, "trot", "butch", "grin"), horse(2, Rv(x + 2.8, 0, 0)[0], gy(x + 2.8, 11.9), 11.9, -3.0, "trot", null), horse(3, Rv(x + 5.4, 0, 0)[0], gy(x + 5.4, 11.0), 11.0, -3.0, "trot", null)],
+      cam: mv(s, f, { pos: Rv(13, 0.8, 3.0), look: Rv(12, 1.6, 10.6), fov: 38, roll: -0.02 }, { pos: Rv(14 - 3.0 * secs(s.b - s.a) + 1.0, 0.8, 3.2), look: Rv(14 - 3.0 * secs(s.b - s.a) + 0.6, 1.6, 10.6), fov: 38, roll: 0.02 }),
+      subjects: [["the horses", Rv(x + 2.8, 1.4, 11.9), 0.6]] }; },
   // He and a partner, Al Hainer, started a ranch on Horse Creek: Butch and Hainer by the corral
   ranch: (s, f) => { const a = Rv(16.5, gy(16.5, 5.8), 5.8), b = Rv(15.3, gy(15.3, 5.6), 5.6);
     return { light: "valley", dof: 0.7, focus: L3(head(a), head(b), 0.5), people: [P("butch", a, "grin", -1, { facing: -1 }), P("hainer", b, "neutral", 1, { facing: 1 })],
