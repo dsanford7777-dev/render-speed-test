@@ -27,9 +27,13 @@ const DESK_P: V3 = Rm(DESK[0] - 0.05, 0, DESK[2] - 0.75);
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ---------------- straight from the Short ----------------
-  hook: R("hook", (st) => far(st, 1.25)), tourist: R("tourist", (st) => far(st, 1.3)), stare: R("stare"), today: R("today"), purpose: R("purpose", (st) => far(st, 1.4)),
+  hook: R("hook", (st) => far(st, 1.25)), tourist: R("tourist"), stare: R("stare"), today: R("today"),
+  // ...on purpose (16:9): from the far side of the track, the sign well out of frame
+  purpose: (s, f) => ({ ...hookState("grin"), light: "today", dof: 1, closeup: true, focus: head(SIGN_MAN), people: [P("local", SIGN_MAN, "grin", 0, { headTilt: 0.12 })],
+    cam: mv(s, f, { pos: add(SIGN_MAN, -2.7, 1.3, -0.5), look: head(SIGN_MAN, 1.3), fov: 36, roll: -0.03 }, { pos: add(SIGN_MAN, -2.5, 1.3, -0.45), look: head(SIGN_MAN, 1.3), fov: 36, roll: 0.02 }),
+    subjects: [["the local", head(SIGN_MAN), 0.2]] }) as St3,
   valley: R("valley"), roberts: R("roberts", (st) => far(st, 1.4)), fred: R("fred", (st) => far(st, 1.4)), ranchers: R("ranchers"), miles: R("miles"), mail: R("mail"), wanted: R("wanted"),
-  write: R("write"), mission: R("mission"), nick: R("nick", (st) => far(st, 1.2)), tibo: R("tibo"), clerk: R("clerk"), red: R("red"), letter: R("letter", (st) => far(st, 1.2)), who: R("who"),
+  write: R("write"), mission: R("mission"), nick: R("nick", (st) => far(st, 1.2)), tibo: R("tibo"), clerk: R("clerk"), red: R("red", (st) => far(st, 1.7)), letter: R("letter", (st) => far(st, 1.2)), who: R("who"),
   himself: R("himself"), friend: R("friend", (st) => far(st, 1.15)), congress: R("congress"), barely: R("barely", (st) => far(st, 1.35)), map: R("map"),
   town: R("town"), twist: R("twist", (st) => far(st, 1.4)), boys: R("boys", (st) => far(st, 1.4)), shout: R("shout", (st) => far(st, 1.2)), every: R("every"), wink: R("wink", (st) => far(st, 1.4)),
   butch: R("butch"), creek: R("creek", (st) => far(st, 1.35)),
@@ -55,10 +59,10 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: mv(s, f, { pos: Rv(19.5, 1.6, -0.6), look: Rv(19.5, 1.2, 10), fov: 38, roll: 0.02 }, { pos: Rv(17.5, 1.7, -0.4), look: Rv(18.5, 1.2, 10), fov: 38, roll: -0.02 }),
       subjects: [["the rancher", head(p), 0.2], ["the horses", Rv(22, 1.4, 10.5), 0.6]] }; },
   // For about a year, settlers packed the mail from the fort: the rider unloads the sack at Smith's cabin
-  mail2: (s, f) => { const h = { k: 0, p: Rv(POST.x + 3.2, 0, 1.2), yaw: Math.PI, gait: "stand" as const, phase: 0, head: 0.3 }, a = PO(1.4, 3.6), r = PO(2.2, 2.6), hand = add(r, -0.3, 1.2, -0.3);
+  mail2: (s, f) => { const h = { k: 0, p: Rv(POST.x + 5.4, 0, 3.2), yaw: Math.PI, gait: "stand" as const, phase: 0, head: 0.3 }, a = PO(1.2, 3.6), r = PO(2.4, 2.9), hand = add(r, -0.3, 1.2, -0.3);
     return { light: "valley", dof: 0.6, focus: L3(head(a), head(r), 0.5), posign: false, horses: [h], people: [P("rider", r, "grin", 1, { hw: [hand] }), P("smith", a, "grin", -1)],
       cards: [{ kind: "sack", p: add(hand, -0.05, 0.0, -0.05), spin: 0.1, s: 1 }],
-      cam: mv(s, f, { pos: add(a, 2.4, 1.5, -5.5), look: add(L3(a, r, 0.5), 0.3, 1.2, 0), fov: 38, roll: 0.02 }, { pos: add(a, 2.0, 1.5, -5.0), look: add(L3(a, r, 0.5), 0.3, 1.2, 0), fov: 38, roll: -0.02 }),
+      cam: mv(s, f, { pos: add(a, 1.0, 1.5, -5.5), look: add(L3(a, r, 0.5), 1.0, 1.2, 0), fov: 40, roll: 0.02 }, { pos: add(a, 0.8, 1.5, -5.0), look: add(L3(a, r, 0.5), 1.0, 1.2, 0), fov: 40, roll: -0.02 }),
       subjects: [["Smith", head(a), 0.2], ["the mail sack", add(hand, -0.05, 0, -0.05), 0.15]] }; },
   // ...the cabin of a rancher named Charles Smith: Smith at his door
   smithdoor: (s, f) => { const a = PO(-0.4, 4.6);
@@ -108,7 +112,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["Simpson", head(DESK_P), 0.2], ["the newspaper", BOARD, 0.3]] }),
   // ...a family named Dubois he knew in Colorado: old Simpson remembering, close
   lawyer2: (s, f) => ({ light: "office", dof: 1, focus: head(DESK_P), key: Rm(DESK[0] - 0.55, DESK_Y + 0.6, DESK[2] + 0.1), page: "news", people: [P("simpsonold", DESK_P, "whistle", 1, { headTilt: 0.1 })],
-    cam: mv(s, f, { pos: add(DESK_P, 0.8, 1.35, -2.8), look: add(DESK_P, 0.3, 1.45, 0.3), fov: 36, roll: -0.02 }, { pos: add(DESK_P, 0.7, 1.35, -2.5), look: add(DESK_P, 0.3, 1.45, 0.3), fov: 36, roll: 0.02 }),
+    cam: mv(s, f, { pos: add(DESK_P, 1.1, 1.3, -3.8), look: add(DESK_P, 0.3, 1.55, 0.3), fov: 38, roll: -0.02 }, { pos: add(DESK_P, 1.0, 1.3, -3.5), look: add(DESK_P, 0.3, 1.55, 0.3), fov: 38, roll: 0.02 }),
     subjects: [["Simpson", head(DESK_P), 0.2]] }),
   // ...an excited old French trapper, shouting: the woods! the woods!: the trapper, close, arms up
   trapper: (s, f) => { const d = Rm(TABLE[0] + 0.5, 0, TABLE[2] + 0.85);
@@ -156,7 +160,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["the town", Rv(-10, 2, 6), 3]] }),
   // And Tibo? It never made it onto a map: the chapel at the mission, Roberts and his friends, a last look
   chapel2: (s, f) => ({ light: "mission", dof: 0.3, focus: head(ROB), people: [P("roberts", ROB, "grin", 1), P("sh1", SH1, "grin", -1), P("sh2", SH2, "grin", -1), P("shkid", SHK, "laugh", 1)],
-    cam: mv(s, f, { pos: Ms(1.6, 1.5, CHAPEL_Z - 9.0), look: Ms(0.2, 2.6, CHAPEL_Z), fov: 38, roll: 0.02 }, { pos: Ms(0.9, 1.6, CHAPEL_Z - 8.2), look: Ms(0.1, 2.6, CHAPEL_Z), fov: 38, roll: -0.02 }),
+    cam: mv(s, f, { pos: Ms(1.4, 1.4, CHAPEL_Z - 8.0), look: Ms(0.2, 1.75, CHAPEL_Z - 1.5), fov: 36, roll: 0.02 }, { pos: Ms(0.8, 1.45, CHAPEL_Z - 7.4), look: Ms(0.1, 1.75, CHAPEL_Z - 1.5), fov: 36, roll: -0.02 }),
     subjects: [["Roberts", head(ROB), 0.2]] }),
   // the thumbnail: the local under the town's sign, grinning
   thumb: () => ({ ...hookState("grin"), light: "today", dof: 0.6, focus: head(SIGN_MAN), cam: { pos: add(SIGN_MAN, 0.9, 1.45, -3.8), look: add(SIGN_MAN, 0.55, 1.95, 1.0), fov: 42, roll: 0.02 } }) as St3,

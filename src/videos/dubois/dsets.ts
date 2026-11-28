@@ -114,8 +114,6 @@ export function buildRiver(): RiverSet {
     forest(G, spots.filter(([x, , z]) => !(x - ox > 8 && x - ox < 33 && z < 16)), "creekL", 1.01);
     const pines: [number, number, number, number][] = []; for (let i = 0; i < 120; i++) { const x = -150 + r(i + 500) * 300, z = FAR_Z + 12 + r(i + 600) * 50; pines.push([ox + x, riverY(x, z), z, 0.8 + r(i + 700) * 0.5]); }
     forest(G, pines, "bench", 0); }
-  // 1889: a mail sack on the post office bench
-  { const sk = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 8).scale(1, 1.25, 0.8), lam("dbSackM", () => ({ map: sackTex() }))); sk.position.set(ox + POST.x + 2.2, 0.85, BLD_Z - 0.6); sk.rotation.y = Math.PI; shadowAll(sk); old.add(sk); }
   // today: the welcome sign beside the track: two log posts, a cross beam, the town's name big, WYOMING under it, and a
   // plate lower down that tells visitors how to say it
   { const sb = new Batch(); for (const sx of [-1.2, 1.2]) sb.add(new THREE.CylinderGeometry(0.12, 0.14, 3.4, 8).translate(ox + WSIGN[0] + sx, 1.7, WSIGN[2]), pole); sb.add(B(ox + WSIGN[0] - 1.4, 3.25, WSIGN[2] - 0.12, ox + WSIGN[0] + 1.4, 3.4, WSIGN[2] + 0.12), dark); sb.build(today, true);

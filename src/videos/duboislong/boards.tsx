@@ -15,11 +15,11 @@ const at = (cue: Cue | undefined, c: G["c"], lead = 2) => cue === undefined ? 0 
 const SUSPECTS = ["1. Fred Dubois himself", "2. Joseph Carey, Wyoming", "3. Hewie Youmans", "4. Billy Simpson"];
 const Suspects: React.FC<G> = ({ t, d, c, v }) => (
   <Paper tone="#f3ead6"><Mv t={t} d={d} m={v === 0 ? 2 : 0}>
-    <At x={960} y={170} s={pop(t, 0)}><T size={92} col={RED}>{v === 0 ? "WHO CHANGED THE NAME?" : "THE SUSPECTS"}</T></At>
+    <At x={960} y={250} s={pop(t, 0)}><T size={92} col={RED}>{v === 0 ? "WHO CHANGED THE NAME?" : "THE SUSPECTS"}</T></At>
     {SUSPECTS.map((s, i) => i < Math.max(v, 0) ? (
-      <At key={i} x={960} y={330 + i * 112} s={i === v - 1 ? pop(t, 0) : 1}><T size={76} col={i === v - 1 ? INK : "#8a7a66"}>{s}</T></At>
+      <At key={i} x={960} y={390 + i * 100} s={i === v - 1 ? pop(t, 0) : 1}><T size={76} col={i === v - 1 ? INK : "#8a7a66"}>{s}</T></At>
     ) : null)}
-    {v === 0 ? <At x={960} y={520} s={pop(t, at([21, "nobody"], c))}><T size={150} col={INK}>NOBODY AGREES</T></At> : null}
+    {v === 0 ? <At x={960} y={560} s={pop(t, at([21, "nobody"], c))}><T size={150} col={INK}>NOBODY AGREES</T></At> : null}
     {v === 4 ? <At x={1340} y={700} s={pop(t, at([25, "confessed"], c))}><div style={{ border: `8px solid ${RED}`, borderRadius: 14, padding: "6px 28px", transform: "rotate(-6deg)" }}><T size={70} col={RED}>CONFESSED</T></div></At> : null}
   </Mv></Paper>
 );
