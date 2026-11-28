@@ -22,7 +22,7 @@ const CUTS: [string, number][] = [
   ["clerk", A(4)], ["red", W(4, "red") - 2], ["letter", W(4, "their") - 2],
   ["fred", A(5)], ["congress", W(5, "congress") - 2], ["map", W(5, "not") - 2], ["barely", W(5, "barely") - 2],
   ["who", A(6)], ["friend", W(6, "some") - 2], ["himself", Wn(6, "some", 2) - 2],
-  ["twist", A(7)], ["boys", W(7, "hated") - 2],
+  ["twist", A(7)], ["bwah", W(7, "doobwah") - 2], ["boys", W(7, "hated") - 2],
   ["town", A(8)], ["shout", W(8, "dooboys") - 2], ["wink", W(8, "on") - 2], ["every", W(8, "every") - 2],
   ["today", A(9)], ["tourist", W(9, "say") - 2], ["stare", W(9, "everybody") - 2],
   ["butch", A(10)], ["creek", W(10, "moved") - 2],
@@ -126,7 +126,7 @@ const TIBO: V3 = Rm(-0.14, 1.74, 3.85), DUB: V3 = Rm(-0.14, 1.42, 3.85);
 const CLERK: V3 = Rm(1.45, 0, 2.6), FRED: V3 = Rm(-0.4, 0, 1.2), CAREY: V3 = Rm(0.45, 0, 1.25);
 // ---------------- the mission ----------------
 const Ms = Wd;
-const ROB: V3 = Ms(0.55, 0, CHAPEL_Z - 2.4), SH1: V3 = Ms(-0.6, 0, CHAPEL_Z - 2.2), SH2: V3 = Ms(1.6, 0, CHAPEL_Z - 1.9), SHK: V3 = Ms(-1.45, 0, CHAPEL_Z - 1.7);
+const ROB: V3 = Ms(0.25, 0, CHAPEL_Z - 2.4), SH1: V3 = Ms(1.0, 0, CHAPEL_Z - 1.7), SH2: V3 = Ms(-0.6, 0, CHAPEL_Z - 1.5), SHK: V3 = Ms(-0.75, 0, CHAPEL_Z - 2.9);
 
 export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // This town says its own name wrong...: a local under the town's sign today, grinning (frame 0 already close)
@@ -143,11 +143,11 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // ...a few ranchers: three homesteaders in front of Charles Smith's cabin, talking
   ranchers: (s, f) => { const a = PO(1.2, 3.9), b = PO(0.0, 3.6), c = PO(-1.2, 4.0);
     return { light: "valley", dof: 0.8, focus: head(b), posign: false, people: [P("smith", a, "grin", -1), P("r1", b, "neutral", 0), P("r2", c, "grin", 1)],
-      cam: orbit(s, f, add(b, 0, 1.3, 0.2), [-16, 4], [5.6, 5.2], [0.2, 0.1], 50),
+      cam: orbit(s, f, add(b, 0, 1.3, 0.2), [-14, 4], [6.8, 6.4], [0.2, 0.1], 50),
       subjects: [["the ranchers", head(b), 0.4]] }; },
   // ...wanted a post office: Smith points at his own cabin door (no sign yet)
   wanted: (s, f) => { const p = PO(1.6, 3.2), hand = add(p, -0.55, 1.45, 0.2);
-    return { light: "valley", dof: 0.8, focus: head(p), posign: false, people: [P("smith", p, "grin", -1, { hw: [hand] }), P("r2", PO(-0.6, 3.9), "neutral", 1)],
+    return { light: "valley", dof: 0.8, focus: head(p), posign: false, people: [P("smith", p, "grin", -1, { hw: [hand] }), P("r2", PO(-0.1, 3.95), "neutral", 1)],
       cam: kick(mv(s, f, { pos: add(p, 0.9, 1.2, -4.2), look: add(p, -1.1, 1.7, 1.4), fov: 52, roll: 0.05 }, { pos: add(p, 0.7, 1.25, -3.7), look: add(p, -1.2, 1.75, 1.5), fov: 52, roll: -0.03 }), f, W(1, "post"), 0.6),
       subjects: [["Smith", head(p), 0.2], ["his cabin", Rv(POST.x - 0.7, 1.2, BLD_Z - 0.05), 0.4]] }; },
   // The nearest one was 65 miles away: down the empty track toward the horizon, sagebrush and mountains
@@ -172,7 +172,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["the name Tibo", TIBO, 0.1]] }),
   // It's a Shoshone word for stranger: the mission, Father Roberts with Shoshone friends before the chapel, laughing
   mission: (s, f) => ({ light: "mission", dof: 0.4, focus: head(ROB), people: [P("roberts", ROB, "grin", 1), P("sh1", SH1, "laugh", -1), P("sh2", SH2, "grin", -1), P("shkid", SHK, "grin", 1)],
-    cam: mv(s, f, { pos: Ms(0.6, 1.2, CHAPEL_Z - 9.5), look: Ms(0.1, 2.6, CHAPEL_Z), fov: 54, roll: 0.04 }, { pos: Ms(0.3, 1.9, CHAPEL_Z - 8.0), look: Ms(0.0, 2.9, CHAPEL_Z), fov: 56, roll: -0.03 }),
+    cam: mv(s, f, { pos: Ms(0.2, 1.3, CHAPEL_Z - 8.0), look: Ms(0.1, 1.6, CHAPEL_Z - 2.0), fov: 54, roll: 0.04 }, { pos: Ms(0.1, 2.4, CHAPEL_Z - 8.6), look: Ms(0.0, 2.6, CHAPEL_Z - 1.0), fov: 56, roll: -0.03 }),
     subjects: [["Father Roberts", head(ROB), 0.2], ["the chapel", Ms(0, 3, CHAPEL_Z - 0.4), 1]] }),
   // The Shoshone used it as a fond nickname: Roberts and a Shoshone friend sharing a joke, close two-shot
   nick: (s, f) => { const a = add(ROB, 0, 0, 0.3), b = add(SH1, 0.25, 0, 0.3);
@@ -186,7 +186,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
   // But the application came back... changed: the clerk at the board in Washington, pen raised
   clerk: (s, f) => { const hand = add(CLERK, -0.4, 1.55, 0.3);
     return { light: "capitol", dof: 0.6, focus: head(CLERK), key: WIN_K, page: "app", people: [P("clerk", CLERK, "neutral", -1, { hw: [hand] })],
-      cam: mv(s, f, { pos: Rm(0.85, 1.55, -1.2), look: Rm(0.75, 1.7, 3.6), fov: 50, roll: -0.04 }, { pos: Rm(0.8, 1.6, -0.6), look: Rm(0.7, 1.7, 3.6), fov: 50, roll: 0.03 }),
+      cam: mv(s, f, { pos: Rm(0.85, 1.55, -1.2), look: Rm(0.95, 1.7, 3.6), fov: 50, roll: -0.04 }, { pos: Rm(0.85, 1.6, -0.6), look: Rm(0.9, 1.7, 3.6), fov: 50, roll: 0.03 }),
       subjects: [["the clerk", head(CLERK), 0.2], ["the application", BOARD, 0.3]] }; },
   // ...in red ink: the page now, Tibo struck through, Dubois written over it in red
   red: (s, f) => ({ light: "capitol", dof: 0.6, focus: L3(TIBO, DUB, 0.5), key: WIN_K, page: "red",
@@ -194,13 +194,13 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["the red ink", DUB, 0.1]] }),
   // Their town would be called Dubois: back on Horse Creek, the settlers read the letter, shocked
   letter: (s, f) => { const a = PO(0.3, 3.8), hand = add(a, -0.28, 1.3, -0.32);
-    return { light: "valley", dof: 1, focus: head(a), people: [P("smith", a, "shock", 0, { hw: [hand] }), P("r1", PO(-0.8, 4.3), "shock", 1), P("r2", PO(1.4, 4.4), "nervous", -1)],
+    return { light: "valley", dof: 1, focus: head(a), people: [P("smith", a, "shock", 0, { hw: [hand] }), P("r1", PO(-0.8, 4.3), "shock", 1), P("r2", PO(1.0, 4.5), "nervous", -1)],
       cards: [{ kind: "paper", p: add(hand, -0.02, 0.12, -0.03), spin: 0.15, s: 1.2 }],
       cam: kick(mv(s, f, { pos: add(a, 0.2, 1.4, -3.4), look: add(a, 0.2, 1.3, 0.4), fov: 50, roll: 0.05 }, { pos: add(a, 0.15, 1.4, -3.0), look: add(a, 0.2, 1.3, 0.4), fov: 50, roll: -0.04 }), f, W(4, "dubois"), 0.8),
       subjects: [["Smith", head(a), 0.2], ["the letter", add(hand, -0.02, 0.12, -0.03), 0.05]] }; },
   // Named after Fred Dubois: the man himself in Washington, chin up
   fred: (s, f) => ({ light: "capitol", dof: 1, closeup: true, focus: head(FRED), key: WIN_K, people: [P("dubois", FRED, "grin", 0, { headTilt: -0.1 })],
-    cam: snap(add(FRED, 0.25, 1.3, 1.45), head(FRED, 1.25), f, s.a, { fov: 50, roll: -0.05 }, 1.25, 6),
+    cam: snap(add(FRED, 0.25, 1.3, 1.5), head(FRED, 1.22), f, s.a, { fov: 60, roll: -0.05 }, 1.25, 6),
     subjects: [["Fred Dubois", head(FRED), 0.2]] }),
   // He was Idaho's man in Congress: orbit him among the desks
   congress: (s, f) => ({ light: "capitol", dof: 0.6, focus: head(FRED), key: WIN_K, page: "map", people: [P("dubois", FRED, "grin", 0)],
@@ -212,7 +212,7 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     subjects: [["the map", BOARD, 0.3]] }),
   // He'd barely spent any time in Wyoming: Dubois shrugs
   barely: (s, f) => ({ light: "capitol", dof: 1, closeup: true, focus: head(FRED), key: WIN_K, people: [P("dubois", FRED, "whistle", 1, { wave: 0.5, headTilt: 0.1 })],
-    cam: mv(s, f, { pos: add(FRED, -0.3, 1.3, 1.45), look: head(FRED, 1.25), fov: 52, roll: 0.05 }, { pos: add(FRED, -0.2, 1.3, 1.35), look: head(FRED, 1.25), fov: 52, roll: -0.04 }),
+    cam: mv(s, f, { pos: add(FRED, -0.3, 1.3, 1.5), look: head(FRED, 1.22), fov: 60, roll: 0.05 }, { pos: add(FRED, -0.2, 1.3, 1.45), look: head(FRED, 1.22), fov: 60, roll: -0.04 }),
     subjects: [["Fred Dubois", head(FRED), 0.2]] }),
   // Who swapped the names? Nobody agrees.: the settlers before the new post office, scratching their heads
   who: (s, f) => { const a = PO(0.9, 3.7), b = PO(-0.3, 3.5), c = PO(-1.5, 3.9);
@@ -225,17 +225,21 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
       cam: mv(s, f, { pos: add(L3(FRED, CAREY, 0.5), 0.3, 1.35, -3.6), look: add(L3(FRED, CAREY, 0.5), 0, 1.2, 0), fov: 46, roll: 0.05 }, { pos: add(L3(FRED, CAREY, 0.5), -0.1, 1.35, -3.2), look: add(L3(FRED, CAREY, 0.5), 0, 1.2, 0), fov: 46, roll: -0.04 }),
       subjects: [["Dubois", head(FRED), 0.2], ["Joseph Carey", head(CAREY), 0.2]] }; },
   // Some say Dubois wrote down his own name himself: Dubois at the board with the pen, the red Dubois on the form
-  himself: (s, f) => { const p = Rm(-1.35, 0, 2.6), hand = add(DUB, 0.45, 0, -0.15);
+  himself: (s, f) => { const p = Rm(-1.15, 0, 2.6), hand = add(DUB, 0.45, 0, -0.15);
     return { light: "capitol", dof: 0.7, focus: L3(head(p), DUB, 0.5), key: WIN_K, page: "red", people: [P("dubois", p, "grin", -1, { hw: [hand] })],
-      cam: kick(mv(s, f, { pos: Rm(-0.7, 1.55, -0.6), look: Rm(-0.8, 1.6, 3.6), fov: 52, roll: 0.05 }, { pos: Rm(-0.7, 1.55, -0.1), look: Rm(-0.8, 1.6, 3.6), fov: 52, roll: -0.04 }), f, W(6, "himself"), 0.8),
+      cam: kick(mv(s, f, { pos: Rm(-0.6, 1.55, -0.8), look: Rm(-0.65, 1.6, 3.6), fov: 54, roll: 0.05 }, { pos: Rm(-0.6, 1.55, -0.3), look: Rm(-0.65, 1.6, 3.6), fov: 54, roll: -0.04 }), f, W(6, "himself"), 0.8),
       subjects: [["Dubois", head(p), 0.2], ["his name", DUB, 0.1]] }; },
   // And here's the twist. Dubois said his name the French way: close, prim, lips pursed
   twist: (s, f) => ({ light: "capitol", dof: 1, closeup: true, focus: head(FRED), key: WIN_K, people: [P("dubois", FRED, "whistle", 0, { headTilt: -0.12 })],
-    cam: kick(snap(add(FRED, -0.2, 1.3, 1.45), head(FRED, 1.25), f, s.a, { fov: 48, roll: 0.06 }, 1.25, 6), f, W(7, "french"), 0.6),
+    cam: kick(snap(add(FRED, -0.2, 1.3, 1.5), head(FRED, 1.22), f, s.a, { fov: 58, roll: 0.06 }, 1.25, 6), f, W(7, "french"), 0.6),
+    subjects: [["Fred Dubois", head(FRED), 0.2]] }),
+  // doo-BWAH: very close, prim, from the other side
+  bwah: (s, f) => ({ light: "capitol", dof: 1, closeup: true, focus: head(FRED), key: WIN_K, people: [P("dubois", FRED, "whistle", 0, { headTilt: 0.1 })],
+    cam: kick(snap(add(FRED, 0.45, 1.3, 1.4), head(FRED, 1.24), f, s.a, { fov: 52, roll: -0.07 }, 1.3, 5), f, W(7, "doobwah"), 0.7),
     subjects: [["Fred Dubois", head(FRED), 0.2]] }),
   // ...he reportedly hated it when people said "boys": his face drops
   boys: (s, f) => ({ light: "capitol", dof: 1, closeup: true, focus: head(FRED), key: WIN_K, people: [P("dubois", FRED, "stern", 0, { headTilt: 0.08 })],
-    cam: kick(mv(s, f, { pos: add(FRED, 0.25, 1.3, 1.45), look: head(FRED, 1.25), fov: 46, roll: -0.06 }, { pos: add(FRED, 0.2, 1.3, 1.3), look: head(FRED, 1.25), fov: 46, roll: 0.05 }), f, W(7, "boys"), 1.0),
+    cam: kick(mv(s, f, { pos: add(FRED, 0.25, 1.3, 1.5), look: head(FRED, 1.22), fov: 56, roll: -0.06 }, { pos: add(FRED, 0.2, 1.3, 1.4), look: head(FRED, 1.22), fov: 56, roll: 0.05 }), f, W(7, "boys"), 1.0),
     subjects: [["Fred Dubois", head(FRED), 0.2]] }),
   // So, the story goes, the town said "boys": the settlers in front of the post office, grinning
   town: (s, f) => { const a = PO(1.2, 3.8), b = PO(0.0, 3.5), c = PO(-1.2, 3.9), k = PO(0.6, 2.8);
@@ -289,10 +293,10 @@ export const SPECS: Record<string, (s: ShotDef, f: number) => St3> = {
     cam: kick(snap(add(SIGN_MAN, -1.9, 1.3, -1.3), head(SIGN_MAN, 1.25), f, s.a, { fov: 46, roll: 0.05 }, 1.5, 6), f, W(11, "his"), 0.8),
     subjects: [["the local", head(SIGN_MAN), 0.2]] }) as St3,
   // loop: back to the sign, settling onto the opening frame (the subscribe card plays here)
-  end: (s, f) => { const h0 = hookCam(0), hold = { pos: add(HOOK_POS, -0.5, 0.05, 0.3), look: HOOK_LOOK, fov: 56, roll: 0.02 };
+  end: (s, f) => { const h0 = hookCam(0), hold = { pos: add(SIGN_MAN, -2.6, 1.45, -1.6), look: add(SIGN_MAN, 0.15, 1.25, -0.4), fov: 56, roll: 0.02 };
     return { ...hookState(), light: "today", dof: 0.8, closeup: true, focus: head(SIGN_MAN),
-      cam: f < s.b - 16 ? move({ pos: add(HOOK_POS, -1.6, 0.4, 0.6), look: HOOK_LOOK, fov: 56, roll: 0.0 }, hold, f, s.a, s.a + 24, smooth, 0)
-        : move(hold, h0, f, s.b - 16, s.b - 5, smooth, 0) } as St3; },
+      cam: f < s.b - 9 ? move({ pos: add(SIGN_MAN, -2.95, 1.6, -1.95), look: add(SIGN_MAN, 0.15, 1.25, -0.4), fov: 56, roll: 0.0 }, hold, f, s.a, s.a + 24, smooth, 0)
+        : move(hold, h0, f, s.b - 9, s.b - 3, smooth, 0) } as St3; },
 };
 /** the house kit, for the long-form */
 export { clamp01, smooth, expo, L3, move, orb, orbit, snap, kick, t as secs, P, walker, horse, add, head, hookState, hookCam, PO, SIGN_MAN, SIGN_TOP, HOOK_POS, HOOK_LOOK, TBL, LAMP_K, WIN_K, BOARD, TIBO, DUB, CLERK, FRED, CAREY, ROB, SH1, SH2, SHK, Ms };
@@ -325,13 +329,13 @@ export const ITEMS = (): Item[] => ([
   { key: "notwy", kind: "stamp", text: "NOT WYOMING", f0: W(5, "not"), f1: B("map"), y: 24, rot: -4, bg: "#e0332e", fg: "#ffffff", size: 120 },
   { key: "nobody", kind: "stamp", text: "NOBODY AGREES", f0: W(6, "nobody"), f1: B("who"), y: 24, rot: 4, bg: "#2f2a3a", fg: "#ffffff", size: 110 },
   { key: "carey", kind: "pill", text: "JOSEPH CAREY", sub: "Wyoming's man in Congress", f0: W(6, "friend"), f1: B("friend"), y: 22, size: 84 },
-  { key: "bwah", kind: "call", text: "\"doo-BWAH\"", f0: W(7, "doobwah"), f1: B("twist"), y: 24, fg: "#ffd166", size: 130 },
+  { key: "bwah", kind: "call", text: "\"doo-BWAH\"", f0: W(7, "doobwah"), f1: B("bwah"), y: 24, fg: "#ffd166", size: 130 },
   { key: "boys", kind: "call", text: "\"BOYS\"?!", f0: W(7, "boys"), f1: B("boys"), y: 24, fg: "#ff6a5a", size: 150 },
   { key: "dooboys", kind: "stamp", text: "DOO-BOYS!", f0: W(8, "dooboys"), f1: B("shout"), y: 24, rot: -4, bg: "#e0a32e", fg: "#1e1a22", size: 150 },
   { key: "today", kind: "pill", text: "DUBOIS TODAY", sub: "130+ years later", f0: S0("today") + 2, f1: B("today"), y: 22, size: 84 },
   { key: "fr", kind: "call", text: "\"doo-BWAH?\"", f0: W(9, "doobwah"), f1: B("tourist"), y: 24, fg: "#ffd166", size: 130 },
   { key: "tour", kind: "stamp", text: "NOT FROM HERE", f0: W(9, "not"), f1: B("stare"), y: 24, rot: 4, bg: "#2f2a3a", fg: "#ffffff", size: 110 },
   { key: "butch", kind: "pill", text: "BUTCH CASSIDY", sub: "Horse Creek, 1889", f0: W(10, "butch"), f1: B("butch"), y: 22, size: 84 },
-  { key: "q", kind: "call", text: "WHOSE WAY?", f0: W(11, "his"), f1: B("his"), y: 24, fg: "#ffd166", size: 120 },
+  { key: "q", kind: "call", text: "WHOSE WAY?", f0: W(11, "his"), f1: B("his"), y: 52, fg: "#ffd166", size: 120 },
 ] as Item[]).filter((i) => i.f1 > i.f0);
 void STORE;
