@@ -469,6 +469,16 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
     p.poly(body, null, ow);
     const [bx, by] = R([[hx, yb + 1 * u]])[0];
     p.ell(bx, by, 0.64 * W, 0.06 * HH, shade(col, 0.82), ow, 0, 360, (a * 180) / Math.PI);
+  } else if (o.hat === "cowboy") {
+    // a Western hat (Dubois, 1889): a tall crown pinched into two lobes, a band, a wide brim curled up at both sides (colour = o.cap)
+    const hx = cx + 0.5 * H.asym * H.a, yb = crown + 0.2 * HH, ht = 0.5 * HH, wb = 0.415 * W, wt = 0.32 * W, col = o.cap ?? "#b08a5a";
+    const body = R([...sag(yb, wb).map(([x, y]) => [x + hx - cx, y] as P2).reverse(), [hx - wt, yb - ht + 0.04 * HH], [hx - 0.16 * W, yb - ht - 0.02 * HH], [hx, yb - ht + 0.08 * HH], [hx + 0.16 * W, yb - ht - 0.02 * HH], [hx + wt, yb - ht + 0.04 * HH]]);
+    p.shadedFill(body, col, mul(col, SH_FELT), light, wt, 0.4);
+    p.clip(body, () => p.band(R([[hx - wb - 4 * u, yb - 0.09 * HH], [hx + wb + 4 * u, yb - 0.09 * HH]]), o.band ?? "#3a2a1e", 0.11 * HH, 0.8 * u));
+    p.poly(body, null, ow);
+    const brim = R([[hx - 0.9 * W, yb - 0.2 * HH], [hx - 0.62 * W, yb + 0.02 * HH], [hx, yb + 0.08 * HH], [hx + 0.62 * W, yb + 0.02 * HH], [hx + 0.9 * W, yb - 0.2 * HH], [hx + 0.66 * W, yb - 0.06 * HH], [hx, yb - 0.02 * HH], [hx - 0.66 * W, yb - 0.06 * HH]]);
+    p.shadedFill(brim, shade(col, 0.88), mul(shade(col, 0.88), SH_FELT), light, 0.9 * W, 0.4);
+    p.poly(brim, null, ow);
   } else if (o.hat === "visor") {
     // officer's peaked cap (Schirmmuetze): a flat crown wider than the head, a coloured band, a cockade, a black peak (colour = o.cap)
     const hx = cx + 0.5 * H.asym * H.a, yb = crown + 0.3 * HH, ht = 0.34 * HH, wb = 0.43 * W, wt = 0.56 * W, col = o.cap ?? "#26304a", bandH = 0.11 * HH;

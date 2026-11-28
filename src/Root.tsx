@@ -34,6 +34,8 @@ import { Centralia, CENTRALIA_FRAMES } from "./videos/centralia/Centralia";
 import { Toledo, TOLEDO_FRAMES } from "./videos/toledo/Toledo";
 import { Dexter, DEXTER_FRAMES } from "./videos/dexter/Dexter";
 import { DexterLong, DexterThumb, DEXTERLONG_FRAMES } from "./videos/dexterlong/DexterLong";
+import { Dubois, DUBOIS_FRAMES } from "./videos/dubois/Dubois";
+import { DuboisLong, DuboisThumb, DUBOISLONG_FRAMES } from "./videos/duboislong/DuboisLong";
 import { Bucket, BUCKET_FRAMES } from "./videos/bucket/Bucket";
 import { BucketLong, BucketThumb, BUCKETLONG_FRAMES } from "./videos/bucketlong/BucketLong";
 import { HayesLong, HayesThumb, HAYESLONG_FRAMES } from "./videos/hayeslong/HayesLong";
@@ -87,6 +89,9 @@ const ToledoPadded = padded(Toledo);
 const DexterPadded = padded(Dexter);
 const DexterLongPadded = padded(DexterLong);
 const DexterThumbPadded = padded(DexterThumb);
+const DuboisPadded = padded(Dubois);
+const DuboisLongPadded = padded(DuboisLong);
+const DuboisThumbPadded = padded(DuboisThumb);
 const BucketPadded = padded(Bucket);
 const BucketLongPadded = padded(BucketLong);
 const BucketThumbPadded = padded(BucketThumb);
@@ -174,6 +179,12 @@ export const Root: React.FC = () => (<>
   <Composition id="DexterLongPadded" component={DexterLongPadded} durationInFrames={DEXTERLONG_FRAMES + PAD} fps={30} width={1920} height={1080} />
   <Composition id="DexterThumb" component={DexterThumb} durationInFrames={10} fps={30} width={1920} height={1080} />
   <Composition id="DexterThumbPadded" component={DexterThumbPadded} durationInFrames={10 + PAD} fps={30} width={1920} height={1080} />
+  <Composition id="Dubois" component={Dubois} durationInFrames={DUBOIS_FRAMES} fps={30} width={1080} height={1920} />
+  <Composition id="DuboisPadded" component={DuboisPadded} durationInFrames={DUBOIS_FRAMES + PAD} fps={30} width={1080} height={1920} />
+  <Composition id="DuboisLong" component={DuboisLong} durationInFrames={DUBOISLONG_FRAMES} fps={30} width={1920} height={1080} />
+  <Composition id="DuboisLongPadded" component={DuboisLongPadded} durationInFrames={DUBOISLONG_FRAMES + PAD} fps={30} width={1920} height={1080} />
+  <Composition id="DuboisThumb" component={DuboisThumb} durationInFrames={10} fps={30} width={1920} height={1080} />
+  <Composition id="DuboisThumbPadded" component={DuboisThumbPadded} durationInFrames={10 + PAD} fps={30} width={1920} height={1080} />
   <Composition id="Bucket" component={Bucket} durationInFrames={BUCKET_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="BucketPadded" component={BucketPadded} durationInFrames={BUCKET_FRAMES + PAD} fps={30} width={1080} height={1920} />
   <Composition id="BucketLong" component={BucketLong} durationInFrames={BUCKETLONG_FRAMES} fps={30} width={1920} height={1080} />
